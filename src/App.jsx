@@ -23,10 +23,16 @@ import ProductForm from './pages/admin/ProductForm';
 import RefundRequests from './pages/admin/RefundRequests';
 import Register from './pages/Register';
 
-const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, isAuthenticated } = useAuth();
+// Rota que só deixa entrar se estiver logado
+const PrivateRoute = ({ children }) => {
+  const { isAuthenticated, isLoadingAuth } = useAuth();
+  if (isLoadingAuth) return null;
+  return isAuthenticated ? children : <Navigate to="/register" replace />;
+};
 
-  // Spinner enquanto carrega
+const AuthenticatedApp = () => {
+  const { isLoadingAuth, isLoadingPublicSettings } = useAuth();
+
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -37,32 +43,35 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      {/* Rota pública - Register/Login */}
+      {/* Rota pública - Login/Cadastro */}
       <Route path="/register" element={<Register />} />
 
-      {/* Rotas protegidas */}
-      <Route element={
-        isAuthenticated ? <AppLayout /> : <Navigate to="/register" replace />
-      }>
+      {/* Rotas públicas - qualquer um pode ver */}
+      <Route element={<AppLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/store" element={<Store />} />
         <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
+
+        {/* Rotas privadas - só logados */}
+        <Route path="/cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
+        <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
+
         <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<DashboardHome />} />
-          <Route path="/dashboard/orders" element={<MyOrders />} />
-          <Route path="/dashboard/settings" element={<AccountSettings />} />
-          <Route path="/dashboard/favorites" element={<Favorites />} />
+          <Route path="/dashboard" element={<PrivateRoute><DashboardHome /></PrivateRoute>} />
+          <Route path="/dashboard/orders" element={<PrivateRoute><MyOrders /></PrivateRoute>} />
+          <Route path="/dashboard/settings" element={<PrivateRoute><AccountSettings /></PrivateRoute>} />
+          <Route path="/dashboard/favorites" element={<PrivateRoute><Favorites /></PrivateRoute>} />
         </Route>
+
         <Route element={<AdminPanel />}>
-          <Route path="/admin" element={<PendingOrders />} />
-          <Route path="/admin/orders" element={<AllOrders />} />
-          <Route path="/admin/products" element={<ManageProducts />} />
-          <Route path="/admin/products/new" element={<ProductForm />} />
-          <Route path="/admin/products/edit/:id" element={<ProductForm />} />
-          <Route path="/admin/refunds" element={<RefundRequests />} />
+          <Route path="/admin" element={<PrivateRoute><PendingOrders /></PrivateRoute>} />
+          <Route path="/admin/orders" element={<PrivateRoute><AllOrders /></PrivateRoute>} />
+          <Route path="/admin/products" element={<PrivateRoute><ManageProducts /></PrivateRoute>} />
+          <Route path="/admin/products/new" element={<PrivateRoute><ProductForm /></PrivateRoute>} />
+          <Route path="/admin/products/edit/:id" element={<PrivateRoute><ProductForm /></PrivateRoute>} />
+          <Route path="/admin/refunds" element={<PrivateRoute><RefundRequests /></PrivateRoute>} />
         </Route>
+
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
