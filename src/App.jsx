@@ -23,7 +23,7 @@ import ProductForm from './pages/admin/ProductForm';
 import RefundRequests from './pages/admin/RefundRequests';
 import Register from './pages/Register';
 
-// Rota que só deixa entrar se estiver logado
+// Rota privada - redireciona para /register se não logado
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, isLoadingAuth } = useAuth();
   if (isLoadingAuth) return null;
@@ -46,13 +46,13 @@ const AuthenticatedApp = () => {
       {/* Rota pública - Login/Cadastro */}
       <Route path="/register" element={<Register />} />
 
-      {/* Rotas públicas - qualquer um pode ver */}
       <Route element={<AppLayout />}>
+        {/* Única página pública */}
         <Route path="/" element={<Home />} />
-        <Route path="/store" element={<Store />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
 
-        {/* Rotas privadas - só logados */}
+        {/* Tudo o resto é privado */}
+        <Route path="/store" element={<PrivateRoute><Store /></PrivateRoute>} />
+        <Route path="/product/:id" element={<PrivateRoute><ProductDetail /></PrivateRoute>} />
         <Route path="/cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
         <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
 
