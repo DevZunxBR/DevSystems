@@ -10,7 +10,7 @@ export default function Register() {
   const [step, setStep] = useState('form'); // 'form' | 'otp'
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirm: '' });
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [otp, setOtp] = useState(['', '', '', '', '', '', '', '']);
   const inputRefs = useRef([]);
 
   const handleChange = (e) => {
@@ -22,7 +22,7 @@ export default function Register() {
     const newOtp = [...otp];
     newOtp[index] = value.slice(-1);
     setOtp(newOtp);
-    if (value && index < 5) {
+    if (value && index < 7) {
       inputRefs.current[index + 1]?.focus();
     }
   };
@@ -35,10 +35,10 @@ export default function Register() {
 
   const handleOtpPaste = (e) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    if (pasted.length === 6) {
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 8);
+    if (pasted.length === 8) {
       setOtp(pasted.split(''));
-      inputRefs.current[5]?.focus();
+      inputRefs.current[7]?.focus();
     }
   };
 
@@ -102,8 +102,8 @@ export default function Register() {
 
   const handleVerifyOtp = async () => {
     const code = otp.join('');
-    if (code.length !== 6) {
-      toast.error('Digite o código completo de 6 dígitos');
+    if (code.length !== 8) {
+      toast.error('Digite o código completo de 8 dígitos');
       return;
     }
     setLoading(true);
@@ -118,7 +118,7 @@ export default function Register() {
       navigate('/');
     } catch (err) {
       toast.error('Código inválido ou expirado');
-      setOtp(['', '', '', '', '', '']);
+      setOtp(['', '', '', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } finally {
       setLoading(false);
@@ -134,7 +134,7 @@ export default function Register() {
       });
       if (error) throw error;
       toast.success('Novo código enviado!');
-      setOtp(['', '', '', '', '', '']);
+      setOtp(['', '', '', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } catch {
       toast.error('Erro ao reenviar código');
@@ -159,7 +159,7 @@ export default function Register() {
             <>
               <h1 className="text-3xl font-black text-foreground tracking-tight">Verifique seu email</h1>
               <p className="text-sm text-muted-foreground mt-2">
-                Enviamos um código de 6 dígitos para <span className="text-white font-medium">{formData.email}</span>
+                Enviamos um código de 8 dígitos para <span className="text-white font-medium">{formData.email}</span>
               </p>
             </>
           ) : (
@@ -177,7 +177,7 @@ export default function Register() {
         {/* OTP Step */}
         {step === 'otp' ? (
           <div className="space-y-6">
-            <div className="flex gap-3 justify-center">
+            <div className="flex gap-2 justify-center">
               {otp.map((digit, index) => (
                 <input
                   key={index}
@@ -189,14 +189,14 @@ export default function Register() {
                   onChange={e => handleOtpChange(index, e.target.value)}
                   onKeyDown={e => handleOtpKeyDown(index, e)}
                   onPaste={index === 0 ? handleOtpPaste : undefined}
-                  className="w-12 h-14 text-center text-xl font-bold bg-secondary border border-border rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all"
+                  className="w-10 h-12 text-center text-lg font-bold bg-secondary border border-border rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all"
                 />
               ))}
             </div>
 
             <Button
               onClick={handleVerifyOtp}
-              disabled={loading || otp.join('').length !== 6}
+              disabled={loading || otp.join('').length !== 8}
               className="w-full bg-white text-black hover:bg-white/90 font-bold h-11"
             >
               {loading ? 'Verificando...' : 'Verificar Código'}
@@ -214,7 +214,7 @@ export default function Register() {
             </div>
 
             <button
-              onClick={() => { setStep('form'); setOtp(['', '', '', '', '', '']); }}
+              onClick={() => { setStep('form'); setOtp(['', '', '', '', '', '', '', '']); }}
               className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               ← Voltar
