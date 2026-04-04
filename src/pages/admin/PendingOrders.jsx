@@ -16,7 +16,7 @@ export default function PendingOrders() {
   const loadOrders = async () => {
     setLoading(true);
     try {
-      const pending = await base44.entities.Order.filter({ status: 'pending' }, '-created_date');
+      const pending = await base44.entities.Order.filter({ status: 'pending' }, '-created_at');
       setOrders(pending);
     } catch (e) {
       console.error(e);
@@ -33,11 +33,12 @@ export default function PendingOrders() {
         download_expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       });
 
+      // Cashback 5%
       const cashbackAmount = order.total_amount * 0.05;
       const wallets = await base44.entities.Wallet.filter({ user_email: order.customer_email });
       if (wallets.length > 0) {
         const w = wallets[0];
-        const tx = { type: 'cashback', amount: cashbackAmount, description: `Cashback 5% do pedido`, date: new Date().toISOString() };
+        const tx = { type: 'cashback', amount: cashbackAmount, description: 'Cashback 5% do pedido', date: new Date().toISOString() };
         await base44.entities.Wallet.update(w.id, {
           balance_usd: (w.balance_usd || 0) + cashbackAmount,
           transactions: [...(w.transactions || []), tx],
@@ -50,14 +51,8 @@ export default function PendingOrders() {
         });
       }
 
-      // Send email notification
-      const productNames = order.items?.map(i => i.product_title).join(', ') || 'Your products';
-      await base44.integrations.Core.SendEmail({
-        to: order.customer_email,
-        subject: 'Seu pedido foi aprovado! Faça o download dos seus arquivos',
-        body: `<div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 40px; border-radius: 12px;"><h1 style="font-size: 24px; font-weight: 800;">Pedido Aprovado ✓</h1><p style="color: #999;">Seu pagamento foi confirmado. Acesse o painel para baixar seus arquivos.</p><div style="background: #0A0A0A; border: 1px solid #1A1A1A; border-radius: 8px; padding: 20px; margin: 24px 0;"><p style="font-weight: 600;">Produtos: ${productNames}</p><p style="color: #999; font-size: 14px;">Total: $${order.total_amount?.toFixed(2)}</p></div></div>`,
-      });
-
+      // Notificação de pagamento aprovado
+      const productNames = order.items?.map(i => i.product_title).join(', ') || 'Seus produtos';
       await base44.entities.Notification.create({
         user_email: order.customer_email,
         title: 'Pagamento Aprovado!',
@@ -67,7 +62,7 @@ export default function PendingOrders() {
         link: '/dashboard/orders',
       });
 
-      // Ask for review for each purchased product
+      // Notificação de avaliação para cada produto
       for (const item of (order.items || [])) {
         await base44.entities.Notification.create({
           user_email: order.customer_email,
@@ -79,10 +74,11 @@ export default function PendingOrders() {
         });
       }
 
-      toast.success(`Pedido aprovado e e-mail enviado para ${order.customer_email}`);
-      setOrders(orders.filter(o => o.id !== order.id));
+      toast.success(`Pedido aprovado! Notificação enviada para ${order.customer_email}`);
+      setOrders(prev => prev.filter(o => o.id !== order.id));
     } catch (e) {
-      toast.error('Failed to approve order');
+      console.error(e);
+      toast.error('Falha ao aprovar pedido');
     } finally {
       setApprovingId(null);
     }
@@ -122,14 +118,14 @@ export default function PendingOrders() {
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-lg font-bold text-foreground">${order.total_amount?.toFixed(2)}</span>
+                  <span className="text-lg font-bold text-foreground">R${order.total_amount?.toFixed(2)}</span>
                   <Button
                     onClick={() => approveOrder(order)}
                     disabled={approvingId === order.id}
                     className="bg-white text-black hover:bg-white/90 font-semibold gap-2 text-sm"
                   >
                     <CheckCircle className="h-4 w-4" />
-                    {approvingId === order.id ? 'Approving...' : 'Approve Payment'}
+                    {approvingId === order.id ? 'Aprovando...' : 'Aprovar Pagamento'}
                   </Button>
                 </div>
               </div>
@@ -142,7 +138,7 @@ export default function PendingOrders() {
                     </div>
                     <span className="text-foreground">{item.product_title}</span>
                     <span className="text-muted-foreground">— {item.license_name}</span>
-                    <span className="text-foreground ml-auto">${item.price?.toFixed(2)}</span>
+                    <span className="text-foreground ml-auto">R${item.price?.toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -150,7 +146,7 @@ export default function PendingOrders() {
               <div className="px-4 pb-4 text-xs text-muted-foreground">
                 PIX Code: <span className="font-mono">{order.pix_code?.slice(0, 40)}...</span>
                 <br />
-                Placed: {new Date(order.created_date).toLocaleString()}
+                Criado em: {new Date(order.created_at).toLocaleString('pt-BR')}
               </div>
             </div>
           ))}

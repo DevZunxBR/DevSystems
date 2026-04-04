@@ -10,7 +10,7 @@ export default function NotificationBell({ userEmail }) {
   useEffect(() => {
     if (!userEmail) return;
     loadNotifications();
-    const interval = setInterval(loadNotifications, 30000);
+    const interval = setInterval(loadNotifications, 15000);
     return () => clearInterval(interval);
   }, [userEmail]);
 
@@ -22,20 +22,20 @@ export default function NotificationBell({ userEmail }) {
 
   const loadNotifications = async () => {
     try {
-      const items = await base44.entities.Notification.filter({ user_email: userEmail }, '-created_date', 20);
+      const items = await base44.entities.Notification.filter({ user_email: userEmail }, '-created_at', 20);
       setNotifications(items);
     } catch {}
   };
 
   const markRead = async (id) => {
     await base44.entities.Notification.update(id, { read: true });
-    setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
   };
 
   const markAllRead = async () => {
     const unread = notifications.filter(n => !n.read);
     await Promise.all(unread.map(n => base44.entities.Notification.update(n.id, { read: true })));
-    setNotifications(notifications.map(n => ({ ...n, read: true })));
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -80,7 +80,7 @@ export default function NotificationBell({ userEmail }) {
                       <div className="text-xs font-semibold text-foreground">{n.title}</div>
                       <div className="text-xs text-muted-foreground mt-0.5">{n.message}</div>
                       <div className="text-[10px] text-muted-foreground/60 mt-1">
-                        {new Date(n.created_date).toLocaleString()}
+                        {new Date(n.created_at).toLocaleString('pt-BR')}
                       </div>
                     </div>
                   </div>

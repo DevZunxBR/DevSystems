@@ -12,7 +12,7 @@ export default function AllOrders() {
 
   const loadOrders = async () => {
     try {
-      const all = await base44.entities.Order.list('-created_date', 50);
+      const all = await base44.entities.Order.filter({}, '-created_at', 50);
       setOrders(all);
     } catch (e) {
       console.error(e);
@@ -22,9 +22,9 @@ export default function AllOrders() {
   };
 
   const statusConfig = {
-    pending: { icon: Clock, label: 'Pending', className: 'text-muted-foreground' },
-    completed: { icon: CheckCircle, label: 'Completed', className: 'text-foreground' },
-    cancelled: { icon: XCircle, label: 'Cancelled', className: 'text-destructive' },
+    pending: { icon: Clock, label: 'Pendente', className: 'text-yellow-500' },
+    completed: { icon: CheckCircle, label: 'Aprovado', className: 'text-green-500' },
+    cancelled: { icon: XCircle, label: 'Cancelado', className: 'text-red-500' },
   };
 
   if (loading) {
@@ -39,7 +39,7 @@ export default function AllOrders() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground tracking-tight">All Orders</h1>
-        <p className="text-sm text-muted-foreground mt-1">{orders.length} total orders</p>
+        <p className="text-sm text-muted-foreground mt-1">{orders.length} pedidos no total</p>
       </div>
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">
@@ -47,11 +47,11 @@ export default function AllOrders() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-secondary/30">
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Customer</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Products</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Amount</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Cliente</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Produtos</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Valor</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Date</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Data</th>
               </tr>
             </thead>
             <tbody>
@@ -67,14 +67,14 @@ export default function AllOrders() {
                     <td className="px-4 py-3 text-foreground">
                       {order.items?.map(i => i.product_title).join(', ') || '—'}
                     </td>
-                    <td className="px-4 py-3 font-bold text-foreground">${order.total_amount?.toFixed(2)}</td>
+                    <td className="px-4 py-3 font-bold text-foreground">R${order.total_amount?.toFixed(2)}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 ${status.className}`}>
                         <StatusIcon className="h-3 w-3" /> {status.label}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground text-xs">
-                      {new Date(order.created_date).toLocaleDateString()}
+                      {new Date(order.created_at).toLocaleDateString('pt-BR')}
                     </td>
                   </tr>
                 );
