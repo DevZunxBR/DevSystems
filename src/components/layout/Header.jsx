@@ -127,9 +127,9 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button onClick={() => base44.auth.redirectToLogin()} variant="outline" size="sm" className="border-[#1A1A1A] text-white hover:bg-[#0A0A0A] text-xs h-8">
-              Login
-            </Button>
+<Button onClick={() => navigate('/register')} variant="outline" size="sm" className="border-[#1A1A1A] text-white hover:bg-[#0A0A0A] text-xs h-8">
+  Login
+</Button>
           )}
 
           <Button variant="ghost" size="icon" className="md:hidden h-8 w-8 text-[#666] hover:text-white" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
