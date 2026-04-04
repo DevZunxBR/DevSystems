@@ -54,8 +54,8 @@ export default function Register() {
         password: formData.password,
       });
       if (error) throw error;
-      toast.success('Bem-vindo!');
-      navigate('/');
+      toast.success('Conta verificada! Bem-vindo!');
+      window.location.href = '/';
     } catch (err) {
       toast.error('Email ou senha incorretos');
     } finally {
