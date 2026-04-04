@@ -33,36 +33,67 @@ export default function PendingOrders() {
         download_expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       });
 
-      // Cashback 5%
-      const cashbackAmount = order.total_amount * 0.05;
+      // Busca carteira do cliente
       const wallets = await base44.entities.Wallet.filter({ user_email: order.customer_email });
-      if (wallets.length > 0) {
-        const w = wallets[0];
-        const tx = { type: 'cashback', amount: cashbackAmount, description: 'Cashback 5% do pedido', date: new Date().toISOString() };
-        await base44.entities.Wallet.update(w.id, {
-          balance_usd: (w.balance_usd || 0) + cashbackAmount,
-          transactions: [...(w.transactions || []), tx],
+      const wallet = wallets[0] || null;
+
+      // Valor de saldo usado no checkout
+      const walletUsed = order.wallet_used || 0;
+      // Cashback 5% sobre o total pago
+      const cashback = order.total_amount * 0.05;
+
+      if (wallet) {
+        const transactions = [...(wallet.transactions || [])];
+
+        // Debita o saldo usado
+        if (walletUsed > 0) {
+          transactions.push({
+            type: 'purchase',
+            amount: -walletUsed,
+            description: `Saldo usado: ${order.items?.map(i => i.product_title).join(', ')}`,
+            date: new Date().toISOString(),
+          });
+        }
+
+        // Adiciona cashback
+        transactions.push({
+          type: 'cashback',
+          amount: cashback,
+          description: 'Cashback 5% do pedido',
+          date: new Date().toISOString(),
+        });
+
+        const newBalance = Math.max(0, (wallet.balance_usd || 0) - walletUsed + cashback);
+        await base44.entities.Wallet.update(wallet.id, {
+          balance_usd: newBalance,
+          transactions,
         });
       } else {
+        // Cria carteira com cashback
         await base44.entities.Wallet.create({
           user_email: order.customer_email,
-          balance_usd: cashbackAmount,
-          transactions: [{ type: 'cashback', amount: cashbackAmount, description: 'Cashback 5% do pedido', date: new Date().toISOString() }],
+          balance_usd: cashback,
+          transactions: [{
+            type: 'cashback',
+            amount: cashback,
+            description: 'Cashback 5% do pedido',
+            date: new Date().toISOString(),
+          }],
         });
       }
 
-      // Notificação de pagamento aprovado
+      // Notificação de aprovação
       const productNames = order.items?.map(i => i.product_title).join(', ') || 'Seus produtos';
       await base44.entities.Notification.create({
         user_email: order.customer_email,
-        title: 'Pagamento Aprovado!',
-        message: `Seu pedido de ${productNames} foi aprovado. Clique para baixar.`,
+        title: 'Pagamento Aprovado! ✓',
+        message: `Seu pedido de ${productNames} foi aprovado. Você recebeu R$${cashback.toFixed(2)} de cashback!`,
         type: 'payment',
         read: false,
         link: '/dashboard/orders',
       });
 
-      // Notificação de avaliação para cada produto
+      // Notificação de avaliação
       for (const item of (order.items || [])) {
         await base44.entities.Notification.create({
           user_email: order.customer_email,
@@ -74,7 +105,7 @@ export default function PendingOrders() {
         });
       }
 
-      toast.success(`Pedido aprovado! Notificação enviada para ${order.customer_email}`);
+      toast.success(`Pedido aprovado! Saldo debitado e cashback de R$${cashback.toFixed(2)} adicionado.`);
       setOrders(prev => prev.filter(o => o.id !== order.id));
     } catch (e) {
       console.error(e);
@@ -95,14 +126,14 @@ export default function PendingOrders() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">Pending Orders</h1>
-        <p className="text-sm text-muted-foreground mt-1">Approve payments to release downloads</p>
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">Pedidos Pendentes</h1>
+        <p className="text-sm text-muted-foreground mt-1">Aprove os pagamentos para liberar os downloads</p>
       </div>
 
       {orders.length === 0 ? (
         <div className="text-center py-20 bg-card border border-border rounded-xl">
           <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-          <p className="text-muted-foreground text-sm">No pending orders</p>
+          <p className="text-muted-foreground text-sm">Nenhum pedido pendente</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -118,14 +149,19 @@ export default function PendingOrders() {
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-lg font-bold text-foreground">R${order.total_amount?.toFixed(2)}</span>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-foreground">R${order.total_amount?.toFixed(2)}</div>
+                    {order.wallet_used > 0 && (
+                      <div className="text-xs text-muted-foreground">Saldo usado: R${order.wallet_used?.toFixed(2)}</div>
+                    )}
+                  </div>
                   <Button
                     onClick={() => approveOrder(order)}
                     disabled={approvingId === order.id}
                     className="bg-white text-black hover:bg-white/90 font-semibold gap-2 text-sm"
                   >
                     <CheckCircle className="h-4 w-4" />
-                    {approvingId === order.id ? 'Aprovando...' : 'Aprovar Pagamento'}
+                    {approvingId === order.id ? 'Aprovando...' : 'Aprovar'}
                   </Button>
                 </div>
               </div>
@@ -144,7 +180,7 @@ export default function PendingOrders() {
               </div>
 
               <div className="px-4 pb-4 text-xs text-muted-foreground">
-                PIX Code: <span className="font-mono">{order.pix_code?.slice(0, 40)}...</span>
+                PIX: <span className="font-mono">{order.pix_code?.slice(0, 40)}...</span>
                 <br />
                 Criado em: {new Date(order.created_at).toLocaleString('pt-BR')}
               </div>

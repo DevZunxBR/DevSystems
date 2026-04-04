@@ -3,21 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Tag, X } from 'lucide-react';
+import { Tag, X, Wallet } from 'lucide-react';
 import PixModal from '@/components/checkout/PixModal';
-import { useCurrency } from '@/hooks/useCurrency';
 
 export default function Checkout() {
   const [items, setItems] = useState([]);
+  const [wallet, setWallet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showPix, setShowPix] = useState(false);
   const [pixCode, setPixCode] = useState('');
+  const [currentOrder, setCurrentOrder] = useState(null);
   const [billing, setBilling] = useState({ name: '', email: '', document: '' });
   const [couponInput, setCouponInput] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
-  const [currency] = useCurrency();
+  const [useWallet, setUseWallet] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,9 +29,13 @@ export default function Checkout() {
     setLoading(true);
     try {
       const me = await base44.auth.me();
-      const cartItems = await base44.entities.CartItem.filter({ user_email: me.email });
+      const [cartItems, wallets] = await Promise.all([
+        base44.entities.CartItem.filter({ user_email: me.email }),
+        base44.entities.Wallet.filter({ user_email: me.email }),
+      ]);
       if (cartItems.length === 0) { navigate('/cart'); return; }
       setItems(cartItems);
+      setWallet(wallets[0] || null);
       setBilling(prev => ({ ...prev, name: me.full_name || '', email: me.email || '' }));
     } catch {
       navigate('/cart');
@@ -39,27 +44,31 @@ export default function Checkout() {
     }
   };
 
-  const subtotal = items.reduce((sum, item) => sum + (currency === 'BRL' ? (item.price_brl || 0) : (item.price_usd || 0)), 0);
-  const symbol = currency === 'BRL' ? 'R$' : '$';
+  const subtotal = items.reduce((sum, item) => sum + (item.price_brl || 0), 0);
+  const symbol = 'R$';
+  const walletBalance = wallet?.balance_usd || 0;
 
-  let discount = 0;
+  let couponDiscount = 0;
   if (appliedCoupon) {
-    if (appliedCoupon.discount_percent) discount = subtotal * (appliedCoupon.discount_percent / 100);
-    else if (appliedCoupon.discount_fixed_usd) discount = currency === 'BRL' ? appliedCoupon.discount_fixed_usd * 5 : appliedCoupon.discount_fixed_usd;
+    if (appliedCoupon.discount_percent) couponDiscount = subtotal * (appliedCoupon.discount_percent / 100);
+    else if (appliedCoupon.discount_fixed_usd) couponDiscount = appliedCoupon.discount_fixed_usd;
   }
-  const total = Math.max(0, subtotal - discount);
+
+  const afterCoupon = Math.max(0, subtotal - couponDiscount);
+  const walletDiscount = useWallet ? Math.min(walletBalance, afterCoupon) : 0;
+  const total = Math.max(0, afterCoupon - walletDiscount);
 
   const applyCoupon = async () => {
     if (!couponInput.trim()) return;
     setCouponLoading(true);
     try {
       const coupons = await base44.entities.Coupon.filter({ code: couponInput.trim().toUpperCase(), active: true });
-      if (coupons.length === 0) { toast.error('Cupom inválido ou expirado'); setCouponLoading(false); return; }
+      if (coupons.length === 0) { toast.error('Cupom inválido ou expirado'); return; }
       const c = coupons[0];
-      if (c.expires_at && new Date(c.expires_at) < new Date()) { toast.error('Cupom expirado'); setCouponLoading(false); return; }
-      if (c.max_uses && c.uses_count >= c.max_uses) { toast.error('Cupom esgotado'); setCouponLoading(false); return; }
+      if (c.expires_at && new Date(c.expires_at) < new Date()) { toast.error('Cupom expirado'); return; }
+      if (c.max_uses && c.uses_count >= c.max_uses) { toast.error('Cupom esgotado'); return; }
       setAppliedCoupon(c);
-      toast.success(`Cupom aplicado! ${c.discount_percent ? c.discount_percent + '% de desconto' : symbol + (c.discount_fixed_usd || 0).toFixed(2) + ' de desconto'}`);
+      toast.success(`Cupom aplicado! ${c.discount_percent ? c.discount_percent + '% de desconto' : symbol + Number(c.discount_fixed_usd || 0).toFixed(2) + ' de desconto'}`);
     } catch {
       toast.error('Falha ao verificar cupom');
     } finally {
@@ -79,17 +88,17 @@ export default function Checkout() {
         product_id: item.product_id,
         product_title: item.product_title,
         license_name: item.license_name,
-        price: currency === 'BRL' ? (item.price_brl || 0) : (item.price_usd || 0),
+        price: item.price_brl || 0,
         thumbnail: item.thumbnail,
         file_url: item.file_url,
       }));
 
-      await base44.entities.Order.create({
+      const order = await base44.entities.Order.create({
         customer_email: me.email,
         customer_name: billing.name,
         status: 'pending',
         payment_method: 'pix',
-        currency,
+        currency: 'BRL',
         total_amount: total,
         items: orderItems,
         billing_name: billing.name,
@@ -97,16 +106,19 @@ export default function Checkout() {
         billing_document: billing.document,
         pix_code: pixGenerated,
         download_token: `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`,
+        // Salva quanto saldo foi usado para debitar quando admin aprovar
+        wallet_used: walletDiscount,
+        coupon_discount: couponDiscount,
+        subtotal_amount: subtotal,
       });
 
-      // Update coupon uses
       if (appliedCoupon) {
         await base44.entities.Coupon.update(appliedCoupon.id, { uses_count: (appliedCoupon.uses_count || 0) + 1 });
       }
 
-      // Clear cart
       for (const item of items) await base44.entities.CartItem.delete(item.id);
 
+      setCurrentOrder(order);
       setPixCode(pixGenerated);
       setShowPix(true);
     } catch {
@@ -151,6 +163,25 @@ export default function Checkout() {
               </div>
             </div>
 
+            {/* Wallet */}
+            {walletBalance > 0 && (
+              <div className="p-3 bg-secondary border border-border rounded-lg space-y-2">
+                <div className="flex items-center gap-2 text-sm text-foreground">
+                  <Wallet className="h-4 w-4 text-muted-foreground" />
+                  <span>Saldo disponível: <strong>{symbol}{walletBalance.toFixed(2)}</strong></span>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={useWallet} onChange={e => setUseWallet(e.target.checked)} className="rounded border-border" />
+                  <span className="text-xs text-muted-foreground">Usar saldo como desconto</span>
+                </label>
+                {useWallet && walletDiscount > 0 && (
+                  <p className="text-xs text-green-500">
+                    ✓ {symbol}{walletDiscount.toFixed(2)} de saldo serão descontados ao confirmar o pagamento
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Coupon */}
             <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground block">Cupom de Desconto</label>
@@ -158,20 +189,16 @@ export default function Checkout() {
                 <div className="flex items-center gap-2 px-3 py-2 bg-secondary border border-border rounded-lg">
                   <Tag className="h-4 w-4 text-foreground" />
                   <span className="text-sm text-foreground flex-1">{appliedCoupon.code}</span>
-                  <button onClick={() => setAppliedCoupon(null)} className="text-muted-foreground hover:text-destructive">
+                  <button type="button" onClick={() => setAppliedCoupon(null)} className="text-muted-foreground hover:text-destructive">
                     <X className="h-4 w-4" />
                   </button>
                 </div>
               ) : (
                 <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="PRIMEIRACOMPRA"
-                    value={couponInput}
+                  <input type="text" placeholder="DESCONTO10" value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
-                    className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring font-mono"
-                  />
+                    className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring font-mono" />
                   <Button type="button" onClick={applyCoupon} disabled={couponLoading} variant="outline" className="border-border text-foreground text-xs">
                     {couponLoading ? '...' : 'Aplicar'}
                   </Button>
@@ -179,7 +206,7 @@ export default function Checkout() {
               )}
             </div>
 
-            {/* Payment */}
+            {/* Payment method */}
             <div className="space-y-2">
               <h3 className="text-sm font-semibold text-foreground">Método de Pagamento</h3>
               <div className="flex items-center gap-3 p-3 bg-secondary rounded-lg border border-border">
@@ -213,9 +240,7 @@ export default function Checkout() {
                     <div className="text-sm font-medium text-foreground truncate">{item.product_title}</div>
                     <div className="text-xs text-muted-foreground">{item.license_name}</div>
                   </div>
-                  <div className="text-sm font-bold text-foreground">
-                    {symbol}{(currency === 'BRL' ? (item.price_brl || 0) : (item.price_usd || 0)).toFixed(2)}
-                  </div>
+                  <div className="text-sm font-bold text-foreground">{symbol}{(item.price_brl || 0).toFixed(2)}</div>
                 </div>
               ))}
             </div>
@@ -224,10 +249,16 @@ export default function Checkout() {
                 <span>Subtotal</span>
                 <span>{symbol}{subtotal.toFixed(2)}</span>
               </div>
-              {appliedCoupon && (
-                <div className="flex justify-between text-foreground">
-                  <span>Desconto ({appliedCoupon.code})</span>
-                  <span>- {symbol}{discount.toFixed(2)}</span>
+              {appliedCoupon && couponDiscount > 0 && (
+                <div className="flex justify-between text-green-500">
+                  <span>Cupom ({appliedCoupon.code})</span>
+                  <span>- {symbol}{couponDiscount.toFixed(2)}</span>
+                </div>
+              )}
+              {useWallet && walletDiscount > 0 && (
+                <div className="flex justify-between text-green-500">
+                  <span>Saldo da carteira</span>
+                  <span>- {symbol}{walletDiscount.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between font-bold text-lg text-foreground pt-1 border-t border-border">
@@ -244,7 +275,7 @@ export default function Checkout() {
         onClose={() => { setShowPix(false); navigate('/dashboard/orders'); }}
         pixCode={pixCode}
         total={total}
-        currency={currency}
+        currency="BRL"
       />
     </div>
   );
