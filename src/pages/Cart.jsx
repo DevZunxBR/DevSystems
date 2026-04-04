@@ -33,7 +33,7 @@ export default function Cart() {
 
   const removeItem = async (itemId) => {
     await base44.entities.CartItem.delete(itemId);
-    setItems(items.filter(i => i.id !== itemId));
+    setItems(prev => prev.filter(i => i.id !== itemId));
     toast.success('Item removido');
   };
 
@@ -72,11 +72,22 @@ export default function Cart() {
       });
 
       const newBalance = walletBalance - total;
-      const tx = { type: 'purchase', amount: -total, description: `Compra: ${orderItems.map(i => i.product_title).join(', ')}`, date: new Date().toISOString() };
+      const tx = {
+        type: 'purchase',
+        amount: -total,
+        description: `Compra: ${orderItems.map(i => i.product_title).join(', ')}`,
+        date: new Date().toISOString()
+      };
+
       await base44.entities.Wallet.update(wallet.id, {
         balance_usd: newBalance,
         transactions: [...(wallet.transactions || []), tx],
       });
+
+      // Atualiza estado local imediatamente
+      setWallet(prev => ({ ...prev, balance_usd: newBalance, transactions: [...(prev.transactions || []), tx] }));
+      setItems([]);
+      setUseWalletBalance(false);
 
       for (const item of items) await base44.entities.CartItem.delete(item.id);
 
