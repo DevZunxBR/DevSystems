@@ -1,0 +1,251 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { Tag, X } from 'lucide-react';
+import PixModal from '@/components/checkout/PixModal';
+import { useCurrency } from '@/hooks/useCurrency';
+
+export default function Checkout() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [showPix, setShowPix] = useState(false);
+  const [pixCode, setPixCode] = useState('');
+  const [billing, setBilling] = useState({ name: '', email: '', document: '' });
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [currency] = useCurrency();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    loadCart();
+  }, []);
+
+  const loadCart = async () => {
+    setLoading(true);
+    try {
+      const me = await base44.auth.me();
+      const cartItems = await base44.entities.CartItem.filter({ user_email: me.email });
+      if (cartItems.length === 0) { navigate('/cart'); return; }
+      setItems(cartItems);
+      setBilling(prev => ({ ...prev, name: me.full_name || '', email: me.email || '' }));
+    } catch {
+      navigate('/cart');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const subtotal = items.reduce((sum, item) => sum + (currency === 'BRL' ? (item.price_brl || 0) : (item.price_usd || 0)), 0);
+  const symbol = currency === 'BRL' ? 'R$' : '$';
+
+  let discount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.discount_percent) discount = subtotal * (appliedCoupon.discount_percent / 100);
+    else if (appliedCoupon.discount_fixed_usd) discount = currency === 'BRL' ? appliedCoupon.discount_fixed_usd * 5 : appliedCoupon.discount_fixed_usd;
+  }
+  const total = Math.max(0, subtotal - discount);
+
+  const applyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setCouponLoading(true);
+    try {
+      const coupons = await base44.entities.Coupon.filter({ code: couponInput.trim().toUpperCase(), active: true });
+      if (coupons.length === 0) { toast.error('Cupom inválido ou expirado'); setCouponLoading(false); return; }
+      const c = coupons[0];
+      if (c.expires_at && new Date(c.expires_at) < new Date()) { toast.error('Cupom expirado'); setCouponLoading(false); return; }
+      if (c.max_uses && c.uses_count >= c.max_uses) { toast.error('Cupom esgotado'); setCouponLoading(false); return; }
+      setAppliedCoupon(c);
+      toast.success(`Cupom aplicado! ${c.discount_percent ? c.discount_percent + '% de desconto' : symbol + (c.discount_fixed_usd || 0).toFixed(2) + ' de desconto'}`);
+    } catch {
+      toast.error('Falha ao verificar cupom');
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!billing.name || !billing.email) { toast.error('Preencha todos os campos'); return; }
+    setSubmitting(true);
+    try {
+      const me = await base44.auth.me();
+      const pixGenerated = `00020126580014br.gov.bcb.pix0136${Date.now()}${Math.random().toString(36).slice(2, 8)}520400005303986540${total.toFixed(2)}5802BR`;
+
+      const orderItems = items.map(item => ({
+        product_id: item.product_id,
+        product_title: item.product_title,
+        license_name: item.license_name,
+        price: currency === 'BRL' ? (item.price_brl || 0) : (item.price_usd || 0),
+        thumbnail: item.thumbnail,
+        file_url: item.file_url,
+      }));
+
+      await base44.entities.Order.create({
+        customer_email: me.email,
+        customer_name: billing.name,
+        status: 'pending',
+        payment_method: 'pix',
+        currency,
+        total_amount: total,
+        items: orderItems,
+        billing_name: billing.name,
+        billing_email: billing.email,
+        billing_document: billing.document,
+        pix_code: pixGenerated,
+        download_token: `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`,
+      });
+
+      // Update coupon uses
+      if (appliedCoupon) {
+        await base44.entities.Coupon.update(appliedCoupon.id, { uses_count: (appliedCoupon.uses_count || 0) + 1 });
+      }
+
+      // Clear cart
+      for (const item of items) await base44.entities.CartItem.delete(item.id);
+
+      setPixCode(pixGenerated);
+      setShowPix(true);
+    } catch {
+      toast.error('Falha ao realizar pedido');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-muted border-t-foreground rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen max-w-5xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-foreground tracking-tight mb-8">Checkout</h1>
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        {/* Billing */}
+        <div className="lg:col-span-3">
+          <form onSubmit={handleSubmit} className="bg-card border border-border rounded-xl p-6 space-y-5">
+            <h2 className="text-lg font-bold text-foreground">Dados de Cobrança</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo *</label>
+                <input type="text" value={billing.name} onChange={(e) => setBilling({ ...billing, name: e.target.value })}
+                  className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" required />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">E-mail *</label>
+                <input type="email" value={billing.email} onChange={(e) => setBilling({ ...billing, email: e.target.value })}
+                  className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" required />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">CPF / CNPJ</label>
+                <input type="text" value={billing.document} onChange={(e) => setBilling({ ...billing, document: e.target.value })}
+                  className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+              </div>
+            </div>
+
+            {/* Coupon */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground block">Cupom de Desconto</label>
+              {appliedCoupon ? (
+                <div className="flex items-center gap-2 px-3 py-2 bg-secondary border border-border rounded-lg">
+                  <Tag className="h-4 w-4 text-foreground" />
+                  <span className="text-sm text-foreground flex-1">{appliedCoupon.code}</span>
+                  <button onClick={() => setAppliedCoupon(null)} className="text-muted-foreground hover:text-destructive">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="PRIMEIRACOMPRA"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
+                    className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring font-mono"
+                  />
+                  <Button type="button" onClick={applyCoupon} disabled={couponLoading} variant="outline" className="border-border text-foreground text-xs">
+                    {couponLoading ? '...' : 'Aplicar'}
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Payment */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">Método de Pagamento</h3>
+              <div className="flex items-center gap-3 p-3 bg-secondary rounded-lg border border-border">
+                <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+                  <span className="text-black font-black text-[10px]">PIX</span>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-foreground">PIX</div>
+                  <div className="text-xs text-muted-foreground">Pagamento instantâneo</div>
+                </div>
+              </div>
+            </div>
+
+            <Button type="submit" disabled={submitting} className="w-full bg-white text-black hover:bg-white/90 font-semibold h-12">
+              {submitting ? 'Processando...' : `Pagar ${symbol}${total.toFixed(2)}`}
+            </Button>
+          </form>
+        </div>
+
+        {/* Summary */}
+        <div className="lg:col-span-2">
+          <div className="bg-card border border-border rounded-xl p-6 space-y-4 sticky top-24">
+            <h2 className="text-lg font-bold text-foreground">Resumo</h2>
+            <div className="space-y-3">
+              {items.map((item) => (
+                <div key={item.id} className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-secondary rounded-lg overflow-hidden flex-shrink-0">
+                    {item.thumbnail && <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground truncate">{item.product_title}</div>
+                    <div className="text-xs text-muted-foreground">{item.license_name}</div>
+                  </div>
+                  <div className="text-sm font-bold text-foreground">
+                    {symbol}{(currency === 'BRL' ? (item.price_brl || 0) : (item.price_usd || 0)).toFixed(2)}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-border pt-3 space-y-2 text-sm">
+              <div className="flex justify-between text-muted-foreground">
+                <span>Subtotal</span>
+                <span>{symbol}{subtotal.toFixed(2)}</span>
+              </div>
+              {appliedCoupon && (
+                <div className="flex justify-between text-foreground">
+                  <span>Desconto ({appliedCoupon.code})</span>
+                  <span>- {symbol}{discount.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold text-lg text-foreground pt-1 border-t border-border">
+                <span>Total</span>
+                <span>{symbol}{total.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <PixModal
+        open={showPix}
+        onClose={() => { setShowPix(false); navigate('/dashboard/orders'); }}
+        pixCode={pixCode}
+        total={total}
+        currency={currency}
+      />
+    </div>
+  );
+}

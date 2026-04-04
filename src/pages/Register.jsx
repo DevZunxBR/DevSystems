@@ -1,0 +1,160 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { supabase } from '@/api/base44Client';
+import { toast } from 'sonner';
+
+export default function Register() {
+  const navigate = useNavigate();
+  const [mode, setMode] = useState('login'); // 'login' | 'register'
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', confirm: '' });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleLogin = async () => {
+    if (!formData.email || !formData.password) {
+      toast.error('Preencha email e senha');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+      if (error) throw error;
+      toast.success('Bem-vindo!');
+      navigate('/');
+    } catch (err) {
+      toast.error('Email ou senha incorretos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async () => {
+    if (!formData.name || !formData.email || !formData.password) {
+      toast.error('Preencha todos os campos');
+      return;
+    }
+    if (formData.password !== formData.confirm) {
+      toast.error('As senhas não coincidem');
+      return;
+    }
+    if (formData.password.length < 6) {
+      toast.error('A senha deve ter pelo menos 6 caracteres');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: { data: { full_name: formData.name } }
+      });
+      if (error) throw error;
+      if (data.user) {
+        await supabase.from('user_profiles').upsert({
+          email: data.user.email,
+          full_name: formData.name,
+          role: 'user',
+        });
+      }
+      toast.success('Conta criada com sucesso!');
+      navigate('/');
+    } catch (err) {
+      toast.error(err.message || 'Erro ao criar conta');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex">
+      {/* Left - Form */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 space-y-8">
+        <div>
+          <div className="flex items-center gap-2 mb-8">
+            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+              <span className="text-black font-black text-sm">M</span>
+            </div>
+            <span className="text-white font-bold text-lg tracking-tight">Marketplace</span>
+          </div>
+          <h1 className="text-3xl font-black text-foreground tracking-tight">
+            {mode === 'login' ? 'Entrar na sua conta' : 'Criar sua conta'}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-2">
+            {mode === 'login' ? 'Bem-vindo de volta!' : 'Junte-se a milhares de desenvolvedores.'}
+          </p>
+        </div>
+
+        {/* Form */}
+        <div className="space-y-4">
+          {mode === 'register' && (
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo</label>
+              <input name="name" type="text" placeholder="Seu nome" value={formData.name} onChange={handleChange}
+                className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+            </div>
+          )}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">E-mail</label>
+            <input name="email" type="email" placeholder="seu@email.com" value={formData.email} onChange={handleChange}
+              className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Senha</label>
+            <input name="password" type="password" placeholder="••••••••" value={formData.password} onChange={handleChange}
+              className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+          </div>
+          {mode === 'register' && (
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Confirmar Senha</label>
+              <input name="confirm" type="password" placeholder="••••••••" value={formData.confirm} onChange={handleChange}
+                className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+            </div>
+          )}
+
+          <Button
+            onClick={mode === 'login' ? handleLogin : handleRegister}
+            disabled={loading}
+            className="w-full bg-white text-black hover:bg-white/90 font-bold h-11"
+          >
+            {loading ? 'Carregando...' : mode === 'login' ? 'Entrar' : 'Criar Conta'}
+          </Button>
+        </div>
+
+        <p className="text-xs text-muted-foreground text-center">
+          {mode === 'login' ? 'Não tem conta?' : 'Já tem conta?'}{' '}
+          <button
+            onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setFormData({ name: '', email: '', password: '', confirm: '' }); }}
+            className="text-foreground hover:underline font-medium"
+          >
+            {mode === 'login' ? 'Criar conta' : 'Entrar'}
+          </button>
+        </p>
+      </div>
+
+      {/* Right - Image */}
+      <div className="hidden lg:block w-1/2 relative overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200"
+          alt="Tech background"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
+        <div className="absolute inset-0 flex flex-col justify-end p-12">
+          <blockquote className="space-y-3">
+            <p className="text-lg font-semibold text-white leading-relaxed">
+              "A plataforma com os melhores assets e sistemas do mercado. Qualidade impecável."
+            </p>
+            <footer className="text-sm text-muted-foreground">— Dev Community</footer>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  );
+}
