@@ -19,6 +19,7 @@ import Favorites from './pages/dashboard/Favorites';
 import PendingOrders from './pages/admin/PendingOrders';
 import AllOrders from './pages/admin/AllOrders';
 import ManageProducts from './pages/admin/ManageProducts';
+import ManageCoupons from './pages/admin/ManageCoupons';
 import ProductForm from './pages/admin/ProductForm';
 import RefundRequests from './pages/admin/RefundRequests';
 import Register from './pages/Register';
@@ -64,6 +65,7 @@ const AuthenticatedApp = () => {
         </Route>
 
         <Route element={<AdminPanel />}>
+          <Route path="/admin/coupons" element={<PrivateRoute><ManageCoupons /></PrivateRoute>} />
           <Route path="/admin" element={<PrivateRoute><PendingOrders /></PrivateRoute>} />
           <Route path="/admin/orders" element={<PrivateRoute><AllOrders /></PrivateRoute>} />
           <Route path="/admin/products" element={<PrivateRoute><ManageProducts /></PrivateRoute>} />

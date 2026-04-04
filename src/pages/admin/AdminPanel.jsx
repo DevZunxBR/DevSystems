@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { ShieldCheck, Package, ClipboardList, Plus, Menu } from 'lucide-react';
+import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag } from 'lucide-react';
 
 const navItems = [
   { icon: ClipboardList, label: 'Pedidos Pendentes', path: '/admin' },
@@ -9,6 +9,7 @@ const navItems = [
   { icon: ClipboardList, label: 'Reembolsos', path: '/admin/refunds' },
   { icon: Plus, label: 'Novo Produto', path: '/admin/products/new' },
   { icon: Package, label: 'Produtos', path: '/admin/products' },
+  { icon: Tag, label: 'Cupons', path: '/admin/coupons' },
 ];
 
 export default function AdminPanel() {
