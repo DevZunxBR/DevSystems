@@ -1,5 +1,4 @@
 // src/lib/AuthContext.jsx
-// SUBSTITUIÇÃO COMPLETA - Usa Supabase Auth
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { supabase } from '@/api/base44Client';
 
@@ -14,7 +13,6 @@ export const AuthProvider = ({ children }) => {
   const [appPublicSettings] = useState({ requiresAuth: false });
 
   useEffect(() => {
-    // Verifica sessão atual
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         loadUserProfile(session.user);
@@ -24,7 +22,6 @@ export const AuthProvider = ({ children }) => {
       }
     });
 
-    // Escuta mudanças de auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         loadUserProfile(session.user);
@@ -50,6 +47,8 @@ export const AuthProvider = ({ children }) => {
         id: authUser.id,
         email: authUser.email,
         full_name: profile?.full_name || authUser.user_metadata?.full_name || '',
+        display_name: profile?.display_name || profile?.full_name || '',
+        bio: profile?.bio || '',
         role: profile?.role || 'user',
         avatar_url: profile?.avatar_url || '',
       });
@@ -59,7 +58,10 @@ export const AuthProvider = ({ children }) => {
         id: authUser.id,
         email: authUser.email,
         full_name: authUser.user_metadata?.full_name || '',
+        display_name: '',
+        bio: '',
         role: 'user',
+        avatar_url: '',
       });
       setIsAuthenticated(true);
     } finally {
@@ -71,11 +73,11 @@ export const AuthProvider = ({ children }) => {
     await supabase.auth.signOut();
     setUser(null);
     setIsAuthenticated(false);
-    window.location.href = '/';
+    window.location.href = '/register';
   };
 
   const navigateToLogin = () => {
-  window.location.href = '/register';
+    window.location.href = '/register';
   };
 
   return (

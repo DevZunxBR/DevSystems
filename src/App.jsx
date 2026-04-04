@@ -1,10 +1,9 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AppLayout from './components/layout/AppLayout';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import AdminPanel from './pages/admin/AdminPanel';
@@ -25,9 +24,9 @@ import RefundRequests from './pages/admin/RefundRequests';
 import Register from './pages/Register';
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, isAuthenticated } = useAuth();
 
-  // Show loading spinner while checking app public settings or auth
+  // Spinner enquanto carrega
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -36,27 +35,20 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Handle authentication errors
-  if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Redirect to register automatically
-      navigateToRegister();
-      return null;
-    }
-  }
-
-  // Render the main app
-return (
+  return (
     <Routes>
-      <Route element={<AppLayout />}>
+      {/* Rota pública - Register/Login */}
+      <Route path="/register" element={<Register />} />
+
+      {/* Rotas protegidas */}
+      <Route element={
+        isAuthenticated ? <AppLayout /> : <Navigate to="/register" replace />
+      }>
         <Route path="/" element={<Home />} />
         <Route path="/store" element={<Store />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
-        <Route path="/register" element={<Register />} />
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<DashboardHome />} />
           <Route path="/dashboard/orders" element={<MyOrders />} />
@@ -77,9 +69,7 @@ return (
   );
 };
 
-
 function App() {
-
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
