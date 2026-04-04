@@ -270,13 +270,15 @@ export default function Checkout() {
         </div>
       </div>
 
-      <PixModal
-        open={showPix}
-        onClose={() => { setShowPix(false); navigate('/dashboard/orders'); }}
-        pixCode={pixCode}
-        total={total}
-        currency="BRL"
-      />
+{showPix && (
+  <PixModal
+    open={showPix}
+    onClose={() => { setShowPix(false); navigate('/dashboard/orders'); }}
+    pixCode={pixCode}
+    total={total}
+    currency="BRL"
+  />
+)}
     </div>
   );
 }
