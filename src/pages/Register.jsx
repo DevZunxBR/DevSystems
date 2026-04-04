@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/api/base44Client';
@@ -7,11 +7,39 @@ import { toast } from 'sonner';
 export default function Register() {
   const navigate = useNavigate();
   const [mode, setMode] = useState('login'); // 'login' | 'register'
+  const [step, setStep] = useState('form'); // 'form' | 'otp'
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirm: '' });
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const inputRefs = useRef([]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleOtpChange = (index, value) => {
+    if (!/^\d*$/.test(value)) return;
+    const newOtp = [...otp];
+    newOtp[index] = value.slice(-1);
+    setOtp(newOtp);
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    if (pasted.length === 6) {
+      setOtp(pasted.split(''));
+      inputRefs.current[5]?.focus();
+    }
   };
 
   const handleLogin = async () => {
@@ -63,10 +91,53 @@ export default function Register() {
           role: 'user',
         });
       }
-      toast.success('Conta criada com sucesso!');
-      navigate('/');
+      toast.success('Código enviado para seu email!');
+      setStep('otp');
     } catch (err) {
       toast.error(err.message || 'Erro ao criar conta');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    const code = otp.join('');
+    if (code.length !== 6) {
+      toast.error('Digite o código completo de 6 dígitos');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: formData.email,
+        token: code,
+        type: 'signup',
+      });
+      if (error) throw error;
+      toast.success('Conta verificada! Bem-vindo!');
+      navigate('/');
+    } catch (err) {
+      toast.error('Código inválido ou expirado');
+      setOtp(['', '', '', '', '', '']);
+      inputRefs.current[0]?.focus();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: formData.email,
+      });
+      if (error) throw error;
+      toast.success('Novo código enviado!');
+      setOtp(['', '', '', '', '', '']);
+      inputRefs.current[0]?.focus();
+    } catch {
+      toast.error('Erro ao reenviar código');
     } finally {
       setLoading(false);
     }
@@ -83,59 +154,119 @@ export default function Register() {
             </div>
             <span className="text-white font-bold text-lg tracking-tight">Marketplace</span>
           </div>
-          <h1 className="text-3xl font-black text-foreground tracking-tight">
-            {mode === 'login' ? 'Entrar na sua conta' : 'Criar sua conta'}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-2">
-            {mode === 'login' ? 'Bem-vindo de volta!' : 'Junte-se a milhares de desenvolvedores.'}
-          </p>
+
+          {step === 'otp' ? (
+            <>
+              <h1 className="text-3xl font-black text-foreground tracking-tight">Verifique seu email</h1>
+              <p className="text-sm text-muted-foreground mt-2">
+                Enviamos um código de 6 dígitos para <span className="text-white font-medium">{formData.email}</span>
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="text-3xl font-black text-foreground tracking-tight">
+                {mode === 'login' ? 'Entrar na sua conta' : 'Criar sua conta'}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-2">
+                {mode === 'login' ? 'Bem-vindo de volta!' : 'Junte-se a milhares de desenvolvedores.'}
+              </p>
+            </>
+          )}
         </div>
 
-        {/* Form */}
-        <div className="space-y-4">
-          {mode === 'register' && (
+        {/* OTP Step */}
+        {step === 'otp' ? (
+          <div className="space-y-6">
+            <div className="flex gap-3 justify-center">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={el => inputRefs.current[index] = el}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  onChange={e => handleOtpChange(index, e.target.value)}
+                  onKeyDown={e => handleOtpKeyDown(index, e)}
+                  onPaste={index === 0 ? handleOtpPaste : undefined}
+                  className="w-12 h-14 text-center text-xl font-bold bg-secondary border border-border rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all"
+                />
+              ))}
+            </div>
+
+            <Button
+              onClick={handleVerifyOtp}
+              disabled={loading || otp.join('').length !== 6}
+              className="w-full bg-white text-black hover:bg-white/90 font-bold h-11"
+            >
+              {loading ? 'Verificando...' : 'Verificar Código'}
+            </Button>
+
+            <div className="text-center space-y-2">
+              <p className="text-xs text-muted-foreground">Não recebeu o código?</p>
+              <button
+                onClick={handleResendOtp}
+                disabled={loading}
+                className="text-sm text-foreground hover:underline font-medium disabled:opacity-50"
+              >
+                Reenviar código
+              </button>
+            </div>
+
+            <button
+              onClick={() => { setStep('form'); setOtp(['', '', '', '', '', '']); }}
+              className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ← Voltar
+            </button>
+          </div>
+        ) : (
+          /* Form Step */
+          <div className="space-y-4">
+            {mode === 'register' && (
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo</label>
+                <input name="name" type="text" placeholder="Seu nome" value={formData.name} onChange={handleChange}
+                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+              </div>
+            )}
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo</label>
-              <input name="name" type="text" placeholder="Seu nome" value={formData.name} onChange={handleChange}
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">E-mail</label>
+              <input name="email" type="email" placeholder="seu@email.com" value={formData.email} onChange={handleChange}
                 className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
             </div>
-          )}
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1 block">E-mail</label>
-            <input name="email" type="email" placeholder="seu@email.com" value={formData.email} onChange={handleChange}
-              className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1 block">Senha</label>
-            <input name="password" type="password" placeholder="••••••••" value={formData.password} onChange={handleChange}
-              className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
-          </div>
-          {mode === 'register' && (
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Confirmar Senha</label>
-              <input name="confirm" type="password" placeholder="••••••••" value={formData.confirm} onChange={handleChange}
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Senha</label>
+              <input name="password" type="password" placeholder="••••••••" value={formData.password} onChange={handleChange}
                 className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
             </div>
-          )}
+            {mode === 'register' && (
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Confirmar Senha</label>
+                <input name="confirm" type="password" placeholder="••••••••" value={formData.confirm} onChange={handleChange}
+                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+              </div>
+            )}
 
-          <Button
-            onClick={mode === 'login' ? handleLogin : handleRegister}
-            disabled={loading}
-            className="w-full bg-white text-black hover:bg-white/90 font-bold h-11"
-          >
-            {loading ? 'Carregando...' : mode === 'login' ? 'Entrar' : 'Criar Conta'}
-          </Button>
-        </div>
+            <Button
+              onClick={mode === 'login' ? handleLogin : handleRegister}
+              disabled={loading}
+              className="w-full bg-white text-black hover:bg-white/90 font-bold h-11"
+            >
+              {loading ? 'Carregando...' : mode === 'login' ? 'Entrar' : 'Criar Conta'}
+            </Button>
 
-        <p className="text-xs text-muted-foreground text-center">
-          {mode === 'login' ? 'Não tem conta?' : 'Já tem conta?'}{' '}
-          <button
-            onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setFormData({ name: '', email: '', password: '', confirm: '' }); }}
-            className="text-foreground hover:underline font-medium"
-          >
-            {mode === 'login' ? 'Criar conta' : 'Entrar'}
-          </button>
-        </p>
+            <p className="text-xs text-muted-foreground text-center">
+              {mode === 'login' ? 'Não tem conta?' : 'Já tem conta?'}{' '}
+              <button
+                onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setFormData({ name: '', email: '', password: '', confirm: '' }); }}
+                className="text-foreground hover:underline font-medium"
+              >
+                {mode === 'login' ? 'Criar conta' : 'Entrar'}
+              </button>
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Right - Image */}
