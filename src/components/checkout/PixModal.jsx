@@ -44,7 +44,7 @@ export default function PixModal({ open, onClose, total }) {
   const [pixCode, setPixCode] = useState('');
 
   useEffect(() => {
-    if (!open || !total) { setStep('loading'); setTimeLeft(15 * 60); return; }
+    if (!open) { setStep('loading'); setTimeLeft(15 * 60); return; }
 
     // Gera o código PIX real
     const txid = `DEV${Date.now()}`.substring(0, 25);

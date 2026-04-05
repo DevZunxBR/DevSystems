@@ -79,6 +79,7 @@ export default function Checkout() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('total no submit:', total, 'coupon:', couponDiscount);
     if (!billing.name || !billing.email) { toast.error('Preencha todos os campos'); return; }
     setSubmitting(true);
     try {
