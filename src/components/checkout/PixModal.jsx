@@ -49,7 +49,7 @@ export default function PixModal({ open, onClose, total }) {
     // Gera o código PIX real
     const txid = `DEV${Date.now()}`.substring(0, 25);
     const codigo = gerarPixCopiaECola({
-      chave: '+5521968462755',
+      chave: '+5521964012701',
       nome: 'Natan da Rocha Lima Pacheco',
       cidade: 'RIO DE JANEIRO',
       valor: total,
