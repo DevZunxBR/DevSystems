@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Copy, Check, ArrowLeft, Shield, Clock, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
+import QRCode from 'qrcode';
 
 // Gera código PIX real no padrão EMV do Banco Central
 function gerarPixCopiaECola({ chave, nome, cidade, valor, txid }) {
@@ -24,7 +25,6 @@ function gerarPixCopiaECola({ chave, nome, cidade, valor, txid }) {
 
   const pixSemCRC = `000201${merchantAccountField}${merchantCategoryCode}${currency}${amount}${country}${merchantName}${merchantCity}${additionalData}6304`;
 
-  // CRC16-CCITT
   let crc = 0xFFFF;
   for (let i = 0; i < pixSemCRC.length; i++) {
     crc ^= pixSemCRC.charCodeAt(i) << 8;
@@ -42,17 +42,17 @@ export default function PixModal({ open, onClose, total }) {
   const [step, setStep] = useState('loading');
   const [timeLeft, setTimeLeft] = useState(15 * 60);
   const [pixCode, setPixCode] = useState('');
+  const qrRef = useRef(null);
 
   useEffect(() => {
     if (!open) { setStep('loading'); setTimeLeft(15 * 60); return; }
 
-    // Gera o código PIX real
     const txid = `DEV${Date.now()}`.substring(0, 25);
     const codigo = gerarPixCopiaECola({
       chave: '+5521964012701',
-      nome: 'Natan da Rocha Lima Pacheco',
+      nome: 'Natan da Rocha Lima',
       cidade: 'RIO DE JANEIRO',
-      valor: total,
+      valor: total || 0,
       txid,
     });
     setPixCode(codigo);
@@ -60,6 +60,17 @@ export default function PixModal({ open, onClose, total }) {
     const timer = setTimeout(() => setStep('qr'), 2000);
     return () => clearTimeout(timer);
   }, [open, total]);
+
+  // Gera QR Code real quando muda para step qr
+  useEffect(() => {
+    if (step === 'qr' && qrRef.current && pixCode) {
+      QRCode.toCanvas(qrRef.current, pixCode, {
+        width: 160,
+        margin: 2,
+        color: { dark: '#000000', light: '#ffffff' },
+      }).catch(console.error);
+    }
+  }, [step, pixCode]);
 
   useEffect(() => {
     if (step !== 'qr' && step !== 'code') return;
@@ -124,7 +135,7 @@ export default function PixModal({ open, onClose, total }) {
             {/* Amount */}
             <div className="text-center space-y-0.5">
               <p className="text-xs text-[#555]">Valor a pagar</p>
-              <p className="text-3xl font-black text-white">R${total?.toFixed(2)}</p>
+              <p className="text-3xl font-black text-white">R${(total || 0).toFixed(2)}</p>
               <div className="flex items-center justify-center gap-1 text-xs text-[#555]">
                 <Clock className="h-3 w-3" />
                 <span>Expira em <span className={`font-mono font-semibold ${timeLeft < 60 ? 'text-red-400' : 'text-white'}`}>{formatTime(timeLeft)}</span></span>
@@ -147,34 +158,8 @@ export default function PixModal({ open, onClose, total }) {
             {step === 'qr' && (
               <div className="space-y-3">
                 <div className="flex justify-center">
-                  <div className="w-44 h-44 bg-white rounded-xl p-2.5 flex items-center justify-center">
-                    <svg viewBox="0 0 200 200" width="160" height="160" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="200" height="200" fill="white"/>
-                      <rect x="10" y="10" width="50" height="50" fill="none" stroke="black" strokeWidth="8"/>
-                      <rect x="18" y="18" width="34" height="34" fill="black"/>
-                      <rect x="140" y="10" width="50" height="50" fill="none" stroke="black" strokeWidth="8"/>
-                      <rect x="148" y="18" width="34" height="34" fill="black"/>
-                      <rect x="10" y="140" width="50" height="50" fill="none" stroke="black" strokeWidth="8"/>
-                      <rect x="18" y="148" width="34" height="34" fill="black"/>
-                      {[70,80,90,100,110,120,130].map((x, xi) =>
-                        [10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180].map((y, yi) =>
-                          ((xi * 7 + yi * 3 + xi * yi) % 3 === 0) ? <rect key={`${x}-${y}`} x={x} y={y} width="8" height="8" fill="black"/> : null
-                        )
-                      )}
-                      {[10,20,30,40,50,60].map((x, xi) =>
-                        [70,80,90,100,110,120,130].map((y, yi) =>
-                          ((xi + yi * 2) % 3 === 0) ? <rect key={`l-${x}-${y}`} x={x} y={y} width="8" height="8" fill="black"/> : null
-                        )
-                      )}
-                      {[140,150,160,170,180].map((x, xi) =>
-                        [70,80,90,100,110,120,130].map((y, yi) =>
-                          ((xi * 2 + yi) % 3 === 0) ? <rect key={`r-${x}-${y}`} x={x} y={y} width="8" height="8" fill="black"/> : null
-                        )
-                      )}
-                      <rect x="82" y="82" width="36" height="36" rx="4" fill="white"/>
-                      <rect x="86" y="86" width="28" height="28" rx="3" fill="#32BCAD"/>
-                      <text x="100" y="106" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">PIX</text>
-                    </svg>
+                  <div className="w-44 h-44 bg-white rounded-xl p-2 flex items-center justify-center">
+                    <canvas ref={qrRef} />
                   </div>
                 </div>
                 <p className="text-center text-xs text-[#555]">Abra o app do seu banco e escaneie o QR Code</p>
