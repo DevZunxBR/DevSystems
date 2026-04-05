@@ -50,8 +50,8 @@ export default function PixModal({ open, onClose, total }) {
     const txid = `DEV${Date.now()}`.substring(0, 25);
     const codigo = gerarPixCopiaECola({
       chave: '+5521968462755',
-      nome: 'Natan da Rocha Lima',
-      cidade: 'RIO DE JANEIRO',
+      nome: 'NatandaRochaLima',
+      cidade: 'RIODEJANEIRO',
       valor: total,
       txid,
     });
