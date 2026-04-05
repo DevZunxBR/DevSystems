@@ -277,8 +277,9 @@ export default function Checkout() {
   <PixModal
     open={showPix}
     onClose={() => { setShowPix(false); navigate('/dashboard/orders'); }}
+    pixCode={pixCode}
     total={finalTotal}
-    items={items}
+    currency="BRL"
   />
 )}
     </div>
