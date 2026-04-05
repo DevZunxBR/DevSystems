@@ -1,3 +1,4 @@
+import { supabase } from '@/api/base44Client';
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -104,6 +105,36 @@ export default function PendingOrders() {
           link: `/product/${item.product_id}`,
         });
       }
+
+      // Envia email para o cliente
+try {
+  const productNames = order.items?.map(i => i.product_title).join(', ') || 'seus produtos';
+  await supabase.functions.invoke('send-email', {
+    body: {
+      to: order.customer_email,
+      subject: '✅ Seu pedido foi aprovado! — DevVault',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 40px; border-radius: 12px;">
+          <div style="margin-bottom: 32px;">
+            <div style="display: inline-block; background: #32BCAD; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 14px;">DevVault</div>
+          </div>
+          <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 8px;">Pagamento Aprovado! ✓</h1>
+          <p style="color: #999; margin-bottom: 32px;">Seu pagamento foi confirmado e seus arquivos estão prontos para download.</p>
+          <div style="background: #0A0A0A; border: 1px solid #1A1A1A; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+            <p style="color: #666; font-size: 12px; margin-bottom: 4px;">Produtos adquiridos</p>
+            <p style="font-weight: 600; font-size: 16px;">${productNames}</p>
+            <p style="color: #666; font-size: 13px; margin-top: 8px;">Total: R$${order.total_amount?.toFixed(2)}</p>
+            <p style="color: #32BCAD; font-size: 13px;">Cashback recebido: R$${cashback.toFixed(2)}</p>
+          </div>
+          <a href="https://dev-systems.vercel.app/dashboard/orders" style="display: inline-block; background: #fff; color: #000; padding: 14px 28px; border-radius: 10px; font-weight: bold; text-decoration: none; font-size: 14px;">Acessar Meus Pedidos →</a>
+          <p style="color: #444; font-size: 12px; margin-top: 32px;">DevVault • Todos os direitos reservados</p>
+        </div>
+      `,
+    },
+  });
+} catch (emailError) {
+  console.error('Erro ao enviar email:', emailError);
+}
 
       toast.success(`Pedido aprovado! Saldo debitado e cashback de R$${cashback.toFixed(2)} adicionado.`);
       setOrders(prev => prev.filter(o => o.id !== order.id));
