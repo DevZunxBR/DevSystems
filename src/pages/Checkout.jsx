@@ -7,6 +7,7 @@ import { Tag, X, Wallet } from 'lucide-react';
 import PixModal from '@/components/checkout/PixModal';
 
 export default function Checkout() {
+  const [finalTotal, setFinalTotal] = useState(0);
   const [items, setItems] = useState([]);
   const [wallet, setWallet] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -120,6 +121,7 @@ export default function Checkout() {
 
       setCurrentOrder(order);
       setPixCode(pixGenerated);
+      setFinalTotal(total);
       setShowPix(true);
     } catch {
       toast.error('Falha ao realizar pedido');
@@ -275,7 +277,7 @@ export default function Checkout() {
     open={showPix}
     onClose={() => { setShowPix(false); navigate('/dashboard/orders'); }}
     pixCode={pixCode}
-    total={total}
+    total={finalTotal}
     currency="BRL"
   />
 )}
