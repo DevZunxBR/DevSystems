@@ -1,6 +1,6 @@
-// src/components/NotificationBell.jsx - Com clique fora para fechar
+// src/components/NotificationBell.jsx - Sem bolinhas, sem botão marcar todas, número some ao clicar
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Bell, CheckCheck } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { supabase } from '@/api/base44Client';
 
 export default function NotificationBell({ userEmail }) {
@@ -10,7 +10,7 @@ export default function NotificationBell({ userEmail }) {
   const ref = useRef(null);
   const subscriptionRef = useRef(null);
 
-  // FECHAR AO CLICAR FORA
+  // Fechar ao clicar fora
   useEffect(() => {
     const handler = (e) => {
       if (ref.current && !ref.current.contains(e.target)) {
@@ -44,8 +44,9 @@ export default function NotificationBell({ userEmail }) {
     }
   }, [userEmail]);
 
-  // Marcar como lida
+  // Marcar como lida ao clicar
   const markAsRead = useCallback(async (id) => {
+    // Atualiza localmente primeiro
     setNotifications(prev => prev.map(n => 
       n.id === id ? { ...n, read: true } : n
     ));
@@ -62,28 +63,6 @@ export default function NotificationBell({ userEmail }) {
       loadNotifications();
     }
   }, [loadNotifications]);
-
-  // Marcar todas como lidas
-  const markAllAsRead = useCallback(async () => {
-    const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
-    if (unreadIds.length === 0) return;
-
-    setNotifications(prev => prev.map(n => 
-      unreadIds.includes(n.id) ? { ...n, read: true, read_at: new Date().toISOString() } : n
-    ));
-
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ read: true, read_at: new Date().toISOString() })
-        .in('id', unreadIds);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Erro ao marcar todas como lidas:', error);
-      loadNotifications();
-    }
-  }, [notifications, loadNotifications]);
 
   // Configurar subscription em tempo real
   useEffect(() => {
@@ -156,20 +135,9 @@ export default function NotificationBell({ userEmail }) {
       {open && (
         <div className="absolute right-0 top-full mt-2 w-96 bg-card border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-secondary/30">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-foreground">Notificações</h3>
-              {isLoading && (
-                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-              )}
-            </div>
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllAsRead}
-                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <CheckCheck className="w-3 h-3" />
-                Marcar todas
-              </button>
+            <h3 className="text-sm font-bold text-foreground">Notificações</h3>
+            {isLoading && (
+              <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             )}
           </div>
 
@@ -191,36 +159,19 @@ export default function NotificationBell({ userEmail }) {
                   }`}
                 >
                   <div className="px-4 py-3">
-                    <div className="flex items-start gap-2">
-                      {!n.read && (
-                        <span className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0" />
-                      )}
-                      <div className={`flex-1 min-w-0 ${!n.read ? '' : 'pl-3.5'}`}>
-                        <div className="font-semibold text-sm text-foreground">
-                          {n.title}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-0.5 break-words">
-                          {n.message}
-                        </div>
-                        <div className="flex items-center gap-2 mt-1.5">
-                          <div className="text-[10px] text-muted-foreground/60">
-                            {new Date(n.created_at).toLocaleString('pt-BR', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </div>
-                          {n.read && n.read_at && (
-                            <div className="text-[10px] text-primary/60">
-                              Lida em {new Date(n.read_at).toLocaleTimeString('pt-BR', {
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                    <div className="text-sm font-semibold text-foreground">
+                      {n.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5 break-words">
+                      {n.message}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground/60 mt-1.5">
+                      {new Date(n.created_at).toLocaleString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
                     </div>
                   </div>
                 </div>
