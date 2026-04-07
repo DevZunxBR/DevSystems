@@ -1,108 +1,42 @@
-// src/components/NotificationBell.jsx - Corrigido e sem botão atualizar
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Bell } from 'lucide-react';
-import { supabase } from '@/api/base44Client';
+import { base44 } from '@/api/base44Client';
 
 export default function NotificationBell({ userEmail }) {
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const ref = useRef(null);
-  const subscriptionRef = useRef(null);
 
-  // Fechar ao clicar fora
   useEffect(() => {
-    const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) {
-        setOpen(false);
-      }
-    };
+    if (!userEmail) return;
+    loadNotifications();
+    const interval = setInterval(loadNotifications, 60000);
+    return () => clearInterval(interval);
+  }, [userEmail]);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Carregar notificações
-  const loadNotifications = useCallback(async () => {
-    if (!userEmail) return;
-    
+  const loadNotifications = async () => {
     try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_email', userEmail)
-        .order('created_at', { ascending: false })
-        .limit(50);
+      const items = await base44.entities.Notification.filter({ user_email: userEmail }, '-created_at', 20);
+      setNotifications(items);
+    } catch {}
+  };
 
-      if (error) throw error;
-      setNotifications(data || []);
-    } catch (error) {
-      console.error('Erro ao carregar notificações:', error);
-    }
-  }, [userEmail]);
+  const markRead = async (id) => {
+    await base44.entities.Notification.update(id, { read: true });
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+  };
 
-  // Marcar como lida ao clicar
-  const markAsRead = useCallback(async (id) => {
-    // Atualiza localmente primeiro
-    setNotifications(prev => prev.map(n => 
-      n.id === id ? { ...n, read: true } : n
-    ));
-
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ read: true, read_at: new Date().toISOString() })
-        .eq('id', id);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Erro ao marcar como lida:', error);
-      // Reverte em caso de erro
-      loadNotifications();
-    }
-  }, [loadNotifications]);
-
-  // Configurar subscription em tempo real
-  useEffect(() => {
-    if (!userEmail) return;
-
-    loadNotifications();
-
-    const subscription = supabase
-      .channel('notifications-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_email=eq.${userEmail}`
-        },
-        (payload) => {
-          setNotifications(prev => [payload.new, ...prev]);
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_email=eq.${userEmail}`
-        },
-        (payload) => {
-          setNotifications(prev => prev.map(n => 
-            n.id === payload.new.id ? payload.new : n
-          ));
-        }
-      )
-      .subscribe();
-
-    subscriptionRef.current = subscription;
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [userEmail]);
+  const markAllRead = async () => {
+    const unread = notifications.filter(n => !n.read);
+    await Promise.all(unread.map(n => base44.entities.Notification.update(n.id, { read: true })));
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -121,45 +55,36 @@ export default function NotificationBell({ userEmail }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-96 bg-card border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-secondary/30">
+        <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden mobile-notification-dropdown">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <h3 className="text-sm font-bold text-foreground">Notificações</h3>
+            {unreadCount > 0 && (
+              <button onClick={markAllRead} className="text-xs text-muted-foreground hover:text-foreground">
+                Marcar todas
+              </button>
+            )}
           </div>
-
-          <div className="max-h-96 overflow-y-auto divide-y divide-border">
+          <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="py-12 text-center">
-                <Bell className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
-                <div className="text-sm text-muted-foreground">Nenhuma notificação</div>
-              </div>
+              <div className="py-8 text-center text-sm text-muted-foreground">Nenhuma notificação</div>
             ) : (
               notifications.map((n) => (
-                <div
+                <button
                   key={n.id}
-                  onClick={() => !n.read && markAsRead(n.id)}
-                  className={`transition-colors cursor-pointer ${
-                    !n.read 
-                      ? 'bg-primary/5 hover:bg-primary/10' 
-                      : 'hover:bg-secondary/30'
-                  }`}
+                  onClick={() => markRead(n.id)}
+                  className={`w-full text-left px-4 py-3 border-b border-border last:border-0 hover:bg-secondary/50 transition-colors ${!n.read ? 'bg-secondary/20' : ''}`}
                 >
-                  <div className="px-4 py-3">
-                    <div className="text-sm font-semibold text-foreground">
-                      {n.title}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-0.5 break-words">
-                      {n.message}
-                    </div>
-                    <div className="text-[10px] text-muted-foreground/60 mt-1.5">
-                      {new Date(n.created_at).toLocaleString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                  <div className="flex items-start gap-2">
+                    {!n.read && <span className="w-1.5 h-1.5 bg-white rounded-full mt-1.5 flex-shrink-0" />}
+                    <div className={!n.read ? '' : 'pl-3.5'}>
+                      <div className="text-xs font-semibold text-foreground">{n.title}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{n.message}</div>
+                      <div className="text-[10px] text-muted-foreground/60 mt-1">
+                        {new Date(n.created_at).toLocaleString('pt-BR')}
+                      </div>
                     </div>
                   </div>
-                </div>
+                </button>
               ))
             )}
           </div>
