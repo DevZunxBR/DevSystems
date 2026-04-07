@@ -1,4 +1,4 @@
-// src/components/NotificationBell.jsx - Sem bolinhas, sem botão marcar todas, número some ao clicar
+// src/components/NotificationBell.jsx - Corrigido e sem botão atualizar
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell } from 'lucide-react';
 import { supabase } from '@/api/base44Client';
@@ -22,9 +22,8 @@ export default function NotificationBell({ userEmail }) {
   }, []);
 
   // Carregar notificações
-  const loadNotifications = useCallback(async (showLoading = false) => {
+  const loadNotifications = useCallback(async () => {
     if (!userEmail) return;
-    if (showLoading) setIsLoading(true);
     
     try {
       const { data, error } = await supabase
@@ -38,9 +37,6 @@ export default function NotificationBell({ userEmail }) {
       setNotifications(data || []);
     } catch (error) {
       console.error('Erro ao carregar notificações:', error);
-      setTimeout(() => loadNotifications(), 5000);
-    } finally {
-      if (showLoading) setIsLoading(false);
     }
   }, [userEmail]);
 
@@ -60,6 +56,7 @@ export default function NotificationBell({ userEmail }) {
       if (error) throw error;
     } catch (error) {
       console.error('Erro ao marcar como lida:', error);
+      // Reverte em caso de erro
       loadNotifications();
     }
   }, [loadNotifications]);
@@ -68,7 +65,7 @@ export default function NotificationBell({ userEmail }) {
   useEffect(() => {
     if (!userEmail) return;
 
-    loadNotifications(true);
+    loadNotifications();
 
     const subscription = supabase
       .channel('notifications-realtime')
@@ -102,17 +99,8 @@ export default function NotificationBell({ userEmail }) {
 
     subscriptionRef.current = subscription;
 
-    // Polling fallback
-    const interval = setInterval(() => {
-      const lastNotification = notifications[0];
-      if (!lastNotification || (Date.now() - new Date(lastNotification.created_at).getTime() > 60000)) {
-        loadNotifications();
-      }
-    }, 30000);
-
     return () => {
       subscription.unsubscribe();
-      clearInterval(interval);
     };
   }, [userEmail]);
 
@@ -134,11 +122,8 @@ export default function NotificationBell({ userEmail }) {
 
       {open && (
         <div className="absolute right-0 top-full mt-2 w-96 bg-card border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-secondary/30">
+          <div className="px-4 py-3 border-b border-border bg-secondary/30">
             <h3 className="text-sm font-bold text-foreground">Notificações</h3>
-            {isLoading && (
-              <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            )}
           </div>
 
           <div className="max-h-96 overflow-y-auto divide-y divide-border">
@@ -152,9 +137,9 @@ export default function NotificationBell({ userEmail }) {
                 <div
                   key={n.id}
                   onClick={() => !n.read && markAsRead(n.id)}
-                  className={`transition-colors ${
+                  className={`transition-colors cursor-pointer ${
                     !n.read 
-                      ? 'bg-primary/5 hover:bg-primary/10 cursor-pointer' 
+                      ? 'bg-primary/5 hover:bg-primary/10' 
                       : 'hover:bg-secondary/30'
                   }`}
                 >
@@ -178,17 +163,6 @@ export default function NotificationBell({ userEmail }) {
               ))
             )}
           </div>
-
-          {notifications.length > 0 && (
-            <div className="border-t border-border px-4 py-2 bg-secondary/20">
-              <button
-                onClick={() => loadNotifications(true)}
-                className="w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Atualizar
-              </button>
-            </div>
-          )}
         </div>
       )}
     </div>
