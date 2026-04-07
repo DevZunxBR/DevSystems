@@ -1,4 +1,4 @@
-// src/components/NotificationBell.jsx - Versão simplificada sem animações, emotes e botões extras
+// src/components/NotificationBell.jsx - Com clique fora para fechar
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell, CheckCheck } from 'lucide-react';
 import { supabase } from '@/api/base44Client';
@@ -9,6 +9,17 @@ export default function NotificationBell({ userEmail }) {
   const [isLoading, setIsLoading] = useState(false);
   const ref = useRef(null);
   const subscriptionRef = useRef(null);
+
+  // FECHAR AO CLICAR FORA
+  useEffect(() => {
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   // Carregar notificações
   const loadNotifications = useCallback(async (showLoading = false) => {
