@@ -10,7 +10,7 @@ export default function NotificationBell({ userEmail }) {
   useEffect(() => {
     if (!userEmail) return;
     loadNotifications();
-    const interval = setInterval(loadNotifications, 15000);
+    const interval = setInterval(loadNotifications, 60000);
     return () => clearInterval(interval);
   }, [userEmail]);
 

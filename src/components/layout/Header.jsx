@@ -42,7 +42,7 @@ export default function Header() {
   };
 
   useEffect(() => {
-    const interval = setInterval(loadCartCount, 5000);
+    const interval = setInterval(loadCartCount, 30000);
     return () => clearInterval(interval);
   }, []);
 
