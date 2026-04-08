@@ -1,6 +1,6 @@
-// src/pages/Home.jsx - Versão melhorada (categorias e diferenciais removidos)
+// src/pages/Home.jsx - Versão final (sem categorias, diferenciais e benefícios)
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ShieldCheck, Zap, Headphones, Star, Code, Package, Layers, ChevronRight, TrendingUp, Award, Clock } from 'lucide-react';
+import { ArrowRight, Star, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const PARTNERS = ['ROBLOX', 'UNITY', 'UNREAL', 'GITHUB', 'VERCEL', 'DISCORD'];
@@ -16,7 +16,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen font-inter">
-      {/* Hero Section - Melhorada */}
+      {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-[#1A1A1A]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,_#1a1a1a_0%,_#000000_100%)]" />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMwLTkuOTQtOC4wNi0xOC0xOC0xOCIgc3Ryb2tlPSIjMUExQTFBIiBzdHJva2Utd2lkdGg9IjAuNSIvPjwvZz48L3N2Zz4=')] opacity-30" />
@@ -67,27 +67,6 @@ export default function Home() {
             {PARTNERS.map(p => (
               <div key={p} className="text-lg md:text-xl font-black text-[#222] hover:text-[#444] transition-colors cursor-default tracking-widest select-none">
                 {p}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Benefícios Extras - Nova seção (substituindo Por que nos escolher) */}
-      <section className="py-24 border-b border-[#1A1A1A]">
-        <div className="max-w-7xl mx-auto px-4 space-y-14">
-          <div className="text-center space-y-3">
-            <p className="text-[10px] font-bold text-[#555] uppercase tracking-[0.3em]">Vantagens Exclusivas</p>
-            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">Benefícios para você</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {BENEFITS.map(item => (
-              <div key={item.title} className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-8 space-y-5 hover:border-[#333] transition-all group">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <item.icon className="h-7 w-7 text-black" />
-                </div>
-                <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                <p className="text-sm text-[#666] leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
