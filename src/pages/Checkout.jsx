@@ -1,6 +1,6 @@
-// src/pages/Checkout.jsx - Atualizado para suportar presentes
+// src/pages/Checkout.jsx - Atualizado com compra direta
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44, supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -8,6 +8,8 @@ import { Tag, X, Wallet, Gift } from 'lucide-react';
 import PixModal from '@/components/checkout/PixModal';
 
 export default function Checkout() {
+  const [searchParams] = useSearchParams();
+  const isDirectPurchase = searchParams.get('direct') === 'true';
   const [finalTotal, setFinalTotal] = useState(0);
   const [items, setItems] = useState([]);
   const [wallet, setWallet] = useState(null);
@@ -24,8 +26,39 @@ export default function Checkout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadCart();
-  }, []);
+    if (isDirectPurchase) {
+      loadDirectPurchase();
+    } else {
+      loadCart();
+    }
+  }, [isDirectPurchase]);
+
+  // Carregar compra direta (Comprar Agora)
+  const loadDirectPurchase = async () => {
+    setLoading(true);
+    try {
+      const me = await base44.auth.me();
+      const directProduct = sessionStorage.getItem('direct_purchase');
+      
+      if (!directProduct) {
+        toast.error('Nenhum produto encontrado');
+        navigate('/store');
+        return;
+      }
+      
+      const product = JSON.parse(directProduct);
+      setItems([{ ...product, id: 'direct_' + Date.now() }]);
+      setBilling(prev => ({ ...prev, name: me.full_name || '', email: me.email || '' }));
+      
+      // Limpar sessionStorage
+      sessionStorage.removeItem('direct_purchase');
+    } catch (error) {
+      console.error('Erro ao carregar compra direta:', error);
+      navigate('/store');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadCart = async () => {
     setLoading(true);
@@ -121,9 +154,11 @@ export default function Checkout() {
         await base44.entities.Coupon.update(appliedCoupon.id, { uses_count: (appliedCoupon.uses_count || 0) + 1 });
       }
 
-      // Limpar carrinho
-      for (const item of items) {
-        await base44.entities.CartItem.delete(item.id);
+      // Limpar carrinho APENAS se não for compra direta
+      if (!isDirectPurchase) {
+        for (const item of items) {
+          await base44.entities.CartItem.delete(item.id);
+        }
       }
 
       setCurrentOrder(order);
