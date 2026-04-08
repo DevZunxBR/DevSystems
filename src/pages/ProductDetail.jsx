@@ -1,4 +1,4 @@
-// src/pages/ProductDetail.jsx - Botões atualizados
+// src/pages/ProductDetail.jsx - Corrigido
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Zap, ChevronLeft, ChevronRight, FileBox, Tag, Layers, Settings, Lock, Clock } from 'lucide-react';
@@ -35,6 +35,7 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedLicense, setSelectedLicense] = useState(0);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [buyingNow, setBuyingNow] = useState(false);
 
   useEffect(() => { loadProduct(); }, [id]);
 
@@ -72,22 +73,23 @@ export default function ProductDetail() {
         file_url: product.file_url,
       });
       toast.success('Adicionado ao carrinho!');
-      navigate('/cart'); // Redireciona para o carrinho
+      navigate('/cart');
     } catch {
       toast.error('Faça login primeiro');
       navigate('/register');
     } finally { setAddingToCart(false); }
   };
 
-  // Comprar agora - vai direto para o checkout
+  // Comprar agora - vai direto para o checkout com APENAS este produto
   const buyNow = async () => {
-    setAddingToCart(true);
+    setBuyingNow(true);
     try {
       const me = await base44.auth.me();
       const license = product.licenses?.[selectedLicense];
       const price = getCurrentPrice();
-      await base44.entities.CartItem.create({
-        user_email: me.email,
+      
+      // Salvar produto no sessionStorage para o checkout
+      const directProduct = {
         product_id: product.id,
         product_title: product.title,
         license_name: license?.name || 'Standard',
@@ -95,12 +97,15 @@ export default function ProductDetail() {
         price_brl: price.brl || product.price_brl,
         thumbnail: product.thumbnail,
         file_url: product.file_url,
-      });
-      navigate('/checkout'); // Redireciona direto para o checkout
+        is_direct_purchase: true,
+      };
+      
+      sessionStorage.setItem('direct_purchase', JSON.stringify(directProduct));
+      navigate('/checkout?direct=true');
     } catch {
       toast.error('Faça login primeiro');
       navigate('/register');
-    } finally { setAddingToCart(false); }
+    } finally { setBuyingNow(false); }
   };
 
   if (loading) return (
@@ -242,10 +247,10 @@ export default function ProductDetail() {
                     
                     <Button 
                       onClick={buyNow} 
-                      disabled={addingToCart}
+                      disabled={buyingNow}
                       className="w-full bg-white text-black hover:bg-white/90 font-semibold gap-2 h-11 rounded-xl"
                     >
-                      <Zap className="h-4 w-4" /> Comprar Agora
+                      <Zap className="h-4 w-4" /> {buyingNow ? 'Processando...' : 'Comprar Agora'}
                     </Button>
                   </>
                 )}
