@@ -1,37 +1,12 @@
-// src/pages/Home.jsx - Versão melhorada (adições sutis)
+// src/pages/Home.jsx - Versão final (sem depoimentos e parceiros atualizados)
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ChevronRight, Zap, Shield, Headphones } from 'lucide-react';
+import { ArrowRight, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
 
 const PARTNERS = ['ROBLOX', 'UNITY', 'UNREAL', 'GITHUB'];
 
 export default function Home() {
   const navigate = useNavigate();
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Carregar produtos em destaque
-  useEffect(() => {
-    loadFeaturedProducts();
-  }, []);
-
-  const loadFeaturedProducts = async () => {
-    try {
-      const { data } = await base44
-        .from('products')
-        .select('id, title, price_brl, thumbnail, category')
-        .eq('status', 'active')
-        .limit(4);
-      
-      if (data) setFeaturedProducts(data);
-    } catch (error) {
-      console.error('Erro ao carregar produtos:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen font-inter">
@@ -57,7 +32,7 @@ export default function Home() {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold h-13 px-9 text-sm gap-2 rounded-xl transition-transform hover:scale-105">
+            <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold h-13 px-9 text-sm gap-2 rounded-xl">
               Explorar Assets <ArrowRight className="h-4 w-4" />
             </Button>
             <Button variant="outline" onClick={() => navigate('/store')} className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-13 px-9 text-sm rounded-xl">
@@ -76,39 +51,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Produtos em Destaque - Novo */}
-      {!loading && featuredProducts.length > 0 && (
-        <section className="py-16 border-b border-[#1A1A1A]">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-10">
-              <p className="text-[10px] font-bold text-[#555] uppercase tracking-[0.3em] mb-2">Destaques</p>
-              <h2 className="text-2xl md:text-3xl font-black text-white">Produtos em Destaque</h2>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {featuredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  onClick={() => navigate(`/product/${product.id}`)}
-                  className="group cursor-pointer bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden hover:border-[#333] transition-all hover:scale-[1.02]"
-                >
-                  <div className="aspect-square bg-[#111] flex items-center justify-center">
-                    {product.thumbnail ? (
-                      <img src={product.thumbnail} alt={product.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="text-[#333] text-xs">Sem imagem</div>
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <h3 className="text-sm font-semibold text-white truncate">{product.title}</h3>
-                    <p className="text-xs text-[#555] mt-1">R$ {product.price_brl?.toFixed(2)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Parceiros */}
       <section className="border-b border-[#1A1A1A] py-12">
         <div className="max-w-7xl mx-auto px-4">
@@ -125,41 +67,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Diferenciais rápidos - Novo */}
-      <section className="py-16 border-b border-[#1A1A1A]">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex items-center gap-4 p-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl">
-              <Zap className="h-8 w-8 text-white" />
-              <div>
-                <h3 className="text-sm font-bold text-white">Entrega Instantânea</h3>
-                <p className="text-xs text-[#555]">Download imediato após aprovação</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 p-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl">
-              <Shield className="h-8 w-8 text-white" />
-              <div>
-                <h3 className="text-sm font-bold text-white">Compra Segura</h3>
-                <p className="text-xs text-[#555]">Pagamento protegido e garantido</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 p-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl">
-              <Headphones className="h-8 w-8 text-white" />
-              <div>
-                <h3 className="text-sm font-bold text-white">Suporte Técnico</h3>
-                <p className="text-xs text-[#555]">Atendimento no Discord</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* CTA Final */}
       <section className="py-32">
         <div className="max-w-3xl mx-auto px-4 text-center space-y-7">
           <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight">Pronto para começar?</h2>
           <p className="text-[#666] text-base max-w-lg mx-auto">Acesse nossa biblioteca completa com centenas de assets premium desenvolvidos para produção.</p>
-          <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold h-14 px-12 text-sm gap-2 rounded-xl transition-transform hover:scale-105">
+          <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold h-14 px-12 text-sm gap-2 rounded-xl">
             Ir para a Loja <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
