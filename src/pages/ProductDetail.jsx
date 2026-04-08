@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import ReviewSection from '@/components/products/ReviewSection';
-import GiftModal from '@/components/products/GiftModal';
 
 function DiscountCountdown({ expiresAt }) {
   const timeLeft = useCountdown(expiresAt);
@@ -36,7 +35,6 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedLicense, setSelectedLicense] = useState(0);
   const [addingToCart, setAddingToCart] = useState(false);
-  const [showGiftModal, setShowGiftModal] = useState(false);
 
   useEffect(() => { loadProduct(); }, [id]);
 
@@ -194,34 +192,6 @@ export default function ProductDetail() {
 
               {hasDiscount && !currentLicense && <DiscountCountdown expiresAt={product.discount_expires_at} />}
 
-              <div className="space-y-2">
-                {isClosed ? (
-                  <div className="w-full flex items-center justify-center gap-2 h-10 bg-[#111] border border-[#1A1A1A] rounded-lg text-[#555] text-sm font-semibold">
-                    <Lock className="h-4 w-4" /> Produto Indisponível
-                  </div>
-                ) : (
-                  <>
-                    <Button onClick={addToCart} disabled={addingToCart} variant="outline"
-                      className="w-full border-border text-foreground hover:bg-secondary gap-2 h-11 rounded-xl">
-                      <ShoppingCart className="h-4 w-4" /> Adicionar ao Carrinho
-                    </Button>
-                    <Button onClick={buyNow} disabled={addingToCart}
-                      className="w-full bg-white text-black hover:bg-white/90 font-semibold gap-2 h-11 rounded-xl">
-                      <Zap className="h-4 w-4" /> Comprar Agora
-                    </Button>
-                    {/* Botão de presente - mesma cor dos outros */}
-                    <Button
-                      onClick={() => setShowGiftModal(true)}
-                      variant="outline"
-                      className="w-full border-border text-foreground hover:bg-secondary gap-2 h-11 rounded-xl"
-                    >
-                      <Gift className="h-4 w-4" /> Presentear alguém
-                    </Button>
-                  </>
-                )}
-                <FavoriteButton product={product} className="w-full justify-center h-11 rounded-lg border border-[#1A1A1A] text-xs gap-1.5" />
-              </div>
-
               {metadata.length > 0 && (
                 <div className="space-y-3 pt-4 border-t border-border">
                   {metadata.map((item) => (
@@ -239,15 +209,6 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
-
-      {/* Gift Modal */}
-      <GiftModal
-        open={showGiftModal}
-        onClose={() => setShowGiftModal(false)}
-        product={product}
-        license={product.licenses?.[selectedLicense]}
-        price={price}
-      />
     </div>
   );
 }

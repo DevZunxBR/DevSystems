@@ -1,7 +1,7 @@
-// src/pages/Cart.jsx - Versão melhorada
+// src/pages/Cart.jsx - Com suporte a presentes
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, ShoppingCart, ArrowRight, Wallet, AlertCircle, RefreshCw } from 'lucide-react';
+import { Trash2, ShoppingCart, ArrowRight, Wallet, AlertCircle, RefreshCw, Gift } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -56,6 +56,9 @@ export default function Cart() {
   const canPayFully = walletBalance >= total;
   const walletDiscount = useWalletBalance ? Math.min(walletBalance, total) : 0;
   const remainingTotal = Math.max(0, total - walletDiscount);
+  
+  // Verificar se tem presente no carrinho
+  const hasGift = items.some(item => item.is_gift === true);
 
   const handlePayWithWallet = async () => {
     if (!canPayFully) {
@@ -73,6 +76,10 @@ export default function Cart() {
         price: item.price_brl,
         thumbnail: item.thumbnail,
         file_url: item.file_url,
+        is_gift: item.is_gift || false,
+        gift_recipient_email: item.gift_recipient_email,
+        gift_message: item.gift_message,
+        gift_sender_name: item.gift_sender_name,
       }));
 
       await base44.entities.Order.create({
@@ -160,6 +167,17 @@ export default function Cart() {
         )}
       </div>
 
+      {/* Aviso de presente */}
+      {hasGift && (
+        <div className="mb-6 p-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl flex items-center gap-3">
+          <Gift className="h-5 w-5 text-white" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-white">Presentes no carrinho!</p>
+            <p className="text-xs text-[#555]">Após a aprovação do pagamento, os presentes serão enviados automaticamente.</p>
+          </div>
+        </div>
+      )}
+
       {items.length === 0 ? (
         <div className="text-center py-24 space-y-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl">
           <ShoppingCart className="h-16 w-16 text-[#333] mx-auto" />
@@ -197,8 +215,24 @@ export default function Cart() {
                 
                 {/* Informações */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-semibold text-white truncate">{item.product_title}</h3>
-                  <p className="text-xs text-[#555] mt-0.5">{item.license_name || 'Licença Padrão'}</p>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-white truncate">{item.product_title}</h3>
+                    {item.is_gift && (
+                      <span className="text-[10px] bg-white/10 text-white px-1.5 py-0.5 rounded flex items-center gap-1">
+                        <Gift className="h-2.5 w-2.5" /> Presente
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-[#555] mt-0.5">
+                    {item.is_gift ? (
+                      <>🎁 Para: <span className="text-white">{item.gift_recipient_email}</span></>
+                    ) : (
+                      item.license_name || 'Licença Padrão'
+                    )}
+                  </p>
+                  {item.is_gift && item.gift_message && (
+                    <p className="text-[10px] text-[#555] mt-1 italic">"{item.gift_message.slice(0, 50)}"</p>
+                  )}
                 </div>
                 
                 {/* Preço e Remover */}
