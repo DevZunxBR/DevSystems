@@ -11,13 +11,6 @@ const TESTIMONIALS = [
   { name: 'Pedro S.', role: 'Game Dev', rating: 5, text: 'Os sistemas são extremamente bem documentados. Recomendo para todos os devs.' },
 ];
 
-// Benefícios extras (nova seção)
-const BENEFITS = [
-  { icon: TrendingUp, title: 'Cashback 5%', desc: 'Ganhe créditos em todas as compras aprovadas' },
-  { icon: Award, title: 'Garantia de 30 dias', desc: 'Reembolso garantido se não ficar satisfeito' },
-  { icon: Clock, title: 'Atualizações vitalícias', desc: 'Receba todas as atualizações sem custo extra' },
-];
-
 export default function Home() {
   const navigate = useNavigate();
 
