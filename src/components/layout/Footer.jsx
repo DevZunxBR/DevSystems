@@ -28,7 +28,7 @@ function InstagramIcon() {
 export default function Footer() {
   // Links sociais
   const socialLinks = {
-    discord: 'https://discord.gg/seu-convite',
+    discord: 'https://discord.gg/M5NVt4xcjn',
     youtube: 'https://youtube.com/@seucanal',
     instagram: 'https://instagram.com/seuperfil'
   };
