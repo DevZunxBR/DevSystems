@@ -1,6 +1,6 @@
-// src/components/checkout/PixModal.jsx - Tela inteira estilo grande empresas
+// src/components/checkout/PixModal.jsx - Modal pequeno com melhorias
 import { useState, useEffect, useRef } from 'react';
-import { Copy, Check, ArrowLeft, Shield, Clock, Smartphone, X, AlertCircle, Banknote, QrCode } from 'lucide-react';
+import { Copy, Check, ArrowLeft, Shield, Clock, Smartphone, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
 import QRCode from 'qrcode';
 
@@ -70,7 +70,7 @@ export default function PixModal({ open, onClose, total }) {
   useEffect(() => {
     if (step === 'qr' && qrRef.current && pixCode) {
       QRCode.toCanvas(qrRef.current, pixCode, {
-        width: 280,
+        width: 180,
         margin: 2,
         color: { dark: '#000000', light: '#ffffff' },
       }).catch(console.error);
@@ -81,11 +81,7 @@ export default function PixModal({ open, onClose, total }) {
     if (step !== 'qr' && step !== 'code') return;
     const interval = setInterval(() => {
       setTimeLeft(prev => {
-        if (prev <= 1) { 
-          clearInterval(interval); 
-          toast.error('Tempo expirado, gere um novo código');
-          return 0; 
-        }
+        if (prev <= 1) { clearInterval(interval); return 0; }
         return prev - 1;
       });
     }, 1000);
@@ -104,193 +100,167 @@ export default function PixModal({ open, onClose, total }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black">
-      {/* Tela inteira */}
-      <div className="min-h-screen bg-gradient-to-b from-[#050505] to-black flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md bg-[#050505] border border-[#1A1A1A] rounded-2xl overflow-hidden shadow-2xl">
         
-        {/* Header - Estilo App */}
-        <div className="sticky top-0 z-10 bg-black/95 backdrop-blur-sm border-b border-[#1A1A1A]">
-          <div className="max-w-lg mx-auto px-4 py-4 flex items-center justify-between">
-            <button 
-              onClick={onClose} 
-              className="w-10 h-10 rounded-full bg-[#0A0A0A] border border-[#1A1A1A] flex items-center justify-center hover:bg-[#1A1A1A] transition-all"
-            >
-              <ArrowLeft className="h-5 w-5 text-white" />
-            </button>
-            
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-white rounded-md flex items-center justify-center">
-                <span className="text-black font-black text-[8px]">PIX</span>
-              </div>
-              <span className="text-base font-semibold text-white">Pagamento PIX</span>
+        {/* Header melhorado */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1A1A1A] bg-[#0A0A0A]/50">
+          <button 
+            onClick={onClose} 
+            className="text-[#555] hover:text-white transition-colors p-1"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+          
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-white rounded-md flex items-center justify-center">
+              <span className="text-black font-black text-[7px]">PIX</span>
             </div>
-            
-            <div className="w-10 h-10 opacity-0" />
+            <span className="text-sm font-semibold text-white">Pagamento PIX</span>
+          </div>
+          
+          <div className="flex items-center gap-1 text-[11px] text-[#555]">
+            <Shield className="h-3 w-3" />
+            <span>Seguro</span>
           </div>
         </div>
 
-        {/* Conteúdo Principal */}
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="w-full max-w-md">
+        {/* Loading melhorado */}
+        {step === 'loading' && (
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <div className="relative w-12 h-12">
+              <div className="absolute inset-0 rounded-full border-2 border-[#1A1A1A]" />
+              <div className="absolute inset-0 rounded-full border-2 border-t-white animate-spin" />
+            </div>
+            <div className="text-center space-y-1">
+              <p className="text-sm font-semibold text-white">Gerando cobrança...</p>
+              <p className="text-xs text-[#555]">Conectando ao Banco Central</p>
+            </div>
+          </div>
+        )}
+
+        {/* Payment com melhorias */}
+        {(step === 'qr' || step === 'code') && (
+          <div className="p-5 space-y-5">
             
-            {/* Loading */}
-            {step === 'loading' && (
-              <div className="flex flex-col items-center justify-center py-20 space-y-6">
-                <div className="relative w-20 h-20">
-                  <div className="absolute inset-0 rounded-full border-4 border-[#1A1A1A]" />
-                  <div className="absolute inset-0 rounded-full border-4 border-t-white animate-spin" />
+            {/* Valor e Timer */}
+            <div className="text-center space-y-2">
+              <p className="text-xs text-[#555]">Valor a pagar</p>
+              <p className="text-3xl font-black text-white">R$ {(total || 0).toFixed(2)}</p>
+              
+              <div className="flex items-center justify-center gap-1 pt-1">
+                <Clock className={`h-3 w-3 ${timeLeft < 60 ? 'text-red-400' : 'text-[#555]'}`} />
+                <span className="text-xs text-[#555]">Expira em </span>
+                <span className={`text-xs font-mono font-semibold ${timeLeft < 60 ? 'text-red-400' : 'text-white'}`}>
+                  {formatTime(timeLeft)}
+                </span>
+              </div>
+            </div>
+
+            {/* Tabs melhoradas */}
+            <div className="flex bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg p-1">
+              <button 
+                onClick={() => setStep('qr')}
+                className={`flex-1 py-2 text-xs font-semibold rounded-md transition-all flex items-center justify-center gap-2 ${
+                  step === 'qr' 
+                    ? 'bg-white text-black' 
+                    : 'text-[#555] hover:text-white'
+                }`}
+              >
+                <QrCode className="h-3.5 w-3.5" /> 
+                QR Code
+              </button>
+              <button 
+                onClick={() => setStep('code')}
+                className={`flex-1 py-2 text-xs font-semibold rounded-md transition-all flex items-center justify-center gap-2 ${
+                  step === 'code' 
+                    ? 'bg-white text-black' 
+                    : 'text-[#555] hover:text-white'
+                }`}
+              >
+                <Copy className="h-3.5 w-3.5" /> 
+                Copiar
+              </button>
+            </div>
+
+            {/* QR Code melhorado */}
+            {step === 'qr' && (
+              <div className="space-y-3">
+                <div className="flex justify-center py-2">
+                  <div className="w-44 h-44 bg-white rounded-xl p-3 flex items-center justify-center shadow-lg">
+                    <canvas ref={qrRef} />
+                  </div>
                 </div>
-                <div className="text-center space-y-2">
-                  <p className="text-xl font-semibold text-white">Gerando cobrança...</p>
-                  <p className="text-sm text-[#555]">Conectando ao Banco Central do Brasil</p>
-                </div>
+                <p className="text-center text-xs text-[#555]">
+                  Escaneie o QR Code com seu banco
+                </p>
               </div>
             )}
 
-            {/* Payment */}
-            {(step === 'qr' || step === 'code') && (
-              <div className="space-y-6">
-                
-                {/* Card do Valor */}
-                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-6 text-center space-y-3">
-                  <p className="text-sm text-[#555]">Valor a pagar</p>
-                  <p className="text-5xl font-black text-white">R$ {(total || 0).toFixed(2)}</p>
-                  
-                  {/* Timer */}
-                  <div className="flex items-center justify-center gap-2 pt-2">
-                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${
-                      timeLeft < 60 ? 'bg-red-500/10 border border-red-500/20' : 'bg-[#111] border border-[#1A1A1A]'
-                    }`}>
-                      <Clock className={`h-3.5 w-3.5 ${timeLeft < 60 ? 'text-red-400' : 'text-[#555]'}`} />
-                      <span className={`text-xs font-mono font-semibold ${timeLeft < 60 ? 'text-red-400' : 'text-white'}`}>
-                        {formatTime(timeLeft)}
-                      </span>
-                    </div>
-                  </div>
+            {/* Copia e Cola melhorado */}
+            {step === 'code' && (
+              <div className="space-y-3">
+                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-3">
+                  <p className="text-[10px] text-[#555] mb-1">Código PIX (Copia e Cola)</p>
+                  <p className="text-[11px] text-white font-mono break-all select-all leading-relaxed">
+                    {pixCode}
+                  </p>
                 </div>
-
-                {/* Tabs Estilo Moderno */}
-                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-1.5">
-                  <div className="flex gap-1">
-                    <button 
-                      onClick={() => setStep('qr')}
-                      className={`flex-1 py-3 text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-2 ${
-                        step === 'qr' 
-                          ? 'bg-white text-black' 
-                          : 'text-[#555] hover:text-white'
-                      }`}
-                    >
-                      <QrCode className="h-4 w-4" /> 
-                      QR Code
-                    </button>
-                    <button 
-                      onClick={() => setStep('code')}
-                      className={`flex-1 py-3 text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-2 ${
-                        step === 'code' 
-                          ? 'bg-white text-black' 
-                          : 'text-[#555] hover:text-white'
-                      }`}
-                    >
-                      <Copy className="h-4 w-4" /> 
-                      Copiar Código
-                    </button>
-                  </div>
-                </div>
-
-                {/* QR Code Section - Maior e mais visível */}
-                {step === 'qr' && (
-                  <div className="bg-white rounded-2xl p-8 flex justify-center">
-                    <div className="w-72 h-72">
-                      <canvas ref={qrRef} className="w-full h-full" />
-                    </div>
-                  </div>
-                )}
-
-                {/* Copia e Cola Section */}
-                {step === 'code' && (
-                  <div className="space-y-4">
-                    <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-5">
-                      <p className="text-xs text-[#555] mb-2">Código PIX (Copia e Cola)</p>
-                      <p className="text-xs text-white font-mono break-all leading-relaxed select-all">
-                        {pixCode}
-                      </p>
-                    </div>
-                    
-                    <button 
-                      onClick={copyCode}
-                      className={`w-full py-4 rounded-xl text-base font-bold flex items-center justify-center gap-2 transition-all ${
-                        copied 
-                          ? 'bg-green-500 text-white' 
-                          : 'bg-white text-black hover:bg-white/90'
-                      }`}
-                    >
-                      {copied ? (
-                        <><Check className="h-5 w-5" /> Código copiado!</>
-                      ) : (
-                        <><Copy className="h-5 w-5" /> Copiar código PIX</>
-                      )}
-                    </button>
-                  </div>
-                )}
-
-                {/* Informações do Favorecido */}
-                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-5 space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Banknote className="h-4 w-4 text-[#555]" />
-                    <p className="text-xs font-semibold text-white">Favorecido</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">Natan da Rocha Lima Pacheco</p>
-                    <p className="text-xs text-[#555] mt-0.5">CPF: ***.123.456-**</p>
-                  </div>
-                </div>
-
-                {/* Como pagar - Passo a passo */}
-                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-5 space-y-4">
-                  <p className="text-xs font-semibold text-white">Como pagar via PIX</p>
-                  <div className="space-y-3">
-                    {[
-                      'Abra o aplicativo do seu banco',
-                      'Selecione a opção "Pagar com PIX"',
-                      step === 'qr' ? 'Escaneie o QR Code acima' : 'Cole o código PIX copiado',
-                      'Confirme os dados e finalize o pagamento'
-                    ].map((s, i) => (
-                      <div key={i} className="flex items-center gap-3">
-                        <div className="w-5 h-5 rounded-full bg-[#111] border border-[#333] flex items-center justify-center flex-shrink-0">
-                          <span className="text-[9px] text-[#666] font-bold">{i + 1}</span>
-                        </div>
-                        <span className="text-xs text-[#888]">{s}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Aviso de segurança */}
-                <div className="flex items-center justify-center gap-4 py-4">
-                  <div className="flex items-center gap-1.5">
-                    <Shield className="h-3.5 w-3.5 text-[#444]" />
-                    <span className="text-[10px] text-[#444]">Transação segura</span>
-                  </div>
-                  <div className="w-px h-3 bg-[#1A1A1A]" />
-                  <div className="flex items-center gap-1.5">
-                    <AlertCircle className="h-3.5 w-3.5 text-[#444]" />
-                    <span className="text-[10px] text-[#444]">PIX instantâneo</span>
-                  </div>
-                  <div className="w-px h-3 bg-[#1A1A1A]" />
-                  <span className="text-[10px] text-[#444]">Banco Central</span>
-                </div>
-
-                {/* Botão de fechar */}
-                <button
-                  onClick={onClose}
-                  className="w-full py-3 rounded-xl text-sm font-medium text-[#555] hover:text-white transition-colors"
+                <button 
+                  onClick={copyCode}
+                  className={`w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all ${
+                    copied 
+                      ? 'bg-green-500 text-white' 
+                      : 'bg-white text-black hover:bg-white/90'
+                  }`}
                 >
-                  Cancelar pagamento
+                  {copied ? (
+                    <><Check className="h-4 w-4" /> Copiado!</>
+                  ) : (
+                    <><Copy className="h-4 w-4" /> Copiar código</>
+                  )}
                 </button>
               </div>
             )}
+
+            {/* Favorecido melhorado */}
+            <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-3">
+              <p className="text-[10px] text-[#555] mb-1">Favorecido</p>
+              <p className="text-xs font-semibold text-white">Natan da Rocha Lima Pacheco</p>
+              <p className="text-[10px] text-[#555] mt-0.5">natanpachecorocha@gmail.com</p>
+            </div>
+
+            {/* Como pagar - mais compacto */}
+            <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-3 space-y-2">
+              <p className="text-xs font-semibold text-white">Como pagar</p>
+              <div className="space-y-1.5">
+                {[
+                  'Abra o app do seu banco',
+                  'Escolha pagar via PIX',
+                  step === 'qr' ? 'Escaneie o QR Code' : 'Cole o código copiado',
+                  'Confirme o pagamento'
+                ].map((s, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded-full bg-[#111] border border-[#333] flex items-center justify-center flex-shrink-0">
+                      <span className="text-[8px] text-[#666] font-bold">{i + 1}</span>
+                    </div>
+                    <span className="text-[10px] text-[#888]">{s}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Footer mais clean */}
+            <div className="flex items-center justify-center gap-3 pt-1">
+              <div className="flex items-center gap-1 text-[9px] text-[#444]">
+                <Shield className="h-2.5 w-2.5" />
+                <span>Transação segura</span>
+              </div>
+              <div className="w-px h-2.5 bg-[#1A1A1A]" />
+              <span className="text-[9px] text-[#444]">Banco Central</span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
