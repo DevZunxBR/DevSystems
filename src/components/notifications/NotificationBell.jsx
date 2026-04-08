@@ -1,3 +1,4 @@
+// src/components/NotificationBell.jsx - Sem tela cheia (dropdown normal em todos os dispositivos)
 import { useState, useEffect, useRef } from 'react';
 import { Bell } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -15,7 +16,9 @@ export default function NotificationBell({ userEmail }) {
   }, [userEmail]);
 
   useEffect(() => {
-    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const handler = (e) => { 
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false); 
+    };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
@@ -55,7 +58,7 @@ export default function NotificationBell({ userEmail }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden mobile-notification-dropdown">
+        <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <h3 className="text-sm font-bold text-foreground">Notificações</h3>
             {unreadCount > 0 && (
