@@ -1,9 +1,10 @@
+// src/pages/Checkout.jsx - Atualizado para suportar presentes
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { base44, supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Tag, X, Wallet } from 'lucide-react';
+import { Tag, X, Wallet, Gift } from 'lucide-react';
 import PixModal from '@/components/checkout/PixModal';
 
 export default function Checkout() {
@@ -79,7 +80,6 @@ export default function Checkout() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('total no submit:', total, 'coupon:', couponDiscount);
     if (!billing.name || !billing.email) { toast.error('Preencha todos os campos'); return; }
     setSubmitting(true);
     try {
@@ -93,6 +93,10 @@ export default function Checkout() {
         price: item.price_brl || 0,
         thumbnail: item.thumbnail,
         file_url: item.file_url,
+        is_gift: item.is_gift || false,
+        gift_recipient_email: item.gift_recipient_email,
+        gift_message: item.gift_message,
+        gift_sender_name: item.gift_sender_name,
       }));
 
       const order = await base44.entities.Order.create({
@@ -108,7 +112,6 @@ export default function Checkout() {
         billing_document: billing.document,
         pix_code: pixGenerated,
         download_token: `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`,
-        // Salva quanto saldo foi usado para debitar quando admin aprovar
         wallet_used: walletDiscount,
         coupon_discount: couponDiscount,
         subtotal_amount: subtotal,
@@ -118,7 +121,10 @@ export default function Checkout() {
         await base44.entities.Coupon.update(appliedCoupon.id, { uses_count: (appliedCoupon.uses_count || 0) + 1 });
       }
 
-      for (const item of items) await base44.entities.CartItem.delete(item.id);
+      // Limpar carrinho
+      for (const item of items) {
+        await base44.entities.CartItem.delete(item.id);
+      }
 
       setCurrentOrder(order);
       setPixCode(pixGenerated);
@@ -131,6 +137,9 @@ export default function Checkout() {
     }
   };
 
+  // Verificar se tem presente no carrinho
+  const hasGift = items.some(item => item.is_gift);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -142,6 +151,17 @@ export default function Checkout() {
   return (
     <div className="min-h-screen max-w-5xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-foreground tracking-tight mb-8">Checkout</h1>
+
+      {/* Aviso de presente */}
+      {hasGift && (
+        <div className="mb-6 p-4 bg-pink-500/10 border border-pink-500/20 rounded-xl flex items-center gap-3">
+          <Gift className="h-5 w-5 text-pink-400" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-white">Presentes no carrinho!</p>
+            <p className="text-xs text-pink-400/80">Após a aprovação do pagamento, os presentes serão enviados automaticamente.</p>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* Billing */}
@@ -241,7 +261,13 @@ export default function Checkout() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-foreground truncate">{item.product_title}</div>
-                    <div className="text-xs text-muted-foreground">{item.license_name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {item.is_gift ? (
+                        <span className="text-pink-400">🎁 Presente para {item.gift_recipient_email}</span>
+                      ) : (
+                        item.license_name
+                      )}
+                    </div>
                   </div>
                   <div className="text-sm font-bold text-foreground">{symbol}{(item.price_brl || 0).toFixed(2)}</div>
                 </div>
@@ -273,15 +299,15 @@ export default function Checkout() {
         </div>
       </div>
 
-{showPix && (
-  <PixModal
-    open={showPix}
-    onClose={() => { setShowPix(false); navigate('/dashboard/orders'); }}
-    pixCode={pixCode}
-    total={finalTotal}
-    currency="BRL"
-  />
-)}
+      {showPix && (
+        <PixModal
+          open={showPix}
+          onClose={() => { setShowPix(false); navigate('/dashboard/orders'); }}
+          pixCode={pixCode}
+          total={finalTotal}
+          currency="BRL"
+        />
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Zap, ChevronLeft, ChevronRight, FileBox, Tag, Layers, Settings, Lock, Clock } from 'lucide-react';
+import { ShoppingCart, Zap, ChevronLeft, ChevronRight, FileBox, Tag, Layers, Settings, Lock, Clock, Gift } from 'lucide-react';
 import { useCountdown } from '@/hooks/useCountdown';
 import FavoriteButton from '@/components/products/FavoriteButton';
 import { base44 } from '@/api/base44Client';
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import ReviewSection from '@/components/products/ReviewSection';
+import GiftModal from '@/components/products/GiftModal';
 
 function DiscountCountdown({ expiresAt }) {
   const timeLeft = useCountdown(expiresAt);
@@ -34,22 +35,17 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedLicense, setSelectedLicense] = useState(0);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [showGiftModal, setShowGiftModal] = useState(false);
 
-  useEffect(() => {
-    loadProduct();
-  }, [id]);
+  useEffect(() => { loadProduct(); }, [id]);
 
   const loadProduct = async () => {
     setLoading(true);
     try {
-      // Usa get() direto pelo ID
       const p = await base44.entities.Product.get(id);
       setProduct(p);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   };
 
   const getCurrentPrice = () => {
@@ -65,7 +61,6 @@ export default function ProductDetail() {
       const me = await base44.auth.me();
       const license = product.licenses?.[selectedLicense];
       const price = getCurrentPrice();
-
       await base44.entities.CartItem.create({
         user_email: me.email,
         product_id: product.id,
@@ -77,34 +72,25 @@ export default function ProductDetail() {
         file_url: product.file_url,
       });
       toast.success('Adicionado ao carrinho!');
-    } catch (e) {
+    } catch {
       toast.error('Faça login primeiro');
       navigate('/register');
-    } finally {
-      setAddingToCart(false);
-    }
+    } finally { setAddingToCart(false); }
   };
 
-  const buyNow = async () => {
-    await addToCart();
-    navigate('/cart');
-  };
+  const buyNow = async () => { await addToCart(); navigate('/cart'); };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-muted border-t-foreground rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-muted border-t-foreground rounded-full animate-spin" />
+    </div>
+  );
 
-  if (!product) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Produto não encontrado</p>
-      </div>
-    );
-  }
+  if (!product) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-muted-foreground">Produto não encontrado</p>
+    </div>
+  );
 
   const images = product.images?.length ? product.images : (product.thumbnail ? [product.thumbnail] : []);
   const hasDiscount = product.discount_price_brl && product.discount_expires_at && new Date(product.discount_expires_at) > new Date();
@@ -129,7 +115,6 @@ export default function ProductDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
         {/* Left */}
         <div className="lg:col-span-7 space-y-6">
-          {/* Image Carousel */}
           <div className="space-y-3">
             <div className="relative aspect-video bg-card border border-border rounded-xl overflow-hidden">
               {images.length > 0 ? (
@@ -162,7 +147,6 @@ export default function ProductDetail() {
             )}
           </div>
 
-          {/* Description */}
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-foreground">Descrição</h2>
             <div className="prose prose-sm prose-invert max-w-none text-muted-foreground">
@@ -170,7 +154,6 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* Reviews */}
           <div className="border-t border-border pt-6">
             <ReviewSection productId={product.id} />
           </div>
@@ -182,12 +165,9 @@ export default function ProductDetail() {
             <div className="bg-card border border-border rounded-xl p-6 space-y-5">
               <div>
                 <h1 className="text-xl font-bold text-foreground">{product.title}</h1>
-                {product.description && (
-                  <p className="text-sm text-muted-foreground mt-1">{product.description}</p>
-                )}
+                {product.description && <p className="text-sm text-muted-foreground mt-1">{product.description}</p>}
               </div>
 
-              {/* Price */}
               <div className="flex items-end gap-2">
                 <span className="text-3xl font-black text-foreground">R${displayPrice?.toFixed(2)}</span>
                 {hasDiscount && !currentLicense && product.price_brl > 0 && (
@@ -195,14 +175,11 @@ export default function ProductDetail() {
                 )}
               </div>
 
-              {/* License Selector */}
               {product.licenses?.length > 0 && (
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-muted-foreground">Licença</label>
                   <Select value={String(selectedLicense)} onValueChange={(v) => setSelectedLicense(Number(v))}>
-                    <SelectTrigger className="bg-secondary border-border text-foreground">
-                      <SelectValue />
-                    </SelectTrigger>
+                    <SelectTrigger className="bg-secondary border-border text-foreground"><SelectValue /></SelectTrigger>
                     <SelectContent className="bg-card border-border">
                       {product.licenses.map((lic, i) => (
                         <SelectItem key={i} value={String(i)} className="text-foreground">
@@ -214,10 +191,8 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              {/* Discount countdown */}
               {hasDiscount && !currentLicense && <DiscountCountdown expiresAt={product.discount_expires_at} />}
 
-              {/* Actions */}
               <div className="space-y-2">
                 {isClosed ? (
                   <div className="w-full flex items-center justify-center gap-2 h-10 bg-[#111] border border-[#1A1A1A] rounded-lg text-[#555] text-sm font-semibold">
@@ -229,15 +204,22 @@ export default function ProductDetail() {
                       className="w-full border-border text-foreground hover:bg-secondary gap-2">
                       <ShoppingCart className="h-4 w-4" /> Adicionar ao Carrinho
                     </Button>
-                    <Button onClick={buyNow} disabled={addingToCart} className="w-full bg-white text-black hover:bg-white/90 font-semibold gap-2">
+                    <Button onClick={buyNow} disabled={addingToCart}
+                      className="w-full bg-white text-black hover:bg-white/90 font-semibold gap-2">
                       <Zap className="h-4 w-4" /> Comprar Agora
                     </Button>
+                    {/* Botão de presente */}
+                    <button
+                      onClick={() => setShowGiftModal(true)}
+                      className="w-full h-9 flex items-center justify-center gap-2 border border-pink-500/30 text-pink-400 hover:bg-pink-500/10 rounded-lg text-xs font-medium transition-colors"
+                    >
+                      <Gift className="h-3.5 w-3.5" /> Presentear alguém
+                    </button>
                   </>
                 )}
                 <FavoriteButton product={product} className="w-full justify-center h-9 rounded-lg border border-[#1A1A1A] text-xs gap-1.5" />
               </div>
 
-              {/* Metadata */}
               {metadata.length > 0 && (
                 <div className="space-y-3 pt-4 border-t border-border">
                   {metadata.map((item) => (
@@ -255,6 +237,15 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {/* Gift Modal */}
+      <GiftModal
+        open={showGiftModal}
+        onClose={() => setShowGiftModal(false)}
+        product={product}
+        license={product.licenses?.[selectedLicense]}
+        price={price}
+      />
     </div>
   );
 }
