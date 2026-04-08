@@ -1,15 +1,9 @@
-// src/pages/Home.jsx - Versão final (sem categorias, diferenciais e benefícios)
+// src/pages/Home.jsx - Versão final (sem depoimentos e parceiros atualizados)
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Star, ChevronRight } from 'lucide-react';
+import { ArrowRight, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const PARTNERS = ['ROBLOX', 'UNITY', 'UNREAL', 'GITHUB'];
-
-const TESTIMONIALS = [
-  { name: 'Lucas M.', role: 'Desenvolvedor', rating: 5, text: 'Melhor marketplace de scripts que já usei. Qualidade impecável e suporte rápido.' },
-  { name: 'Ana R.', role: 'Designer', rating: 5, text: 'Entrega instantânea funcionou perfeitamente. Os assets são de altíssima qualidade.' },
-  { name: 'Pedro S.', role: 'Game Dev', rating: 5, text: 'Os sistemas são extremamente bem documentados. Recomendo para todos os devs.' },
-];
 
 export default function Home() {
   const navigate = useNavigate();
@@ -67,35 +61,6 @@ export default function Home() {
             {PARTNERS.map(p => (
               <div key={p} className="text-lg md:text-xl font-black text-[#222] hover:text-[#444] transition-colors cursor-default tracking-widest select-none">
                 {p}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Depoimentos */}
-      <section className="py-24 border-b border-[#1A1A1A]">
-        <div className="max-w-7xl mx-auto px-4 space-y-14">
-          <div className="text-center space-y-3">
-            <p className="text-[10px] font-bold text-[#555] uppercase tracking-[0.3em]">Depoimentos</p>
-            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">O que dizem nossos clientes</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map(t => (
-              <div key={t.name} className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-7 space-y-4 hover:border-[#333] transition-all">
-                <div className="flex gap-0.5">
-                  {Array.from({ length: t.rating }).map((_, i) => <Star key={i} className="h-4 w-4 fill-white text-white" />)}
-                </div>
-                <p className="text-sm text-[#888] leading-relaxed">"{t.text}"</p>
-                <div className="flex items-center gap-3 pt-2 border-t border-[#1A1A1A]">
-                  <div className="w-9 h-9 bg-[#111] rounded-full flex items-center justify-center text-xs font-bold text-white">
-                    {t.name[0]}
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold text-white">{t.name}</div>
-                    <div className="text-xs text-[#555]">{t.role}</div>
-                  </div>
-                </div>
               </div>
             ))}
           </div>
