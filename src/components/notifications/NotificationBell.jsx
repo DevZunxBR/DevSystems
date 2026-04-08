@@ -1,4 +1,4 @@
-// src/components/NotificationBell.jsx - Sem tela cheia (dropdown normal em todos os dispositivos)
+// src/components/NotificationBell.jsx - Responsivo (ajustado para mobile)
 import { useState, useEffect, useRef } from 'react';
 import { Bell } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -6,7 +6,18 @@ import { base44 } from '@/api/base44Client';
 export default function NotificationBell({ userEmail }) {
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const ref = useRef(null);
+
+  // Detectar mobile para ajustar o dropdown
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     if (!userEmail) return;
@@ -58,7 +69,13 @@ export default function NotificationBell({ userEmail }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden">
+        <div className={`
+          absolute top-full mt-2 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden
+          ${isMobile 
+            ? 'left-1/2 -translate-x-1/2 w-[calc(100vw-2rem)] max-w-[360px]' 
+            : 'right-0 w-80'
+          }
+        `}>
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <h3 className="text-sm font-bold text-foreground">Notificações</h3>
             {unreadCount > 0 && (
@@ -80,8 +97,8 @@ export default function NotificationBell({ userEmail }) {
                   <div className="flex items-start gap-2">
                     {!n.read && <span className="w-1.5 h-1.5 bg-white rounded-full mt-1.5 flex-shrink-0" />}
                     <div className={!n.read ? '' : 'pl-3.5'}>
-                      <div className="text-xs font-semibold text-foreground">{n.title}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">{n.message}</div>
+                      <div className="text-xs font-semibold text-foreground break-words">{n.title}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5 break-words">{n.message}</div>
                       <div className="text-[10px] text-muted-foreground/60 mt-1">
                         {new Date(n.created_at).toLocaleString('pt-BR')}
                       </div>
