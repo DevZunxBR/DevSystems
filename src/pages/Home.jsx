@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Star, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const PARTNERS = ['ROBLOX', 'UNITY', 'UNREAL', 'GITHUB', 'VERCEL', 'DISCORD'];
+const PARTNERS = ['ROBLOX', 'UNITY', 'UNREAL', 'GITHUB'];
 
 const TESTIMONIALS = [
   { name: 'Lucas M.', role: 'Desenvolvedor', rating: 5, text: 'Melhor marketplace de scripts que já usei. Qualidade impecável e suporte rápido.' },
