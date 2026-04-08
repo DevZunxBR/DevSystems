@@ -1,9 +1,12 @@
+// src/components/products/GiftModal.jsx - Versão tela cheia
 import { useState } from 'react';
-import { Gift, X, Send, Heart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Gift, X, Send, Heart, ArrowLeft, Mail, MessageSquare, User, AlertCircle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
 export default function GiftModal({ open, onClose, product, license, price }) {
+  const navigate = useNavigate();
   const [step, setStep] = useState('form'); // 'form' | 'success'
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ email: '', message: '' });
@@ -22,7 +25,6 @@ export default function GiftModal({ open, onClose, product, license, price }) {
         return;
       }
 
-      // Adiciona ao carrinho com info de presente
       await base44.entities.CartItem.create({
         user_email: me.email,
         product_id: product.id,
@@ -53,105 +55,185 @@ export default function GiftModal({ open, onClose, product, license, price }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-black">
+      {/* Tela cheia */}
+      <div className="min-h-screen bg-gradient-to-b from-[#050505] to-black flex flex-col">
+        
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1A1A1A]">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-pink-500/10 border border-pink-500/20 rounded-lg flex items-center justify-center">
-              <Gift className="h-4 w-4 text-pink-400" />
+        <div className="sticky top-0 z-10 bg-black/95 backdrop-blur-sm border-b border-[#1A1A1A]">
+          <div className="max-w-lg mx-auto px-4 py-4 flex items-center justify-between">
+            <button 
+              onClick={handleClose} 
+              className="w-10 h-10 rounded-full bg-[#0A0A0A] border border-[#1A1A1A] flex items-center justify-center hover:bg-[#1A1A1A] transition-all"
+            >
+              <ArrowLeft className="h-5 w-5 text-white" />
+            </button>
+            
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-pink-500 rounded-md flex items-center justify-center">
+                <Gift className="h-3.5 w-3.5 text-white" />
+              </div>
+              <span className="text-base font-semibold text-white">Presentear</span>
             </div>
-            <span className="text-sm font-semibold text-white">Presentear alguém</span>
+            
+            <div className="w-10 h-10 opacity-0" />
           </div>
-          <button onClick={handleClose} className="text-[#555] hover:text-white transition-colors">
-            <X className="h-4 w-4" />
-          </button>
         </div>
 
-        {step === 'form' ? (
-          <div className="p-6 space-y-5">
-            {/* Product preview */}
-            <div className="flex items-center gap-3 bg-[#111] border border-[#1A1A1A] rounded-xl p-3">
-              <div className="w-12 h-12 bg-[#0A0A0A] rounded-lg overflow-hidden flex-shrink-0">
-                {product.thumbnail && <img src={product.thumbnail} alt="" className="w-full h-full object-cover" />}
+        {/* Conteúdo */}
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="w-full max-w-md">
+            
+            {step === 'form' ? (
+              <div className="space-y-6">
+                {/* Produto preview */}
+                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-5 space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-[#111] rounded-xl overflow-hidden flex-shrink-0">
+                      {product.thumbnail && <img src={product.thumbnail} alt="" className="w-full h-full object-cover" />}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-base font-bold text-white">{product.title}</p>
+                      <p className="text-xs text-[#555] mt-0.5">{license?.name || 'Standard'}</p>
+                      <p className="text-sm font-bold text-white mt-1">R$ {(price.brl || 0).toFixed(2)}</p>
+                    </div>
+                    <Heart className="h-5 w-5 text-pink-400" />
+                  </div>
+                </div>
+
+                {/* Informação */}
+                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-5 space-y-4">
+                  <h3 className="text-base font-bold text-white">Informações do presente</h3>
+                  
+                  {/* Email */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-[#555] flex items-center gap-1">
+                      <Mail className="h-3 w-3" /> Email do destinatário *
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="amigo@email.com"
+                      value={form.email}
+                      onChange={e => setForm({ ...form, email: e.target.value })}
+                      className="w-full h-11 px-4 bg-[#111] border border-[#1A1A1A] rounded-xl text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-pink-500/50 transition-colors"
+                    />
+                    <p className="text-[10px] text-[#444]">O destinatário receberá uma notificação por email</p>
+                  </div>
+
+                  {/* Mensagem */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-[#555] flex items-center gap-1">
+                      <MessageSquare className="h-3 w-3" /> Mensagem especial (opcional)
+                    </label>
+                    <textarea
+                      placeholder="Escreva uma mensagem especial para quem vai receber..."
+                      value={form.message}
+                      onChange={e => setForm({ ...form, message: e.target.value })}
+                      rows={4}
+                      maxLength={200}
+                      className="w-full px-4 py-3 bg-[#111] border border-[#1A1A1A] rounded-xl text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-pink-500/50 transition-colors resize-none"
+                    />
+                    <p className="text-[10px] text-[#444] text-right">{form.message.length}/200</p>
+                  </div>
+                </div>
+
+                {/* Informações adicionais */}
+                <div className="bg-pink-500/5 border border-pink-500/20 rounded-2xl p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-pink-400">
+                    <AlertCircle className="h-4 w-4" />
+                    <span className="text-xs font-medium">Como funciona?</span>
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-[#666]">
+                    <li className="flex items-start gap-2">
+                      <span className="text-pink-400">•</span>
+                      Você paga pelo presente normalmente no checkout
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-pink-400">•</span>
+                      O destinatário recebe uma notificação por email
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-pink-400">•</span>
+                      Ele terá que aceitar o presente no dashboard
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-pink-400">•</span>
+                      Após aceitar, o download fica disponível
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Botões */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleClose}
+                    className="flex-1 h-12 border border-[#1A1A1A] text-[#666] hover:text-white text-sm font-medium rounded-xl transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleSend}
+                    disabled={loading}
+                    className="flex-1 h-12 bg-pink-500 hover:bg-pink-600 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {loading ? (
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <><Send className="h-4 w-4" /> Adicionar ao carrinho</>
+                    )}
+                  </button>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white truncate">{product.title}</p>
-                <p className="text-xs text-[#555]">{license?.name || 'Standard'} — R${(price.brl || 0).toFixed(2)}</p>
+            ) : (
+              /* Success */
+              <div className="text-center space-y-6">
+                <div className="w-20 h-20 bg-pink-500/10 border border-pink-500/20 rounded-full flex items-center justify-center mx-auto">
+                  <Gift className="h-10 w-10 text-pink-400" />
+                </div>
+                
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-black text-white">Presente adicionado! 🎁</h2>
+                  <p className="text-sm text-[#555]">
+                    O presente foi adicionado ao carrinho.
+                  </p>
+                </div>
+
+                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-5 space-y-3 text-left">
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-[#555]" />
+                    <span className="text-xs text-[#555]">Destinatário</span>
+                  </div>
+                  <p className="text-sm text-white font-medium">{form.email}</p>
+                  
+                  {form.message && (
+                    <>
+                      <div className="flex items-center gap-2 pt-2">
+                        <MessageSquare className="h-4 w-4 text-[#555]" />
+                        <span className="text-xs text-[#555]">Mensagem</span>
+                      </div>
+                      <p className="text-sm text-[#888] italic">"{form.message}"</p>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleClose}
+                    className="flex-1 h-12 border border-[#1A1A1A] text-[#666] hover:text-white text-sm font-medium rounded-xl transition-colors"
+                  >
+                    Continuar comprando
+                  </button>
+                  <button
+                    onClick={() => { handleClose(); navigate('/cart'); }}
+                    className="flex-1 h-12 bg-white text-black text-sm font-bold rounded-xl hover:bg-white/90 transition-colors"
+                  >
+                    Ir para o carrinho
+                  </button>
+                </div>
               </div>
-              <Heart className="h-4 w-4 text-pink-400 flex-shrink-0" />
-            </div>
-
-            {/* Email */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-[#666]">Email do destinatário *</label>
-              <input
-                type="email"
-                placeholder="amigo@email.com"
-                value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })}
-                className="w-full h-11 px-4 bg-[#111] border border-[#1A1A1A] rounded-xl text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#333] transition-colors"
-              />
-            </div>
-
-            {/* Message */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-[#666]">Mensagem (opcional)</label>
-              <textarea
-                placeholder="Escreva uma mensagem especial..."
-                value={form.message}
-                onChange={e => setForm({ ...form, message: e.target.value })}
-                rows={3}
-                maxLength={200}
-                className="w-full px-4 py-3 bg-[#111] border border-[#1A1A1A] rounded-xl text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#333] transition-colors resize-none"
-              />
-              <p className="text-[10px] text-[#444] text-right">{form.message.length}/200</p>
-            </div>
-
-            <div className="bg-[#111] border border-[#1A1A1A] rounded-xl p-3 text-xs text-[#555] space-y-1">
-              <p>• Você será redirecionado para o checkout para pagar</p>
-              <p>• O destinatário receberá uma notificação</p>
-              <p>• Ele poderá aceitar ou recusar o presente</p>
-            </div>
-
-            <button
-              onClick={handleSend}
-              disabled={loading}
-              className="w-full h-11 bg-pink-500 hover:bg-pink-600 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <><Send className="h-4 w-4" /> Adicionar ao Carrinho como Presente</>
-              )}
-            </button>
+            )}
           </div>
-        ) : (
-          /* Success */
-          <div className="p-8 text-center space-y-4">
-            <div className="w-16 h-16 bg-pink-500/10 border border-pink-500/20 rounded-full flex items-center justify-center mx-auto">
-              <Gift className="h-8 w-8 text-pink-400" />
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-black text-white">Presente adicionado!</h3>
-              <p className="text-sm text-[#555]">
-                O presente foi adicionado ao carrinho. Finalize o pagamento para enviar!
-              </p>
-            </div>
-            <div className="bg-[#111] border border-[#1A1A1A] rounded-xl p-3 text-xs text-[#666]">
-              Destinatário: <span className="text-white font-medium">{form.email}</span>
-            </div>
-            <div className="flex gap-3">
-              <button onClick={handleClose} className="flex-1 h-10 border border-[#1A1A1A] text-[#666] hover:text-white text-sm rounded-xl transition-colors">
-                Continuar comprando
-              </button>
-              <button onClick={() => { handleClose(); window.location.href = '/cart'; }}
-                className="flex-1 h-10 bg-white text-black text-sm font-bold rounded-xl hover:bg-white/90 transition-colors">
-                Ir para o carrinho
-              </button>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
