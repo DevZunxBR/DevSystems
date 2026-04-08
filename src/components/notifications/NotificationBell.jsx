@@ -1,4 +1,3 @@
-// src/components/NotificationBell.jsx - Corrigido para não cortar conteúdo
 import { useState, useEffect, useRef } from 'react';
 import { Bell } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -6,18 +5,7 @@ import { base44 } from '@/api/base44Client';
 export default function NotificationBell({ userEmail }) {
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const ref = useRef(null);
-
-  // Detectar mobile para ajustar o dropdown
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   useEffect(() => {
     if (!userEmail) return;
@@ -27,9 +15,7 @@ export default function NotificationBell({ userEmail }) {
   }, [userEmail]);
 
   useEffect(() => {
-    const handler = (e) => { 
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false); 
-    };
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
@@ -69,13 +55,7 @@ export default function NotificationBell({ userEmail }) {
       </button>
 
       {open && (
-        <div className={`
-          absolute top-full mt-2 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden
-          ${isMobile 
-            ? 'left-1/2 -translate-x-1/2 w-[calc(100vw-2rem)] max-w-[360px]' 
-            : 'right-0 w-80'
-          }
-        `}>
+        <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden mobile-notification-dropdown">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <h3 className="text-sm font-bold text-foreground">Notificações</h3>
             {unreadCount > 0 && (
@@ -84,8 +64,7 @@ export default function NotificationBell({ userEmail }) {
               </button>
             )}
           </div>
-          {/* Removido o max-h-80 para não cortar conteúdo */}
-          <div className="overflow-y-auto" style={{ maxHeight: 'min(400px, 70vh)' }}>
+          <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="py-8 text-center text-sm text-muted-foreground">Nenhuma notificação</div>
             ) : (
@@ -97,9 +76,9 @@ export default function NotificationBell({ userEmail }) {
                 >
                   <div className="flex items-start gap-2">
                     {!n.read && <span className="w-1.5 h-1.5 bg-white rounded-full mt-1.5 flex-shrink-0" />}
-                    <div className={`flex-1 min-w-0 ${!n.read ? '' : 'pl-3.5'}`}>
-                      <div className="text-xs font-semibold text-foreground break-words">{n.title}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5 break-words leading-relaxed">{n.message}</div>
+                    <div className={!n.read ? '' : 'pl-3.5'}>
+                      <div className="text-xs font-semibold text-foreground">{n.title}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{n.message}</div>
                       <div className="text-[10px] text-muted-foreground/60 mt-1">
                         {new Date(n.created_at).toLocaleString('pt-BR')}
                       </div>
