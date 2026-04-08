@@ -10,7 +10,7 @@ export default function NotificationBell({ userEmail }) {
   useEffect(() => {
     if (!userEmail) return;
     loadNotifications();
-    const interval = setInterval(loadNotifications, 60000);
+    const interval = setInterval(loadNotifications, 30000);
     return () => clearInterval(interval);
   }, [userEmail]);
 
@@ -22,20 +22,20 @@ export default function NotificationBell({ userEmail }) {
 
   const loadNotifications = async () => {
     try {
-      const items = await base44.entities.Notification.filter({ user_email: userEmail }, '-created_at', 20);
+      const items = await base44.entities.Notification.filter({ user_email: userEmail }, '-created_date', 20);
       setNotifications(items);
     } catch {}
   };
 
   const markRead = async (id) => {
     await base44.entities.Notification.update(id, { read: true });
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
   };
 
   const markAllRead = async () => {
     const unread = notifications.filter(n => !n.read);
     await Promise.all(unread.map(n => base44.entities.Notification.update(n.id, { read: true })));
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setNotifications(notifications.map(n => ({ ...n, read: true })));
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -48,19 +48,19 @@ export default function NotificationBell({ userEmail }) {
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 bg-white text-black text-[10px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
+          <span className="absolute -top-0.5 -right-0.5 bg-white text-black text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden mobile-notification-dropdown">
+        <div className="fixed right-2 left-2 sm:left-auto sm:right-0 sm:absolute sm:w-80 top-auto mt-2 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden" style={{top: 'auto'}}>
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <h3 className="text-sm font-bold text-foreground">Notificações</h3>
             {unreadCount > 0 && (
               <button onClick={markAllRead} className="text-xs text-muted-foreground hover:text-foreground">
-                Marcar todas
+                Marcar todas como lidas
               </button>
             )}
           </div>
@@ -80,7 +80,7 @@ export default function NotificationBell({ userEmail }) {
                       <div className="text-xs font-semibold text-foreground">{n.title}</div>
                       <div className="text-xs text-muted-foreground mt-0.5">{n.message}</div>
                       <div className="text-[10px] text-muted-foreground/60 mt-1">
-                        {new Date(n.created_at).toLocaleString('pt-BR')}
+                        {new Date(n.created_date).toLocaleString()}
                       </div>
                     </div>
                   </div>
