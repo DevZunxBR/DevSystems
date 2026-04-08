@@ -66,15 +66,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Rodapé simples */}
-      <footer className="py-6">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-[10px] text-[#333]">© 2026 Marketplace. Todos os direitos reservados.</p>
-            <p className="text-[10px] text-[#333]">Pagamentos processados via PIX</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
