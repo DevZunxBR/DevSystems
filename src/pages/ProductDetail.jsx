@@ -1,4 +1,3 @@
-// src/pages/ProductDetail.jsx - Versão original melhorada
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Zap, ChevronLeft, ChevronRight, FileBox, Tag, Layers, Settings, Lock, Clock } from 'lucide-react';
@@ -35,7 +34,6 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedLicense, setSelectedLicense] = useState(0);
   const [addingToCart, setAddingToCart] = useState(false);
-  const [zoomImage, setZoomImage] = useState(false);
 
   useEffect(() => {
     loadProduct();
@@ -44,6 +42,7 @@ export default function ProductDetail() {
   const loadProduct = async () => {
     setLoading(true);
     try {
+      // Usa get() direto pelo ID
       const p = await base44.entities.Product.get(id);
       setProduct(p);
     } catch (e) {
@@ -94,7 +93,7 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#1A1A1A] border-t-white rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-muted border-t-foreground rounded-full animate-spin" />
       </div>
     );
   }
@@ -102,7 +101,7 @@ export default function ProductDetail() {
   if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-[#555]">Produto não encontrado</p>
+        <p className="text-muted-foreground">Produto não encontrado</p>
       </div>
     );
   }
@@ -123,51 +122,39 @@ export default function ProductDetail() {
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto px-4 py-8">
-      <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-[#555] hover:text-white mb-6 transition-colors">
+      <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
         <ChevronLeft className="h-4 w-4" /> Voltar
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
-        {/* Left - Galeria melhorada */}
+        {/* Left */}
         <div className="lg:col-span-7 space-y-6">
-          {/* Image Carousel com Zoom */}
+          {/* Image Carousel */}
           <div className="space-y-3">
-            <div 
-              className="relative aspect-video bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden cursor-zoom-in"
-              onClick={() => setZoomImage(!zoomImage)}
-            >
+            <div className="relative aspect-video bg-card border border-border rounded-xl overflow-hidden">
               {images.length > 0 ? (
-                <img 
-                  src={images[selectedImage]} 
-                  alt={product.title} 
-                  className={`w-full h-full object-cover transition-transform duration-300 ${zoomImage ? 'scale-150' : 'scale-100'}`}
-                />
+                <img src={images[selectedImage]} alt={product.title} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-[#555]">Sem imagem</div>
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground">Sem imagem</div>
               )}
               {images.length > 1 && (
                 <>
-                  <button onClick={(e) => { e.stopPropagation(); setSelectedImage(Math.max(0, selectedImage - 1)); }}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-black/60 rounded-full text-white hover:bg-black/80 transition-all">
+                  <button onClick={() => setSelectedImage(Math.max(0, selectedImage - 1))}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-black/60 rounded-full text-white hover:bg-black/80">
                     <ChevronLeft className="h-4 w-4" />
                   </button>
-                  <button onClick={(e) => { e.stopPropagation(); setSelectedImage(Math.min(images.length - 1, selectedImage + 1)); }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-black/60 rounded-full text-white hover:bg-black/80 transition-all">
+                  <button onClick={() => setSelectedImage(Math.min(images.length - 1, selectedImage + 1))}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-black/60 rounded-full text-white hover:bg-black/80">
                     <ChevronRight className="h-4 w-4" />
                   </button>
                 </>
               )}
-              {/* Indicador de zoom */}
-              <div className="absolute bottom-3 right-3 bg-black/60 text-white text-[10px] px-2 py-1 rounded-full">
-                {zoomImage ? 'Clique para diminuir' : 'Clique para ampliar'}
-              </div>
             </div>
-            
             {images.length > 1 && (
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {images.map((img, i) => (
                   <button key={i} onClick={() => setSelectedImage(i)}
-                    className={`flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all ${i === selectedImage ? 'border-white' : 'border-[#1A1A1A] hover:border-[#333]'}`}>
+                    className={`flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-colors ${i === selectedImage ? 'border-white' : 'border-border hover:border-muted-foreground/30'}`}>
                     <img src={img} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
@@ -177,32 +164,32 @@ export default function ProductDetail() {
 
           {/* Description */}
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-white">Descrição</h2>
-            <div className="prose prose-sm prose-invert max-w-none text-[#888]">
+            <h2 className="text-xl font-bold text-foreground">Descrição</h2>
+            <div className="prose prose-sm prose-invert max-w-none text-muted-foreground">
               <ReactMarkdown>{product.long_description || product.description || 'Sem descrição disponível.'}</ReactMarkdown>
             </div>
           </div>
 
           {/* Reviews */}
-          <div className="border-t border-[#1A1A1A] pt-6">
+          <div className="border-t border-border pt-6">
             <ReviewSection productId={product.id} />
           </div>
         </div>
 
-        {/* Right Sidebar - Mantido original */}
+        {/* Right Sidebar */}
         <div className="lg:col-span-3">
           <div className="sticky top-24 space-y-4">
-            <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6 space-y-5">
+            <div className="bg-card border border-border rounded-xl p-6 space-y-5">
               <div>
-                <h1 className="text-xl font-bold text-white">{product.title}</h1>
+                <h1 className="text-xl font-bold text-foreground">{product.title}</h1>
                 {product.description && (
-                  <p className="text-sm text-[#666] mt-1">{product.description}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{product.description}</p>
                 )}
               </div>
 
               {/* Price */}
               <div className="flex items-end gap-2">
-                <span className="text-3xl font-black text-white">R${displayPrice?.toFixed(2)}</span>
+                <span className="text-3xl font-black text-foreground">R${displayPrice?.toFixed(2)}</span>
                 {hasDiscount && !currentLicense && product.price_brl > 0 && (
                   <span className="text-lg text-[#555] line-through mb-0.5">R${product.price_brl?.toFixed(2)}</span>
                 )}
@@ -211,14 +198,14 @@ export default function ProductDetail() {
               {/* License Selector */}
               {product.licenses?.length > 0 && (
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-[#666]">Licença</label>
+                  <label className="text-xs font-medium text-muted-foreground">Licença</label>
                   <Select value={String(selectedLicense)} onValueChange={(v) => setSelectedLicense(Number(v))}>
-                    <SelectTrigger className="bg-[#050505] border-[#1A1A1A] text-white">
+                    <SelectTrigger className="bg-secondary border-border text-foreground">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#0A0A0A] border-[#1A1A1A]">
+                    <SelectContent className="bg-card border-border">
                       {product.licenses.map((lic, i) => (
-                        <SelectItem key={i} value={String(i)} className="text-white">
+                        <SelectItem key={i} value={String(i)} className="text-foreground">
                           {lic.name} — R${lic.price_brl?.toFixed(2)}
                         </SelectItem>
                       ))}
@@ -239,7 +226,7 @@ export default function ProductDetail() {
                 ) : (
                   <>
                     <Button onClick={addToCart} disabled={addingToCart} variant="outline"
-                      className="w-full border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white gap-2">
+                      className="w-full border-border text-foreground hover:bg-secondary gap-2">
                       <ShoppingCart className="h-4 w-4" /> Adicionar ao Carrinho
                     </Button>
                     <Button onClick={buyNow} disabled={addingToCart} className="w-full bg-white text-black hover:bg-white/90 font-semibold gap-2">
@@ -252,13 +239,13 @@ export default function ProductDetail() {
 
               {/* Metadata */}
               {metadata.length > 0 && (
-                <div className="space-y-3 pt-4 border-t border-[#1A1A1A]">
+                <div className="space-y-3 pt-4 border-t border-border">
                   {metadata.map((item) => (
                     <div key={item.label} className="flex items-start gap-3">
-                      <item.icon className="h-4 w-4 text-[#555] mt-0.5 flex-shrink-0" />
+                      <item.icon className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                       <div>
-                        <div className="text-xs text-[#555]">{item.label}</div>
-                        <div className="text-sm text-white">{item.value}</div>
+                        <div className="text-xs text-muted-foreground">{item.label}</div>
+                        <div className="text-sm text-foreground">{item.value}</div>
                       </div>
                     </div>
                   ))}
