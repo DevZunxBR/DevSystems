@@ -1,7 +1,6 @@
-// src/pages/Home.jsx - Versão limpa (apenas hero, parceiros e rodapé)
+// src/pages/Home.jsx - Apenas hero, parceiros e rodapé simples
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ShieldCheck, Zap, Headphones, Star, Code, Package, Layers, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ChevronRight } from 'lucide-react';
 
 const PARTNERS = ['ROBLOX', 'UNITY', 'UNREAL', 'VERCEL', 'DISCORD'];
 
@@ -68,59 +67,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── CTA / FOOTER BAND ── */}
-      <section className="bg-gradient-to-br from-[#0A0A1A] via-[#050510] to-[#000] py-16 border-b border-[#1A1A1A]">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row md:items-start md:gap-16">
-          {/* Brand col */}
-          <div className="md:w-72 flex-shrink-0 mb-10 md:mb-0 space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-white rounded-md flex items-center justify-center">
-                <span className="text-black font-black text-xs">M</span>
-              </div>
-              <span className="text-white font-bold text-base">Marketplace</span>
-            </div>
-            <p className="text-xs text-[#555] leading-relaxed max-w-xs">
-              Assets e sistemas digitais completos com centenas de assets desenvolvidos para produção.
-            </p>
-            <button
-              onClick={() => navigate('/store')}
-              className="flex items-center gap-2 px-4 py-2 border border-[#333] text-white text-xs font-semibold rounded hover:border-white transition-colors"
-            >
-              Ir para a Loja <ChevronRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-
-          {/* Link cols */}
-          <div className="flex-1 grid grid-cols-3 gap-8">
-            {[
-              { title: 'LOJA', links: ['Asset Library', 'Systems', 'UI Kits'] },
-              { title: 'CONTA', links: ['Dashboard', 'Meus Pedidos', 'Configurações'] },
-              { title: 'SUPORTE', links: ['Documentação', 'Política de Uso', 'Reembolsos'] },
-            ].map(col => (
-              <div key={col.title} className="space-y-3">
-                <h4 className="text-[9px] font-bold text-[#444] uppercase tracking-[0.25em]">{col.title}</h4>
-                <ul className="space-y-2">
-                  {col.links.map(link => (
-                    <li key={link}>
-                      <button
-                        onClick={() => navigate(link === 'Asset Library' || link === 'Systems' || link === 'UI Kits' ? '/store' : link === 'Dashboard' ? '/dashboard' : link === 'Meus Pedidos' ? '/dashboard/orders' : link === 'Configurações' ? '/dashboard/settings' : '#')}
-                        className="text-xs text-[#555] hover:text-white transition-colors"
-                      >
-                        {link}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+      {/* ── RODAPÉ SIMPLES (APENAS O QUE ESTÁ EM PRETO) ── */}
+      <footer className="py-8 border-t border-[#1A1A1A] bg-[#000]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-[11px] text-[#333]">© 2026 Marketplace. Todos os direitos reservados.</p>
+            <p className="text-[11px] text-[#333]">Pagamentos processados via PIX</p>
           </div>
         </div>
-
-        <div className="max-w-7xl mx-auto px-6 mt-12 pt-6 border-t border-[#111] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-          <p className="text-[11px] text-[#333]">© 2026 Marketplace. Todos os direitos reservados.</p>
-          <p className="text-[11px] text-[#333]">Pagamentos processados via PIX</p>
-        </div>
-      </section>
+      </footer>
 
     </div>
   );
