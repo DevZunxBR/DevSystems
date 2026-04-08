@@ -1,3 +1,4 @@
+// src/pages/ProductDetail.jsx - Botão presente com a mesma cor dos outros
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Zap, ChevronLeft, ChevronRight, FileBox, Tag, Layers, Settings, Lock, Clock, Gift } from 'lucide-react';
@@ -201,23 +202,24 @@ export default function ProductDetail() {
                 ) : (
                   <>
                     <Button onClick={addToCart} disabled={addingToCart} variant="outline"
-                      className="w-full border-border text-foreground hover:bg-secondary gap-2">
+                      className="w-full border-border text-foreground hover:bg-secondary gap-2 h-11 rounded-xl">
                       <ShoppingCart className="h-4 w-4" /> Adicionar ao Carrinho
                     </Button>
                     <Button onClick={buyNow} disabled={addingToCart}
-                      className="w-full bg-white text-black hover:bg-white/90 font-semibold gap-2">
+                      className="w-full bg-white text-black hover:bg-white/90 font-semibold gap-2 h-11 rounded-xl">
                       <Zap className="h-4 w-4" /> Comprar Agora
                     </Button>
-                    {/* Botão de presente */}
-                    <button
+                    {/* Botão de presente - mesma cor dos outros */}
+                    <Button
                       onClick={() => setShowGiftModal(true)}
-                      className="w-full h-9 flex items-center justify-center gap-2 border border-pink-500/30 text-pink-400 hover:bg-pink-500/10 rounded-lg text-xs font-medium transition-colors"
+                      variant="outline"
+                      className="w-full border-border text-foreground hover:bg-secondary gap-2 h-11 rounded-xl"
                     >
-                      <Gift className="h-3.5 w-3.5" /> Presentear alguém
-                    </button>
+                      <Gift className="h-4 w-4" /> Presentear alguém
+                    </Button>
                   </>
                 )}
-                <FavoriteButton product={product} className="w-full justify-center h-9 rounded-lg border border-[#1A1A1A] text-xs gap-1.5" />
+                <FavoriteButton product={product} className="w-full justify-center h-11 rounded-lg border border-[#1A1A1A] text-xs gap-1.5" />
               </div>
 
               {metadata.length > 0 && (
