@@ -1,5 +1,5 @@
-// src/pages/Store.jsx - Versão melhorada
-import { useState, useEffect, useCallback, useMemo } from 'react';
+// src/pages/Store.jsx - Versão corrigida mantendo o sistema original
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, X, ChevronDown, TrendingUp, Clock, DollarSign, Filter } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -24,62 +24,32 @@ export default function Store() {
   const [showSort, setShowSort] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Memoize produtos filtrados localmente para melhor performance
-  const filteredProducts = useMemo(() => {
-    let results = [...products];
-    
-    // Filtro por categoria
-    if (selectedCategory !== 'Todos') {
-      results = results.filter(p => p.category === selectedCategory);
-    }
-    
-    // Filtro por busca
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      results = results.filter(p =>
-        p.title?.toLowerCase().includes(query) ||
-        p.description?.toLowerCase().includes(query) ||
-        p.tags?.some(t => t.toLowerCase().includes(query))
-      );
-    }
-    
-    // Ordenação
-    switch(sortBy) {
-      case 'price_brl':
-        results.sort((a, b) => (a.price_brl || 0) - (b.price_brl || 0));
-        break;
-      case '-price_brl':
-        results.sort((a, b) => (b.price_brl || 0) - (a.price_brl || 0));
-        break;
-      case '-sales_count':
-        results.sort((a, b) => (b.sales_count || 0) - (a.sales_count || 0));
-        break;
-      case '-created_date':
-      default:
-        results.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
-        break;
-    }
-    
-    return results;
-  }, [products, selectedCategory, searchQuery, sortBy]);
-
+  // Carregar produtos do Supabase usando base44 (sistema original)
   const loadProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await base44
-        .from('products')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_date', { ascending: false });
-
-      if (error) throw error;
-      setProducts(data || []);
+      const query = { status: 'active' };
+      if (selectedCategory !== 'Todos') query.category = selectedCategory;
+      
+      let results = await base44.entities.Product.filter(query, sortBy, 100);
+      
+      // Filtro por busca (se houver)
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        results = results.filter(p =>
+          p.title?.toLowerCase().includes(q) ||
+          p.description?.toLowerCase().includes(q) ||
+          p.tags?.some(t => t.toLowerCase().includes(q))
+        );
+      }
+      
+      setProducts(results);
     } catch (e) {
       console.error('Erro ao carregar produtos:', e);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedCategory, sortBy, searchQuery]);
 
   useEffect(() => {
     loadProducts();
@@ -104,6 +74,7 @@ export default function Store() {
     if (searchQuery) params.search = searchQuery;
     if (selectedCategory !== 'Todos') params.cat = selectedCategory;
     setSearchParams(params);
+    loadProducts();
   };
 
   const clearFilters = () => {
@@ -111,6 +82,7 @@ export default function Store() {
     setSelectedCategory('Todos');
     setSortBy('-created_date');
     setSearchParams({});
+    loadProducts();
   };
 
   const handleCategoryChange = (category) => {
@@ -152,6 +124,7 @@ export default function Store() {
                 onClick={() => {
                   setSearchQuery('');
                   setSearchParams({ cat: selectedCategory !== 'Todos' ? selectedCategory : undefined });
+                  loadProducts();
                 }} 
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#444] hover:text-white transition-colors"
               >
@@ -216,7 +189,10 @@ export default function Store() {
           {CATEGORIES.map(cat => (
             <button 
               key={cat} 
-              onClick={() => handleCategoryChange(cat)}
+              onClick={() => {
+                handleCategoryChange(cat);
+                setTimeout(() => loadProducts(), 0);
+              }}
               className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${
                 selectedCategory === cat
                   ? 'bg-white text-black font-bold shadow-lg'
@@ -236,7 +212,7 @@ export default function Store() {
             'Carregando...'
           ) : (
             <>
-              {filteredProducts.length} produto{filteredProducts.length !== 1 ? 's' : ''} encontrado{filteredProducts.length !== 1 ? 's' : ''}
+              {products.length} produto{products.length !== 1 ? 's' : ''} encontrado{products.length !== 1 ? 's' : ''}
               {(selectedCategory !== 'Todos' || searchQuery) && (
                 <button 
                   onClick={clearFilters}
@@ -264,9 +240,9 @@ export default function Store() {
             </div>
           ))}
         </div>
-      ) : filteredProducts.length > 0 ? (
+      ) : products.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {filteredProducts.map((product, index) => (
+          {products.map((product, index) => (
             <div 
               key={product.id}
               style={{ animationDelay: `${index * 50}ms` }}
