@@ -1,4 +1,4 @@
-// src/pages/Home.jsx - Versão ultra compacta (sem rodapé)
+// src/pages/Home.jsx - Versão final (sem depoimentos e parceiros atualizados)
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,129 +9,72 @@ export default function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen font-inter bg-black">
-      {/* Hero Section - Ultra Compacta */}
+    <div className="min-h-screen font-inter">
+      {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-[#1A1A1A]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,_#1a1a1a_0%,_#000000_100%)]" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMwLTkuOTQtOC4wNi0xOC0xOC0xOCIgc3Ryb2tlPSIjMUExQTFBIiBzdHJva2Utd2lkdGg9IjAuNSIvPjwvZz48L3N2Zz4=')] opacity-30" />
         
-        <div className="relative max-w-7xl mx-auto px-4 py-12 md:py-16 text-center space-y-5">
-          <div className="inline-flex items-center gap-2 bg-[#0A0A0A] border border-[#1A1A1A] rounded-full px-3 py-1 text-[9px] text-[#999]">
-            <span className="w-1 h-1 bg-white rounded-full animate-pulse" />
-            Plataforma #1 em assets digitais
+        <div className="relative max-w-7xl mx-auto px-4 py-32 md:py-48 text-center space-y-8">
+          <div className="inline-flex items-center gap-2 bg-[#0A0A0A] border border-[#1A1A1A] rounded-full px-5 py-2 text-xs text-[#999]">
+            <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+            Plataforma #1 em assets digitais para desenvolvedores
           </div>
           
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-white tracking-tight leading-[1.1]">
+          <h1 className="text-5xl sm:text-7xl md:text-8xl font-black text-white tracking-tight leading-[0.88]">
             Assets &amp; Sistemas
             <br />
             <span className="text-[#555]">de Alta Performance</span>
           </h1>
           
-          <p className="text-xs md:text-sm text-[#999] max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base md:text-xl text-[#999] max-w-2xl mx-auto leading-relaxed">
             Scripts profissionais, sistemas completos e UI kits premium. Desenvolvidos por especialistas, prontos para produção imediata.
           </p>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
-            <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold h-9 px-5 text-xs gap-1.5 rounded-lg">
-              Explorar Assets <ArrowRight className="h-3.5 w-3.5" />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold h-13 px-9 text-sm gap-2 rounded-xl">
+              Explorar Assets <ArrowRight className="h-4 w-4" />
             </Button>
-            <Button variant="outline" onClick={() => navigate('/store')} className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-9 px-5 text-xs rounded-lg">
-              Ver Categorias <ChevronRight className="h-3.5 w-3.5" />
+            <Button variant="outline" onClick={() => navigate('/store')} className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-13 px-9 text-sm rounded-xl">
+              Ver Categorias <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
           
-          <div className="flex flex-wrap items-center justify-center gap-5 md:gap-8 pt-3 border-t border-[#1A1A1A] mt-3">
-            {[{ v: '500+', l: 'Assets' }, { v: '2K+', l: 'Clientes' }, { v: '4.9★', l: 'Avaliação' }].map(s => (
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 pt-8 border-t border-[#1A1A1A] mt-8">
+            {[{ v: '500+', l: 'Assets Digitais' }, { v: '2K+', l: 'Clientes' }, { v: '4.9★', l: 'Avaliação Média' }].map(s => (
               <div key={s.l} className="text-center">
-                <div className="text-lg md:text-xl font-black text-white">{s.v}</div>
-                <div className="text-[9px] text-[#555]">{s.l}</div>
+                <div className="text-2xl font-black text-white">{s.v}</div>
+                <div className="text-xs text-[#555] mt-1">{s.l}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Parceiros - Ultra Compacto */}
-      <section className="border-b border-[#1A1A1A] py-5">
+      {/* Parceiros */}
+      <section className="border-b border-[#1A1A1A] py-12">
         <div className="max-w-7xl mx-auto px-4">
-          <p className="text-center text-[8px] font-bold text-[#333] uppercase tracking-[0.3em] mb-3">
-            Parceiros Oficiais
+          <p className="text-center text-[10px] font-bold text-[#333] uppercase tracking-[0.3em] mb-8">
+            Parceiros &amp; Plataformas Oficiais
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-5 md:gap-8">
+          <div className="flex flex-wrap items-center justify-center gap-10 md:gap-20">
             {PARTNERS.map(p => (
-              <div key={p} className="text-sm md:text-base font-black text-[#2A2A2A] hover:text-[#444] transition-colors cursor-default tracking-wider select-none">
+              <div key={p} className="text-lg md:text-xl font-black text-[#222] hover:text-[#444] transition-colors cursor-default tracking-widest select-none">
                 {p}
               </div>
             ))}
           </div>
         </div>
       </section>
-    </div>
-  );
-}// src/pages/Home.jsx - Sem espaços extras
-import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
-const PARTNERS = ['ROBLOX', 'UNITY', 'UNREAL', 'GITHUB'];
-
-export default function Home() {
-  const navigate = useNavigate();
-
-  return (
-    <div className="font-inter bg-black">
-      {/* Hero Section - Sem padding vertical */}
-      <section className="relative overflow-hidden border-b border-[#1A1A1A]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,_#1a1a1a_0%,_#000000_100%)]" />
-        
-        <div className="relative max-w-7xl mx-auto px-4 py-6 text-center space-y-3">
-          <div className="inline-flex items-center gap-2 bg-[#0A0A0A] border border-[#1A1A1A] rounded-full px-3 py-0.5 text-[8px] text-[#999]">
-            <span className="w-1 h-1 bg-white rounded-full animate-pulse" />
-            Plataforma #1 em assets digitais
-          </div>
-          
-          <h1 className="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tight leading-[1.1]">
-            Assets &amp; Sistemas
-            <br />
-            <span className="text-[#555]">de Alta Performance</span>
-          </h1>
-          
-          <p className="text-xs text-[#999] max-w-2xl mx-auto leading-relaxed">
-            Scripts profissionais, sistemas completos e UI kits premium. Desenvolvidos por especialistas.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
-            <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold h-7 px-3 text-[10px] gap-1 rounded-md">
-              Explorar Assets <ArrowRight className="h-2.5 w-2.5" />
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/store')} className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-7 px-3 text-[10px] rounded-md">
-              Ver Categorias <ChevronRight className="h-2.5 w-2.5" />
-            </Button>
-          </div>
-          
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-2 border-t border-[#1A1A1A] mt-2">
-            {[{ v: '500+', l: 'Assets' }, { v: '2K+', l: 'Clientes' }, { v: '4.9★', l: 'Avaliação' }].map(s => (
-              <div key={s.l} className="text-center">
-                <div className="text-base md:text-lg font-black text-white">{s.v}</div>
-                <div className="text-[8px] text-[#555]">{s.l}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Parceiros - Sem padding */}
-      <section className="border-b border-[#1A1A1A] py-3">
-        <div className="max-w-7xl mx-auto px-4">
-          <p className="text-center text-[7px] font-bold text-[#333] uppercase tracking-[0.3em] mb-1.5">
-            Parceiros Oficiais
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-            {PARTNERS.map(p => (
-              <div key={p} className="text-[10px] md:text-xs font-black text-[#2A2A2A] hover:text-[#444] transition-colors cursor-default tracking-wider select-none">
-                {p}
-              </div>
-            ))}
-          </div>
+      {/* CTA Final */}
+      <section className="py-32">
+        <div className="max-w-3xl mx-auto px-4 text-center space-y-7">
+          <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight">Pronto para começar?</h2>
+          <p className="text-[#666] text-base max-w-lg mx-auto">Acesse nossa biblioteca completa com centenas de assets premium desenvolvidos para produção.</p>
+          <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold h-14 px-12 text-sm gap-2 rounded-xl">
+            Ir para a Loja <ArrowRight className="h-4 w-4" />
+          </Button>
         </div>
       </section>
     </div>
