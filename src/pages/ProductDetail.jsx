@@ -1,7 +1,7 @@
-// src/pages/ProductDetail.jsx - Botão presente com a mesma cor dos outros
+// src/pages/ProductDetail.jsx - Versão correta (sem botão de presente)
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Zap, ChevronLeft, ChevronRight, FileBox, Tag, Layers, Settings, Lock, Clock, Gift } from 'lucide-react';
+import { ShoppingCart, Zap, ChevronLeft, ChevronRight, FileBox, Tag, Layers, Settings, Lock, Clock } from 'lucide-react';
 import { useCountdown } from '@/hooks/useCountdown';
 import FavoriteButton from '@/components/products/FavoriteButton';
 import { base44 } from '@/api/base44Client';
@@ -81,13 +81,13 @@ export default function ProductDetail() {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-muted border-t-foreground rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-[#1A1A1A] border-t-white rounded-full animate-spin" />
     </div>
   );
 
   if (!product) return (
     <div className="min-h-screen flex items-center justify-center">
-      <p className="text-muted-foreground">Produto não encontrado</p>
+      <p className="text-[#555]">Produto não encontrado</p>
     </div>
   );
 
@@ -107,19 +107,19 @@ export default function ProductDetail() {
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto px-4 py-8">
-      <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
+      <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-[#555] hover:text-white mb-6 transition-colors">
         <ChevronLeft className="h-4 w-4" /> Voltar
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
-        {/* Left */}
+        {/* Left - Galeria */}
         <div className="lg:col-span-7 space-y-6">
           <div className="space-y-3">
-            <div className="relative aspect-video bg-card border border-border rounded-xl overflow-hidden">
+            <div className="relative aspect-video bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
               {images.length > 0 ? (
                 <img src={images[selectedImage]} alt={product.title} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">Sem imagem</div>
+                <div className="w-full h-full flex items-center justify-center text-[#555]">Sem imagem</div>
               )}
               {images.length > 1 && (
                 <>
@@ -138,7 +138,7 @@ export default function ProductDetail() {
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {images.map((img, i) => (
                   <button key={i} onClick={() => setSelectedImage(i)}
-                    className={`flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-colors ${i === selectedImage ? 'border-white' : 'border-border hover:border-muted-foreground/30'}`}>
+                    className={`flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-colors ${i === selectedImage ? 'border-white' : 'border-[#1A1A1A] hover:border-[#333]'}`}>
                     <img src={img} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
@@ -146,14 +146,16 @@ export default function ProductDetail() {
             )}
           </div>
 
+          {/* Descrição */}
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-foreground">Descrição</h2>
-            <div className="prose prose-sm prose-invert max-w-none text-muted-foreground">
+            <h2 className="text-xl font-bold text-white">Descrição</h2>
+            <div className="prose prose-sm prose-invert max-w-none text-[#888]">
               <ReactMarkdown>{product.long_description || product.description || 'Sem descrição disponível.'}</ReactMarkdown>
             </div>
           </div>
 
-          <div className="border-t border-border pt-6">
+          {/* Reviews */}
+          <div className="border-t border-[#1A1A1A] pt-6">
             <ReviewSection productId={product.id} />
           </div>
         </div>
@@ -161,27 +163,31 @@ export default function ProductDetail() {
         {/* Right Sidebar */}
         <div className="lg:col-span-3">
           <div className="sticky top-24 space-y-4">
-            <div className="bg-card border border-border rounded-xl p-6 space-y-5">
+            <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6 space-y-5">
               <div>
-                <h1 className="text-xl font-bold text-foreground">{product.title}</h1>
-                {product.description && <p className="text-sm text-muted-foreground mt-1">{product.description}</p>}
+                <h1 className="text-xl font-bold text-white">{product.title}</h1>
+                {product.description && <p className="text-sm text-[#666] mt-1">{product.description}</p>}
               </div>
 
+              {/* Preço */}
               <div className="flex items-end gap-2">
-                <span className="text-3xl font-black text-foreground">R${displayPrice?.toFixed(2)}</span>
+                <span className="text-3xl font-black text-white">R${displayPrice?.toFixed(2)}</span>
                 {hasDiscount && !currentLicense && product.price_brl > 0 && (
                   <span className="text-lg text-[#555] line-through mb-0.5">R${product.price_brl?.toFixed(2)}</span>
                 )}
               </div>
 
+              {/* Licenças */}
               {product.licenses?.length > 0 && (
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground">Licença</label>
+                  <label className="text-xs font-medium text-[#666]">Licença</label>
                   <Select value={String(selectedLicense)} onValueChange={(v) => setSelectedLicense(Number(v))}>
-                    <SelectTrigger className="bg-secondary border-border text-foreground"><SelectValue /></SelectTrigger>
-                    <SelectContent className="bg-card border-border">
+                    <SelectTrigger className="bg-[#050505] border-[#1A1A1A] text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#0A0A0A] border-[#1A1A1A]">
                       {product.licenses.map((lic, i) => (
-                        <SelectItem key={i} value={String(i)} className="text-foreground">
+                        <SelectItem key={i} value={String(i)} className="text-white">
                           {lic.name} — R${lic.price_brl?.toFixed(2)}
                         </SelectItem>
                       ))}
@@ -190,16 +196,47 @@ export default function ProductDetail() {
                 </div>
               )}
 
+              {/* Desconto */}
               {hasDiscount && !currentLicense && <DiscountCountdown expiresAt={product.discount_expires_at} />}
 
+              {/* Botões de ação */}
+              <div className="space-y-2">
+                {isClosed ? (
+                  <div className="w-full flex items-center justify-center gap-2 h-11 bg-[#111] border border-[#1A1A1A] rounded-xl text-[#555] text-sm font-semibold">
+                    <Lock className="h-4 w-4" /> Produto Indisponível
+                  </div>
+                ) : (
+                  <>
+                    <Button 
+                      onClick={addToCart} 
+                      disabled={addingToCart} 
+                      variant="outline"
+                      className="w-full border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white gap-2 h-11 rounded-xl"
+                    >
+                      <ShoppingCart className="h-4 w-4" /> Adicionar ao Carrinho
+                    </Button>
+                    
+                    <Button 
+                      onClick={buyNow} 
+                      disabled={addingToCart}
+                      className="w-full bg-white text-black hover:bg-white/90 font-semibold gap-2 h-11 rounded-xl"
+                    >
+                      <Zap className="h-4 w-4" /> Comprar Agora
+                    </Button>
+                  </>
+                )}
+                <FavoriteButton product={product} className="w-full justify-center h-11 rounded-xl border border-[#1A1A1A] text-xs gap-1.5" />
+              </div>
+
+              {/* Metadados */}
               {metadata.length > 0 && (
-                <div className="space-y-3 pt-4 border-t border-border">
+                <div className="space-y-3 pt-4 border-t border-[#1A1A1A]">
                   {metadata.map((item) => (
                     <div key={item.label} className="flex items-start gap-3">
-                      <item.icon className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                      <item.icon className="h-4 w-4 text-[#555] mt-0.5 flex-shrink-0" />
                       <div>
-                        <div className="text-xs text-muted-foreground">{item.label}</div>
-                        <div className="text-sm text-foreground">{item.value}</div>
+                        <div className="text-xs text-[#555]">{item.label}</div>
+                        <div className="text-sm text-white">{item.value}</div>
                       </div>
                     </div>
                   ))}
