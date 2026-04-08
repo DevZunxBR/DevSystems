@@ -1,3 +1,4 @@
+// src/components/Footer.jsx - Com links sociais
 import { Link } from 'react-router-dom';
 
 function DiscordIcon() {
@@ -25,6 +26,13 @@ function InstagramIcon() {
 }
 
 export default function Footer() {
+  // Links sociais
+  const socialLinks = {
+    discord: 'https://discord.gg/seu-convite',
+    youtube: 'https://youtube.com/@seucanal',
+    instagram: 'https://instagram.com/seuperfil'
+  };
+
   return (
     <footer className="border-t border-[#1A1A1A] bg-[#000]">
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -40,13 +48,31 @@ export default function Footer() {
               Assets e sistemas digitais premium para desenvolvedores.
             </p>
             <div className="flex items-center gap-3">
-              <a href="#" className="p-2 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-[#555] hover:text-white hover:border-[#333] transition-colors">
+              <a 
+                href={socialLinks.discord}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-[#555] hover:text-white hover:border-[#333] transition-all hover:scale-105"
+                aria-label="Discord"
+              >
                 <DiscordIcon />
               </a>
-              <a href="#" className="p-2 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-[#555] hover:text-white hover:border-[#333] transition-colors">
+              <a 
+                href={socialLinks.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-[#555] hover:text-white hover:border-[#333] transition-all hover:scale-105"
+                aria-label="YouTube"
+              >
                 <YoutubeIcon />
               </a>
-              <a href="#" className="p-2 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-[#555] hover:text-white hover:border-[#333] transition-colors">
+              <a 
+                href={socialLinks.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-[#555] hover:text-white hover:border-[#333] transition-all hover:scale-105"
+                aria-label="Instagram"
+              >
                 <InstagramIcon />
               </a>
             </div>
@@ -73,8 +99,8 @@ export default function Footer() {
           <div className="space-y-4">
             <h4 className="text-xs font-bold text-white uppercase tracking-widest">Suporte</h4>
             <ul className="space-y-2">
-              {[['Documentação', '#'], ['Termos de Uso', '#'], ['Política de Privacidade', '#'], ['Reembolsos', '#']].map(([l, h]) => (
-                <li key={l}><a href={h} className="text-xs text-[#555] hover:text-white transition-colors">{l}</a></li>
+              {[['Documentação', '/docs'], ['Termos de Uso', '/terms'], ['Política de Privacidade', '/privacy'], ['Reembolsos', '/refund']].map(([l, h]) => (
+                <li key={l}><Link to={h} className="text-xs text-[#555] hover:text-white transition-colors">{l}</Link></li>
               ))}
             </ul>
           </div>
