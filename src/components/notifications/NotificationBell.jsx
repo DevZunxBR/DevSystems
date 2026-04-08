@@ -1,4 +1,4 @@
-// src/components/NotificationBell.jsx - Responsivo (ajustado para mobile)
+// src/components/NotificationBell.jsx - Corrigido para não cortar conteúdo
 import { useState, useEffect, useRef } from 'react';
 import { Bell } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -84,7 +84,8 @@ export default function NotificationBell({ userEmail }) {
               </button>
             )}
           </div>
-          <div className="max-h-80 overflow-y-auto">
+          {/* Removido o max-h-80 para não cortar conteúdo */}
+          <div className="overflow-y-auto" style={{ maxHeight: 'min(400px, 70vh)' }}>
             {notifications.length === 0 ? (
               <div className="py-8 text-center text-sm text-muted-foreground">Nenhuma notificação</div>
             ) : (
@@ -96,9 +97,9 @@ export default function NotificationBell({ userEmail }) {
                 >
                   <div className="flex items-start gap-2">
                     {!n.read && <span className="w-1.5 h-1.5 bg-white rounded-full mt-1.5 flex-shrink-0" />}
-                    <div className={!n.read ? '' : 'pl-3.5'}>
+                    <div className={`flex-1 min-w-0 ${!n.read ? '' : 'pl-3.5'}`}>
                       <div className="text-xs font-semibold text-foreground break-words">{n.title}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5 break-words">{n.message}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5 break-words leading-relaxed">{n.message}</div>
                       <div className="text-[10px] text-muted-foreground/60 mt-1">
                         {new Date(n.created_at).toLocaleString('pt-BR')}
                       </div>
