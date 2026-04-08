@@ -10,10 +10,16 @@ const WHY_US = [
   { icon: Headphones, title: 'Suporte Técnico', desc: 'No Discord, equipe disponível para auxiliar na implementação e resolver qualquer dúvida técnica.' },
 ];
 
+const CATEGORIES = [
+  { icon: Code, name: 'Scripts', count: '0+', desc: 'Scripts prontos para uso' },
+  { icon: Layers, name: 'Systems', count: '30+', desc: 'Sistemas completos' },
+  { icon: Package, name: 'UI Kits', count: '20+', desc: 'Interfaces premium' },
+];
+
 const TESTIMONIALS = [
-  { name: 'Lucas R.', role: 'Desenvolvedor', rating: 5, text: 'Melhor marketplace de scripts que já usei. Qualidade impecável e suporte rápido.' },
-  { name: 'Ana B.', role: 'Designer', rating: 5, text: 'Entrega instantânea funcionou perfeitamente. Os assets são de altíssima qualidade.' },
-  { name: 'Pedro S.', role: 'Programador', rating: 4.5, text: 'Os sistemas são extremamente bem documentados. Recomendo para todos os devs.' },
+  { name: 'Lucas M.', role: 'Desenvolvedor', rating: 5, text: 'Melhor marketplace de scripts que já usei. Qualidade impecável e suporte rápido.' },
+  { name: 'Ana R.', role: 'Designer', rating: 5, text: 'Entrega instantânea funcionou perfeitamente. Os assets são de altíssima qualidade.' },
+  { name: 'Pedro S.', role: 'Game Dev', rating: 5, text: 'Os sistemas são extremamente bem documentados. Recomendo para todos os devs.' },
 ];
 
 export default function Home() {
@@ -151,7 +157,7 @@ export default function Home() {
       <section className="py-32">
         <div className="max-w-3xl mx-auto px-4 text-center space-y-7">
           <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight">Pronto para começar?</h2>
-          <p className="text-[#666] text-base max-w-lg mx-auto">Acesse nossa biblioteca completa com centenas de assets desenvolvidos para produção. De seus Jogos</p>
+          <p className="text-[#666] text-base max-w-lg mx-auto">Acesse nossa biblioteca completa com centenas de assets premium desenvolvidos para produção.</p>
           <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold h-14 px-12 text-sm gap-2 rounded-xl">
             Ir para a Loja <ArrowRight className="h-4 w-4" />
           </Button>
