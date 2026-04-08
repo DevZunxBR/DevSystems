@@ -1,4 +1,4 @@
-// src/pages/admin/PendingOrders.jsx - Atualizado com suporte a presentes
+// src/pages/admin/PendingOrders.jsx
 import { supabase } from '@/api/base44Client';
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
@@ -29,7 +29,6 @@ export default function PendingOrders() {
 
   // Função para criar presentes a partir do pedido
   const createGiftsFromOrder = async (order) => {
-    // Verificar se o pedido tem itens que são presentes
     const giftItems = order.items?.filter(item => item.is_gift === true);
     
     if (!giftItems || giftItems.length === 0) return [];
@@ -38,7 +37,6 @@ export default function PendingOrders() {
     
     for (const giftItem of giftItems) {
       try {
-        // Criar registro de presente
         const { data: giftData, error: giftError } = await supabase.from('gifts').insert({
           sender_email: order.customer_email,
           sender_name: order.customer_name || order.customer_email,
@@ -62,7 +60,7 @@ export default function PendingOrders() {
         // Notificar o destinatário
         await base44.entities.Notification.create({
           user_email: giftItem.gift_recipient_email,
-          title: '🎁 Você recebeu um presente!',
+          title: 'Você recebeu um presente!',
           message: `${order.customer_name || order.customer_email} te presenteou com: ${giftItem.product_title}. Aceite no seu dashboard!`,
           type: 'gift',
           read: false,
@@ -81,14 +79,14 @@ export default function PendingOrders() {
   const approveOrder = async (order) => {
     setApprovingId(order.id);
     try {
+      // Criar presentes se houver
+      const createdGifts = await createGiftsFromOrder(order);
+
       // Atualiza status do pedido
       await base44.entities.Order.update(order.id, {
         status: 'completed',
         download_expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       });
-
-      // Criar presentes se houver
-      const createdGifts = await createGiftsFromOrder(order);
 
       // Busca carteira do cliente
       const wallets = await base44.entities.Wallet.filter({ user_email: order.customer_email });
@@ -191,9 +189,9 @@ export default function PendingOrders() {
                   ${cashback > 0 ? `<p style="color: #32BCAD; font-size: 13px;">Cashback recebido: R$${cashback.toFixed(2)}</p>` : ''}
                 </div>
                 ${hasGifts ? `
-                  <div style="background: #1A0A1A; border: 1px solid #FF69B4; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
-                    <p style="color: #FF69B4; font-size: 14px; margin-bottom: 8px;">🎁 Presentes enviados!</p>
-                    <p style="color: #999; font-size: 13px;">Os destinatários receberão uma notificação para aceitar o presente.</p>
+                  <div style="background: #1A1A1A; border: 1px solid #333; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                    <p style="color: #fff; font-size: 14px; margin-bottom: 8px;">🎁 Presentes enviados!</p>
+                    <p style="color: #666; font-size: 13px;">Os destinatários receberão uma notificação para aceitar o presente.</p>
                   </div>
                 ` : ''}
                 <a href="https://dev-systems.vercel.app/dashboard/orders" style="display: inline-block; background: #fff; color: #000; padding: 14px 28px; border-radius: 10px; font-weight: bold; text-decoration: none; font-size: 14px;">Acessar Meus Pedidos →</a>
@@ -220,7 +218,7 @@ export default function PendingOrders() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="w-8 h-8 border-2 border-muted border-t-foreground rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[#1A1A1A] border-t-white rounded-full animate-spin" />
       </div>
     );
   }
@@ -228,33 +226,33 @@ export default function PendingOrders() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">Pedidos Pendentes</h1>
-        <p className="text-sm text-muted-foreground mt-1">Aprove os pagamentos para liberar os downloads e presentes</p>
+        <h1 className="text-2xl font-bold text-white tracking-tight">Pedidos Pendentes</h1>
+        <p className="text-sm text-[#555] mt-1">Aprove os pagamentos para liberar os downloads e presentes</p>
       </div>
 
       {orders.length === 0 ? (
-        <div className="text-center py-20 bg-card border border-border rounded-xl">
-          <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-          <p className="text-muted-foreground text-sm">Nenhum pedido pendente</p>
+        <div className="text-center py-20 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl">
+          <CheckCircle className="h-12 w-12 text-[#555] mx-auto mb-3" />
+          <p className="text-[#555] text-sm">Nenhum pedido pendente</p>
         </div>
       ) : (
         <div className="space-y-4">
           {orders.map((order) => {
             const hasGift = order.items?.some(item => item.is_gift === true);
             return (
-              <div key={order.id} className="bg-card border border-border rounded-xl overflow-hidden">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border-b border-border bg-secondary/30">
+              <div key={order.id} className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border-b border-[#1A1A1A] bg-[#111]">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium text-foreground">{order.customer_name || order.customer_email}</span>
-                    <span className="text-xs text-muted-foreground">•</span>
-                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Clock className="h-4 w-4 text-[#555]" />
+                    <span className="text-sm font-medium text-white">{order.customer_name || order.customer_email}</span>
+                    <span className="text-xs text-[#555]">•</span>
+                    <span className="text-xs text-[#555] flex items-center gap-1">
                       <Mail className="h-3 w-3" /> {order.customer_email}
                     </span>
                     {hasGift && (
                       <>
-                        <span className="text-xs text-muted-foreground">•</span>
-                        <span className="text-xs text-pink-400 flex items-center gap-1">
+                        <span className="text-xs text-[#555]">•</span>
+                        <span className="text-xs text-white flex items-center gap-1">
                           <Gift className="h-3 w-3" /> Contém presente(s)
                         </span>
                       </>
@@ -262,9 +260,9 @@ export default function PendingOrders() {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <div className="text-lg font-bold text-foreground">R${order.total_amount?.toFixed(2)}</div>
+                      <div className="text-lg font-bold text-white">R${order.total_amount?.toFixed(2)}</div>
                       {order.wallet_used > 0 && (
-                        <div className="text-xs text-muted-foreground">Saldo usado: R${order.wallet_used?.toFixed(2)}</div>
+                        <div className="text-xs text-[#555]">Saldo usado: R${order.wallet_used?.toFixed(2)}</div>
                       )}
                     </div>
                     <Button
@@ -281,24 +279,24 @@ export default function PendingOrders() {
                 <div className="p-4 space-y-2">
                   {order.items?.map((item, i) => (
                     <div key={i} className="flex items-center gap-3 text-sm">
-                      <div className="w-10 h-10 bg-secondary rounded-lg overflow-hidden flex-shrink-0">
+                      <div className="w-10 h-10 bg-[#111] rounded-lg overflow-hidden flex-shrink-0">
                         {item.thumbnail && <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />}
                       </div>
                       <div className="flex-1">
-                        <span className="text-foreground">{item.product_title}</span>
-                        <span className="text-muted-foreground ml-2">— {item.license_name}</span>
+                        <span className="text-white">{item.product_title}</span>
+                        <span className="text-[#555] ml-2">— {item.license_name}</span>
                         {item.is_gift && (
-                          <span className="text-pink-400 text-xs ml-2">
+                          <span className="text-white text-xs ml-2">
                             🎁 Presente para {item.gift_recipient_email}
                           </span>
                         )}
                       </div>
-                      <span className="text-foreground ml-auto">R${item.price?.toFixed(2)}</span>
+                      <span className="text-white ml-auto">R${item.price?.toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="px-4 pb-4 text-xs text-muted-foreground">
+                <div className="px-4 pb-4 text-xs text-[#555]">
                   PIX: <span className="font-mono">{order.pix_code?.slice(0, 40)}...</span>
                   <br />
                   Criado em: {new Date(order.created_at).toLocaleString('pt-BR')}

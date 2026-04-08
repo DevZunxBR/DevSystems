@@ -1,10 +1,10 @@
-// src/pages/Checkout.jsx - Com opção de presente estilo Steam
+// src/pages/Checkout.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44, supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Tag, X, Wallet, Gift, User, Mail, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import { Tag, X, Wallet, Gift, User, Mail, MessageSquare } from 'lucide-react';
 import PixModal from '@/components/checkout/PixModal';
 
 export default function Checkout() {
@@ -21,7 +21,7 @@ export default function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [useWallet, setUseWallet] = useState(false);
-  const [giftOptions, setGiftOptions] = useState({}); // { itemId: { isGift, email, message, open } }
+  const [giftOptions, setGiftOptions] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,10 +41,9 @@ export default function Checkout() {
       setWallet(wallets[0] || null);
       setBilling(prev => ({ ...prev, name: me.full_name || '', email: me.email || '' }));
       
-      // Inicializar giftOptions
       const initialGifts = {};
       cartItems.forEach(item => {
-        initialGifts[item.id] = { isGift: false, email: '', message: '', open: false };
+        initialGifts[item.id] = { isGift: false, email: '', message: '' };
       });
       setGiftOptions(initialGifts);
     } catch {
@@ -54,17 +53,10 @@ export default function Checkout() {
     }
   };
 
-  const toggleGiftOption = (itemId) => {
-    setGiftOptions(prev => ({
-      ...prev,
-      [itemId]: { ...prev[itemId], open: !prev[itemId].open }
-    }));
-  };
-
   const setAsGift = (itemId, isGift) => {
     setGiftOptions(prev => ({
       ...prev,
-      [itemId]: { ...prev[itemId], isGift, email: '', message: '', open: isGift }
+      [itemId]: { ...prev[itemId], isGift, email: '', message: '' }
     }));
   };
 
@@ -119,7 +111,6 @@ export default function Checkout() {
     e.preventDefault();
     if (!billing.name || !billing.email) { toast.error('Preencha todos os campos'); return; }
     
-    // Validar emails dos presentes
     for (const item of items) {
       const gift = giftOptions[item.id];
       if (gift?.isGift && !gift.email) {
@@ -175,7 +166,6 @@ export default function Checkout() {
         await base44.entities.Coupon.update(appliedCoupon.id, { uses_count: (appliedCoupon.uses_count || 0) + 1 });
       }
 
-      // Limpar carrinho
       for (const item of items) {
         await base44.entities.CartItem.delete(item.id);
       }
@@ -192,7 +182,6 @@ export default function Checkout() {
     }
   };
 
-  // Verificar se tem presente
   const hasGift = Object.values(giftOptions).some(g => g?.isGift);
 
   if (loading) {
@@ -207,7 +196,6 @@ export default function Checkout() {
     <div className="min-h-screen max-w-5xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-black text-white tracking-tight mb-8">Checkout</h1>
 
-      {/* Aviso de presente */}
       {hasGift && (
         <div className="mb-6 p-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl flex items-center gap-3">
           <Gift className="h-5 w-5 text-white" />
@@ -219,7 +207,6 @@ export default function Checkout() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        {/* Formulário */}
         <div className="lg:col-span-3">
           <form onSubmit={handleSubmit} className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6 space-y-5">
             <h2 className="text-lg font-bold text-white">Dados de Cobrança</h2>
@@ -241,14 +228,12 @@ export default function Checkout() {
               </div>
             </div>
 
-            {/* Lista de itens com opção de presente estilo Steam */}
             <div className="space-y-4">
               <h3 className="text-sm font-bold text-white border-b border-[#1A1A1A] pb-2">Itens do pedido</h3>
               {items.map((item) => {
                 const gift = giftOptions[item.id];
                 return (
                   <div key={item.id} className="bg-[#111] border border-[#1A1A1A] rounded-xl overflow-hidden">
-                    {/* Item header */}
                     <div className="p-4 flex items-center gap-4">
                       <div className="w-12 h-12 bg-[#0A0A0A] rounded-lg overflow-hidden flex-shrink-0">
                         {item.thumbnail && <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />}
@@ -262,16 +247,13 @@ export default function Checkout() {
                       </div>
                     </div>
 
-                    {/* Opções de compra estilo Steam */}
                     <div className="border-t border-[#1A1A1A] bg-[#0A0A0A]">
                       <div className="flex divide-x divide-[#1A1A1A]">
                         <button
                           type="button"
                           onClick={() => setAsGift(item.id, false)}
                           className={`flex-1 py-2.5 text-xs font-medium transition-colors flex items-center justify-center gap-2 ${
-                            !gift?.isGift 
-                              ? 'bg-white text-black' 
-                              : 'text-[#555] hover:text-white'
+                            !gift?.isGift ? 'bg-white text-black' : 'text-[#555] hover:text-white'
                           }`}
                         >
                           <User className="h-3.5 w-3.5" />
@@ -281,9 +263,7 @@ export default function Checkout() {
                           type="button"
                           onClick={() => setAsGift(item.id, true)}
                           className={`flex-1 py-2.5 text-xs font-medium transition-colors flex items-center justify-center gap-2 ${
-                            gift?.isGift 
-                              ? 'bg-white text-black' 
-                              : 'text-[#555] hover:text-white'
+                            gift?.isGift ? 'bg-white text-black' : 'text-[#555] hover:text-white'
                           }`}
                         >
                           <Gift className="h-3.5 w-3.5" />
@@ -291,7 +271,6 @@ export default function Checkout() {
                         </button>
                       </div>
 
-                      {/* Detalhes do presente */}
                       {gift?.isGift && (
                         <div className="p-4 space-y-3 border-t border-[#1A1A1A]">
                           <div>
@@ -328,7 +307,6 @@ export default function Checkout() {
               })}
             </div>
 
-            {/* Wallet */}
             {walletBalance > 0 && (
               <div className="p-3 bg-[#111] border border-[#1A1A1A] rounded-lg space-y-2">
                 <div className="flex items-center gap-2 text-sm text-white">
@@ -342,7 +320,6 @@ export default function Checkout() {
               </div>
             )}
 
-            {/* Cupom */}
             <div className="space-y-2">
               <label className="text-xs font-medium text-[#555] block">Cupom de Desconto</label>
               {appliedCoupon ? (
@@ -366,7 +343,6 @@ export default function Checkout() {
               )}
             </div>
 
-            {/* Método de Pagamento */}
             <div className="space-y-2">
               <h3 className="text-sm font-semibold text-white">Método de Pagamento</h3>
               <div className="flex items-center gap-3 p-3 bg-[#111] rounded-lg border border-[#1A1A1A]">
@@ -386,7 +362,6 @@ export default function Checkout() {
           </form>
         </div>
 
-        {/* Resumo */}
         <div className="lg:col-span-2">
           <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6 space-y-4 sticky top-24">
             <h2 className="text-lg font-bold text-white">Resumo</h2>

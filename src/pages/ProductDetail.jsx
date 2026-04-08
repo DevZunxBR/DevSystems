@@ -1,4 +1,4 @@
-// src/pages/ProductDetail.jsx - Versão correta (sem botão de presente)
+// src/pages/ProductDetail.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Zap, ChevronLeft, ChevronRight, FileBox, Tag, Layers, Settings, Lock, Clock } from 'lucide-react';
@@ -112,7 +112,6 @@ export default function ProductDetail() {
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
-        {/* Left - Galeria */}
         <div className="lg:col-span-7 space-y-6">
           <div className="space-y-3">
             <div className="relative aspect-video bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
@@ -146,7 +145,6 @@ export default function ProductDetail() {
             )}
           </div>
 
-          {/* Descrição */}
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-white">Descrição</h2>
             <div className="prose prose-sm prose-invert max-w-none text-[#888]">
@@ -154,13 +152,11 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* Reviews */}
           <div className="border-t border-[#1A1A1A] pt-6">
             <ReviewSection productId={product.id} />
           </div>
         </div>
 
-        {/* Right Sidebar */}
         <div className="lg:col-span-3">
           <div className="sticky top-24 space-y-4">
             <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6 space-y-5">
@@ -169,7 +165,6 @@ export default function ProductDetail() {
                 {product.description && <p className="text-sm text-[#666] mt-1">{product.description}</p>}
               </div>
 
-              {/* Preço */}
               <div className="flex items-end gap-2">
                 <span className="text-3xl font-black text-white">R${displayPrice?.toFixed(2)}</span>
                 {hasDiscount && !currentLicense && product.price_brl > 0 && (
@@ -177,7 +172,6 @@ export default function ProductDetail() {
                 )}
               </div>
 
-              {/* Licenças */}
               {product.licenses?.length > 0 && (
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-[#666]">Licença</label>
@@ -196,10 +190,8 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              {/* Desconto */}
               {hasDiscount && !currentLicense && <DiscountCountdown expiresAt={product.discount_expires_at} />}
 
-              {/* Botões de ação */}
               <div className="space-y-2">
                 {isClosed ? (
                   <div className="w-full flex items-center justify-center gap-2 h-11 bg-[#111] border border-[#1A1A1A] rounded-xl text-[#555] text-sm font-semibold">
@@ -207,20 +199,12 @@ export default function ProductDetail() {
                   </div>
                 ) : (
                   <>
-                    <Button 
-                      onClick={addToCart} 
-                      disabled={addingToCart} 
-                      variant="outline"
-                      className="w-full border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white gap-2 h-11 rounded-xl"
-                    >
+                    <Button onClick={addToCart} disabled={addingToCart} variant="outline"
+                      className="w-full border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white gap-2 h-11 rounded-xl">
                       <ShoppingCart className="h-4 w-4" /> Adicionar ao Carrinho
                     </Button>
-                    
-                    <Button 
-                      onClick={buyNow} 
-                      disabled={addingToCart}
-                      className="w-full bg-white text-black hover:bg-white/90 font-semibold gap-2 h-11 rounded-xl"
-                    >
+                    <Button onClick={buyNow} disabled={addingToCart}
+                      className="w-full bg-white text-black hover:bg-white/90 font-semibold gap-2 h-11 rounded-xl">
                       <Zap className="h-4 w-4" /> Comprar Agora
                     </Button>
                   </>
@@ -228,7 +212,6 @@ export default function ProductDetail() {
                 <FavoriteButton product={product} className="w-full justify-center h-11 rounded-xl border border-[#1A1A1A] text-xs gap-1.5" />
               </div>
 
-              {/* Metadados */}
               {metadata.length > 0 && (
                 <div className="space-y-3 pt-4 border-t border-[#1A1A1A]">
                   {metadata.map((item) => (

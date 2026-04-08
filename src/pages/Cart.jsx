@@ -1,4 +1,4 @@
-// src/pages/Cart.jsx - Com suporte a presentes
+// src/pages/Cart.jsx
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Trash2, ShoppingCart, ArrowRight, Wallet, AlertCircle, RefreshCw, Gift } from 'lucide-react';
@@ -56,8 +56,6 @@ export default function Cart() {
   const canPayFully = walletBalance >= total;
   const walletDiscount = useWalletBalance ? Math.min(walletBalance, total) : 0;
   const remainingTotal = Math.max(0, total - walletDiscount);
-  
-  // Verificar se tem presente no carrinho
   const hasGift = items.some(item => item.is_gift === true);
 
   const handlePayWithWallet = async () => {
@@ -111,7 +109,6 @@ export default function Cart() {
 
       setWallet(prev => ({ ...prev, balance_usd: newBalance, transactions: [...(prev.transactions || []), tx] }));
       
-      // Limpa carrinho
       for (const item of items) {
         await base44.entities.CartItem.delete(item.id);
       }
@@ -157,17 +154,12 @@ export default function Cart() {
           )}
         </h1>
         {items.length > 0 && (
-          <button
-            onClick={loadCart}
-            className="p-2 text-[#555] hover:text-white transition-colors"
-            title="Atualizar carrinho"
-          >
+          <button onClick={loadCart} className="p-2 text-[#555] hover:text-white transition-colors" title="Atualizar carrinho">
             <RefreshCw className="h-4 w-4" />
           </button>
         )}
       </div>
 
-      {/* Aviso de presente */}
       {hasGift && (
         <div className="mb-6 p-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl flex items-center gap-3">
           <Gift className="h-5 w-5 text-white" />
@@ -185,24 +177,15 @@ export default function Cart() {
             <p className="text-[#555] text-base">Seu carrinho está vazio</p>
             <p className="text-[#444] text-sm mt-1">Adicione alguns assets para começar</p>
           </div>
-          <Button 
-            onClick={() => navigate('/store')} 
-            className="bg-white text-black hover:bg-white/90 font-semibold mt-4"
-          >
+          <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-semibold mt-4">
             Explorar Assets
           </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Lista de Itens */}
           <div className="lg:col-span-2 space-y-3">
             {items.map((item, index) => (
-              <div 
-                key={item.id} 
-                className="flex items-center gap-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-4 hover:border-[#333] transition-all duration-200 group"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                {/* Thumbnail */}
+              <div key={item.id} className="flex items-center gap-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-4 hover:border-[#333] transition-all duration-200 group">
                 <div className="w-16 h-16 bg-[#111] rounded-lg overflow-hidden flex-shrink-0">
                   {item.thumbnail ? (
                     <img src={item.thumbnail} alt={item.product_title} className="w-full h-full object-cover" />
@@ -213,7 +196,6 @@ export default function Cart() {
                   )}
                 </div>
                 
-                {/* Informações */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-semibold text-white truncate">{item.product_title}</h3>
@@ -235,17 +217,13 @@ export default function Cart() {
                   )}
                 </div>
                 
-                {/* Preço e Remover */}
                 <div className="flex items-center gap-3 flex-shrink-0">
                   <div className="text-right">
                     <div className="text-sm font-bold text-white">R$ {item.price_brl?.toFixed(2)}</div>
                     <div className="text-[10px] text-[#555]">à vista</div>
                   </div>
-                  <button 
-                    onClick={() => removeItem(item.id)} 
-                    disabled={removingId === item.id}
-                    className="p-2 text-[#444] hover:text-red-500 transition-colors disabled:opacity-50"
-                  >
+                  <button onClick={() => removeItem(item.id)} disabled={removingId === item.id}
+                    className="p-2 text-[#444] hover:text-red-500 transition-colors disabled:opacity-50">
                     {removingId === item.id ? (
                       <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
                     ) : (
@@ -257,12 +235,10 @@ export default function Cart() {
             ))}
           </div>
 
-          {/* Resumo */}
           <div>
             <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6 space-y-5 sticky top-24">
               <h3 className="text-lg font-bold text-white">Resumo do Pedido</h3>
 
-              {/* Saldo da Carteira */}
               {wallet && walletBalance > 0 && (
                 <div className="p-3 bg-[#111] border border-[#1A1A1A] rounded-lg space-y-3">
                   <div className="flex items-center justify-between">
@@ -272,89 +248,58 @@ export default function Cart() {
                     </div>
                     <span className="text-sm font-bold text-white">R$ {walletBalance.toFixed(2)}</span>
                   </div>
-                  
                   <label className="flex items-center gap-2 cursor-pointer pt-2 border-t border-[#1A1A1A]">
-                    <input
-                      type="checkbox"
-                      checked={useWalletBalance}
-                      onChange={(e) => setUseWalletBalance(e.target.checked)}
-                      className="rounded border-[#333] bg-transparent"
-                    />
+                    <input type="checkbox" checked={useWalletBalance} onChange={(e) => setUseWalletBalance(e.target.checked)}
+                      className="rounded border-[#333] bg-transparent" />
                     <span className="text-xs text-[#888]">
                       Usar saldo da carteira
                       {!canPayFully && useWalletBalance && (
-                        <span className="text-yellow-600 ml-1">
-                          (saldo insuficiente, restará R$ {remainingTotal.toFixed(2)})
-                        </span>
+                        <span className="text-yellow-600 ml-1">(saldo insuficiente, restará R$ {remainingTotal.toFixed(2)})</span>
                       )}
                     </span>
                   </label>
                 </div>
               )}
 
-              {/* Totais */}
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between text-[#666]">
                   <span>Subtotal ({items.length} {items.length === 1 ? 'item' : 'itens'})</span>
                   <span>R$ {total.toFixed(2)}</span>
                 </div>
-                
                 {useWalletBalance && walletDiscount > 0 && (
                   <div className="flex justify-between text-green-500">
                     <span>Saldo aplicado</span>
                     <span>- R$ {walletDiscount.toFixed(2)}</span>
                   </div>
                 )}
-                
                 <div className="flex justify-between font-bold text-white pt-3 border-t border-[#1A1A1A] text-base">
                   <span>Total</span>
                   <span className="text-xl">R$ {(useWalletBalance ? remainingTotal : total).toFixed(2)}</span>
                 </div>
-
-                {/* Aviso de frete */}
                 <div className="flex items-start gap-2 p-2 bg-[#111] rounded-lg">
                   <AlertCircle className="h-3 w-3 text-[#555] mt-0.5 flex-shrink-0" />
-                  <p className="text-[10px] text-[#555]">
-                    Entrega instantânea via download após confirmação do pagamento
-                  </p>
+                  <p className="text-[10px] text-[#555]">Entrega instantânea via download após confirmação do pagamento</p>
                 </div>
               </div>
 
-              {/* Botões de ação */}
               <div className="space-y-2">
                 {useWalletBalance && canPayFully ? (
-                  <Button 
-                    onClick={handlePayWithWallet} 
-                    disabled={payingWithWallet} 
-                    className="w-full bg-white text-black hover:bg-white/90 font-bold gap-2 h-12"
-                  >
+                  <Button onClick={handlePayWithWallet} disabled={payingWithWallet} 
+                    className="w-full bg-white text-black hover:bg-white/90 font-bold gap-2 h-12">
                     {payingWithWallet ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                        Processando...
-                      </>
+                      <><div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" /> Processando...</>
                     ) : (
-                      <>
-                        <Wallet className="h-4 w-4" />
-                        Pagar com Saldo
-                      </>
+                      <><Wallet className="h-4 w-4" /> Pagar com Saldo</>
                     )}
                   </Button>
                 ) : (
-                  <Button 
-                    onClick={() => navigate('/checkout')} 
-                    className="w-full bg-white text-black hover:bg-white/90 font-bold gap-2 h-12"
-                  >
-                    Finalizar Compra
-                    <ArrowRight className="h-4 w-4" />
+                  <Button onClick={() => navigate('/checkout')} 
+                    className="w-full bg-white text-black hover:bg-white/90 font-bold gap-2 h-12">
+                    Finalizar Compra <ArrowRight className="h-4 w-4" />
                   </Button>
                 )}
-                
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate('/store')}
-                  className="w-full border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-12"
-                >
+                <Button variant="outline" onClick={() => navigate('/store')}
+                  className="w-full border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-12">
                   Continuar Comprando
                 </Button>
               </div>
