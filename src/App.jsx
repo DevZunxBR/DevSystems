@@ -13,6 +13,7 @@ import Store from './pages/Store';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import Documentation from './pages/Documentation';
 import DashboardHome from './pages/dashboard/DashboardHome';
 import MyOrders from './pages/dashboard/MyOrders';
 import AccountSettings from './pages/dashboard/AccountSettings';
@@ -45,8 +46,11 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      {/* Rota pública - Login/Cadastro (não fica em manutenção para todos poderem ver) */}
+      {/* Rota pública - Login/Cadastro */}
       <Route path="/register" element={<Register />} />
+
+      {/* Rota pública - Documentação */}
+      <Route path="/docs" element={<Documentation />} />
 
       <Route element={<AppLayout />}>
         {/* Única página pública */}
