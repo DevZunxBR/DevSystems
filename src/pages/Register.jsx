@@ -47,7 +47,7 @@ export default function Register() {
         setCurrentImageIndex((prev) => (prev + 1) % images.length);
         setIsTransitioning(false);
       }, 500);
-    }, 5000);
+    }, 10000);
     
     return () => clearInterval(interval);
   }, [images.length]);
