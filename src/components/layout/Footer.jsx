@@ -45,7 +45,7 @@ export default function Footer() {
               <span className="text-white font-bold tracking-tight">Marketplace</span>
             </div>
             <p className="text-xs text-[#555] leading-relaxed max-w-[200px]">
-              Assets e sistemas digitais premium para desenvolvedores.
+              Assets e sistemas para desenvolvedores.
             </p>
             <div className="flex items-center gap-3">
               <a 
@@ -108,7 +108,7 @@ export default function Footer() {
 
         <div className="border-t border-[#1A1A1A] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-[#333]">© 2026 Marketplace. Todos os direitos reservados.</p>
-          <p className="text-xs text-[#333]">Pagamentos processados via PIX</p>
+          <p className="text-xs text-[#333]">Pagamentos processados via PIX, Entrega Manual.</p>
         </div>
       </div>
     </footer>
