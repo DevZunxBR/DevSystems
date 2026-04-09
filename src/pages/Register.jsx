@@ -6,8 +6,8 @@ import { toast } from 'sonner';
 
 // Importe suas imagens aqui
 import devRegisterBg1 from '@/assets/images/DevRegister.png';
-import devRegisterBg2 from '@/assets/images/DevRegister2.png'; // Adicione sua segunda imagem
-import devRegisterBg3 from '@/assets/images/DevRegister3.png'; // Adicione sua terceira imagem
+import devRegisterBg2 from '@/assets/images/DevRegister2.png';
+import devRegisterBg3 from '@/assets/images/DevRegister3.png';
 import devRegisterBg4 from '@/assets/images/DevRegister4.png';
 
 export default function Register() {
@@ -21,30 +21,31 @@ export default function Register() {
   
   // Slideshow state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [fade, setFade] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
-  // Lista de imagens
-  const images = [devRegisterBg1, devRegisterBg2, devRegisterBg3];
+  // Lista de imagens (4 imagens)
+  const images = [devRegisterBg1, devRegisterBg2, devRegisterBg3, devRegisterBg4];
   
   // Frases diferentes para cada imagem
   const quotes = [
     { text: "A plataforma com os melhores assets e sistemas do mercado. Qualidade impecável.", author: "— Dev Community" },
     { text: "Encontre tudo que você precisa para seus projetos em um só lugar.", author: "— Dev Systems" },
     { text: "Mais de 500 desenvolvedores já confiam na nossa plataforma.", author: "— Comunidade Dev" },
+    { text: "Scripts profissionais e sistemas completos para produção imediata.", author: "— Dev Team" },
   ];
 
   // Trocar imagem a cada 5 segundos
   useEffect(() => {
     const interval = setInterval(() => {
-      setFade(false); // fade out
+      setIsTransitioning(true);
       setTimeout(() => {
         setCurrentImageIndex((prev) => (prev + 1) % images.length);
-        setFade(true); // fade in
+        setIsTransitioning(false);
       }, 500);
     }, 5000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [images.length]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -176,6 +177,15 @@ export default function Register() {
     }
   };
 
+  const goToImage = (index) => {
+    if (index === currentImageIndex) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentImageIndex(index);
+      setIsTransitioning(false);
+    }, 500);
+  };
+
   return (
     <div className="min-h-screen flex">
       {/* Left - Form */}
@@ -302,21 +312,23 @@ export default function Register() {
         )}
       </div>
 
-      {/* Right - Image Slideshow */}
+      {/* Right - Image Slideshow com efeito corrigido */}
       <div className="hidden lg:block w-1/2 relative overflow-hidden">
-        {/* Imagem com fade */}
+        {/* Imagem atual */}
         <img
           src={images[currentImageIndex]}
           alt="Developer workspace"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-            fade ? 'opacity-100' : 'opacity-0'
+            isTransitioning ? 'opacity-0' : 'opacity-100'
           }`}
         />
+        
+        {/* Gradiente */}
         <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
         
-        {/* Frase que muda junto com a imagem */}
+        {/* Frase */}
         <div className={`absolute inset-0 flex flex-col justify-end p-12 transition-opacity duration-500 ${
-          fade ? 'opacity-100' : 'opacity-0'
+          isTransitioning ? 'opacity-0' : 'opacity-100'
         }`}>
           <blockquote className="space-y-3">
             <p className="text-lg font-semibold text-white leading-relaxed">
@@ -331,14 +343,8 @@ export default function Register() {
           {images.map((_, index) => (
             <button
               key={index}
-              onClick={() => {
-                setFade(false);
-                setTimeout(() => {
-                  setCurrentImageIndex(index);
-                  setFade(true);
-                }, 500);
-              }}
-              className={`w-2 h-2 rounded-full transition-all ${
+              onClick={() => goToImage(index)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
                 currentImageIndex === index 
                   ? 'bg-white w-6' 
                   : 'bg-white/40 hover:bg-white/60'
