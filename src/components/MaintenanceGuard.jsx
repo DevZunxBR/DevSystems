@@ -6,7 +6,6 @@ import Maintenance from './Maintenance';
 export default function MaintenanceGuard({ children }) {
   const [isAllowed, setIsAllowed] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
 
   useEffect(() => {
     checkAccess();
@@ -21,10 +20,14 @@ export default function MaintenanceGuard({ children }) {
         .eq('key', 'maintenance_mode')
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== 'PGRST116') {
+        console.error('Erro:', error);
+        setIsAllowed(true);
+        setLoading(false);
+        return;
+      }
       
       const isMaintenanceOn = settings?.value === 'true';
-      setMaintenanceEnabled(isMaintenanceOn);
 
       // Se manutenção estiver desativada, libera tudo
       if (!isMaintenanceOn) {
@@ -36,19 +39,22 @@ export default function MaintenanceGuard({ children }) {
       // Pega usuário atual
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Verifica se é admin (role = 'admin' no user_profiles)
-      if (user?.email) {
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('role')
-          .eq('email', user.email)
-          .single();
-        
-        if (profile?.role === 'admin') {
-          setIsAllowed(true);
-        } else {
-          setIsAllowed(false);
-        }
+      // Se não está logado, bloqueia
+      if (!user) {
+        setIsAllowed(false);
+        setLoading(false);
+        return;
+      }
+      
+      // Verifica se é admin
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('email', user.email)
+        .single();
+      
+      if (profile?.role === 'admin') {
+        setIsAllowed(true);
       } else {
         setIsAllowed(false);
       }
@@ -68,7 +74,7 @@ export default function MaintenanceGuard({ children }) {
     );
   }
 
-  if (!isAllowed && maintenanceEnabled) {
+  if (!isAllowed) {
     return <Maintenance />;
   }
 
