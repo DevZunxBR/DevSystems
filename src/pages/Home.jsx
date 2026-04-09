@@ -1,4 +1,4 @@
-// src/pages/Home.jsx - Com slideshow de imagens de fundo
+// src/pages/Home.jsx - Sem bolinhas de navegação
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ChevronRight } from 'lucide-react';
@@ -22,7 +22,7 @@ export default function Home() {
   // Lista de imagens de fundo
   const backgroundImages = [heroBg1, heroBg2, heroBg3, heroBg4];
 
-  // Trocar imagem a cada 5 segundos
+  // Trocar imagem a cada 10 segundos
   useEffect(() => {
     const interval = setInterval(() => {
       setIsTransitioning(true);
@@ -95,28 +95,6 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </div>
-        
-        {/* Indicadores de slide (bolinhas) */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-          {backgroundImages.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                if (index === currentImageIndex) return;
-                setIsTransitioning(true);
-                setTimeout(() => {
-                  setCurrentImageIndex(index);
-                  setIsTransitioning(false);
-                }, 500);
-              }}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                currentImageIndex === index 
-                  ? 'bg-white w-6' 
-                  : 'bg-white/40 hover:bg-white/60'
-              }`}
-            />
-          ))}
         </div>
       </section>
 
