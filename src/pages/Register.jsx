@@ -39,28 +39,6 @@ export default function Register() {
     { text: "Scripts profissionais e sistemas completos para produção imediata.", author: "— Dev Team" },
   ];
 
-  // Função para calcular força da senha
-  const getPasswordStrength = (password) => {
-    let strength = 0;
-    if (password.length >= 6) strength++;
-    if (password.length >= 8) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
-    if (/[^A-Za-z0-9]/.test(password)) strength++;
-    return Math.min(strength, 4);
-  };
-
-  const passwordStrength = getPasswordStrength(formData.password);
-  
-  const strengthLabels = ['Muito fraca', 'Fraca', 'Média', 'Forte', 'Muito forte'];
-  const strengthColors = [
-    'bg-red-500',
-    'bg-orange-500',
-    'bg-yellow-500',
-    'bg-green-500',
-    'bg-green-600'
-  ];
-
   // Trocar imagem a cada 5 segundos
   useEffect(() => {
     const interval = setInterval(() => {
@@ -124,6 +102,26 @@ export default function Register() {
     }
   };
 
+  // Verificar se email já existe
+  const checkEmailExists = async (email) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('email')
+        .eq('email', email)
+        .maybeSingle();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Erro ao verificar email:', error);
+      }
+      
+      return !!data;
+    } catch (err) {
+      console.error('Erro ao verificar email:', err);
+      return false;
+    }
+  };
+
   const handleRegister = async () => {
     if (!formData.name || !formData.email || !formData.password) {
       toast.error('Preencha todos os campos');
@@ -137,7 +135,17 @@ export default function Register() {
       toast.error('A senha deve ter pelo menos 6 caracteres');
       return;
     }
+    
+    // Verificar se email já existe
     setLoading(true);
+    const emailExists = await checkEmailExists(formData.email);
+    
+    if (emailExists) {
+      toast.error('Este email já está cadastrado. Faça login ou use outro email.');
+      setLoading(false);
+      return;
+    }
+    
     try {
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
@@ -155,7 +163,11 @@ export default function Register() {
       toast.success('Código enviado para seu email!');
       setStep('otp');
     } catch (err) {
-      toast.error(err.message || 'Erro ao criar conta');
+      if (err.message?.includes('already registered')) {
+        toast.error('Este email já está cadastrado. Faça login.');
+      } else {
+        toast.error(err.message || 'Erro ao criar conta');
+      }
     } finally {
       setLoading(false);
     }
@@ -326,30 +338,6 @@ export default function Register() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              
-              {/* Indicador de força da senha */}
-              {formData.password.length > 0 && (
-                <div className="mt-2 space-y-1">
-                  <div className="flex gap-1">
-                    {[0, 1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className={`h-1 flex-1 rounded-full transition-all ${
-                          i < passwordStrength
-                            ? strengthColors[passwordStrength - 1]
-                            : 'bg-[#1A1A1A]'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-[10px] text-muted-foreground">
-                    Senha {strengthLabels[passwordStrength]}
-                    {passwordStrength < 2 && ' • Mínimo 6 caracteres'}
-                    {passwordStrength >= 2 && passwordStrength < 4 && ' • Adicione números e letras maiúsculas'}
-                    {passwordStrength >= 4 && ' • Senha excelente!'}
-                  </p>
-                </div>
-              )}
             </div>
             
             {mode === 'register' && (
@@ -401,7 +389,6 @@ export default function Register() {
 
       {/* Right - Image Slideshow */}
       <div className="hidden lg:block w-1/2 relative overflow-hidden">
-        {/* Imagem atual */}
         <img
           src={images[currentImageIndex]}
           alt="Developer workspace"
@@ -410,10 +397,8 @@ export default function Register() {
           }`}
         />
         
-        {/* Gradiente */}
         <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
         
-        {/* Frase */}
         <div className={`absolute inset-0 flex flex-col justify-end p-12 transition-opacity duration-500 ${
           isTransitioning ? 'opacity-0' : 'opacity-100'
         }`}>
@@ -425,7 +410,6 @@ export default function Register() {
           </blockquote>
         </div>
         
-        {/* Indicadores de slide (bolinhas) */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
           {images.map((_, index) => (
             <button
