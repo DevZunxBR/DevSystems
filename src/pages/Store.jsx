@@ -103,7 +103,7 @@ export default function Store() {
         <div>
           <h1 className="text-4xl font-black text-white tracking-tight">Asset Library</h1>
           <p className="text-sm text-[#666] mt-2">
-            Scripts, sistemas e assets prontos para Desenvolvedores. Encontre o que precisa para seu projeto, com qualidade e suporte dedicado.
+            sistemas e assets para Desenvolvedores.
           </p>
         </div>
 
