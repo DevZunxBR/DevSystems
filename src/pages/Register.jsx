@@ -1,18 +1,50 @@
-import devRegisterBg from '@/assets/images/DevRegister.png';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
 
+// Importe suas imagens aqui
+import devRegisterBg1 from '@/assets/images/DevRegister.png';
+import devRegisterBg2 from '@/assets/images/DevRegister2.png'; // Adicione sua segunda imagem
+import devRegisterBg3 from '@/assets/images/DevRegister3.png'; // Adicione sua terceira imagem
+import devRegisterBg4 from '@/assets/images/DevRegister4.png';
+
 export default function Register() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState('login'); // 'login' | 'register'
-  const [step, setStep] = useState('form'); // 'form' | 'otp'
+  const [mode, setMode] = useState('login');
+  const [step, setStep] = useState('form');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirm: '' });
   const [otp, setOtp] = useState(['', '', '', '', '', '', '', '']);
   const inputRefs = useRef([]);
+  
+  // Slideshow state
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [fade, setFade] = useState(true);
+  
+  // Lista de imagens
+  const images = [devRegisterBg1, devRegisterBg2, devRegisterBg3];
+  
+  // Frases diferentes para cada imagem
+  const quotes = [
+    { text: "A plataforma com os melhores assets e sistemas do mercado. Qualidade impecável.", author: "— Dev Community" },
+    { text: "Encontre tudo que você precisa para seus projetos em um só lugar.", author: "— Dev Systems" },
+    { text: "Mais de 500 desenvolvedores já confiam na nossa plataforma.", author: "— Comunidade Dev" },
+  ];
+
+  // Trocar imagem a cada 5 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFade(false); // fade out
+      setTimeout(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % images.length);
+        setFade(true); // fade in
+      }, 500);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -270,23 +302,51 @@ export default function Register() {
         )}
       </div>
 
-{/* Right - Image */}
-<div className="hidden lg:block w-1/2 relative overflow-hidden">
-  <img
-    src={devRegisterBg}
-    alt="Developer workspace"
-    className="absolute inset-0 w-full h-full object-cover"
-  />
-  <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
-  <div className="absolute inset-0 flex flex-col justify-end p-12">
-    <blockquote className="space-y-3">
-      <p className="text-lg font-semibold text-white leading-relaxed">
-        "A plataforma com os melhores assets e sistemas do mercado. Qualidade impecável."
-      </p>
-      <footer className="text-sm text-muted-foreground">— Dev Community</footer>
-    </blockquote>
-  </div>
-</div>
+      {/* Right - Image Slideshow */}
+      <div className="hidden lg:block w-1/2 relative overflow-hidden">
+        {/* Imagem com fade */}
+        <img
+          src={images[currentImageIndex]}
+          alt="Developer workspace"
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+            fade ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
+        
+        {/* Frase que muda junto com a imagem */}
+        <div className={`absolute inset-0 flex flex-col justify-end p-12 transition-opacity duration-500 ${
+          fade ? 'opacity-100' : 'opacity-0'
+        }`}>
+          <blockquote className="space-y-3">
+            <p className="text-lg font-semibold text-white leading-relaxed">
+              "{quotes[currentImageIndex].text}"
+            </p>
+            <footer className="text-sm text-muted-foreground">{quotes[currentImageIndex].author}</footer>
+          </blockquote>
+        </div>
+        
+        {/* Indicadores de slide (bolinhas) */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+          {images.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                setFade(false);
+                setTimeout(() => {
+                  setCurrentImageIndex(index);
+                  setFade(true);
+                }, 500);
+              }}
+              className={`w-2 h-2 rounded-full transition-all ${
+                currentImageIndex === index 
+                  ? 'bg-white w-6' 
+                  : 'bg-white/40 hover:bg-white/60'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
