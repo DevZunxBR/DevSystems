@@ -6,7 +6,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/products/ProductCard';
 
-const CATEGORIES = ['Todos', 'Scripts', 'Systems', 'UI Kits', 'Plugins', 'Templates', 'Assets', 'Tools'];
+const CATEGORIES = ['Todos', 'Scripts', 'Systems', 'Interfaces', 'Plugins', 'Templates', 'Assets', 'Tools'];
 const SORT_OPTIONS = [
   { value: '-created_date', label: 'Mais Recentes', icon: Clock },
   { value: 'price_brl', label: 'Menor Preço', icon: DollarSign },
@@ -103,7 +103,7 @@ export default function Store() {
         <div>
           <h1 className="text-4xl font-black text-white tracking-tight">Asset Library</h1>
           <p className="text-sm text-[#666] mt-2">
-            Scripts, sistemas e assets premium prontos para produção
+            Scripts, sistemas e assets prontos para Desenvolvedores. Encontre o que precisa para seu projeto, com qualidade e suporte dedicado.
           </p>
         </div>
 
@@ -113,7 +113,7 @@ export default function Store() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#555]" />
             <input
               type="text"
-              placeholder="Buscar assets, scripts, sistemas..."
+              placeholder="Buscar assets"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-11 pl-11 pr-10 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#333] transition-colors"
