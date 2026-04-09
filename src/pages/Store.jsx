@@ -113,7 +113,7 @@ export default function Store() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#555]" />
             <input
               type="text"
-              placeholder="Buscar assets"
+              placeholder="Buscar assets e Sistemas"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-11 pl-11 pr-10 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#333] transition-colors"

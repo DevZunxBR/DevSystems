@@ -148,7 +148,7 @@ export default function ProductDetail() {
               {images.length > 0 ? (
                 <img src={images[selectedImage]} alt={product.title} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-[#555]">Sem imagem</div>
+                <div className="w-full h-full flex items-center justify-center text-[#555]">Sem imagem Disponivel</div>
               )}
               {images.length > 1 && (
                 <>

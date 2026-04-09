@@ -183,7 +183,7 @@ export default function Cart() {
           <ShoppingCart className="h-16 w-16 text-[#333] mx-auto" />
           <div>
             <p className="text-[#555] text-base">Seu carrinho está vazio</p>
-            <p className="text-[#444] text-sm mt-1">Adicione alguns assets para começar</p>
+            <p className="text-[#444] text-sm mt-1">Adicione assets para começar</p>
           </div>
           <Button 
             onClick={() => navigate('/store')} 
@@ -315,7 +315,7 @@ export default function Cart() {
                 <div className="flex items-start gap-2 p-2 bg-[#111] rounded-lg">
                   <AlertCircle className="h-3 w-3 text-[#555] mt-0.5 flex-shrink-0" />
                   <p className="text-[10px] text-[#555]">
-                    Entrega instantânea via download após confirmação do pagamento
+                    Entrega manual via download após confirmação do pagamento
                   </p>
                 </div>
               </div>

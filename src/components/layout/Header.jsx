@@ -71,7 +71,7 @@ export default function Header() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#444]" />
             <input
               type="text"
-              placeholder="Buscar assets, scripts, sistemas..."
+              placeholder="Buscar assets"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-10 pl-10 pr-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#333]"

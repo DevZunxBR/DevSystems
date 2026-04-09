@@ -205,7 +205,7 @@ export default function Checkout() {
             <h2 className="text-lg font-bold text-foreground">Dados de Cobrança</h2>
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo *</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo*</label>
                 <input type="text" value={billing.name} onChange={(e) => setBilling({ ...billing, name: e.target.value })}
                   className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" required />
               </div>
@@ -215,7 +215,7 @@ export default function Checkout() {
                   className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" required />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">CPF / CNPJ</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">CPF / CNPJ (Opcional)</label>
                 <input type="text" value={billing.document} onChange={(e) => setBilling({ ...billing, document: e.target.value })}
                   className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
               </div>
@@ -234,7 +234,7 @@ export default function Checkout() {
                 </label>
                 {useWallet && walletDiscount > 0 && (
                   <p className="text-xs text-green-500">
-                    ✓ {symbol}{walletDiscount.toFixed(2)} de saldo serão descontados ao confirmar o pagamento
+                     {symbol}{walletDiscount.toFixed(2)} de saldo serão descontados ao confirmar o pagamento
                   </p>
                 )}
               </div>
@@ -253,7 +253,7 @@ export default function Checkout() {
                 </div>
               ) : (
                 <div className="flex gap-2">
-                  <input type="text" placeholder="DESCONTO10" value={couponInput}
+                  <input type="text" placeholder="DEVMARKETPLACE10" value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
                     className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring font-mono" />
