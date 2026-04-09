@@ -1,11 +1,10 @@
-// src/pages/Documentation.jsx - Versão completa com footer e mini cards
+// src/pages/Documentation.jsx - Com subtítulos, links e mini textos
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/api/base44Client';
 import {
   BookOpen, ShoppingCart, CreditCard, Download,
   Wallet, RefreshCcw, ShieldCheck, MessageCircle, HelpCircle,
-  Copy, CheckCircle, Clock, XCircle, User
+  ChevronRight, ExternalLink, ArrowRight
 } from 'lucide-react';
 
 const DOCS_SECTIONS = [
@@ -23,8 +22,6 @@ const DOCS_SECTIONS = [
 export default function Documentation() {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('introduction');
-  const [user, setUser] = useState(null);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const hash = window.location.hash.replace('#', '');
@@ -32,20 +29,7 @@ export default function Documentation() {
       setActiveSection(hash);
       document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
     }
-    loadUser();
   }, []);
-
-  const loadUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('full_name')
-        .eq('email', user.email)
-        .single();
-      setUser({ email: user.email, name: profile?.full_name || user.email });
-    }
-  };
 
   const scrollToSection = (id) => {
     setActiveSection(id);
@@ -53,15 +37,9 @@ export default function Documentation() {
     window.history.pushState({}, '', `#${id}`);
   };
 
-  const copyPix = () => {
-    navigator.clipboard.writeText('pagamentos@marketplace.com');
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
-    <div className="min-h-screen bg-black flex flex-col">
-      {/* Header com logo e avatar */}
+    <div className="min-h-screen bg-black">
+      {/* Header */}
       <div className="border-b border-[#1A1A1A] bg-[#0A0A0A] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -71,24 +49,19 @@ export default function Documentation() {
               </div>
               <span className="text-white font-bold tracking-tight">Marketplace</span>
             </div>
-            <div className="flex items-center gap-4">
-              <button onClick={() => navigate('/dashboard')} className="text-sm text-[#555] hover:text-white transition-colors">
-                Dashboard
+            <div className="flex items-center gap-6">
+              <button onClick={() => navigate('/store')} className="text-sm text-[#555] hover:text-white transition-colors">
+                Loja
               </button>
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#111] border border-[#1A1A1A] rounded-full flex items-center justify-center">
-                  <User className="h-4 w-4 text-[#555]" />
-                </div>
-                <span className="text-xs text-[#555] hidden sm:block">
-                  {user?.name?.split(' ')[0] || 'Conta'}
-                </span>
-              </div>
+              <button onClick={() => navigate('/dashboard')} className="text-sm text-[#555] hover:text-white transition-colors">
+                Minha Conta
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex gap-12">
           {/* Sidebar */}
           <aside className="hidden lg:block w-56 flex-shrink-0">
@@ -118,176 +91,179 @@ export default function Documentation() {
               {/* Introduction */}
               <section id="introduction" className="scroll-mt-20 mb-12">
                 <h1 className="text-3xl font-black text-white mb-4">Documentação</h1>
-                <p className="text-[#666] leading-relaxed">
+                <p className="text-[#666] leading-relaxed mb-4">
                   Bem-vindo à documentação oficial do Marketplace. Aqui você encontra todas as informações necessárias para utilizar nossa plataforma.
                 </p>
+                <div className="flex flex-wrap gap-4 text-sm">
+                  <button onClick={() => navigate('/store')} className="text-white hover:underline flex items-center gap-1">
+                    Ir para a Loja <ArrowRight className="h-3 w-3" />
+                  </button>
+                  <button onClick={() => navigate('/dashboard')} className="text-white hover:underline flex items-center gap-1">
+                    Ir para o Dashboard <ArrowRight className="h-3 w-3" />
+                  </button>
+                </div>
               </section>
 
               {/* Como Comprar */}
               <section id="buying" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Como Comprar</h2>
-                <ol className="list-decimal list-inside space-y-2 text-[#666]">
-                  <li>Navegue pela loja e encontre o asset desejado</li>
+                <p className="text-[#666] leading-relaxed mb-3 text-sm">
+                  Comprar na nossa plataforma é simples. Siga os passos abaixo:
+                </p>
+                <ol className="list-decimal list-inside space-y-2 text-[#666] text-sm">
+                  <li>Navegue pela <button onClick={() => navigate('/store')} className="text-white hover:underline">loja</button> e encontre o asset desejado</li>
                   <li>Clique em "Adicionar ao Carrinho"</li>
-                  <li>Preencha seus dados no checkout</li>
+                  <li>Preencha seus dados no <button onClick={() => navigate('/checkout')} className="text-white hover:underline">checkout</button></li>
                   <li>Finalize o pagamento via PIX</li>
-                  <li>Aguarde a aprovação do pedido</li>
-                  <li>Baixe seus arquivos em Meus Pedidos</li>
+                  <li>Aguarde a aprovação do pedido (até 30min)</li>
+                  <li>Baixe seus arquivos em <button onClick={() => navigate('/dashboard/orders')} className="text-white hover:underline">Meus Pedidos</button></li>
                 </ol>
+                <div className="mt-4 p-3 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-xs text-[#555]">
+                  💡 <strong className="text-white">Dica:</strong> Use "Comprar Agora" para ir direto ao checkout sem passar pelo carrinho.
+                </div>
               </section>
 
-              {/* Pagamento com mini card do PIX */}
+              {/* Pagamento */}
               <section id="payment" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Pagamento via PIX</h2>
-                <p className="text-[#666] leading-relaxed mb-4">
-                  Trabalhamos exclusivamente com PIX - o meio de pagamento instantâneo do Banco Central.
+                <p className="text-[#666] leading-relaxed mb-3 text-sm">
+                  Trabalhamos exclusivamente com <strong className="text-white">PIX</strong> - o meio de pagamento instantâneo do Banco Central.
                 </p>
-                
-                {/* Mini Card PIX */}
-                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-4 mb-4 max-w-md">
-                  <p className="text-xs text-[#555] mb-2">Nossa chave PIX (e-mail)</p>
-                  <div className="flex items-center justify-between">
-                    <code className="text-sm font-mono text-white">pagamentos@marketplace.com</code>
-                    <button 
-                      onClick={copyPix}
-                      className="flex items-center gap-1 text-xs text-[#555] hover:text-white transition-colors"
-                    >
-                      {copied ? <CheckCircle className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                      {copied ? 'Copiado' : 'Copiar'}
-                    </button>
-                  </div>
+                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg p-3 mb-4">
+                  <p className="text-xs text-[#555] mb-1">Chave PIX (e-mail)</p>
+                  <code className="text-sm text-white font-mono">pagamentos@marketplace.com</code>
                 </div>
-
                 <div className="flex items-start gap-2 text-sm text-[#555] mb-2">
-                  <Clock className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-white">✓</span>
                   <span>Aprovação em até <strong className="text-white">30 minutos</strong> em dias úteis</span>
                 </div>
+                <div className="flex items-start gap-2 text-sm text-[#555] mb-2">
+                  <span className="text-white">✓</span>
+                  <span>Pagamento <strong className="text-white">100% seguro</strong></span>
+                </div>
                 <div className="flex items-start gap-2 text-sm text-[#555]">
-                  <ShieldCheck className="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5" />
-                  <span>Pagamento 100% seguro</span>
+                  <span className="text-white">✓</span>
+                  <span>Confirmação <strong className="text-white">automática</strong> após aprovação</span>
                 </div>
               </section>
 
               {/* Downloads */}
               <section id="downloads" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Downloads</h2>
-                <p className="text-[#666] leading-relaxed">
-                  Após a aprovação do pagamento, seus arquivos ficam disponíveis por <strong className="text-white">7 dias</strong> em Meus Pedidos.
+                <p className="text-[#666] leading-relaxed mb-3 text-sm">
+                  Após a aprovação do pagamento, seus arquivos ficam disponíveis por <strong className="text-white">7 dias</strong>.
                 </p>
+                <p className="text-[#666] leading-relaxed text-sm">
+                  Acesse <button onClick={() => navigate('/dashboard/orders')} className="text-white hover:underline">Meus Pedidos</button> no dashboard e clique em "Download".
+                </p>
+                <div className="mt-4 p-3 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-xs text-[#555]">
+                  ⚠️ <strong className="text-white">Atenção:</strong> Salve seus arquivos imediatamente. Links expiram após 7 dias.
+                </div>
               </section>
 
-              {/* Carteira com mini cards */}
+              {/* Carteira */}
               <section id="wallet" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Carteira & Cashback</h2>
-                <p className="text-[#666] leading-relaxed mb-4">
-                  Toda compra aprovada gera <strong className="text-white">5% de cashback</strong> na sua carteira.
+                <p className="text-[#666] leading-relaxed mb-3 text-sm">
+                  Toda compra aprovada gera <strong className="text-white">5% de cashback</strong> creditado automaticamente na sua carteira.
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg p-3">
-                    <p className="text-sm font-semibold text-white mb-1">💰 Como ganhar</p>
-                    <p className="text-xs text-[#555]">5% do valor de cada compra aprovada</p>
-                  </div>
-                  <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg p-3">
-                    <p className="text-sm font-semibold text-white mb-1">🛒 Como usar</p>
-                    <p className="text-xs text-[#555]">Use o saldo em compras futuras</p>
-                  </div>
+                <p className="text-[#666] leading-relaxed text-sm">
+                  O saldo acumulado pode ser usado para abater em <button onClick={() => navigate('/store')} className="text-white hover:underline">compras futuras</button>.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2 text-xs">
+                  <span className="px-2 py-1 bg-[#0A0A0A] border border-[#1A1A1A] rounded">💰 5% de volta</span>
+                  <span className="px-2 py-1 bg-[#0A0A0A] border border-[#1A1A1A] rounded">🛒 Use em qualquer produto</span>
+                  <span className="px-2 py-1 bg-[#0A0A0A] border border-[#1A1A1A] rounded">✨ Sem expiração</span>
                 </div>
               </section>
 
-              {/* Reembolsos com mini card */}
+              {/* Reembolsos */}
               <section id="refund" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Política de Reembolso</h2>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-[#555]">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>Até 7 dias após aprovação - Elegível</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-[#555]">
-                    <XCircle className="h-4 w-4 text-red-500" />
-                    <span>Após 7 dias - Não elegível</span>
-                  </div>
-                </div>
-                <p className="text-[#666] leading-relaxed">
-                  Solicite pelo dashboard em Meus Pedidos.
+                <p className="text-[#666] leading-relaxed mb-3 text-sm">
+                  Você pode solicitar reembolso dentro de <strong className="text-white">7 dias</strong> após a aprovação do pedido.
                 </p>
+                <p className="text-[#666] leading-relaxed text-sm">
+                  Para solicitar, acesse <button onClick={() => navigate('/dashboard/orders')} className="text-white hover:underline">Meus Pedidos</button> e clique em "Solicitar Reembolso".
+                </p>
+                <div className="mt-4 p-3 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-xs text-[#555]">
+                  📋 <strong className="text-white">Condições:</strong> Produto não baixado ou baixado há menos de 7 dias.
+                </div>
               </section>
 
-              {/* Licenças com mini cards */}
+              {/* Licenças */}
               <section id="licenses" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Licenças</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg p-3">
-                    <p className="text-sm font-bold text-white mb-1">Padrão</p>
-                    <p className="text-xs text-[#555]">1 projeto</p>
-                  </div>
-                  <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg p-3">
-                    <p className="text-sm font-bold text-white mb-1">Extendida</p>
-                    <p className="text-xs text-[#555]">Múltiplos projetos</p>
-                  </div>
-                  <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg p-3">
-                    <p className="text-sm font-bold text-white mb-1">Comercial</p>
-                    <p className="text-xs text-[#555]">Sem restrições</p>
-                  </div>
-                </div>
+                <p className="text-[#666] leading-relaxed mb-3 text-sm">
+                  Oferecemos três tipos de licença:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-[#666] text-sm">
+                  <li><strong className="text-white">Licença Padrão</strong> - Uso em 1 projeto pessoal ou comercial</li>
+                  <li><strong className="text-white">Licença Extendida</strong> - Uso em múltiplos projetos</li>
+                  <li><strong className="text-white">Licença Comercial</strong> - Uso sem restrições</li>
+                </ul>
+                <p className="text-[#666] leading-relaxed text-sm mt-3">
+                  Cada produto especifica as licenças disponíveis na sua página de detalhes.
+                </p>
               </section>
 
               {/* Suporte */}
               <section id="support" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Suporte</h2>
-                <p className="text-[#666] leading-relaxed mb-2">
+                <p className="text-[#666] leading-relaxed mb-3 text-sm">
                   <strong className="text-white">Horário:</strong> Segunda a Sexta, 09h às 18h (BRT)
                 </p>
-                <p className="text-[#666] leading-relaxed">
-                  <strong className="text-white">Contato:</strong> Discord ou suporte@marketplace.com
+                <p className="text-[#666] leading-relaxed text-sm">
+                  <strong className="text-white">Canais:</strong> Discord (resposta rápida) ou e-mail suporte@marketplace.com
                 </p>
+                <div className="mt-4 p-3 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-xs text-[#555]">
+                  💬 <strong className="text-white">Atendimento prioritário:</strong> Abra um ticket no Discord para resposta imediata.
+                </div>
               </section>
 
               {/* FAQ */}
               <section id="faq" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Perguntas Frequentes</h2>
                 
-                <h3 className="text-lg font-bold text-white mt-6 mb-2">Quanto tempo leva para aprovar o pagamento?</h3>
-                <p className="text-[#666] leading-relaxed mb-4">
-                  Em dias úteis, a aprovação ocorre em até 30 minutos. Fora do horário comercial, até 12 horas.
-                </p>
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-white mb-2">Quanto tempo leva para aprovar o pagamento?</h3>
+                  <p className="text-[#666] leading-relaxed text-sm">
+                    Em dias úteis, a aprovação ocorre em até 30 minutos. Fora do horário comercial, pode levar até 12 horas.
+                  </p>
+                </div>
                 
-                <h3 className="text-lg font-bold text-white mt-6 mb-2">Posso usar o asset em mais de um projeto?</h3>
-                <p className="text-[#666] leading-relaxed mb-4">
-                  Depende da licença adquirida. A licença padrão permite uso em 1 projeto.
-                </p>
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-white mb-2">Posso usar o asset em mais de um projeto?</h3>
+                  <p className="text-[#666] leading-relaxed text-sm">
+                    Depende da licença adquirida. A licença padrão permite uso em 1 projeto. Para múltiplos projetos, adquira a licença extendida ou comercial.
+                  </p>
+                </div>
                 
-                <h3 className="text-lg font-bold text-white mt-6 mb-2">O link de download expirou?</h3>
-                <p className="text-[#666] leading-relaxed mb-4">
-                  Contate o suporte com o número do pedido para reativar por mais 7 dias.
-                </p>
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-white mb-2">O link de download expirou. O que fazer?</h3>
+                  <p className="text-[#666] leading-relaxed text-sm">
+                    Entre em contato com o suporte informando o número do pedido. Reativamos o link por mais 7 dias.
+                  </p>
+                </div>
+                
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-white mb-2">Posso pagar com cartão ou boleto?</h3>
+                  <p className="text-[#666] leading-relaxed text-sm">
+                    No momento aceitamos apenas PIX. Estamos trabalhando para adicionar novos métodos de pagamento em breve.
+                  </p>
+                </div>
               </section>
+
+              {/* Footer da documentação */}
+              <div className="border-t border-[#1A1A1A] pt-6 mt-12">
+                <p className="text-xs text-[#444] text-center">
+                  © 2026 Marketplace. Todos os direitos reservados.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="border-t border-[#1A1A1A] bg-[#0A0A0A] mt-12">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-white rounded-lg flex items-center justify-center">
-                <span className="text-black font-black text-[10px]">M</span>
-              </div>
-              <span className="text-xs text-[#555]">© 2026 Marketplace</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <button onClick={() => navigate('/dashboard')} className="text-xs text-[#555] hover:text-white transition-colors">
-                Dashboard
-              </button>
-              <button onClick={() => navigate('/register')} className="text-xs text-[#555] hover:text-white transition-colors">
-                Conta
-              </button>
-            </div>
-            <p className="text-xs text-[#333]">Pagamentos via PIX</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
