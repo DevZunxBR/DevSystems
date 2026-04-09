@@ -30,7 +30,7 @@ export default function Home() {
         setCurrentImageIndex((prev) => (prev + 1) % backgroundImages.length);
         setIsTransitioning(false);
       }, 500);
-    }, 5000);
+    }, 10000);
     
     return () => clearInterval(interval);
   }, [backgroundImages.length]);
