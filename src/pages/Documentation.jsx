@@ -1,4 +1,4 @@
-// src/pages/Documentation.jsx - Estilo ClearlyDev
+// src/pages/Documentation.jsx - Com header estilo dashboard
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -41,23 +41,22 @@ export default function Documentation() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Header */}
-      <div className="border-b border-[#1A1A1A] bg-[#0A0A0A] sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                <span className="text-black font-black text-sm">M</span>
-              </div>
-              <span className="text-white font-bold tracking-tight">Marketplace</span>
+      {/* Header estilo dashboard */}
+      <div className="border-b border-[#1A1A1A] bg-[#0A0A0A]">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => navigate('/')} 
+              className="p-2 -ml-2 text-[#555] hover:text-white transition-colors"
+            >
+              <ChevronRight className="h-4 w-4 rotate-180" />
+            </button>
+            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+              <BookOpen className="h-4 w-4 text-black" />
             </div>
-            <div className="flex items-center gap-4">
-              <button onClick={() => navigate('/store')} className="text-sm text-[#555] hover:text-white transition-colors">
-                Loja
-              </button>
-              <button onClick={() => navigate('/dashboard')} className="text-sm text-[#555] hover:text-white transition-colors">
-                Dashboard
-              </button>
+            <div>
+              <h1 className="text-lg font-black text-white tracking-tight">Central de Ajuda</h1>
+              <p className="text-xs text-[#555]">Documentação e suporte</p>
             </div>
           </div>
         </div>
@@ -96,7 +95,7 @@ export default function Documentation() {
             {/* Introduction */}
             <section id="introduction" className="scroll-mt-20">
               <div className="mb-6">
-                <h1 className="text-3xl font-black text-white mb-2">Central de Ajuda</h1>
+                <h1 className="text-2xl font-black text-white mb-2">Central de Ajuda</h1>
                 <p className="text-sm text-[#555]">
                   Bem-vindo à documentação oficial do Marketplace. Aqui você encontra tudo que precisa saber.
                 </p>
