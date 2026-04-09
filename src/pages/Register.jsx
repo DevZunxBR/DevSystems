@@ -1,3 +1,4 @@
+import devRegisterBg from '@/assets/images/DevRegister.png';
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -269,23 +270,23 @@ export default function Register() {
         )}
       </div>
 
-      {/* Right - Image */}
-      <div className="hidden lg:block w-1/2 relative overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200"
-          alt="Tech background"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
-        <div className="absolute inset-0 flex flex-col justify-end p-12">
-          <blockquote className="space-y-3">
-            <p className="text-lg font-semibold text-white leading-relaxed">
-              "A plataforma com os melhores assets e sistemas do mercado. Qualidade impecável."
-            </p>
-            <footer className="text-sm text-muted-foreground">— Dev Community</footer>
-          </blockquote>
-        </div>
-      </div>
+{/* Right - Image */}
+<div className="hidden lg:block w-1/2 relative overflow-hidden">
+  <img
+    src={devRegisterBg}
+    alt="Developer workspace"
+    className="absolute inset-0 w-full h-full object-cover"
+  />
+  <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
+  <div className="absolute inset-0 flex flex-col justify-end p-12">
+    <blockquote className="space-y-3">
+      <p className="text-lg font-semibold text-white leading-relaxed">
+        "A plataforma com os melhores assets e sistemas do mercado. Qualidade impecável."
+      </p>
+      <footer className="text-sm text-muted-foreground">— Dev Community</footer>
+    </blockquote>
+  </div>
+</div>
     </div>
   );
 }
