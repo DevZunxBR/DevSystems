@@ -85,7 +85,7 @@ export default function Home() {
             </Button>
           </div>
           
-          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 pt-6 border-t border-[#1A1A1A] mt-4">
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 pt-4 border-t border-[#1A1A1A] mt-1">
             {[{ v: '500+', l: 'Assets Digitais' }, { v: '2K+', l: 'Clientes' }, { v: '4.9★', l: 'Avaliação Média' }].map(s => (
               <div key={s.l} className="text-center">
                 <div className="text-xl md:text-2xl font-black text-white">{s.v}</div>
