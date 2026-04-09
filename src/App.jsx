@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import AppLayout from './components/layout/AppLayout';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import AdminPanel from './pages/admin/AdminPanel';
+import MaintenanceGuard from './components/MaintenanceGuard';
 import Home from './pages/Home';
 import Store from './pages/Store';
 import ProductDetail from './pages/ProductDetail';
@@ -44,34 +45,136 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      {/* Rota pública - Login/Cadastro */}
+      {/* Rota pública - Login/Cadastro (não fica em manutenção para todos poderem ver) */}
       <Route path="/register" element={<Register />} />
 
       <Route element={<AppLayout />}>
         {/* Única página pública */}
         <Route path="/" element={<Home />} />
 
-        {/* Tudo o resto é privado */}
-        <Route path="/store" element={<PrivateRoute><Store /></PrivateRoute>} />
-        <Route path="/product/:id" element={<PrivateRoute><ProductDetail /></PrivateRoute>} />
-        <Route path="/cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
-        <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
+        {/* Tudo o resto é privado e protegido pelo MaintenanceGuard */}
+        <Route path="/store" element={
+          <PrivateRoute>
+            <MaintenanceGuard>
+              <Store />
+            </MaintenanceGuard>
+          </PrivateRoute>
+        } />
+        
+        <Route path="/product/:id" element={
+          <PrivateRoute>
+            <MaintenanceGuard>
+              <ProductDetail />
+            </MaintenanceGuard>
+          </PrivateRoute>
+        } />
+        
+        <Route path="/cart" element={
+          <PrivateRoute>
+            <MaintenanceGuard>
+              <Cart />
+            </MaintenanceGuard>
+          </PrivateRoute>
+        } />
+        
+        <Route path="/checkout" element={
+          <PrivateRoute>
+            <MaintenanceGuard>
+              <Checkout />
+            </MaintenanceGuard>
+          </PrivateRoute>
+        } />
 
         <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<PrivateRoute><DashboardHome /></PrivateRoute>} />
-          <Route path="/dashboard/orders" element={<PrivateRoute><MyOrders /></PrivateRoute>} />
-          <Route path="/dashboard/settings" element={<PrivateRoute><AccountSettings /></PrivateRoute>} />
-          <Route path="/dashboard/favorites" element={<PrivateRoute><Favorites /></PrivateRoute>} />
+          <Route path="/dashboard" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <DashboardHome />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/dashboard/orders" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <MyOrders />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/dashboard/settings" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <AccountSettings />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/dashboard/favorites" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <Favorites />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
         </Route>
 
         <Route element={<AdminPanel />}>
-          <Route path="/admin/coupons" element={<PrivateRoute><ManageCoupons /></PrivateRoute>} />
-          <Route path="/admin" element={<PrivateRoute><PendingOrders /></PrivateRoute>} />
-          <Route path="/admin/orders" element={<PrivateRoute><AllOrders /></PrivateRoute>} />
-          <Route path="/admin/products" element={<PrivateRoute><ManageProducts /></PrivateRoute>} />
-          <Route path="/admin/products/new" element={<PrivateRoute><ProductForm /></PrivateRoute>} />
-          <Route path="/admin/products/edit/:id" element={<PrivateRoute><ProductForm /></PrivateRoute>} />
-          <Route path="/admin/refunds" element={<PrivateRoute><RefundRequests /></PrivateRoute>} />
+          <Route path="/admin/coupons" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <ManageCoupons />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/admin" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <PendingOrders />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/admin/orders" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <AllOrders />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/admin/products" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <ManageProducts />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/admin/products/new" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <ProductForm />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/admin/products/edit/:id" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <ProductForm />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/admin/refunds" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <RefundRequests />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
         </Route>
 
         <Route path="*" element={<PageNotFound />} />
@@ -93,4 +196,4 @@ function App() {
   )
 }
 
-export default App
+export default App;
