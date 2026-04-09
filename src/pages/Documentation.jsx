@@ -1,11 +1,11 @@
-// src/pages/Documentation.jsx - Com sidebar fixa corrigida
+// src/pages/Documentation.jsx - Estilo ClearlyDev
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BookOpen, ShoppingCart, CreditCard, Download,
   Wallet, RefreshCcw, ShieldCheck, MessageCircle, HelpCircle,
   ChevronRight, Clock, CheckCircle, AlertCircle, ArrowRight,
-  Zap, Lock, FileText, Users, Star, Headphones, XCircle
+  Zap, Lock, FileText, Users, Star, Headphones
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -41,22 +41,23 @@ export default function Documentation() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Header estilo dashboard */}
-      <div className="border-b border-[#1A1A1A] bg-[#0A0A0A]">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => navigate('/')} 
-              className="p-2 -ml-2 text-[#555] hover:text-white transition-colors"
-            >
-              <ChevronRight className="h-4 w-4 rotate-180" />
-            </button>
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-              <BookOpen className="h-4 w-4 text-black" />
+      {/* Header */}
+      <div className="border-b border-[#1A1A1A] bg-[#0A0A0A] sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-6 py-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                <span className="text-black font-black text-sm">M</span>
+              </div>
+              <span className="text-white font-bold tracking-tight">Marketplace</span>
             </div>
-            <div>
-              <h1 className="text-lg font-black text-white tracking-tight">Central de Ajuda</h1>
-              <p className="text-xs text-[#555]">Documentação e suporte</p>
+            <div className="flex items-center gap-4">
+              <button onClick={() => navigate('/store')} className="text-sm text-[#555] hover:text-white transition-colors">
+                Loja
+              </button>
+              <button onClick={() => navigate('/dashboard')} className="text-sm text-[#555] hover:text-white transition-colors">
+                Dashboard
+              </button>
             </div>
           </div>
         </div>
@@ -64,7 +65,7 @@ export default function Documentation() {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex gap-12">
-          {/* Sidebar fixa - igual ao ClearlyDev */}
+          {/* Sidebar */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
             <div className="sticky top-24">
               <p className="text-[10px] font-bold text-[#333] uppercase tracking-[0.3em] mb-4">Nesta página</p>
@@ -95,7 +96,7 @@ export default function Documentation() {
             {/* Introduction */}
             <section id="introduction" className="scroll-mt-20">
               <div className="mb-6">
-                <h1 className="text-2xl font-black text-white mb-2">Central de Ajuda</h1>
+                <h1 className="text-3xl font-black text-white mb-2">Central de Ajuda</h1>
                 <p className="text-sm text-[#555]">
                   Bem-vindo à documentação oficial do Marketplace. Aqui você encontra tudo que precisa saber.
                 </p>
@@ -141,7 +142,7 @@ export default function Documentation() {
                     <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <span className="text-white text-[10px] font-bold">1</span>
                     </div>
-                    <p className="text-sm text-[#555]">Navegue pela loja e encontre o asset desejado.</p>
+                    <p className="text-sm text-[#555]">Navegue pela <button onClick={() => navigate('/store')} className="text-white underline">loja</button> e encontre o asset desejado.</p>
                   </div>
                   <div className="flex gap-3">
                     <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -165,7 +166,7 @@ export default function Documentation() {
                     <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <span className="text-white text-[10px] font-bold">5</span>
                     </div>
-                    <p className="text-sm text-[#555]">Baixe seus arquivos em Meus Pedidos.</p>
+                    <p className="text-sm text-[#555]">Baixe seus arquivos em <button onClick={() => navigate('/dashboard/orders')} className="text-white underline">Meus Pedidos</button>.</p>
                   </div>
                 </div>
               </div>
@@ -212,7 +213,7 @@ export default function Documentation() {
                 <div className="space-y-2">
                   <div className="flex items-start gap-2 text-sm text-[#555]">
                     <Zap className="h-4 w-4 text-white/50 mt-0.5" />
-                    <span>Acesse Meus Pedidos e clique em "Download".</span>
+                    <span>Acesse <button onClick={() => navigate('/dashboard/orders')} className="text-white underline">Meus Pedidos</button> e clique em "Download".</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm text-[#555]">
                     <Zap className="h-4 w-4 text-white/50 mt-0.5" />
@@ -270,12 +271,12 @@ export default function Documentation() {
                     <span>Arquivo baixado - Sujeito à análise</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-[#555]">
-                    <XCircle className="h-4 w-4 text-red-500" />
+                    <X className="h-4 w-4 text-red-500" />
                     <span>Pedido com mais de 7 dias - Não elegível</span>
                   </div>
                 </div>
                 <p className="text-sm text-[#666] leading-relaxed">
-                  Para solicitar, acesse Meus Pedidos e clique em "Solicitar Reembolso".
+                  Para solicitar, acesse <button onClick={() => navigate('/dashboard/orders')} className="text-white underline">Meus Pedidos</button> e clique em "Solicitar Reembolso".
                 </p>
               </div>
             </section>
