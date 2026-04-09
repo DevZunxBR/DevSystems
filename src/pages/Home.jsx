@@ -97,12 +97,12 @@ export default function Home() {
       </section>
 
       {/* Parceiros */}
-      <section className="border-b border-[#1A1A1A] py-2 bg-black">
+      <section className="border-b border-[#1A1A1A] py-6 bg-black">
         <div className="max-w-7xl mx-auto px-4">
           <p className="text-center text-[8px] font-bold text-[#333] uppercase tracking-[0.3em] mb-3">
             Parceiros &amp; Plataformas Oficiais
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
+          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-10">
             {PARTNERS.map(p => (
               <div key={p} className="text-sm md:text-base font-black text-[#222] hover:text-[#444] transition-colors cursor-default tracking-wider select-none">
                 {p}
