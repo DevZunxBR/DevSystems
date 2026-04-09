@@ -5,8 +5,11 @@ export default function Maintenance() {
   // Email de contato
   const contactEmail = 'devzunxbr@gmail.com';
   
-  // Link que abre o Gmail (ou cliente de email padrão)
+  // Link para cliente de email padrão do sistema
   const mailtoLink = `mailto:${contactEmail}?subject=Site%20em%20Manutenção%20-%20Contato&body=Olá,%20estou%20com%20um%20problema...`;
+  
+  // Link para abrir diretamente o Gmail Web
+  const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${contactEmail}&su=Site%20em%20Manutenção%20-%20Contato&body=Olá,%20estou%20com%20um%20problema...`;
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
@@ -31,20 +34,35 @@ export default function Maintenance() {
           <span>Previsão: algumas horas</span>
         </div>
         
-        {/* Contato - Abre Gmail diretamente */}
-        <div className="pt-4 border-t border-[#1A1A1A]">
-          <p className="text-xs text-[#555] mb-2">
-            Precisa de ajuda? 
+        {/* Contato - Duas opções */}
+        <div className="pt-4 border-t border-[#1A1A1A] space-y-3">
+          <p className="text-xs text-[#555]">
+            Precisa de ajuda? Entre em contato:
           </p>
+          
+          {/* Opção 1: Cliente de email padrão */}
           <a
             href={mailtoLink}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-white text-sm hover:border-white transition-all group"
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-white text-sm hover:border-white transition-all group"
           >
             <Mail className="h-4 w-4 text-white group-hover:scale-110 transition-transform" />
-            Enviar e-mail para o suporte
+            Abrir no meu email
           </a>
+          
+          {/* Opção 2: Gmail Web */}
+          <a
+            href={gmailLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-[#555] text-sm hover:text-white hover:border-white transition-all group"
+          >
+            <Mail className="h-4 w-4 group-hover:scale-110 transition-transform" />
+            Abrir no Gmail
+          </a>
+          
+          {/* Email para copiar */}
           <p className="text-[10px] text-[#444] mt-2">
-            ou copie o email: <span className="text-white">{contactEmail}</span>
+            ou copie o email: <span className="text-white select-all">{contactEmail}</span>
           </p>
         </div>
       </div>
