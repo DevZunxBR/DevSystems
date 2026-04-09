@@ -34,7 +34,6 @@ export default function ComoComprar() {
 
   return (
     <div className="space-y-6">
-      {/* Título */}
       <div className="flex items-center gap-3 pb-4 border-b border-[#1A1A1A]">
         <div className="w-9 h-9 bg-[#0F0F0F] border border-[#1A1A1A] rounded-xl flex items-center justify-center">
           <ShoppingCart className="h-4 w-4 text-white" />
@@ -72,10 +71,7 @@ export default function ComoComprar() {
       </InfoBox>
 
       <div className="flex justify-end">
-        <Button 
-          onClick={() => navigate('/store')} 
-          className="bg-white text-black hover:bg-white/90 font-bold gap-2"
-        >
+        <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold gap-2">
           Ir para a Loja <ArrowRight className="h-4 w-4" />
         </Button>
       </div>

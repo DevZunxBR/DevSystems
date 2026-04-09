@@ -36,7 +36,6 @@ export default function Pagamento() {
 
   return (
     <div className="space-y-6">
-      {/* Título */}
       <div className="flex items-center gap-3 pb-4 border-b border-[#1A1A1A]">
         <div className="w-9 h-9 bg-[#0F0F0F] border border-[#1A1A1A] rounded-xl flex items-center justify-center">
           <CreditCard className="h-4 w-4 text-white" />
@@ -48,7 +47,6 @@ export default function Pagamento() {
         Trabalhamos exclusivamente com PIX — o meio de pagamento instantâneo do Banco Central do Brasil.
       </p>
 
-      {/* Chave PIX */}
       <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-5">
         <p className="text-[10px] font-bold text-[#333] uppercase tracking-[0.3em] mb-3">Nossa chave PIX</p>
         <div className="flex items-center gap-3 bg-[#111] border border-[#1A1A1A] rounded-lg px-4 py-3">
@@ -66,14 +64,12 @@ export default function Pagamento() {
         </div>
       </div>
 
-      {/* Como pagar */}
       <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-5">
         <p className="text-[10px] font-bold text-[#333] uppercase tracking-[0.3em] mb-3">Como pagar</p>
         <div className="space-y-2 text-sm text-[#555]">
           <p>1. Após finalizar o pedido, um <strong className="text-white">código PIX copia e cola</strong> será gerado.</p>
           <p>2. Abra o app do seu banco e acesse a seção <strong className="text-white">Área PIX → Pagar</strong>.</p>
           <p>3. Cole o código ou escaneie o QR Code e confirme o valor.</p>
-          <p>4. Envie o <strong className="text-white">comprovante para o nosso suporte</strong> (opcional, mas agiliza a aprovação).</p>
         </div>
       </div>
 
@@ -86,10 +82,7 @@ export default function Pagamento() {
       </InfoBox>
 
       <div className="flex justify-end">
-        <Button 
-          onClick={() => navigate('/store')} 
-          className="bg-white text-black hover:bg-white/90 font-bold gap-2"
-        >
+        <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold gap-2">
           Ver Produtos <Zap className="h-4 w-4" />
         </Button>
       </div>
