@@ -270,7 +270,7 @@ export default function Documentation() {
                     <span>Arquivo baixado - Sujeito à análise</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-[#555]">
-                    <X className="h-4 w-4 text-red-500" />
+                    <XCircle className="h-4 w-4 text-red-500" />
                     <span>Pedido com mais de 7 dias - Não elegível</span>
                   </div>
                 </div>
