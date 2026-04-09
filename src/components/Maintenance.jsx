@@ -5,9 +5,6 @@ export default function Maintenance() {
   // Email de contato
   const contactEmail = 'devzunxbr@gmail.com';
   
-  // Link para cliente de email padrão do sistema
-  const mailtoLink = `mailto:${contactEmail}?subject=Site%20em%20Manutenção%20-%20Contato&body=Olá,%20estou%20com%20um%20problema...`;
-  
   // Link para abrir diretamente o Gmail Web
   const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${contactEmail}&su=Site%20em%20Manutenção%20-%20Contato&body=Olá,%20estou%20com%20um%20problema...`;
 
@@ -34,30 +31,21 @@ export default function Maintenance() {
           <span>Previsão: algumas horas</span>
         </div>
         
-        {/* Contato - Duas opções */}
+        {/* Contato - Apenas Gmail */}
         <div className="pt-4 border-t border-[#1A1A1A] space-y-3">
           <p className="text-xs text-[#555]">
             Precisa de ajuda? Entre em contato:
           </p>
           
-          {/* Opção 1: Cliente de email padrão */}
-          <a
-            href={mailtoLink}
-            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-white text-sm hover:border-white transition-all group"
-          >
-            <Mail className="h-4 w-4 text-white group-hover:scale-110 transition-transform" />
-            Abrir no meu email
-          </a>
-          
-          {/* Opção 2: Gmail Web */}
+          {/* Botão Gmail */}
           <a
             href={gmailLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-[#555] text-sm hover:text-white hover:border-white transition-all group"
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-white text-sm hover:border-white transition-all group"
           >
             <Mail className="h-4 w-4 group-hover:scale-110 transition-transform" />
-            Abrir no Gmail
+            Enviar e-mail (Gmail)
           </a>
           
           {/* Email para copiar */}
