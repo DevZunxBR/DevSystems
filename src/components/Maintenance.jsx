@@ -29,8 +29,8 @@ export default function Maintenance() {
         <div className="pt-4 border-t border-[#1A1A1A]">
           <p className="text-xs text-[#555]">
             Precisa de ajuda? 
-            <a href="https://discord.com/invite/M5NVt4xcjn" className="text-white ml-1 hover:underline">
-              Entre em Nosso Discord:
+            <a href="mailto:devzunxbr@gmail.com" className="text-white ml-1 hover:underline">
+              devzunxbr@gmail.com
             </a>
           </p>
         </div>
