@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
+import { Eye, EyeOff } from 'lucide-react';
 
 // Importe suas imagens aqui
 import devRegisterBg1 from '@/assets/images/DevRegister.png';
@@ -19,6 +20,10 @@ export default function Register() {
   const [otp, setOtp] = useState(['', '', '', '', '', '', '', '']);
   const inputRefs = useRef([]);
   
+  // States para mostrar/esconder senha
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
   // Slideshow state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -32,6 +37,28 @@ export default function Register() {
     { text: "Encontre tudo que você precisa para seus projetos em um só lugar.", author: "— Dev Systems" },
     { text: "Mais de 500 desenvolvedores já confiam na nossa plataforma.", author: "— Comunidade Dev" },
     { text: "Scripts profissionais e sistemas completos para produção imediata.", author: "— Dev Team" },
+  ];
+
+  // Função para calcular força da senha
+  const getPasswordStrength = (password) => {
+    let strength = 0;
+    if (password.length >= 6) strength++;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+    return Math.min(strength, 4);
+  };
+
+  const passwordStrength = getPasswordStrength(formData.password);
+  
+  const strengthLabels = ['Muito fraca', 'Fraca', 'Média', 'Forte', 'Muito forte'];
+  const strengthColors = [
+    'bg-red-500',
+    'bg-orange-500',
+    'bg-yellow-500',
+    'bg-green-500',
+    'bg-green-600'
   ];
 
   // Trocar imagem a cada 5 segundos
@@ -273,21 +300,81 @@ export default function Register() {
                   className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
               </div>
             )}
+            
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">E-mail</label>
               <input name="email" type="email" placeholder="seu@email.com" value={formData.email} onChange={handleChange}
                 className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
             </div>
+            
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Senha</label>
-              <input name="password" type="password" placeholder="••••••••" value={formData.password} onChange={handleChange}
-                className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+              <div className="relative">
+                <input
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              
+              {/* Indicador de força da senha */}
+              {formData.password.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  <div className="flex gap-1">
+                    {[0, 1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className={`h-1 flex-1 rounded-full transition-all ${
+                          i < passwordStrength
+                            ? strengthColors[passwordStrength - 1]
+                            : 'bg-[#1A1A1A]'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    Senha {strengthLabels[passwordStrength]}
+                    {passwordStrength < 2 && ' • Mínimo 6 caracteres'}
+                    {passwordStrength >= 2 && passwordStrength < 4 && ' • Adicione números e letras maiúsculas'}
+                    {passwordStrength >= 4 && ' • Senha excelente!'}
+                  </p>
+                </div>
+              )}
             </div>
+            
             {mode === 'register' && (
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Confirmar Senha</label>
-                <input name="confirm" type="password" placeholder="••••••••" value={formData.confirm} onChange={handleChange}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+                <div className="relative">
+                  <input
+                    name="confirm"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    value={formData.confirm}
+                    onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                {formData.confirm.length > 0 && formData.password !== formData.confirm && (
+                  <p className="text-[10px] text-red-500 mt-1">As senhas não coincidem</p>
+                )}
               </div>
             )}
 
@@ -312,7 +399,7 @@ export default function Register() {
         )}
       </div>
 
-      {/* Right - Image Slideshow com efeito corrigido */}
+      {/* Right - Image Slideshow */}
       <div className="hidden lg:block w-1/2 relative overflow-hidden">
         {/* Imagem atual */}
         <img
