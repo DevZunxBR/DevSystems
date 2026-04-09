@@ -1,11 +1,7 @@
-// src/pages/Documentation.jsx - Versão limpa sem emojis
+// src/pages/Documentation.jsx - Estilo Steamworks
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  BookOpen, ShoppingCart, CreditCard, Download,
-  Wallet, RefreshCcw, ShieldCheck, MessageCircle, HelpCircle,
-  ChevronRight, ArrowRight
-} from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 const DOCS_SECTIONS = [
   { id: 'introduction', title: 'Introdução' },
@@ -85,144 +81,203 @@ export default function Documentation() {
             </div>
           </aside>
 
-          {/* Conteúdo */}
+          {/* Conteúdo estilo Steamworks */}
           <div className="flex-1 min-w-0">
-            <div className="prose prose-invert max-w-none">
-              {/* Introduction */}
-              <section id="introduction" className="scroll-mt-20 mb-12">
-                <h1 className="text-3xl font-black text-white mb-4">Documentação</h1>
-                <p className="text-[#666] leading-relaxed mb-4">
-                  Bem-vindo à documentação oficial do Marketplace. Aqui você encontra todas as informações necessárias para utilizar nossa plataforma.
-                </p>
-                <div className="flex flex-wrap gap-4 text-sm">
-                  <button onClick={() => navigate('/store')} className="text-white hover:underline flex items-center gap-1">
-                    Ir para a Loja <ArrowRight className="h-3 w-3" />
-                  </button>
-                  <button onClick={() => navigate('/dashboard')} className="text-white hover:underline flex items-center gap-1">
-                    Ir para o Dashboard <ArrowRight className="h-3 w-3" />
-                  </button>
-                </div>
-              </section>
+            {/* Introduction */}
+            <section id="introduction" className="scroll-mt-20 mb-12">
+              <h1 className="text-3xl font-black text-white mb-4">Documentação</h1>
+              <p className="text-[#666] leading-relaxed text-base">
+                Bem-vindo à documentação oficial do Marketplace. Aqui você encontra todas as informações necessárias para utilizar nossa plataforma.
+              </p>
+              <p className="text-[#666] leading-relaxed text-base mt-4">
+                Somos uma plataforma de assets digitais para desenvolvedores, oferecendo scripts, sistemas completos e UI kits prontos para produção.
+              </p>
+            </section>
 
-              {/* Como Comprar */}
-              <section id="buying" className="scroll-mt-20 mb-12">
-                <h2 className="text-2xl font-bold text-white mb-4">Como Comprar</h2>
-                <p className="text-[#666] leading-relaxed mb-3 text-sm">
-                  Siga os passos abaixo:
-                </p>
-                <ol className="list-decimal list-inside space-y-2 text-[#666] text-sm">
-                  <li>Navegue pela <button onClick={() => navigate('/store')} className="text-white hover:underline">loja</button> e encontre o asset desejado</li>
-                  <li>Clique em "Adicionar ao Carrinho"</li>
-                  <li>Preencha seus dados no <button onClick={() => navigate('/checkout')} className="text-white hover:underline">checkout</button></li>
-                  <li>Finalize o pagamento via PIX</li>
-                  <li>Aguarde a aprovação do pedido</li>
-                  <li>Baixe seus arquivos em <button onClick={() => navigate('/dashboard/orders')} className="text-white hover:underline">Meus Pedidos</button></li>
-                </ol>
-              </section>
+            {/* Como Comprar */}
+            <section id="buying" className="scroll-mt-20 mb-12">
+              <h2 className="text-2xl font-bold text-white mb-4">Como Comprar</h2>
+              <p className="text-[#666] leading-relaxed text-base mb-4">
+                Para comprar um asset na nossa plataforma, siga os passos abaixo:
+              </p>
+              
+              <h3 className="text-xl font-bold text-white mt-6 mb-3">Passo a Passo</h3>
+              <ol className="list-decimal list-inside space-y-2 text-[#666] text-base ml-4">
+                <li>Navegue pela loja e encontre o asset desejado</li>
+                <li>Clique em "Adicionar ao Carrinho"</li>
+                <li>Preencha seus dados no checkout</li>
+                <li>Finalize o pagamento via PIX</li>
+                <li>Aguarde a aprovação do pedido</li>
+                <li>Baixe seus arquivos em Meus Pedidos</li>
+              </ol>
 
-              {/* Pagamento */}
-              <section id="payment" className="scroll-mt-20 mb-12">
-                <h2 className="text-2xl font-bold text-white mb-4">Pagamento via PIX</h2>
-                <p className="text-[#666] leading-relaxed mb-3 text-sm">
-                  Trabalhamos exclusivamente com PIX - pagamento instantâneo do Banco Central.
-                </p>
-                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg p-3 mb-4">
-                  <p className="text-xs text-[#555] mb-1">Chave PIX (e-mail)</p>
-                  <code className="text-sm text-white font-mono">pagamentos@marketplace.com</code>
-                </div>
-                <div className="space-y-2 text-sm text-[#555]">
-                  <p>✓ Aprovação em até 30 minutos em dias úteis</p>
-                  <p>✓ Pagamento 100% seguro</p>
-                  <p>✓ Confirmação automática</p>
-                </div>
-              </section>
-
-              {/* Downloads */}
-              <section id="downloads" className="scroll-mt-20 mb-12">
-                <h2 className="text-2xl font-bold text-white mb-4">Downloads</h2>
-                <p className="text-[#666] leading-relaxed mb-3 text-sm">
-                  Arquivos ficam disponíveis por 7 dias após aprovação.
-                </p>
-                <p className="text-[#666] leading-relaxed text-sm">
-                  Acesse <button onClick={() => navigate('/dashboard/orders')} className="text-white hover:underline">Meus Pedidos</button> e clique em "Download".
-                </p>
-              </section>
-
-              {/* Carteira */}
-              <section id="wallet" className="scroll-mt-20 mb-12">
-                <h2 className="text-2xl font-bold text-white mb-4">Carteira & Cashback</h2>
-                <p className="text-[#666] leading-relaxed mb-3 text-sm">
-                  Toda compra aprovada gera 5% de cashback na sua carteira.
-                </p>
-                <p className="text-[#666] leading-relaxed text-sm">
-                  O saldo pode ser usado em compras futuras.
-                </p>
-              </section>
-
-              {/* Reembolsos */}
-              <section id="refund" className="scroll-mt-20 mb-12">
-                <h2 className="text-2xl font-bold text-white mb-4">Política de Reembolso</h2>
-                <p className="text-[#666] leading-relaxed mb-3 text-sm">
-                  Solicite reembolso em até 7 dias após a aprovação.
-                </p>
-                <p className="text-[#666] leading-relaxed text-sm">
-                  Acesse <button onClick={() => navigate('/dashboard/orders')} className="text-white hover:underline">Meus Pedidos</button> e clique em "Solicitar Reembolso".
-                </p>
-              </section>
-
-              {/* Licenças */}
-              <section id="licenses" className="scroll-mt-20 mb-12">
-                <h2 className="text-2xl font-bold text-white mb-4">Licenças</h2>
-                <ul className="list-disc list-inside space-y-2 text-[#666] text-sm">
-                  <li><strong className="text-white">Licença Padrão</strong> - Uso em 1 projeto</li>
-                  <li><strong className="text-white">Licença Extendida</strong> - Uso em múltiplos projetos</li>
-                  <li><strong className="text-white">Licença Comercial</strong> - Uso sem restrições</li>
-                </ul>
-              </section>
-
-              {/* Suporte */}
-              <section id="support" className="scroll-mt-20 mb-12">
-                <h2 className="text-2xl font-bold text-white mb-4">Suporte</h2>
-                <p className="text-[#666] leading-relaxed mb-2 text-sm">
-                  <strong className="text-white">Horário:</strong> Segunda a Sexta, 09h às 18h (BRT)
-                </p>
-                <p className="text-[#666] leading-relaxed text-sm">
-                  <strong className="text-white">Contato:</strong> Discord ou suporte@marketplace.com
-                </p>
-              </section>
-
-              {/* FAQ */}
-              <section id="faq" className="scroll-mt-20 mb-12">
-                <h2 className="text-2xl font-bold text-white mb-4">Perguntas Frequentes</h2>
-                
-                <div className="mb-6">
-                  <h3 className="text-lg font-bold text-white mb-2">Quanto tempo leva para aprovar o pagamento?</h3>
-                  <p className="text-[#666] leading-relaxed text-sm">
-                    Em dias úteis, a aprovação ocorre em até 30 minutos. Fora do horário comercial, até 12 horas.
-                  </p>
-                </div>
-                
-                <div className="mb-6">
-                  <h3 className="text-lg font-bold text-white mb-2">Posso usar o asset em mais de um projeto?</h3>
-                  <p className="text-[#666] leading-relaxed text-sm">
-                    Depende da licença. A licença padrão permite uso em 1 projeto.
-                  </p>
-                </div>
-                
-                <div className="mb-6">
-                  <h3 className="text-lg font-bold text-white mb-2">O link de download expirou?</h3>
-                  <p className="text-[#666] leading-relaxed text-sm">
-                    Contate o suporte com o número do pedido para reativar por mais 7 dias.
-                  </p>
-                </div>
-              </section>
-
-              {/* Footer */}
-              <div className="border-t border-[#1A1A1A] pt-6 mt-12">
-                <p className="text-xs text-[#444] text-center">
-                  © 2026 Marketplace. Todos os direitos reservados.
+              <div className="mt-6 p-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg">
+                <p className="text-sm text-[#555]">
+                  <strong className="text-white">Nota:</strong> Após a aprovação, os arquivos ficam disponíveis por 7 dias.
                 </p>
               </div>
+            </section>
+
+            {/* Pagamento */}
+            <section id="payment" className="scroll-mt-20 mb-12">
+              <h2 className="text-2xl font-bold text-white mb-4">Pagamento via PIX</h2>
+              <p className="text-[#666] leading-relaxed text-base mb-4">
+                Trabalhamos exclusivamente com PIX - o meio de pagamento instantâneo do Banco Central do Brasil.
+              </p>
+
+              <h3 className="text-xl font-bold text-white mt-6 mb-3">Chave PIX</h3>
+              <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg p-4 mb-6">
+                <code className="text-sm text-white font-mono">pagamentos@marketplace.com</code>
+              </div>
+
+              <h3 className="text-xl font-bold text-white mt-6 mb-3">Informações Importantes</h3>
+              <ul className="list-disc list-inside space-y-2 text-[#666] text-base ml-4">
+                <li>Aprovação em até 30 minutos em dias úteis</li>
+                <li>Pagamento 100% seguro</li>
+                <li>Confirmação automática após aprovação</li>
+              </ul>
+
+              <div className="mt-6 p-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg">
+                <p className="text-sm text-[#555]">
+                  <strong className="text-white">Nota:</strong> Fora do horário comercial, a aprovação pode levar até 12 horas.
+                </p>
+              </div>
+            </section>
+
+            {/* Downloads */}
+            <section id="downloads" className="scroll-mt-20 mb-12">
+              <h2 className="text-2xl font-bold text-white mb-4">Downloads</h2>
+              <p className="text-[#666] leading-relaxed text-base mb-4">
+                Após a aprovação do pagamento, seus arquivos ficam disponíveis para download.
+              </p>
+
+              <h3 className="text-xl font-bold text-white mt-6 mb-3">Regras e Prazos</h3>
+              <ul className="list-disc list-inside space-y-2 text-[#666] text-base ml-4">
+                <li>Arquivos disponíveis por 7 dias após aprovação</li>
+                <li>Acesse Meus Pedidos no dashboard</li>
+                <li>Clique em "Download" para baixar</li>
+              </ul>
+
+              <div className="mt-6 p-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg">
+                <p className="text-sm text-[#555]">
+                  <strong className="text-white">Importante:</strong> Salve seus arquivos imediatamente. Links expiram após 7 dias.
+                </p>
+              </div>
+            </section>
+
+            {/* Carteira */}
+            <section id="wallet" className="scroll-mt-20 mb-12">
+              <h2 className="text-2xl font-bold text-white mb-4">Carteira & Cashback</h2>
+              <p className="text-[#666] leading-relaxed text-base mb-4">
+                Nossa plataforma oferece um sistema de cashback para todas as compras aprovadas.
+              </p>
+
+              <h3 className="text-xl font-bold text-white mt-6 mb-3">Como Funciona</h3>
+              <ul className="list-disc list-inside space-y-2 text-[#666] text-base ml-4">
+                <li>5% de cashback em cada compra aprovada</li>
+                <li>Crédito automático na sua carteira</li>
+                <li>Saldo pode ser usado em compras futuras</li>
+                <li>Cashback não expira</li>
+              </ul>
+            </section>
+
+            {/* Reembolsos */}
+            <section id="refund" className="scroll-mt-20 mb-12">
+              <h2 className="text-2xl font-bold text-white mb-4">Política de Reembolso</h2>
+              <p className="text-[#666] leading-relaxed text-base mb-4">
+                Você pode solicitar reembolso dentro do prazo estabelecido.
+              </p>
+
+              <h3 className="text-xl font-bold text-white mt-6 mb-3">Condições</h3>
+              <ul className="list-disc list-inside space-y-2 text-[#666] text-base ml-4">
+                <li>Até 7 dias após aprovação do pedido</li>
+                <li>Produto não baixado ou baixado recentemente</li>
+              </ul>
+
+              <h3 className="text-xl font-bold text-white mt-6 mb-3">Como Solicitar</h3>
+              <p className="text-[#666] leading-relaxed text-base">
+                Acesse Meus Pedidos no dashboard e clique em "Solicitar Reembolso".
+              </p>
+            </section>
+
+            {/* Licenças */}
+            <section id="licenses" className="scroll-mt-20 mb-12">
+              <h2 className="text-2xl font-bold text-white mb-4">Licenças</h2>
+              <p className="text-[#666] leading-relaxed text-base mb-4">
+                Oferecemos diferentes tipos de licença para atender às suas necessidades.
+              </p>
+
+              <h3 className="text-xl font-bold text-white mt-6 mb-3">Tipos de Licença</h3>
+              <ul className="list-disc list-inside space-y-2 text-[#666] text-base ml-4">
+                <li><strong className="text-white">Licença Padrão</strong> - Uso em 1 projeto pessoal ou comercial</li>
+                <li><strong className="text-white">Licença Extendida</strong> - Uso em múltiplos projetos</li>
+                <li><strong className="text-white">Licença Comercial</strong> - Uso sem restrições</li>
+              </ul>
+
+              <div className="mt-6 p-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg">
+                <p className="text-sm text-[#555]">
+                  <strong className="text-white">Aviso:</strong> É proibido revender ou redistribuir nossos assets sem autorização.
+                </p>
+              </div>
+            </section>
+
+            {/* Suporte */}
+            <section id="support" className="scroll-mt-20 mb-12">
+              <h2 className="text-2xl font-bold text-white mb-4">Suporte</h2>
+              <p className="text-[#666] leading-relaxed text-base mb-4">
+                Nossa equipe está disponível para ajudar com qualquer dúvida ou problema.
+              </p>
+
+              <h3 className="text-xl font-bold text-white mt-6 mb-3">Horário de Atendimento</h3>
+              <p className="text-[#666] leading-relaxed text-base">
+                Segunda a Sexta, 09h às 18h (BRT)
+              </p>
+
+              <h3 className="text-xl font-bold text-white mt-6 mb-3">Canais de Contato</h3>
+              <ul className="list-disc list-inside space-y-2 text-[#666] text-base ml-4">
+                <li>Discord (resposta mais rápida)</li>
+                <li>E-mail: suporte@marketplace.com</li>
+              </ul>
+            </section>
+
+            {/* FAQ */}
+            <section id="faq" className="scroll-mt-20 mb-12">
+              <h2 className="text-2xl font-bold text-white mb-4">Perguntas Frequentes</h2>
+
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-2">Quanto tempo leva para aprovar o pagamento?</h3>
+                <p className="text-[#666] leading-relaxed text-base">
+                  Em dias úteis, a aprovação ocorre em até 30 minutos. Fora do horário comercial, pode levar até 12 horas.
+                </p>
+              </div>
+
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-2">Posso usar o asset em mais de um projeto?</h3>
+                <p className="text-[#666] leading-relaxed text-base">
+                  Depende da licença adquirida. A licença padrão permite uso em 1 projeto. Para múltiplos projetos, adquira a licença extendida ou comercial.
+                </p>
+              </div>
+
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-2">O link de download expirou. O que fazer?</h3>
+                <p className="text-[#666] leading-relaxed text-base">
+                  Entre em contato com o suporte informando o número do pedido. Reativamos o link por mais 7 dias.
+                </p>
+              </div>
+
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-2">Posso pagar com cartão ou boleto?</h3>
+                <p className="text-[#666] leading-relaxed text-base">
+                  No momento aceitamos apenas PIX. Estamos trabalhando para adicionar novos métodos de pagamento em breve.
+                </p>
+              </div>
+            </section>
+
+            {/* Footer */}
+            <div className="border-t border-[#1A1A1A] pt-6 mt-12">
+              <p className="text-xs text-[#444] text-center">
+                © 2026 Marketplace. Todos os direitos reservados.
+              </p>
             </div>
           </div>
         </div>
