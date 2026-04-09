@@ -1,3 +1,4 @@
+//src/pages/dashboard/AccountSettings.jsx
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,7 @@ export default function AccountSettings() {
   useEffect(() => {
     loadUser();
   }, []);
-
+//update user
   const loadUser = async () => {
     try {
       const me = await base44.auth.me();
@@ -28,7 +29,7 @@ export default function AccountSettings() {
       setLoading(false);
     }
   };
-
+//
   const handleSave = async (e) => {
     e.preventDefault();
     setSaving(true);

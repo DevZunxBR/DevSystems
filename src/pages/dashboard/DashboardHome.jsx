@@ -1,4 +1,4 @@
-// src/pages/dashboard/DashboardHome.jsx
+// src/pages/dashboard/Dashboard.jsx
 import { useState, useEffect } from 'react';
 import { base44, supabase } from '@/api/base44Client';
 import { Package, DollarSign, Clock, CheckCircle, Wallet, Gift, Check, X } from 'lucide-react';

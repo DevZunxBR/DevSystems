@@ -27,9 +27,10 @@ export default function MaintenanceGuard({ children }) {
       // Verifica se o email está na whitelist
       if (user?.email && maintenanceConfig.whitelistEmails.includes(user.email)) {
         setIsAllowed(true);
+        //whitlist.value
       } else {
         setIsAllowed(false);
-      }
+      } //true active.env
     } catch (error) {
       console.error('Erro ao verificar acesso:', error);
       setIsAllowed(false);
@@ -37,7 +38,7 @@ export default function MaintenanceGuard({ children }) {
       setLoading(false);
     }
   };
-
+//sql update
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
