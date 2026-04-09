@@ -1,4 +1,4 @@
-import devRegisterBg from '@/assets/images/DevRegister.png';
+import devRegisterBg from '@/assets/images/DevRegister.jpg';
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
