@@ -14,6 +14,15 @@ import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Documentation from './pages/Documentation';
+import DocsLayout from './pages/docs/DocsLayout';
+import ComoComprar from './pages/docs/ComoComprar';
+import Pagamento from './pages/docs/Pagamento';
+import Downloads from './pages/docs/Downloads';
+import Carteira from './pages/docs/Carteira';
+import Reembolso from './pages/docs/Reembolso';
+import Licencas from './pages/docs/Licencas';
+import Suporte from './pages/docs/Suporte';
+import Faq from './pages/docs/Faq';
 import DashboardHome from './pages/dashboard/DashboardHome';
 import MyOrders from './pages/dashboard/MyOrders';
 import AccountSettings from './pages/dashboard/AccountSettings';
@@ -46,11 +55,21 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      {/* Rota pública - Login/Cadastro */}
+      {/* Rotas públicas - Login/Cadastro */}
       <Route path="/register" element={<Register />} />
 
-      {/* Rota pública - Documentação */}
+      {/* Rotas públicas - Documentação */}
       <Route path="/docs" element={<Documentation />} />
+      <Route path="/docs" element={<DocsLayout />}>
+        <Route path="como-comprar" element={<ComoComprar />} />
+        <Route path="pagamento" element={<Pagamento />} />
+        <Route path="downloads" element={<Downloads />} />
+        <Route path="carteira" element={<Carteira />} />
+        <Route path="reembolso" element={<Reembolso />} />
+        <Route path="licencas" element={<Licencas />} />
+        <Route path="suporte" element={<Suporte />} />
+        <Route path="faq" element={<Faq />} />
+      </Route>
 
       <Route element={<AppLayout />}>
         {/* Única página pública */}
