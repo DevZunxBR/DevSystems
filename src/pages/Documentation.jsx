@@ -1,7 +1,7 @@
-// src/pages/Documentation.jsx - Com footer igual ao Home
+// src/pages/Documentation.jsx - Com link para Termos de Uso
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ChevronRight, ArrowLeft } from 'lucide-react';
+import { ChevronRight, ArrowLeft, FileText } from 'lucide-react';
 
 const DOCS_SECTIONS = [
   { id: 'introduction', title: 'Introdução' },
@@ -69,25 +69,34 @@ export default function Documentation() {
       {/* Header com botão voltar */}
       <div className="border-b border-[#1A1A1A] bg-[#0A0A0A] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => navigate('/')} 
+                className="flex items-center gap-2 text-sm text-[#555] hover:text-white transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Voltar
+              </button>
+              <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                  <span className="text-black font-black text-sm">M</span>
+                </div>
+                <span className="text-white font-bold tracking-tight">Marketplace</span>
+              </div>
+            </div>
+            {/* Botão Termos de Uso no header */}
             <button 
-              onClick={() => navigate('/')} 
+              onClick={() => navigate('/terms')} 
               className="flex items-center gap-2 text-sm text-[#555] hover:text-white transition-colors"
             >
-              <ArrowLeft className="h-4 w-4" />
-              Voltar
+              <FileText className="h-4 w-4" />
+              Termos de Uso
             </button>
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                <span className="text-black font-black text-sm">M</span>
-              </div>
-              <span className="text-white font-bold tracking-tight">Marketplace</span>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Conteúdo principal */}
       <div className="flex-1 max-w-7xl mx-auto px-6 py-12">
         <div className="flex gap-12">
           {/* Conteúdo principal - Esquerda */}
@@ -106,7 +115,7 @@ export default function Documentation() {
                 </div>
               </section>
 
-              {/* Como Comprar */}
+              {/* Resto do conteúdo igual... */}
               <section id="buying" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Como Comprar</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-4">
@@ -132,7 +141,6 @@ export default function Documentation() {
                 </div>
               </section>
 
-              {/* Pagamento */}
               <section id="payment" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Pagamento via PIX</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-4">
@@ -160,7 +168,6 @@ export default function Documentation() {
                 </div>
               </section>
 
-              {/* Downloads */}
               <section id="downloads" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Downloads</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-4">
@@ -183,7 +190,6 @@ export default function Documentation() {
                 </div>
               </section>
 
-              {/* Carteira */}
               <section id="wallet" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Carteira & Cashback</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-4">
@@ -201,7 +207,6 @@ export default function Documentation() {
                 </div>
               </section>
 
-              {/* Reembolsos */}
               <section id="refund" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Política de Reembolso</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-4">
@@ -224,7 +229,6 @@ export default function Documentation() {
                 </div>
               </section>
 
-              {/* Licenças */}
               <section id="licenses" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Licenças</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-4">
@@ -247,7 +251,6 @@ export default function Documentation() {
                 </div>
               </section>
 
-              {/* Suporte */}
               <section id="support" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Suporte</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-4">
@@ -270,7 +273,6 @@ export default function Documentation() {
                 </div>
               </section>
 
-              {/* FAQ */}
               <section id="faq" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Perguntas Frequentes</h2>
 
@@ -323,13 +325,23 @@ export default function Documentation() {
                     {section.title}
                   </button>
                 ))}
+                {/* Link Termos de Uso na sidebar */}
+                <button
+                  onClick={() => navigate('/terms')}
+                  className="w-full text-left px-3 py-2 rounded-lg text-sm text-[#555] hover:text-white hover:bg-[#111] transition-all mt-4 pt-4 border-t border-[#1A1A1A]"
+                >
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Termos de Uso
+                  </div>
+                </button>
               </nav>
             </div>
           </aside>
         </div>
       </div>
 
-      {/* Footer igual ao do Home */}
+      {/* Footer */}
       <footer className="border-t border-[#1A1A1A] bg-[#000]">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
