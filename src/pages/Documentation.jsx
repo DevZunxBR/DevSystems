@@ -1,7 +1,7 @@
-// src/pages/Documentation.jsx - Barra fixa na direita
+// src/pages/Documentation.jsx - Com botão voltar
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ArrowLeft } from 'lucide-react';
 
 const DOCS_SECTIONS = [
   { id: 'introduction', title: 'Introdução' },
@@ -35,23 +35,22 @@ export default function Documentation() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Header */}
+      {/* Header com botão voltar */}
       <div className="border-b border-[#1A1A1A] bg-[#0A0A0A] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => navigate('/')} 
+              className="flex items-center gap-2 text-sm text-[#555] hover:text-white transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Voltar
+            </button>
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
               <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
                 <span className="text-black font-black text-sm">M</span>
               </div>
               <span className="text-white font-bold tracking-tight">Marketplace</span>
-            </div>
-            <div className="flex items-center gap-6">
-              <button onClick={() => navigate('/store')} className="text-sm text-[#555] hover:text-white transition-colors">
-                Loja
-              </button>
-              <button onClick={() => navigate('/dashboard')} className="text-sm text-[#555] hover:text-white transition-colors">
-                Minha Conta
-              </button>
             </div>
           </div>
         </div>
