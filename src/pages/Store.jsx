@@ -6,7 +6,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/products/ProductCard';
 
-const CATEGORIES = ['Todos', 'Scripts', 'Systems', 'Interfaces', 'Plugins', 'Templates', 'Assets', 'Tools'];
+const CATEGORIES = ['Todos', 'Scripts', 'Systems', 'User Interface', 'Plugins', 'Templates', 'Assets', 'Tools'];
 const SORT_OPTIONS = [
   { value: '-created_date', label: 'Mais Recentes', icon: Clock },
   { value: 'price_brl', label: 'Menor Preço', icon: DollarSign },
