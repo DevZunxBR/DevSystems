@@ -105,12 +105,7 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-
-        <div className="border-t border-[#1A1A1A] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-[#333]">© 2026 Marketplace. Todos os direitos reservados.</p>
-          <p className="text-xs text-[#333]">Pagamentos processados via PIX, Entrega Manual.</p>
         </div>
-      </div>
     </footer>
   );
 }
