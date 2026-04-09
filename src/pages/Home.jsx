@@ -10,7 +10,7 @@ import heroBg2 from '@/assets/images/DevHero2.jpg';
 import heroBg3 from '@/assets/images/DevHero3.jpg';
 import heroBg4 from '@/assets/images/DevHero4.jpg';
 
-const PARTNERS = ['ROBLOX', 'UNITY', 'UNREAL', 'GITHUB'];
+const PARTNERS = ['ROBLOX', 'UNITY', 'UNREAL ENGINE', 'CRYENGINE', 'CREATION ENGINE'];
 
 export default function Home() {
   const navigate = useNavigate();
@@ -63,17 +63,17 @@ export default function Home() {
         <div className="relative max-w-7xl mx-auto px-4 py-16 md:py-24 text-center space-y-6 z-10">
           <div className="inline-flex items-center gap-2 bg-[#0A0A0A]/80 backdrop-blur-sm border border-[#1A1A1A] rounded-full px-4 py-1.5 text-xs text-[#999]">
             <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-            Plataforma #1 em assets digitais para desenvolvedores
+            Plataforma #1 em assets para desenvolvedores, Em Multi Linguagens e Plataformas
           </div>
           
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tight leading-[1.1]">
             Assets &amp; Sistemas
             <br />
-            <span className="text-[#555]">de Alta Performance</span>
+            <span className="text-[#555]">Para Desenvolvedores</span>
           </h1>
           
           <p className="text-sm md:text-base text-[#999] max-w-2xl mx-auto leading-relaxed">
-            Scripts profissionais, sistemas completos e UI kits premium. Desenvolvidos por especialistas, prontos para produção imediata.
+            Sistemas completos, leves e otimizados, desenvolvidos por profissionais Full Stack.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
