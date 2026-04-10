@@ -1,7 +1,7 @@
-// src/pages/Documentation.jsx - Versão limpa com cards para copiar
+// src/pages/Documentation.jsx - Com hero section estilo Home
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Lock, Copy, CheckCircle, CreditCard, Download, Wallet, RefreshCcw, Shield, HelpCircle, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, FileText, Lock, Copy, CheckCircle, CreditCard, Download, Wallet, RefreshCcw, Shield, HelpCircle, ShoppingCart, BookOpen, ChevronRight } from 'lucide-react';
 
 const DOCS_SECTIONS = [
   { id: 'buying', title: 'Como Comprar', icon: ShoppingCart },
@@ -63,6 +63,62 @@ export default function Documentation() {
         </div>
       </div>
 
+      {/* Hero Section - Estilo Home */}
+      <section className="relative overflow-hidden border-b border-[#1A1A1A]">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,_#1a1a1a_0%,_#000000_100%)]" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMwLTkuOTQtOC4wNi0xOC0xOC0xOCIgc3Ryb2tlPSIjMUExQTFBIiBzdHJva2Utd2lkdGg9IjAuNSIvPjwvZz48L3N2Zz4=')] opacity-30" />
+        
+        <div className="relative max-w-7xl mx-auto px-6 py-20 text-center space-y-6">
+          <div className="inline-flex items-center gap-2 bg-[#0A0A0A] border border-[#1A1A1A] rounded-full px-4 py-1.5 text-[10px] text-[#999]">
+            <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+            Documentação Oficial
+          </div>
+          
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-[1.1]">
+            Central de <span className="text-[#555]">Ajuda</span>
+          </h1>
+          
+          <p className="text-sm md:text-base text-[#999] max-w-2xl mx-auto leading-relaxed">
+            Tire todas as suas dúvidas sobre compras, downloads, pagamentos e muito mais. 
+            Nossa documentação completa está aqui para ajudar você.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <button 
+              onClick={() => scrollToSection('buying')} 
+              className="bg-white text-black hover:bg-white/90 font-bold h-11 px-6 text-sm gap-2 rounded-xl flex items-center"
+            >
+              Como Comprar <ChevronRight className="h-4 w-4" />
+            </button>
+            <button 
+              onClick={() => scrollToSection('faq')} 
+              className="border border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl flex items-center"
+            >
+              Perguntas Frequentes
+            </button>
+          </div>
+          
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 pt-4 border-t border-[#1A1A1A] mt-4">
+            <div className="text-center">
+              <div className="text-xl md:text-2xl font-black text-white">7+</div>
+              <div className="text-[10px] text-[#555]">Guias Completos</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl md:text-2xl font-black text-white">24/7</div>
+              <div className="text-[10px] text-[#555]">Suporte Disponível</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl md:text-2xl font-black text-white">2K+</div>
+              <div className="text-[10px] text-[#555]">Clientes Atendidos</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl md:text-2xl font-black text-white">4.9★</div>
+              <div className="text-[10px] text-[#555]">Avaliação Média</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex gap-12">
           {/* Conteúdo principal */}
@@ -73,7 +129,7 @@ export default function Documentation() {
               <section id="buying" className="scroll-mt-20">
                 <div className="flex items-center gap-3 mb-6 pb-3 border-b border-[#1A1A1A]">
                   <ShoppingCart className="h-5 w-5 text-white" />
-                  <h1 className="text-2xl font-bold text-white">Como Comprar</h1>
+                  <h2 className="text-2xl font-bold text-white">Como Comprar</h2>
                 </div>
                 <p className="text-[#666] leading-relaxed text-base mb-6">
                   Comprar na nossa plataforma é simples. Siga os passos abaixo:
