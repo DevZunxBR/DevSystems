@@ -1,4 +1,4 @@
-// src/pages/Documentation.jsx - Versão super simples
+// src/pages/Documentation.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Lock } from 'lucide-react';
@@ -46,17 +46,17 @@ export default function Documentation() {
               <ArrowLeft className="h-4 w-4" />
               Voltar
             </button>
+            <h1 className="text-white font-bold text-lg">Documentação</h1>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex gap-12">
-          {/* Conteúdo principal - Apenas texto */}
+          {/* Conteúdo principal */}
           <div className="flex-1 min-w-0">
             <div className="prose prose-invert max-w-none">
               
-              {/* Introdução */}
               <section id="buying" className="scroll-mt-20 mb-12">
                 <h1 className="text-3xl font-black text-white mb-4">Documentação</h1>
                 <p className="text-[#666] leading-relaxed text-base">
@@ -64,7 +64,6 @@ export default function Documentation() {
                 </p>
               </section>
 
-              {/* Como Comprar */}
               <section className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Como Comprar</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-3">
@@ -80,7 +79,6 @@ export default function Documentation() {
                 </ol>
               </section>
 
-              {/* Pagamento */}
               <section id="payment" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Pagamento via PIX</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-3">
@@ -94,7 +92,6 @@ export default function Documentation() {
                 </p>
               </section>
 
-              {/* Downloads */}
               <section id="downloads" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Downloads</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-3">
@@ -105,7 +102,6 @@ export default function Documentation() {
                 </p>
               </section>
 
-              {/* Carteira */}
               <section id="wallet" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Carteira & Cashback</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-3">
@@ -116,7 +112,6 @@ export default function Documentation() {
                 </p>
               </section>
 
-              {/* Reembolsos */}
               <section id="refund" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Política de Reembolso</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-3">
@@ -127,7 +122,6 @@ export default function Documentation() {
                 </p>
               </section>
 
-              {/* Licenças */}
               <section id="licenses" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Licenças</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-3">
@@ -140,7 +134,6 @@ export default function Documentation() {
                 </ul>
               </section>
 
-              {/* Segurança */}
               <section id="security" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Segurança</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-3">
@@ -151,7 +144,6 @@ export default function Documentation() {
                 </p>
               </section>
 
-              {/* Suporte */}
               <section id="support" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Suporte</h2>
                 <p className="text-[#666] leading-relaxed text-base mb-3">
@@ -162,7 +154,6 @@ export default function Documentation() {
                 </p>
               </section>
 
-              {/* FAQ */}
               <section id="faq" className="scroll-mt-20 mb-12">
                 <h2 className="text-2xl font-bold text-white mb-4">Perguntas Frequentes</h2>
                 
@@ -189,7 +180,7 @@ export default function Documentation() {
             </div>
           </div>
 
-          {/* Sidebar fixa na direita - Apenas Termos e Privacidade */}
+          {/* Sidebar */}
           <aside className="hidden lg:block w-48 flex-shrink-0">
             <div className="sticky top-24">
               <p className="text-xs font-bold text-[#444] uppercase tracking-wider mb-4">Legal</p>

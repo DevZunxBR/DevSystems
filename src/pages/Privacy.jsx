@@ -7,7 +7,6 @@ export default function Privacy() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Header */}
       <div className="border-b border-[#1A1A1A] bg-[#0A0A0A] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center gap-4">
