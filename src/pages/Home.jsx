@@ -1,144 +1,113 @@
-import { useEffect, useMemo, useState } from 'react';
+// src/pages/Home.jsx - Sem espaços extras
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ChevronRight, Shield, Lock, FileText, CheckCircle } from 'lucide-react';
+import { ArrowRight, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+// Importe suas imagens aqui
 import heroBg1 from '@/assets/images/DevHero.jpg';
 import heroBg2 from '@/assets/images/DevHero2.jpg';
 import heroBg3 from '@/assets/images/DevHero3.jpg';
 import heroBg4 from '@/assets/images/DevHero4.jpg';
 
-const HERO_STATS = [
-  { value: '500+', label: 'Assets Digitais' },
-  { value: '2K+', label: 'Clientes Atendidos' },
-  { value: '4.9/5', label: 'Media de Avaliacao' },
-];
-
-const SECURITY_POINTS = [
-  'Cada compra gera registro no dashboard para acompanhamento.',
-  'Aprovacao de pagamento e disponibilidade de download com status visivel.',
-  'Politicas publicas para uso, privacidade e suporte.',
-];
+const PARTNERS = ['ROBLOX', 'UNITY', 'UNREAL ENGINE', 'CRYENGINE', 'CREATION ENGINE'];
 
 export default function Home() {
   const navigate = useNavigate();
+  
+  // Slideshow state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  
+  // Lista de imagens de fundo
+  const backgroundImages = [heroBg1, heroBg2, heroBg3, heroBg4];
 
-  const backgroundImages = useMemo(() => [heroBg1, heroBg2, heroBg3, heroBg4], []);
-
+  // Trocar imagem a cada 10 segundos
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % backgroundImages.length);
-    }, 9000);
-
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % backgroundImages.length);
+        setIsTransitioning(false);
+      }, 500);
+    }, 10000);
+    
     return () => clearInterval(interval);
   }, [backgroundImages.length]);
 
   return (
-    <div>
-      <section className="relative overflow-hidden border-b border-[#1A1A1A]">
+    <div className="font-inter">
+      {/* Hero Section com Slideshow */}
+      <section className="relative overflow-hidden border-b border-[#1A1A1A] min-h-[500px] flex items-center">
+        {/* Imagem de fundo com fade */}
         <div className="absolute inset-0">
-          {backgroundImages.map((image, index) => (
+          {backgroundImages.map((img, index) => (
             <div
-              key={image}
-              className={`absolute inset-0 transition-opacity duration-700 ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'}`}
-              aria-hidden={index !== currentImageIndex}
+              key={index}
+              className={`absolute inset-0 transition-opacity duration-500 ${
+                index === currentImageIndex && !isTransitioning ? 'opacity-100' : 'opacity-0'
+              }`}
             >
-              <img src={image} alt="Marketplace para desenvolvedores" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/52" />
+              <img
+                src={img}
+                alt="Background"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/70" />
             </div>
           ))}
         </div>
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/35" />
-
-        <div className="relative z-10 max-w-6xl mx-auto px-4 pt-16 pb-4 md:pt-24 md:pb-6 text-center">
-          <div className="inline-flex items-center gap-2 border border-[#1A1A1A] bg-[#0A0A0A]/80 backdrop-blur-sm rounded-full px-4 py-1.5 text-xs text-[#999]">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            Marketplace profissional para assets e sistemas de desenvolvimento
+        
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/50" />
+        
+        <div className="relative max-w-7xl mx-auto px-4 py-16 md:py-24 text-center space-y-6 z-10">
+          <div className="inline-flex items-center gap-2 bg-[#0A0A0A]/80 backdrop-blur-sm border border-[#1A1A1A] rounded-full px-4 py-1.5 text-xs text-[#999]">
+            <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+            Plataforma #1 em assets para desenvolvedores, Em Multi Linguagens e Plataformas
           </div>
-
-          <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.08] text-white">
-            Assets e sistemas
+          
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tight leading-[1.1]">
+            Assets &amp; Sistemas
             <br />
-            <span className="text-[#666]">prontos para producao</span>
+            <span className="text-[#555]">Para Desenvolvedores</span>
           </h1>
-
-          <p className="mt-5 text-sm md:text-base text-[#999] max-w-2xl mx-auto leading-relaxed">
-            Encontre componentes, templates e solucoes completas para acelerar entregas com padrao profissional.
+          
+          <p className="text-sm md:text-base text-[#999] max-w-2xl mx-auto leading-relaxed">
+            Sistemas completos, leves e otimizados, desenvolvidos por profissionais Full Stack.
           </p>
-
-          <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button
-              onClick={() => navigate('/store')}
-              className="h-11 px-6 rounded-xl bg-white text-black hover:bg-white/90 font-bold text-sm gap-2"
-            >
-              Explorar Loja
-              <ArrowRight className="h-4 w-4" />
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold h-11 px-6 text-sm gap-2 rounded-xl">
+              Explorar Assets <ArrowRight className="h-4 w-4" />
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate('/store')}
-              className="h-11 px-6 rounded-xl border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white text-sm"
-            >
-              Ver Categorias
-              <ChevronRight className="h-4 w-4" />
+            <Button variant="outline" onClick={() => navigate('/store')} className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl">
+              Ver Categorias <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto">
-            {HERO_STATS.map((stat) => (
-              <div key={stat.label} className="rounded-xl border border-[#1A1A1A] bg-[#0A0A0A]/80 backdrop-blur-sm py-3 text-center">
-                <p className="text-xl md:text-2xl font-black text-white">{stat.value}</p>
-                <p className="text-[10px] text-[#555] mt-1 uppercase tracking-wide">{stat.label}</p>
+          
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 pt-4 border-t border-[#1A1A1A] mt-4">
+            {[{ v: '500+', l: 'Assets Digitais' }, { v: '2K+', l: 'Clientes' }, { v: '4.9★', l: 'Avaliação Média' }].map(s => (
+              <div key={s.l} className="text-center">
+                <div className="text-xl md:text-2xl font-black text-white">{s.v}</div>
+                <div className="text-[10px] text-[#555] mt-0.5">{s.l}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-12 md:py-14 bg-black">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="rounded-2xl border border-[#1A1A1A] bg-[#0A0A0A] p-6 md:p-8">
-            <div className="text-center">
-              <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">Transparencia em cada etapa da compra</h3>
-              <p className="mt-3 text-sm text-[#777] max-w-2xl mx-auto">
-                Processo claro, acompanhamento do pedido e documentos publicos para voce comprar com seguranca.
-              </p>
-            </div>
-
-            <div className="mt-6 space-y-3 max-w-2xl mx-auto">
-              {SECURITY_POINTS.map((point) => (
-                <div key={point} className="flex items-start gap-3 rounded-lg border border-[#1A1A1A] bg-black px-4 py-3">
-                  <CheckCircle className="h-4 w-4 text-white mt-0.5" />
-                  <p className="text-sm text-[#666]">{point}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <button
-                onClick={() => navigate('/docs')}
-                className="h-11 rounded-lg border border-[#1A1A1A] bg-black text-sm text-[#999] hover:text-white hover:border-[#333] transition-colors inline-flex items-center justify-center gap-2"
-              >
-                <FileText className="h-4 w-4" />
-                Documentacao
-              </button>
-              <button
-                onClick={() => navigate('/terms')}
-                className="h-11 rounded-lg border border-[#1A1A1A] bg-black text-sm text-[#999] hover:text-white hover:border-[#333] transition-colors inline-flex items-center justify-center gap-2"
-              >
-                <Shield className="h-4 w-4" />
-                Termos de Uso
-              </button>
-              <button
-                onClick={() => navigate('/privacy')}
-                className="h-11 rounded-lg border border-[#1A1A1A] bg-black text-sm text-[#999] hover:text-white hover:border-[#333] transition-colors inline-flex items-center justify-center gap-2"
-              >
-                <Lock className="h-4 w-4" />
-                Privacidade
-              </button>
-            </div>
+      {/* Parceiros */}
+      <section className="border-b border-[#1A1A1A] py-6 bg-black">
+        <div className="max-w-7xl mx-auto px-4">
+          <p className="text-center text-[8px] font-bold text-[#333] uppercase tracking-[0.3em] mb-3">
+            Parceiros &amp; Plataformas Oficiais
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
+            {PARTNERS.map(p => (
+              <div key={p} className="text-sm md:text-base font-black text-[#222] hover:text-[#444] transition-colors cursor-default tracking-wider select-none">
+                {p}
+              </div>
+            ))}
           </div>
         </div>
       </section>
