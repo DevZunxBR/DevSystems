@@ -1,10 +1,9 @@
-// src/pages/Documentation.jsx - Versão melhorada
+// src/pages/Documentation.jsx
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, ShoppingCart, CreditCard, Download, Wallet,
-  RotateCcw, FileText, Shield, HeadphonesIcon, HelpCircle, Lock,
-  ChevronRight, Copy, CheckCircle
+  RotateCcw, FileText, Shield, HeadphonesIcon, HelpCircle, Lock
 } from 'lucide-react';
 
 const DOCS_SECTIONS = [
@@ -24,7 +23,6 @@ const GROUPS = ['Guia', 'Ajuda'];
 export default function Documentation() {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('buying');
-  const [copied, setCopied] = useState(false);
   const contentRef = useRef(null);
 
   useEffect(() => {
@@ -39,15 +37,9 @@ export default function Documentation() {
     setActiveSection(id);
     const el = document.getElementById(id);
     if (el && contentRef.current) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      contentRef.current.scrollTo({ top: el.offsetTop - 24, behavior: 'smooth' });
     }
     window.history.pushState({}, '', `#${id}`);
-  };
-
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   // Update active section on scroll
@@ -57,12 +49,10 @@ export default function Documentation() {
     const handler = () => {
       const ids = DOCS_SECTIONS.map(s => s.id);
       let current = ids[0];
-      for (const id of ids) {
+      ids.forEach(id => {
         const el = document.getElementById(id);
-        if (el && el.offsetTop - content.scrollTop <= 100) {
-          current = id;
-        }
-      }
+        if (el && el.offsetTop - content.scrollTop <= 80) current = id;
+      });
       setActiveSection(current);
     };
     content.addEventListener('scroll', handler);
@@ -71,48 +61,41 @@ export default function Documentation() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
-      {/* Header com efeito glass */}
-      <div className="border-b border-[#1A1A1A] bg-[#0A0A0A]/80 backdrop-blur-sm sticky top-0 z-10 flex-shrink-0">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-sm text-[#555] hover:text-white transition-all hover:translate-x-[-2px]"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Voltar
-            </button>
-            <div className="w-px h-5 bg-[#1A1A1A]" />
-            <h1 className="text-white font-bold text-lg">Documentação</h1>
-          </div>
-          <div className="text-xs text-[#444] hidden sm:block">
-            Central de ajuda
-          </div>
+      {/* Header */}
+      <div className="border-b border-[#1A1A1A] bg-[#0A0A0A] sticky top-0 z-10 flex-shrink-0">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-4">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-sm text-[#555] hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Voltar
+          </button>
+          <h1 className="text-white font-bold text-lg">Documentação</h1>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-0 flex flex-1 w-full gap-0">
-        {/* Sidebar melhorada */}
-        <aside className="hidden lg:flex flex-col w-56 flex-shrink-0 border-r border-[#1A1A1A] py-8 pr-6 sticky top-[57px] h-[calc(100vh-57px)] bg-gradient-to-b from-transparent to-black/30">
+        {/* Sidebar */}
+        <aside className="hidden lg:flex flex-col w-56 flex-shrink-0 border-r border-[#1A1A1A] py-8 pr-6 sticky top-[57px] h-[calc(100vh-57px)]">
           {GROUPS.map(group => (
             <div key={group} className="mb-6">
-              <p className="text-[10px] font-bold text-[#444] uppercase tracking-wider mb-3 px-3">
+              <p className="text-[10px] font-semibold text-[#333] uppercase tracking-widest mb-2 px-3">
                 {group}
               </p>
-              <nav className="space-y-1">
+              <nav className="space-y-0.5">
                 {DOCS_SECTIONS.filter(s => s.group === group).map(({ id, title, icon: Icon }) => (
                   <button
                     key={id}
                     onClick={() => scrollToSection(id)}
-                    className={`group w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200
+                    className={`w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all
                       ${activeSection === id
                         ? 'text-white bg-[#111] border-l-2 border-white rounded-l-none'
-                        : 'text-[#555] hover:text-white hover:bg-[#111]'
+                        : 'text-[#555] hover:text-[#ccc] hover:bg-[#0f0f0f]'
                       }`}
                   >
-                    <Icon className={`h-3.5 w-3.5 flex-shrink-0 transition-transform group-hover:scale-105 ${activeSection === id ? 'text-white' : 'text-[#555]'}`} />
+                    <Icon className="h-3.5 w-3.5 flex-shrink-0" />
                     {title}
-                    {activeSection === id && <ChevronRight className="h-3 w-3 ml-auto opacity-60" />}
                   </button>
                 ))}
               </nav>
@@ -120,56 +103,50 @@ export default function Documentation() {
           ))}
 
           <div className="mt-auto border-t border-[#1A1A1A] pt-4">
-            <p className="text-[10px] font-bold text-[#444] uppercase tracking-wider mb-3 px-3">Legal</p>
-            <nav className="space-y-1">
+            <p className="text-[10px] font-semibold text-[#333] uppercase tracking-widest mb-2 px-3">Legal</p>
+            <nav className="space-y-0.5">
               <button
                 onClick={() => navigate('/terms')}
-                className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#555] hover:text-white hover:bg-[#111] transition-all group"
+                className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#555] hover:text-[#ccc] hover:bg-[#0f0f0f] transition-all"
               >
-                <FileText className="h-3.5 w-3.5 transition-transform group-hover:scale-105" />
+                <FileText className="h-3.5 w-3.5" />
                 Termos de Uso
               </button>
               <button
                 onClick={() => navigate('/privacy')}
-                className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#555] hover:text-white hover:bg-[#111] transition-all group"
+                className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#555] hover:text-[#ccc] hover:bg-[#0f0f0f] transition-all"
               >
-                <Lock className="h-3.5 w-3.5 transition-transform group-hover:scale-105" />
+                <Lock className="h-3.5 w-3.5" />
                 Política de Privacidade
               </button>
             </nav>
           </div>
         </aside>
 
-        {/* Main content com scroll suave */}
+        {/* Main content */}
         <main
           ref={contentRef}
-          className="flex-1 min-w-0 overflow-y-auto h-[calc(100vh-57px)] py-10 px-6 lg:px-10 scroll-smooth"
+          className="flex-1 min-w-0 overflow-y-auto h-[calc(100vh-57px)] py-10 px-10"
         >
-          {/* Page intro com animação */}
-          <div className="mb-10 pb-10 border-b border-[#111] animate-fade-in">
-            <div className="inline-flex items-center gap-2 bg-[#0A0A0A] border border-[#1A1A1A] rounded-full px-3 py-1 text-[10px] text-[#555] mb-4">
-              <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-              Documentação Oficial
-            </div>
-            <h2 className="text-3xl font-black text-white mb-3">Central de Ajuda</h2>
+          {/* Page intro */}
+          <div className="mb-10 pb-10 border-b border-[#111]">
+            <h2 className="text-3xl font-black text-white mb-3">Documentação</h2>
             <p className="text-[#555] leading-relaxed text-sm max-w-xl">
               Bem-vindo à documentação oficial do Marketplace. Aqui você encontra tudo que precisa para usar a plataforma.
             </p>
           </div>
 
           {/* Buying */}
-          <section id="buying" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111] animate-fade-in-up">
+          <section id="buying" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1 bg-[#111] rounded-lg">
-                <ShoppingCart className="h-3.5 w-3.5 text-white" />
-              </div>
-              <span className="text-[10px] text-[#444] uppercase tracking-wider font-bold">Compras</span>
+              <ShoppingCart className="h-3.5 w-3.5 text-[#444]" />
+              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Compras</span>
             </div>
             <h2 className="text-xl font-bold text-white mb-4">Como Comprar</h2>
             <p className="text-[#666] text-sm leading-relaxed mb-4">
               Comprar na nossa plataforma é simples. Siga os passos abaixo:
             </p>
-            <div className="space-y-3">
+            <ol className="space-y-3">
               {[
                 'Navegue pela loja e encontre o asset desejado',
                 'Clique em "Adicionar ao Carrinho"',
@@ -178,44 +155,29 @@ export default function Documentation() {
                 'Aguarde a aprovação do pedido (até 30 minutos)',
                 'Baixe seus arquivos em Meus Pedidos',
               ].map((step, i) => (
-                <div key={i} className="flex items-start gap-3 group">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#111] border border-[#2a2a2a] flex items-center justify-center text-[11px] text-[#555] group-hover:border-white/30 transition-colors">
+                <li key={i} className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full border border-[#2a2a2a] flex items-center justify-center text-[11px] text-[#555] mt-0.5">
                     {i + 1}
-                  </div>
-                  <span className="text-sm text-[#666] leading-relaxed group-hover:text-[#777] transition-colors">{step}</span>
-                </div>
+                  </span>
+                  <span className="text-sm text-[#666] leading-relaxed">{step}</span>
+                </li>
               ))}
-            </div>
+            </ol>
           </section>
 
-          {/* Payment com card copiável */}
-          <section id="payment" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111] animate-fade-in-up">
+          {/* Payment */}
+          <section id="payment" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1 bg-[#111] rounded-lg">
-                <CreditCard className="h-3.5 w-3.5 text-white" />
-              </div>
-              <span className="text-[10px] text-[#444] uppercase tracking-wider font-bold">Pagamento</span>
+              <CreditCard className="h-3.5 w-3.5 text-[#444]" />
+              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Pagamento</span>
             </div>
             <h2 className="text-xl font-bold text-white mb-4">Pagamento via PIX</h2>
             <p className="text-[#666] text-sm leading-relaxed mb-4">
               Trabalhamos exclusivamente com PIX — o meio de pagamento instantâneo do Banco Central.
             </p>
-            <div className="bg-gradient-to-r from-[#0f0f0f] to-[#0a0a0a] border border-[#1e1e1e] rounded-xl p-4 mb-4 hover:border-[#2a2a2a] transition-all">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-[10px] text-[#444] uppercase tracking-wider font-bold">Chave PIX (e-mail)</p>
-                <button 
-                  onClick={() => copyToClipboard('pagamentos@marketplace.com')}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#1a1a1a] hover:bg-[#222] transition-colors"
-                >
-                  {copied ? (
-                    <CheckCircle className="h-3 w-3 text-green-500" />
-                  ) : (
-                    <Copy className="h-3 w-3 text-[#555]" />
-                  )}
-                  <span className="text-[10px] text-[#555]">{copied ? 'Copiado!' : 'Copiar'}</span>
-                </button>
-              </div>
-              <p className="text-sm text-white font-mono">pagamentos@marketplace.com</p>
+            <div className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-lg p-4 mb-4">
+              <p className="text-[10px] text-[#444] uppercase tracking-widest font-semibold mb-1">Chave PIX</p>
+              <p className="text-sm text-[#ccc] font-medium">pagamentos@marketplace.com</p>
             </div>
             <p className="text-[#666] text-sm leading-relaxed">
               Após o pagamento, seu pedido será aprovado em até <span className="text-white font-medium">30 minutos</span> em dias úteis.
@@ -223,85 +185,68 @@ export default function Documentation() {
           </section>
 
           {/* Downloads */}
-          <section id="downloads" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111] animate-fade-in-up">
+          <section id="downloads" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1 bg-[#111] rounded-lg">
-                <Download className="h-3.5 w-3.5 text-white" />
-              </div>
-              <span className="text-[10px] text-[#444] uppercase tracking-wider font-bold">Arquivos</span>
+              <Download className="h-3.5 w-3.5 text-[#444]" />
+              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Arquivos</span>
             </div>
             <h2 className="text-xl font-bold text-white mb-4">Downloads</h2>
             <p className="text-[#666] text-sm leading-relaxed mb-3">
               Após a aprovação do pagamento, seus arquivos ficam disponíveis por <span className="text-white font-medium">7 dias</span>.
             </p>
-            <div className="bg-[#0a0a0a] border border-[#1e1e1e] rounded-lg p-4">
-              <p className="text-xs text-[#555]">
-                💡 Acesse <span className="text-white font-medium">Meus Pedidos</span> no dashboard e clique em "Download". Se o link expirar, entre em contato com o suporte.
-              </p>
-            </div>
+            <p className="text-[#666] text-sm leading-relaxed">
+              Acesse <span className="text-white font-medium">Meus Pedidos</span> no dashboard e clique em "Download" para baixar seus arquivos. Se o link expirar, entre em contato com o suporte.
+            </p>
           </section>
 
           {/* Wallet */}
-          <section id="wallet" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111] animate-fade-in-up">
+          <section id="wallet" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1 bg-[#111] rounded-lg">
-                <Wallet className="h-3.5 w-3.5 text-white" />
-              </div>
-              <span className="text-[10px] text-[#444] uppercase tracking-wider font-bold">Carteira</span>
+              <Wallet className="h-3.5 w-3.5 text-[#444]" />
+              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Carteira</span>
             </div>
             <h2 className="text-xl font-bold text-white mb-4">Carteira & Cashback</h2>
             <p className="text-[#666] text-sm leading-relaxed mb-3">
               Toda compra aprovada gera <span className="text-white font-medium">5% de cashback</span> creditado automaticamente na sua carteira.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-              <div className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-lg p-3 text-center">
-                <p className="text-xs text-[#555]">💰 Como ganhar</p>
-                <p className="text-sm text-white font-medium">5% do valor da compra</p>
-              </div>
-              <div className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-lg p-3 text-center">
-                <p className="text-xs text-[#555]">🛒 Como usar</p>
-                <p className="text-sm text-white font-medium">Abate em compras futuras</p>
-              </div>
-            </div>
+            <p className="text-[#666] text-sm leading-relaxed">
+              O saldo acumulado pode ser usado para abater em compras futuras diretamente no checkout.
+            </p>
           </section>
 
           {/* Refund */}
-          <section id="refund" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111] animate-fade-in-up">
+          <section id="refund" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1 bg-[#111] rounded-lg">
-                <RotateCcw className="h-3.5 w-3.5 text-white" />
-              </div>
-              <span className="text-[10px] text-[#444] uppercase tracking-wider font-bold">Reembolso</span>
+              <RotateCcw className="h-3.5 w-3.5 text-[#444]" />
+              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Reembolso</span>
             </div>
             <h2 className="text-xl font-bold text-white mb-4">Política de Reembolso</h2>
             <p className="text-[#666] text-sm leading-relaxed mb-3">
               Você pode solicitar reembolso dentro de <span className="text-white font-medium">7 dias</span> após a aprovação do pedido.
             </p>
-            <div className="bg-[#0a0a0a] border border-[#1e1e1e] rounded-lg p-4">
-              <p className="text-xs text-[#555]">
-                📋 Para solicitar, acesse <span className="text-white font-medium">Meus Pedidos</span> e clique em "Solicitar Reembolso".
-              </p>
-            </div>
+            <p className="text-[#666] text-sm leading-relaxed">
+              Para solicitar, acesse <span className="text-white font-medium">Meus Pedidos</span> e clique em "Solicitar Reembolso". O valor é estornado em até 5 dias úteis.
+            </p>
           </section>
 
           {/* Licenses */}
-          <section id="licenses" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111] animate-fade-in-up">
+          <section id="licenses" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1 bg-[#111] rounded-lg">
-                <FileText className="h-3.5 w-3.5 text-white" />
-              </div>
-              <span className="text-[10px] text-[#444] uppercase tracking-wider font-bold">Licenças</span>
+              <FileText className="h-3.5 w-3.5 text-[#444]" />
+              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Licenças</span>
             </div>
             <h2 className="text-xl font-bold text-white mb-4">Licenças</h2>
+            <p className="text-[#666] text-sm leading-relaxed mb-5">
+              Cada asset vem com uma licença que define como você pode utilizá-lo. Escolha a que se encaixa no seu projeto:
+            </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { name: 'Padrão', desc: 'Uso em 1 projeto pessoal ou comercial', icon: '📄' },
-                { name: 'Extendida', desc: 'Uso em múltiplos projetos', icon: '📚' },
-                { name: 'Comercial', desc: 'Uso sem restrições de escala', icon: '🏢' },
-              ].map(({ name, desc, icon }) => (
-                <div key={name} className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-xl p-4 hover:border-[#2a2a2a] transition-all">
-                  <div className="text-lg mb-2">{icon}</div>
-                  <p className="text-sm font-semibold text-white mb-1">{name}</p>
+                { name: 'Padrão', desc: 'Uso em 1 projeto pessoal ou comercial' },
+                { name: 'Extendida', desc: 'Uso em múltiplos projetos' },
+                { name: 'Comercial', desc: 'Uso sem restrições de escala' },
+              ].map(({ name, desc }) => (
+                <div key={name} className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-lg p-4">
+                  <p className="text-sm font-semibold text-[#ccc] mb-1">{name}</p>
                   <p className="text-xs text-[#555] leading-relaxed">{desc}</p>
                 </div>
               ))}
@@ -309,61 +254,50 @@ export default function Documentation() {
           </section>
 
           {/* Security */}
-          <section id="security" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111] animate-fade-in-up">
+          <section id="security" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1 bg-[#111] rounded-lg">
-                <Shield className="h-3.5 w-3.5 text-white" />
-              </div>
-              <span className="text-[10px] text-[#444] uppercase tracking-wider font-bold">Segurança</span>
+              <Shield className="h-3.5 w-3.5 text-[#444]" />
+              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Segurança</span>
             </div>
             <h2 className="text-xl font-bold text-white mb-4">Segurança</h2>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                  <span className="text-green-500 text-xs">✓</span>
-                </div>
-                <p className="text-sm text-[#666]">Criptografia <span className="text-white font-medium">SSL</span> em todas as páginas</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                  <span className="text-green-500 text-xs">✓</span>
-                </div>
-                <p className="text-sm text-[#666]">Pagamentos via PIX sem armazenar dados bancários</p>
-              </div>
-            </div>
+            <p className="text-[#666] text-sm leading-relaxed mb-3">
+              A segurança dos seus dados é nossa prioridade. Utilizamos criptografia <span className="text-white font-medium">SSL</span> em todas as páginas.
+            </p>
+            <p className="text-[#666] text-sm leading-relaxed">
+              Pagamentos são processados via PIX diretamente pelo Banco Central, sem armazenar dados bancários na plataforma.
+            </p>
           </section>
 
           {/* Support */}
-          <section id="support" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111] animate-fade-in-up">
+          <section id="support" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1 bg-[#111] rounded-lg">
-                <HeadphonesIcon className="h-3.5 w-3.5 text-white" />
-              </div>
-              <span className="text-[10px] text-[#444] uppercase tracking-wider font-bold">Suporte</span>
+              <HeadphonesIcon className="h-3.5 w-3.5 text-[#444]" />
+              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Suporte</span>
             </div>
             <h2 className="text-xl font-bold text-white mb-4">Suporte</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <div className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-xl p-4">
-                <p className="text-[10px] text-[#444] uppercase tracking-wider font-bold mb-1">Horário</p>
-                <p className="text-sm text-white">Segunda a Sexta, 09h às 18h (BRT)</p>
+            <p className="text-[#666] text-sm leading-relaxed mb-5">
+              Atendemos de <span className="text-white font-medium">segunda a sexta, das 09h às 18h (BRT)</span>.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-lg p-4">
+                <p className="text-[10px] text-[#444] uppercase tracking-widest font-semibold mb-1">E-mail</p>
+                <p className="text-sm text-[#ccc] font-medium">suporte@marketplace.com</p>
               </div>
-              <div className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-xl p-4">
-                <p className="text-[10px] text-[#444] uppercase tracking-wider font-bold mb-1">E-mail</p>
-                <p className="text-sm text-white font-mono">suporte@marketplace.com</p>
+              <div className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-lg p-4">
+                <p className="text-[10px] text-[#444] uppercase tracking-widest font-semibold mb-1">Canal</p>
+                <p className="text-sm text-[#ccc] font-medium">Discord da plataforma</p>
               </div>
             </div>
           </section>
 
-          {/* FAQ com acordeão */}
-          <section id="faq" className="scroll-mt-6 mb-10 animate-fade-in-up">
+          {/* FAQ */}
+          <section id="faq" className="scroll-mt-6 mb-10">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1 bg-[#111] rounded-lg">
-                <HelpCircle className="h-3.5 w-3.5 text-white" />
-              </div>
-              <span className="text-[10px] text-[#444] uppercase tracking-wider font-bold">FAQ</span>
+              <HelpCircle className="h-3.5 w-3.5 text-[#444]" />
+              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">FAQ</span>
             </div>
             <h2 className="text-xl font-bold text-white mb-6">Perguntas Frequentes</h2>
-            <div className="space-y-4">
+            <div className="space-y-0 divide-y divide-[#111]">
               {[
                 {
                   q: 'Quanto tempo leva para aprovar o pagamento?',
@@ -381,46 +315,16 @@ export default function Documentation() {
                   q: 'Posso pagar com cartão ou boleto?',
                   a: 'No momento aceitamos apenas PIX. Estamos trabalhando para adicionar novos métodos de pagamento em breve.',
                 },
-              ].map(({ q, a }, idx) => (
-                <div key={idx} className="bg-[#0a0a0a] border border-[#1e1e1e] rounded-xl overflow-hidden hover:border-[#2a2a2a] transition-all">
-                  <div className="p-4">
-                    <p className="text-sm font-semibold text-white mb-2">{q}</p>
-                    <p className="text-sm text-[#555] leading-relaxed">{a}</p>
-                  </div>
+              ].map(({ q, a }) => (
+                <div key={q} className="py-5">
+                  <p className="text-sm font-semibold text-[#ccc] mb-2">{q}</p>
+                  <p className="text-sm text-[#555] leading-relaxed">{a}</p>
                 </div>
               ))}
             </div>
           </section>
-
-          {/* Footer da página */}
-          <div className="mt-12 pt-6 border-t border-[#111] text-center">
-            <p className="text-xs text-[#444]">© 2026 Marketplace. Todos os direitos reservados.</p>
-          </div>
         </main>
       </div>
-
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.5s ease-out forwards;
-        }
-        .animate-fade-in-up {
-          animation: fadeInUp 0.5s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 }
