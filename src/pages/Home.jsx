@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ChevronRight, Shield, Lock, CreditCard, HeadphonesIcon, FileText, CheckCircle } from 'lucide-react';
+import { ArrowRight, ChevronRight, Shield, Lock, FileText, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 import heroBg1 from '@/assets/images/DevHero.jpg';
@@ -14,30 +14,6 @@ const HERO_STATS = [
   { value: '500+', label: 'Assets Digitais' },
   { value: '2K+', label: 'Clientes Atendidos' },
   { value: '4.9/5', label: 'Media de Avaliacao' },
-];
-
-const TRUST_PILLS = [
-  'Pagamento protegido por PIX',
-  'Conexao criptografada (SSL)',
-  'Politicas publicas e transparentes',
-];
-
-const TRUST_CARDS = [
-  {
-    title: 'Pagamento Seguro',
-    description: 'Fluxo de pagamento validado e confirmacao de pedido com rastreio no dashboard.',
-    icon: CreditCard,
-  },
-  {
-    title: 'Dados Protegidos',
-    description: 'Toda navegacao em ambiente criptografado, com boas praticas de seguranca aplicadas.',
-    icon: Lock,
-  },
-  {
-    title: 'Suporte Real',
-    description: 'Atendimento para pedidos, downloads e reembolso com processo claro para o cliente.',
-    icon: HeadphonesIcon,
-  },
 ];
 
 const SECURITY_POINTS = [
@@ -155,54 +131,6 @@ export default function Home() {
                 {partner}
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-[#1A1A1A] py-6 bg-black">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
-            {TRUST_PILLS.map((pill) => (
-              <div
-                key={pill}
-                className="inline-flex items-center gap-2 rounded-full border border-[#1A1A1A] bg-[#0A0A0A] px-3 py-1.5 text-[11px] text-[#777]"
-              >
-                <CheckCircle className="h-3.5 w-3.5 text-white" />
-                {pill}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-[#1A1A1A] py-12 md:py-14 bg-black">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#1A1A1A] bg-[#0A0A0A] px-3 py-1 text-[10px] uppercase tracking-wider text-[#666]">
-              <Shield className="h-3.5 w-3.5 text-white" />
-              Confianca e Seguranca
-            </div>
-            <h2 className="mt-4 text-2xl md:text-3xl font-black text-white tracking-tight">
-              Ambiente profissional para comprar com tranquilidade
-            </h2>
-            <p className="mt-3 text-sm text-[#777] max-w-2xl mx-auto">
-              Estruturamos a loja para que o cliente tenha clareza no processo, protecao nos dados e suporte em todas as etapas.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {TRUST_CARDS.map((card) => {
-              const Icon = card.icon;
-              return (
-                <div key={card.title} className="rounded-2xl border border-[#1A1A1A] bg-[#0A0A0A] p-5">
-                  <div className="w-9 h-9 rounded-lg border border-[#222] bg-[#111] flex items-center justify-center mb-4">
-                    <Icon className="h-4 w-4 text-white" />
-                  </div>
-                  <h3 className="text-white font-bold text-base">{card.title}</h3>
-                  <p className="text-sm text-[#666] leading-relaxed mt-2">{card.description}</p>
-                </div>
-              );
-            })}
           </div>
         </div>
       </section>
