@@ -109,7 +109,7 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-10 pt-5 border-t border-[#1A1A1A] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="mt-10 pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <p className="text-[11px] text-[#444]">© {currentYear} Marketplace. Todos os direitos reservados.</p>
           <div className="flex items-center gap-4 text-[11px] text-[#444]">
             <Link to="/terms" className="hover:text-white transition-colors">
@@ -124,3 +124,5 @@ export default function Footer() {
     </footer>
   );
 }
+
+

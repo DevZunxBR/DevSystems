@@ -10,8 +10,6 @@ import heroBg2 from '@/assets/images/DevHero2.jpg';
 import heroBg3 from '@/assets/images/DevHero3.jpg';
 import heroBg4 from '@/assets/images/DevHero4.jpg';
 
-const PARTNERS = ['ROBLOX', 'UNITY', 'UNREAL ENGINE', 'CRYENGINE', 'CREATION ENGINE'];
-
 export default function Home() {
   const navigate = useNavigate();
   
@@ -38,7 +36,7 @@ export default function Home() {
   return (
     <div className="font-inter">
       {/* Hero Section com Slideshow */}
-      <section className="relative overflow-hidden border-b border-[#1A1A1A] min-h-[500px] flex items-center">
+      <section className="relative overflow-hidden min-h-[500px] flex items-center">
         {/* Imagem de fundo com fade */}
         <div className="absolute inset-0">
           {backgroundImages.map((img, index) => (
@@ -85,7 +83,7 @@ export default function Home() {
             </Button>
           </div>
           
-          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 pt-4 border-t border-[#1A1A1A] mt-4">
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 pt-4 mt-4">
             {[{ v: '500+', l: 'Assets Digitais' }, { v: '2K+', l: 'Clientes' }, { v: '4.9★', l: 'Avaliação Média' }].map(s => (
               <div key={s.l} className="text-center">
                 <div className="text-xl md:text-2xl font-black text-white">{s.v}</div>
@@ -96,21 +94,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Parceiros */}
-      <section className="border-b border-[#1A1A1A] py-6 bg-black">
-        <div className="max-w-7xl mx-auto px-4">
-          <p className="text-center text-[8px] font-bold text-[#333] uppercase tracking-[0.3em] mb-3">
-            Parceiros &amp; Plataformas Oficiais
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
-            {PARTNERS.map(p => (
-              <div key={p} className="text-sm md:text-base font-black text-[#222] hover:text-[#444] transition-colors cursor-default tracking-wider select-none">
-                {p}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
