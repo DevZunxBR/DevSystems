@@ -1,4 +1,4 @@
-// src/pages/Documentation.jsx - Com muito mais conteúdo
+// src/pages/Documentation.jsx - Com sidebar fixa na direita e muito conteúdo
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ChevronRight, ArrowLeft, FileText, Lock } from 'lucide-react';
@@ -17,8 +17,6 @@ const DOCS_SECTIONS = [
   { id: 'updates', title: 'Atualizações' },
   { id: 'support', title: 'Suporte' },
   { id: 'faq', title: 'Perguntas Frequentes' },
-  { id: 'terms', title: 'Termos de Uso' },
-  { id: 'privacy', title: 'Privacidade' },
 ];
 
 export default function Documentation() {
@@ -76,29 +74,7 @@ export default function Documentation() {
 
       <div className="flex-1 max-w-7xl mx-auto px-6 py-12">
         <div className="flex gap-12">
-          {/* Sidebar */}
-          <aside className="hidden lg:block w-56 flex-shrink-0">
-            <div className="sticky top-24">
-              <p className="text-xs font-bold text-[#444] uppercase tracking-wider mb-4">Conteúdo</p>
-              <nav className="space-y-1">
-                {DOCS_SECTIONS.map((section) => (
-                  <button
-                    key={section.id}
-                    onClick={() => scrollToSection(section.id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
-                      activeSection === section.id
-                        ? 'bg-white text-black font-medium'
-                        : 'text-[#555] hover:text-white hover:bg-[#111]'
-                    }`}
-                  >
-                    {section.title}
-                  </button>
-                ))}
-              </nav>
-            </div>
-          </aside>
-
-          {/* Conteúdo principal */}
+          {/* Conteúdo principal - Esquerda */}
           <div className="flex-1 min-w-0">
             <div className="prose prose-invert max-w-none">
               
@@ -401,6 +377,28 @@ export default function Documentation() {
               </section>
             </div>
           </div>
+
+          {/* Sidebar fixa na direita */}
+          <aside className="hidden lg:block w-56 flex-shrink-0">
+            <div className="sticky top-24">
+              <p className="text-xs font-bold text-[#444] uppercase tracking-wider mb-4">Conteúdo</p>
+              <nav className="space-y-1">
+                {DOCS_SECTIONS.map((section) => (
+                  <button
+                    key={section.id}
+                    onClick={() => scrollToSection(section.id)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
+                      activeSection === section.id
+                        ? 'bg-white text-black font-medium'
+                        : 'text-[#555] hover:text-white hover:bg-[#111]'
+                    }`}
+                  >
+                    {section.title}
+                  </button>
+                ))}
+              </nav>
+            </div>
+          </aside>
         </div>
       </div>
     </div>
