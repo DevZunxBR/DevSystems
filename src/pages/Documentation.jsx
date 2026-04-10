@@ -1,7 +1,14 @@
-// src/pages/Documentation.jsx - Com hero section estilo Home
+// src/pages/Documentation.jsx - Com hero igual ao Home (com slideshow)
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Lock, Copy, CheckCircle, CreditCard, Download, Wallet, RefreshCcw, Shield, HelpCircle, ShoppingCart, BookOpen, ChevronRight } from 'lucide-react';
+import { ArrowLeft, FileText, Lock, Copy, CheckCircle, CreditCard, Download, Wallet, RefreshCcw, Shield, HelpCircle, ShoppingCart, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+// Importe suas imagens aqui (mesmas do Home)
+import heroBg1 from '@/assets/images/DevHero.jpg';
+import heroBg2 from '@/assets/images/DevHero2.jpg';
+import heroBg3 from '@/assets/images/DevHero3.jpg';
+import heroBg4 from '@/assets/images/DevHero4.jpg';
 
 const DOCS_SECTIONS = [
   { id: 'buying', title: 'Como Comprar', icon: ShoppingCart },
@@ -17,6 +24,26 @@ export default function Documentation() {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('buying');
   const [copied, setCopied] = useState(false);
+  
+  // Slideshow state
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  
+  // Lista de imagens de fundo
+  const backgroundImages = [heroBg1, heroBg2, heroBg3, heroBg4];
+
+  // Trocar imagem a cada 10 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % backgroundImages.length);
+        setIsTransitioning(false);
+      }, 500);
+    }, 10000);
+    
+    return () => clearInterval(interval);
+  }, [backgroundImages.length]);
 
   useEffect(() => {
     const hash = window.location.hash.replace('#', '');
@@ -63,18 +90,36 @@ export default function Documentation() {
         </div>
       </div>
 
-      {/* Hero Section - Estilo Home */}
-      <section className="relative overflow-hidden border-b border-[#1A1A1A]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,_#1a1a1a_0%,_#000000_100%)]" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMwLTkuOTQtOC4wNi0xOC0xOC0xOCIgc3Ryb2tlPSIjMUExQTFBIiBzdHJva2Utd2lkdGg9IjAuNSIvPjwvZz48L3N2Zz4=')] opacity-30" />
+      {/* Hero Section com Slideshow - Igual ao Home */}
+      <section className="relative overflow-hidden border-b border-[#1A1A1A] min-h-[500px] flex items-center">
+        {/* Imagem de fundo com fade */}
+        <div className="absolute inset-0">
+          {backgroundImages.map((img, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 transition-opacity duration-500 ${
+                index === currentImageIndex && !isTransitioning ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <img
+                src={img}
+                alt="Background"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/70" />
+            </div>
+          ))}
+        </div>
         
-        <div className="relative max-w-7xl mx-auto px-6 py-20 text-center space-y-6">
-          <div className="inline-flex items-center gap-2 bg-[#0A0A0A] border border-[#1A1A1A] rounded-full px-4 py-1.5 text-[10px] text-[#999]">
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/50" />
+        
+        <div className="relative max-w-7xl mx-auto px-4 py-16 md:py-24 text-center space-y-6 z-10">
+          <div className="inline-flex items-center gap-2 bg-[#0A0A0A]/80 backdrop-blur-sm border border-[#1A1A1A] rounded-full px-4 py-1.5 text-xs text-[#999]">
             <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
             Documentação Oficial
           </div>
           
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-[1.1]">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tight leading-[1.1]">
             Central de <span className="text-[#555]">Ajuda</span>
           </h1>
           
@@ -83,38 +128,22 @@ export default function Documentation() {
             Nossa documentação completa está aqui para ajudar você.
           </p>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <button 
-              onClick={() => scrollToSection('buying')} 
-              className="bg-white text-black hover:bg-white/90 font-bold h-11 px-6 text-sm gap-2 rounded-xl flex items-center"
-            >
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button onClick={() => scrollToSection('buying')} className="bg-white text-black hover:bg-white/90 font-bold h-11 px-6 text-sm gap-2 rounded-xl">
               Como Comprar <ChevronRight className="h-4 w-4" />
-            </button>
-            <button 
-              onClick={() => scrollToSection('faq')} 
-              className="border border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl flex items-center"
-            >
+            </Button>
+            <Button variant="outline" onClick={() => scrollToSection('faq')} className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl">
               Perguntas Frequentes
-            </button>
+            </Button>
           </div>
           
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 pt-4 border-t border-[#1A1A1A] mt-4">
-            <div className="text-center">
-              <div className="text-xl md:text-2xl font-black text-white">7+</div>
-              <div className="text-[10px] text-[#555]">Guias Completos</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xl md:text-2xl font-black text-white">24/7</div>
-              <div className="text-[10px] text-[#555]">Suporte Disponível</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xl md:text-2xl font-black text-white">2K+</div>
-              <div className="text-[10px] text-[#555]">Clientes Atendidos</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xl md:text-2xl font-black text-white">4.9★</div>
-              <div className="text-[10px] text-[#555]">Avaliação Média</div>
-            </div>
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 pt-4 border-t border-[#1A1A1A] mt-4">
+            {[{ v: '7+', l: 'Guias Completos' }, { v: '24/7', l: 'Suporte' }, { v: '2K+', l: 'Clientes' }, { v: '4.9★', l: 'Avaliação' }].map(s => (
+              <div key={s.l} className="text-center">
+                <div className="text-xl md:text-2xl font-black text-white">{s.v}</div>
+                <div className="text-[10px] text-[#555] mt-0.5">{s.l}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
