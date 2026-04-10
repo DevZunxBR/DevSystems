@@ -41,9 +41,27 @@ const TRUST_CARDS = [
 ];
 
 const SECURITY_POINTS = [
-  'Checkout com conexao segura e monitorada.',
-  'Historico de pedidos e downloads dentro da conta.',
-  'Termos de uso e politica de privacidade acessiveis.',
+  'Cada compra gera registro no dashboard para acompanhamento.',
+  'Aprovacao de pagamento e disponibilidade de download com status visivel.',
+  'Politicas publicas para uso, privacidade e suporte.',
+];
+
+const HOW_IT_WORKS = [
+  {
+    step: '01',
+    title: 'Escolher',
+    description: 'Navegue pela loja, compare categorias e selecione o asset ideal para seu projeto.',
+  },
+  {
+    step: '02',
+    title: 'Pagar',
+    description: 'Finalize via PIX em ambiente seguro e acompanhe o status da aprovacao em tempo real.',
+  },
+  {
+    step: '03',
+    title: 'Baixar',
+    description: 'Com o pedido aprovado, acesse seus arquivos no dashboard e baixe com praticidade.',
+  },
 ];
 
 export default function Home() {
@@ -189,6 +207,27 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="border-b border-[#1A1A1A] py-12 md:py-14 bg-black">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">Como funciona</h2>
+            <p className="mt-3 text-sm text-[#777] max-w-2xl mx-auto">
+              Fluxo simples e direto para comprar com seguranca: escolher, pagar e baixar.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {HOW_IT_WORKS.map((item) => (
+              <div key={item.step} className="rounded-2xl border border-[#1A1A1A] bg-[#0A0A0A] p-5">
+                <p className="text-[11px] font-bold text-[#666] tracking-wider">ETAPA {item.step}</p>
+                <h3 className="mt-2 text-white text-xl font-black">{item.title}</h3>
+                <p className="mt-3 text-sm text-[#666] leading-relaxed">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="py-12 md:py-14 bg-black">
         <div className="max-w-7xl mx-auto px-4">
           <div className="rounded-2xl border border-[#1A1A1A] bg-[#0A0A0A] p-6 md:p-8">
@@ -196,7 +235,7 @@ export default function Home() {
               <div>
                 <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">Transparencia em cada etapa da compra</h3>
                 <p className="mt-3 text-sm text-[#777] max-w-xl">
-                  Queremos que qualquer pessoa entenda como comprar, baixar e solicitar suporte sem dificuldade.
+                  Do checkout ao download, voce acompanha o que esta acontecendo e sabe exatamente qual e o proximo passo.
                 </p>
                 <div className="mt-5 space-y-3">
                   {SECURITY_POINTS.map((point) => (
@@ -205,6 +244,11 @@ export default function Home() {
                       <p className="text-sm text-[#666]">{point}</p>
                     </div>
                   ))}
+                </div>
+                <div className="mt-6 rounded-xl border border-[#1A1A1A] bg-black p-4">
+                  <p className="text-xs text-[#666] leading-relaxed">
+                    Voce recebe previsibilidade no processo: status do pedido, acesso aos arquivos e canais de suporte centralizados.
+                  </p>
                 </div>
               </div>
 
