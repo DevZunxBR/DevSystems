@@ -80,7 +80,7 @@ export default function Home() {
 
   return (
     <div>
-      <section className="relative min-h-[540px] md:min-h-[620px] overflow-hidden border-b border-[#1A1A1A] flex items-center">
+      <section className="relative overflow-hidden border-b border-[#1A1A1A]">
         <div className="absolute inset-0">
           {backgroundImages.map((image, index) => (
             <div
@@ -96,7 +96,7 @@ export default function Home() {
 
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/60" />
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 py-16 md:py-24 text-center">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 pt-16 pb-10 md:pt-24 md:pb-14 text-center">
           <div className="inline-flex items-center gap-2 border border-[#1A1A1A] bg-[#0A0A0A]/80 backdrop-blur-sm rounded-full px-4 py-1.5 text-xs text-[#999]">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             Marketplace profissional para assets e sistemas de desenvolvimento
