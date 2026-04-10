@@ -65,14 +65,14 @@ export default function Home() {
               aria-hidden={index !== currentImageIndex}
             >
               <img src={image} alt="Marketplace para desenvolvedores" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/75" />
+              <div className="absolute inset-0 bg-black/55" />
             </div>
           ))}
         </div>
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/35" />
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 pt-16 pb-10 md:pt-24 md:pb-14 text-center">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 pt-16 pb-4 md:pt-24 md:pb-6 text-center">
           <div className="inline-flex items-center gap-2 border border-[#1A1A1A] bg-[#0A0A0A]/80 backdrop-blur-sm rounded-full px-4 py-1.5 text-xs text-[#999]">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             Marketplace profissional para assets e sistemas de desenvolvimento
