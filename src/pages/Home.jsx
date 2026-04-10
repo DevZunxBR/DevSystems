@@ -53,7 +53,7 @@ export default function Home() {
                 alt="Background"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-black/70" />
+              <div className="absolute inset-0 bg-black/56" />
             </div>
           ))}
         </div>
