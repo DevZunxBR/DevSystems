@@ -1,4 +1,4 @@
-// src/pages/Documentation.jsx - Versão simples, apenas texto
+// src/pages/Documentation.jsx - Versão super simples
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Lock } from 'lucide-react';
@@ -38,22 +38,15 @@ export default function Documentation() {
       {/* Header */}
       <div className="border-b border-[#1A1A1A] bg-[#0A0A0A] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => navigate('/')} 
-                className="flex items-center gap-2 text-sm text-[#555] hover:text-white transition-colors"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Voltar
-              </button>
-              <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                  <span className="text-black font-black text-sm">M</span>
-                </div>
-                <span className="text-white font-bold tracking-tight">Marketplace</span>
-              </div>
-            </div>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => navigate('/')} 
+              className="flex items-center gap-2 text-sm text-[#555] hover:text-white transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Voltar
+            </button>
+            <h1 className="text-white font-bold text-lg">Documentação</h1>
           </div>
         </div>
       </div>
@@ -197,56 +190,26 @@ export default function Documentation() {
             </div>
           </div>
 
-          {/* Sidebar fixa na direita com Termos e Privacidade */}
-          <aside className="hidden lg:block w-56 flex-shrink-0">
-            <div className="sticky top-24 space-y-6">
-              {/* Navegação */}
-              <div>
-                <p className="text-xs font-bold text-[#444] uppercase tracking-wider mb-4">Conteúdo</p>
-                <nav className="space-y-1">
-                  {DOCS_SECTIONS.map((section) => (
-                    <button
-                      key={section.id}
-                      onClick={() => scrollToSection(section.id)}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
-                        activeSection === section.id
-                          ? 'bg-white text-black font-medium'
-                          : 'text-[#555] hover:text-white hover:bg-[#111]'
-                      }`}
-                    >
-                      {section.title}
-                    </button>
-                  ))}
-                </nav>
-              </div>
-
-              {/* Separador */}
-              <div className="border-t border-[#1A1A1A]"></div>
-
-              {/* Links Legais */}
-              <div>
-                <p className="text-xs font-bold text-[#444] uppercase tracking-wider mb-4">Legal</p>
-                <nav className="space-y-1">
-                  <button
-                    onClick={() => navigate('/terms')}
-                    className="w-full text-left px-3 py-2 rounded-lg text-sm text-[#555] hover:text-white hover:bg-[#111] transition-all"
-                  >
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-3.5 w-3.5" />
-                      Termos de Uso
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => navigate('/privacy')}
-                    className="w-full text-left px-3 py-2 rounded-lg text-sm text-[#555] hover:text-white hover:bg-[#111] transition-all"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Lock className="h-3.5 w-3.5" />
-                      Política de Privacidade
-                    </div>
-                  </button>
-                </nav>
-              </div>
+          {/* Sidebar fixa na direita - Apenas Termos e Privacidade */}
+          <aside className="hidden lg:block w-48 flex-shrink-0">
+            <div className="sticky top-24">
+              <p className="text-xs font-bold text-[#444] uppercase tracking-wider mb-4">Legal</p>
+              <nav className="space-y-1">
+                <button
+                  onClick={() => navigate('/terms')}
+                  className="w-full text-left px-3 py-2 rounded-lg text-sm text-[#555] hover:text-white hover:bg-[#111] transition-all flex items-center gap-2"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  Termos de Uso
+                </button>
+                <button
+                  onClick={() => navigate('/privacy')}
+                  className="w-full text-left px-3 py-2 rounded-lg text-sm text-[#555] hover:text-white hover:bg-[#111] transition-all flex items-center gap-2"
+                >
+                  <Lock className="h-3.5 w-3.5" />
+                  Política de Privacidade
+                </button>
+              </nav>
             </div>
           </aside>
         </div>
