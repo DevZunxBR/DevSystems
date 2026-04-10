@@ -1,7 +1,7 @@
-// src/pages/Documentation.jsx - Com sidebar fixa na direita e muito conteúdo
+// src/pages/Documentation.jsx - Estilo ClearlyDev
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { ChevronRight, ArrowLeft, FileText, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, FileText, Lock } from 'lucide-react';
 
 const DOCS_SECTIONS = [
   { id: 'introduction', title: 'Introdução' },
@@ -38,7 +38,7 @@ export default function Documentation() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className="min-h-screen bg-black">
       {/* Header */}
       <div className="border-b border-[#1A1A1A] bg-[#0A0A0A] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -72,12 +72,11 @@ export default function Documentation() {
         </div>
       </div>
 
-      <div className="flex-1 max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex gap-12">
           {/* Conteúdo principal - Esquerda */}
           <div className="flex-1 min-w-0">
             <div className="prose prose-invert max-w-none">
-              
               {/* Introduction */}
               <section id="introduction" className="scroll-mt-20 mb-12">
                 <h1 className="text-3xl font-black text-white mb-4">Documentação</h1>
@@ -378,7 +377,7 @@ export default function Documentation() {
             </div>
           </div>
 
-          {/* Sidebar fixa na direita */}
+          {/* Sidebar fixa na direita - Estilo ClearlyDev */}
           <aside className="hidden lg:block w-56 flex-shrink-0">
             <div className="sticky top-24">
               <p className="text-xs font-bold text-[#444] uppercase tracking-wider mb-4">Conteúdo</p>
