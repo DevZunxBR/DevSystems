@@ -46,7 +46,6 @@ export default function Documentation() {
               <ArrowLeft className="h-4 w-4" />
               Voltar
             </button>
-            <h1 className="text-white font-bold text-lg">Documentação</h1>
           </div>
         </div>
       </div>
