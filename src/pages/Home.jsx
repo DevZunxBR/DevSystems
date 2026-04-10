@@ -65,7 +65,7 @@ export default function Home() {
               aria-hidden={index !== currentImageIndex}
             >
               <img src={image} alt="Marketplace para desenvolvedores" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/55" />
+              <div className="absolute inset-0 bg-black/65" />
             </div>
           ))}
         </div>
