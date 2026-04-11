@@ -1,4 +1,5 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+﻿// src/pages/ProductDetail.jsx - Apenas cards cinzas removidos
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ShoppingCart,
@@ -81,7 +82,7 @@ export default function ProductDetail() {
     } catch (error) {
       console.error(error);
       setProduct(null);
-      setLoadError('Nao foi possivel carregar o produto.');
+      setLoadError('Não foi possível carregar o produto.');
     } finally {
       setLoading(false);
     }
@@ -126,7 +127,7 @@ export default function ProductDetail() {
       [
         { icon: FileBox, label: 'Tamanho', value: product?.file_size },
         { icon: Layers, label: 'Categoria', value: product?.category },
-        { icon: Settings, label: 'Versoes', value: product?.supported_versions },
+        { icon: Settings, label: 'Versões', value: product?.supported_versions },
         { icon: Tag, label: 'Tags', value: product?.tags?.join(', ') },
       ].filter((item) => item.value),
     [product]
@@ -184,7 +185,7 @@ export default function ProductDetail() {
       navigate('/cart');
     } catch (error) {
       console.error(error);
-      toast.error('Faca login primeiro');
+      toast.error('Faça login primeiro');
       navigate('/register');
     } finally {
       setAddingToCart(false);
@@ -214,7 +215,7 @@ export default function ProductDetail() {
       navigate('/checkout?direct=true');
     } catch (error) {
       console.error(error);
-      toast.error('Faca login primeiro');
+      toast.error('Faça login primeiro');
       navigate('/register');
     } finally {
       setBuyingNow(false);
@@ -245,7 +246,7 @@ export default function ProductDetail() {
   if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-[#555]">Produto nao encontrado</p>
+        <p className="text-[#555]">Produto não encontrado</p>
       </div>
     );
   }
@@ -259,13 +260,15 @@ export default function ProductDetail() {
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-10">
+        {/* Coluna da esquerda - Galeria e descrição */}
         <div className="lg:col-span-7 space-y-6">
-          <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-3 md:p-4 space-y-3">
+          {/* Galeria de imagens - SEM CARD CINZA */}
+          <div className="space-y-3">
             <div className="relative aspect-video bg-[#050505] border border-[#1A1A1A] rounded-xl overflow-hidden">
               {images.length > 0 ? (
                 <img src={images[selectedImage]} alt={product.title} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-[#555]">Sem imagem disponivel</div>
+                <div className="w-full h-full flex items-center justify-center text-[#555]">Sem imagem disponível</div>
               )}
 
               {images.length > 1 && (
@@ -290,40 +293,40 @@ export default function ProductDetail() {
             </div>
 
             {images.length > 1 && (
-              <div className="space-y-2">
-                <div className="flex gap-2 overflow-x-auto pb-1">
-                  {images.map((img, index) => (
-                    <button
-                      key={img + index}
-                      onClick={() => setSelectedImage(index)}
-                      className={`flex-shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                        index === selectedImage ? 'border-white' : 'border-[#1A1A1A] hover:border-[#333]'
-                      }`}
-                    >
-                      <img src={img} alt="" className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-                <p className="text-[11px] text-[#555]">Atalhos: use as teclas ← e → para trocar imagens.</p>
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {images.map((img, index) => (
+                  <button
+                    key={img + index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`flex-shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
+                      index === selectedImage ? 'border-white' : 'border-[#1A1A1A] hover:border-[#333]'
+                    }`}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
               </div>
             )}
           </div>
 
-          <div className="space-y-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-6">
-            <h2 className="text-lg font-bold text-white">Descricao</h2>
+          {/* Descrição - SEM CARD CINZA */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-white">Descrição</h2>
             <div className="prose prose-sm prose-invert max-w-none text-[#888]">
-              <ReactMarkdown>{product.long_description || product.description || 'Sem descricao disponivel.'}</ReactMarkdown>
+              <ReactMarkdown>{product.long_description || product.description || 'Sem descrição disponível.'}</ReactMarkdown>
             </div>
           </div>
 
-          <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-6">
+          {/* Reviews - SEM CARD CINZA */}
+          <div className="border-t border-[#1A1A1A] pt-6">
             <ReviewSection productId={product.id} />
           </div>
         </div>
 
+        {/* Coluna da direita - Informações do produto */}
         <div className="lg:col-span-3">
           <div className="sticky top-24 space-y-4">
-            <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-6 space-y-5">
+            <div className="space-y-5">
               <div>
                 <h1 className="text-xl font-bold text-white">{product.title}</h1>
                 {product.description && <p className="text-sm text-[#666] mt-1">{product.description}</p>}
@@ -338,15 +341,15 @@ export default function ProductDetail() {
               </div>
 
               <div className="flex items-end gap-2">
-                <span className="text-3xl font-black text-white">R${toNumber(displayPrice).toFixed(2)}</span>
+                <span className="text-3xl font-black text-white">R$ {toNumber(displayPrice).toFixed(2)}</span>
                 {hasDiscount && !currentLicense && toNumber(product.price_brl) > 0 && (
-                  <span className="text-lg text-[#555] line-through mb-0.5">R${toNumber(product.price_brl).toFixed(2)}</span>
+                  <span className="text-lg text-[#555] line-through mb-0.5">R$ {toNumber(product.price_brl).toFixed(2)}</span>
                 )}
               </div>
 
               {product.licenses?.length > 0 && (
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-[#666]">Licenca</label>
+                  <label className="text-xs font-medium text-[#666]">Licença</label>
                   <Select value={String(selectedLicense)} onValueChange={(value) => setSelectedLicense(Number(value))}>
                     <SelectTrigger className="bg-[#050505] border-[#1A1A1A] text-white">
                       <SelectValue />
@@ -354,7 +357,7 @@ export default function ProductDetail() {
                     <SelectContent className="bg-[#0A0A0A] border-[#1A1A1A]">
                       {product.licenses.map((license, index) => (
                         <SelectItem key={`${license.name}-${index}`} value={String(index)} className="text-white">
-                          {license.name} - R${toNumber(license.price_brl).toFixed(2)}
+                          {license.name} - R$ {toNumber(license.price_brl).toFixed(2)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -367,7 +370,7 @@ export default function ProductDetail() {
               <div className="space-y-2">
                 {isClosed ? (
                   <div className="w-full flex items-center justify-center gap-2 h-11 bg-[#111] border border-[#1A1A1A] rounded-xl text-[#555] text-sm font-semibold">
-                    <Lock className="h-4 w-4" /> Produto indisponivel
+                    <Lock className="h-4 w-4" /> Produto indisponível
                   </div>
                 ) : (
                   <>
