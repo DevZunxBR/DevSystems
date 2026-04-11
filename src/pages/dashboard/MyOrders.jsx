@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from 'react';
+﻿// src/pages/dashboard/MyOrders.jsx
+import { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Download, Clock, CheckCircle, XCircle, QrCode, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,15 +19,30 @@ export default function MyOrders() {
 
   useEffect(() => {
     loadOrders();
-    const stored = localStorage.getItem('downloaded_orders');
-    if (stored) {
+    loadLocalStorageData();
+  }, []);
+
+  const loadLocalStorageData = () => {
+    // Carregar pedidos com download
+    const storedDownloaded = localStorage.getItem('downloaded_orders');
+    if (storedDownloaded) {
       try {
-        setDownloadedOrderIds(JSON.parse(stored));
+        setDownloadedOrderIds(JSON.parse(storedDownloaded));
       } catch {
         setDownloadedOrderIds([]);
       }
     }
-  }, []);
+    
+    // Carregar pedidos com reembolso solicitado
+    const storedRefunded = localStorage.getItem('refunded_orders');
+    if (storedRefunded) {
+      try {
+        setRefundedOrderIds(JSON.parse(storedRefunded));
+      } catch {
+        setRefundedOrderIds([]);
+      }
+    }
+  };
 
   const loadOrders = async () => {
     try {
@@ -34,11 +50,16 @@ export default function MyOrders() {
       const allOrders = await base44.entities.Order.filter({ customer_email: me.email }, '-created_date');
       setOrders(allOrders || []);
 
+      // Buscar reembolsos do banco
       const refunds = await base44.entities.RefundRequest.filter({ user_email: me.email });
-      setRefundedOrderIds((refunds || []).map((refund) => refund.order_id));
+      const refundIds = (refunds || []).map((refund) => refund.order_id);
+      
+      // Mesclar com localStorage
+      const storedRefunded = JSON.parse(localStorage.getItem('refunded_orders') || '[]');
+      setRefundedOrderIds([...new Set([...refundIds, ...storedRefunded])]);
     } catch (error) {
       console.error(error);
-      toast.error('Nao foi possivel carregar seus pedidos.');
+      toast.error('Não foi possível carregar seus pedidos.');
     } finally {
       setLoading(false);
     }
@@ -52,14 +73,20 @@ export default function MyOrders() {
 
   const handleDownload = (order) => {
     if (order.status !== 'completed') {
-      toast.error('Pagamento nao confirmado');
+      toast.error('Pagamento não confirmado');
+      return;
+    }
+
+    // Verificar se já solicitou reembolso
+    if (refundedOrderIds.includes(order.id)) {
+      toast.error('Este pedido possui solicitação de reembolso pendente');
       return;
     }
 
     const urls = (order.items || []).map((item) => item.file_url).filter(Boolean);
 
     if (urls.length === 0) {
-      toast.error('Nenhum arquivo disponivel para download.');
+      toast.error('Nenhum arquivo disponível para download.');
       return;
     }
 
@@ -82,9 +109,15 @@ export default function MyOrders() {
     return Date.now() - createdAt.getTime() < hours48;
   };
 
+  const canDownload = (order) => {
+    if (order.status !== 'completed') return false;
+    if (refundedOrderIds.includes(order.id)) return false;
+    return true;
+  };
+
   const statusConfig = {
     pending: { icon: Clock, label: 'Aguardando Pagamento', className: 'text-[#666]' },
-    completed: { icon: CheckCircle, label: 'Concluido', className: 'text-white' },
+    completed: { icon: CheckCircle, label: 'Concluído', className: 'text-white' },
     cancelled: { icon: XCircle, label: 'Cancelado', className: 'text-red-500' },
   };
 
@@ -100,7 +133,7 @@ export default function MyOrders() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-black text-white tracking-tight">Meus Pedidos</h1>
-        <p className="text-sm text-[#555] mt-1">Historico de compras e downloads</p>
+        <p className="text-sm text-[#555] mt-1">Histórico de compras e downloads</p>
       </div>
 
       {orders.length === 0 ? (
@@ -113,7 +146,9 @@ export default function MyOrders() {
             const status = statusConfig[order.status] || statusConfig.pending;
             const StatusIcon = status.icon;
             const refundable = canRefund(order);
+            const showDownload = canDownload(order);
             const orderDate = getOrderDate(order);
+            const hasRefundRequest = refundedOrderIds.includes(order.id);
 
             return (
               <div key={order.id} className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
@@ -131,10 +166,15 @@ export default function MyOrders() {
                           })
                         : '-'}
                     </span>
+                    {hasRefundRequest && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500">
+                        Reembolso solicitado
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-2 flex-wrap">
-                    <div className="text-sm font-bold text-white">R${Number(order.total_amount || 0).toFixed(2)}</div>
+                    <div className="text-sm font-bold text-white">R$ {Number(order.total_amount || 0).toFixed(2)}</div>
                     {order.status === 'pending' && order.pix_code && order.pix_code !== 'WALLET_PAYMENT' && (
                       <Button
                         size="sm"
@@ -170,7 +210,8 @@ export default function MyOrders() {
                         <div className="text-xs text-[#555]">{item.license_name}</div>
                       </div>
 
-                      {order.status === 'completed' && item.file_url && (
+                      {/* Botão de download individual - só aparece se não tiver reembolso */}
+                      {order.status === 'completed' && item.file_url && showDownload && (
                         <Button
                           size="sm"
                           variant="outline"
@@ -183,13 +224,24 @@ export default function MyOrders() {
                           <Download className="h-3 w-3" /> Download
                         </Button>
                       )}
+                      
+                      {/* Mostrar que reembolso foi solicitado */}
+                      {order.status === 'completed' && !showDownload && hasRefundRequest && (
+                        <div className="text-xs text-yellow-500 bg-yellow-500/10 px-2 py-1 rounded-lg">
+                          Aguardando análise
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
 
-                {order.status === 'completed' && (
+                {/* Botão "Baixar Todos" - só aparece se não tiver reembolso */}
+                {order.status === 'completed' && showDownload && (
                   <div className="px-4 pb-4">
-                    <Button onClick={() => handleDownload(order)} className="bg-white text-black hover:bg-white/90 gap-2 text-sm w-full sm:w-auto">
+                    <Button 
+                      onClick={() => handleDownload(order)} 
+                      className="bg-white text-black hover:bg-white/90 gap-2 text-sm w-full sm:w-auto"
+                    >
                       <Download className="h-4 w-4" /> Baixar Todos
                     </Button>
                   </div>
@@ -217,7 +269,9 @@ export default function MyOrders() {
           onClose={() => setRefundOrder(null)}
           onSuccess={(orderId) => {
             setRefundedOrderIds((prev) => [...new Set([...prev, orderId])]);
+            localStorage.setItem('refunded_orders', JSON.stringify([...refundedOrderIds, orderId]));
             setRefundOrder(null);
+            toast.info('Botões de download foram desabilitados para este pedido');
           }}
         />
       )}
