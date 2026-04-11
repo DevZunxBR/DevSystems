@@ -1,3 +1,4 @@
+// src/components/products/FavoriteButton.jsx - Versão melhorada
 import { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -6,6 +7,7 @@ import { toast } from 'sonner';
 export default function FavoriteButton({ product, className = '' }) {
   const [favoriteId, setFavoriteId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     checkFavorite();
@@ -56,10 +58,30 @@ export default function FavoriteButton({ product, className = '' }) {
   return (
     <button
       onClick={toggle}
-      className={`p-1.5 rounded-lg transition-colors ${isFav ? 'text-red-500 bg-red-500/10' : 'text-[#555] hover:text-red-400 bg-black/40'} ${className}`}
-      title={isFav ? 'Remover favorito' : 'Favoritar'}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`group relative flex items-center justify-center gap-1.5 p-2 rounded-lg transition-all duration-200 ${
+        isFav 
+          ? 'text-red-500 bg-red-500/10 hover:bg-red-500/15' 
+          : 'text-[#555] hover:text-red-400 bg-black/40 hover:bg-red-500/10'
+      } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
+      title={isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+      disabled={loading}
     >
-      <Heart className={`h-4 w-4 ${isFav ? 'fill-red-500' : ''}`} />
+      <Heart 
+        className={`h-4 w-4 transition-all duration-200 ${
+          isFav 
+            ? 'fill-red-500' 
+            : isHovered 
+              ? 'fill-red-500/20' 
+              : ''
+        } ${loading ? 'animate-pulse' : ''}`} 
+      />
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-3 h-3 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
     </button>
   );
 }
