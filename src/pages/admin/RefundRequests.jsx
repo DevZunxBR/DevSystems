@@ -7,6 +7,7 @@ import { Clock, CheckCircle, XCircle, Copy } from 'lucide-react';
 export default function RefundRequests() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState(null);
 
   useEffect(() => {
     loadRequests();
@@ -19,24 +20,31 @@ export default function RefundRequests() {
       const now = Date.now();
       const valid = all.filter(r => new Date(r.expires_at).getTime() > now && !r.downloaded);
       setRequests(valid);
-    } catch {}
-    finally { setLoading(false); }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAction = async (id, status) => {
+    setProcessingId(id);
     try {
       const r = requests.find(req => req.id === id);
       
+      // Atualiza status do reembolso
       await base44.entities.RefundRequest.update(id, { status });
       
       if (status === 'approved' && r) {
-        // Atualiza o pedido para status refunded
+        // Busca o pedido original
         const orders = await base44.entities.Order.filter({ id: r.order_id });
         const order = orders[0];
         if (order) {
+          // Atualiza status do pedido para refunded
           await base44.entities.Order.update(order.id, { status: 'refunded' });
         }
         
+        // Notifica o usuário
         await base44.entities.Notification.create({
           user_email: r.user_email,
           title: 'Reembolso Aprovado',
@@ -58,11 +66,14 @@ export default function RefundRequests() {
         toast.success('Reembolso negado');
       }
       
-      setRequests(requests.filter(req => req.id !== id));
+      // Remove da lista local
+      setRequests(prev => prev.filter(req => req.id !== id));
       
     } catch (error) {
       console.error(error);
       toast.error('Falha ao processar solicitação');
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -125,7 +136,12 @@ export default function RefundRequests() {
                   <div className="text-xs text-[#555] mb-1">Chave PIX para reembolso</div>
                   <div className="flex items-center gap-2">
                     <div className="text-sm text-white font-mono bg-[#111] px-3 py-2 rounded-lg flex-1">{r.pix_key}</div>
-                    <Button size="sm" variant="outline" onClick={() => copyPixKey(r.pix_key)} className="border-[#1A1A1A] text-[#666] hover:bg-[#111] hover:text-white h-9">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => copyPixKey(r.pix_key)} 
+                      className="border-[#1A1A1A] text-[#666] hover:bg-[#111] hover:text-white h-9"
+                    >
                       <Copy className="h-3.5 w-3.5" />
                     </Button>
                   </div>
@@ -133,10 +149,24 @@ export default function RefundRequests() {
               </div>
 
               <div className="flex gap-3 px-4 pb-4">
-                <Button onClick={() => handleAction(r.id, 'approved')} className="bg-white text-black hover:bg-white/90 font-semibold gap-2 text-sm">
-                  <CheckCircle className="h-4 w-4" /> Aprovar (fazer PIX manual)
+                <Button 
+                  onClick={() => handleAction(r.id, 'approved')} 
+                  disabled={processingId === r.id}
+                  className="bg-white text-black hover:bg-white/90 font-semibold gap-2 text-sm"
+                >
+                  {processingId === r.id ? (
+                    <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <CheckCircle className="h-4 w-4" />
+                  )}
+                  Aprovar (fazer PIX manual)
                 </Button>
-                <Button onClick={() => handleAction(r.id, 'denied')} variant="outline" className="border-[#1A1A1A] text-[#666] hover:bg-[#111] hover:text-white text-sm">
+                <Button 
+                  onClick={() => handleAction(r.id, 'denied')} 
+                  disabled={processingId === r.id}
+                  variant="outline" 
+                  className="border-[#1A1A1A] text-[#666] hover:bg-[#111] hover:text-white text-sm"
+                >
                   <XCircle className="h-4 w-4" /> Negar
                 </Button>
               </div>
