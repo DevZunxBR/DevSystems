@@ -1,9 +1,10 @@
-// src/pages/dashboard/Dashboard.jsx
-import { useState, useEffect } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { base44, supabase } from '@/api/base44Client';
 import { Package, DollarSign, Clock, CheckCircle, Wallet, Gift, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+
+const getOrderDate = (order) => order?.created_date || order?.created_at || null;
 
 export default function DashboardHome() {
   const [orders, setOrders] = useState([]);
@@ -11,6 +12,7 @@ export default function DashboardHome() {
   const [gifts, setGifts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activityLog, setActivityLog] = useState([]);
+  const [processingGiftId, setProcessingGiftId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,35 +24,65 @@ export default function DashboardHome() {
     try {
       const me = await base44.auth.me();
       const [allOrders, wallets, pendingGifts] = await Promise.all([
-        base44.entities.Order.filter({ customer_email: me.email }, '-created_at'),
+        base44.entities.Order.filter({ customer_email: me.email }, '-created_date'),
         base44.entities.Wallet.filter({ user_email: me.email }),
-        supabase.from('gifts').select('*').eq('recipient_email', me.email).eq('status', 'pending').order('created_at', { ascending: false }),
+        supabase
+          .from('gifts')
+          .select('*')
+          .eq('recipient_email', me.email)
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false }),
       ]);
-      setOrders(allOrders);
-      setGifts(pendingGifts.data || []);
-      if (wallets.length > 0) setWallet(wallets[0]);
-      else {
-        const w = await base44.entities.Wallet.create({ user_email: me.email, balance_usd: 0, transactions: [] });
-        setWallet(w);
+
+      setOrders(allOrders || []);
+      setGifts(pendingGifts?.data || []);
+
+      if (wallets?.length > 0) {
+        setWallet(wallets[0]);
+      } else {
+        const createdWallet = await base44.entities.Wallet.create({
+          user_email: me.email,
+          balance_usd: 0,
+          transactions: [],
+        });
+        setWallet(createdWallet);
       }
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
+    } catch (error) {
+      console.error(error);
+      toast.error('Nao foi possivel carregar o dashboard.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const loadActivityLog = () => {
     const stored = localStorage.getItem('activity_log');
     const log = stored ? JSON.parse(stored) : [];
-    const now = { ip: '•••.•••.•••.•••', date: new Date().toISOString(), type: 'login' };
-    const updated = [now, ...log].slice(0, 10);
+    const lastEntry = log[0];
+
+    const isRecentLogin =
+      lastEntry?.type === 'login' &&
+      typeof lastEntry?.date === 'string' &&
+      Date.now() - new Date(lastEntry.date).getTime() < 15 * 60 * 1000;
+
+    const loginEntry = {
+      ip: '***.***.***.***',
+      date: new Date().toISOString(),
+      type: 'login',
+    };
+
+    const updated = (isRecentLogin ? log : [loginEntry, ...log]).slice(0, 10);
     localStorage.setItem('activity_log', JSON.stringify(updated));
     setActivityLog(updated);
   };
 
   const handleAcceptGift = async (gift) => {
+    if (processingGiftId) return;
+    setProcessingGiftId(gift.id);
+
     try {
       const me = await base44.auth.me();
 
-      // Criar pedido para o destinatário com status completed
       await base44.entities.Order.create({
         customer_email: me.email,
         customer_name: me.full_name || me.email,
@@ -58,14 +90,16 @@ export default function DashboardHome() {
         payment_method: 'gift',
         currency: 'BRL',
         total_amount: 0,
-        items: [{
-          product_id: gift.product_id,
-          product_title: gift.product_title,
-          license_name: gift.license_name,
-          price: 0,
-          thumbnail: gift.product_thumbnail,
-          file_url: gift.file_url,
-        }],
+        items: [
+          {
+            product_id: gift.product_id,
+            product_title: gift.product_title,
+            license_name: gift.license_name,
+            price: 0,
+            thumbnail: gift.product_thumbnail,
+            file_url: gift.file_url,
+          },
+        ],
         billing_name: me.full_name || me.email,
         billing_email: me.email,
         pix_code: 'GIFT_ACCEPTED',
@@ -73,10 +107,8 @@ export default function DashboardHome() {
         download_expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
       });
 
-      // Atualiza status do presente
       await supabase.from('gifts').update({ status: 'accepted' }).eq('id', gift.id);
 
-      // Notifica o remetente
       await base44.entities.Notification.create({
         user_email: gift.sender_email,
         title: 'Presente aceito!',
@@ -86,15 +118,20 @@ export default function DashboardHome() {
         link: '/dashboard',
       });
 
-      setGifts(prev => prev.filter(g => g.id !== gift.id));
-      toast.success('Presente aceito! O produto está disponível na seção "Meus Pedidos" para download.');
-    } catch (e) {
-      console.error(e);
+      setGifts((prev) => prev.filter((item) => item.id !== gift.id));
+      toast.success('Presente aceito! O produto esta disponivel em "Meus Pedidos".');
+    } catch (error) {
+      console.error(error);
       toast.error('Erro ao aceitar presente');
+    } finally {
+      setProcessingGiftId(null);
     }
   };
 
   const handleDeclineGift = async (gift) => {
+    if (processingGiftId) return;
+    setProcessingGiftId(gift.id);
+
     try {
       await supabase.from('gifts').update({ status: 'declined' }).eq('id', gift.id);
 
@@ -107,38 +144,42 @@ export default function DashboardHome() {
         link: '/dashboard',
       });
 
-      setGifts(prev => prev.filter(g => g.id !== gift.id));
+      setGifts((prev) => prev.filter((item) => item.id !== gift.id));
       toast.success('Presente recusado.');
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error('Erro ao recusar presente');
+    } finally {
+      setProcessingGiftId(null);
     }
   };
 
-  const totalSpent = orders.reduce((sum, o) => sum + (o.status === 'completed' ? o.total_amount : 0), 0);
-  const pendingCount = orders.filter(o => o.status === 'pending').length;
-  const completedCount = orders.filter(o => o.status === 'completed').length;
+  const totalSpent = orders.reduce((sum, order) => sum + (order.status === 'completed' ? Number(order.total_amount || 0) : 0), 0);
+  const pendingCount = orders.filter((order) => order.status === 'pending').length;
+  const completedCount = orders.filter((order) => order.status === 'completed').length;
 
   const stats = [
     { icon: Package, label: 'Total de Pedidos', value: orders.length },
     { icon: DollarSign, label: 'Total Gasto', value: `R$${totalSpent.toFixed(2)}` },
     { icon: Clock, label: 'Pendentes', value: pendingCount },
-    { icon: CheckCircle, label: 'Concluídos', value: completedCount },
+    { icon: CheckCircle, label: 'Concluidos', value: completedCount },
   ];
 
-  if (loading) return (
-    <div className="flex justify-center py-20">
-      <div className="w-8 h-8 border-2 border-[#1A1A1A] border-t-white rounded-full animate-spin" />
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="w-8 h-8 border-2 border-[#1A1A1A] border-t-white rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
-        <p className="text-sm text-[#555] mt-1">Visão geral da sua conta</p>
+        <p className="text-sm text-[#555] mt-1">Visao geral da sua conta</p>
       </div>
 
-      {/* Presentes recebidos */}
       {gifts.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
@@ -146,43 +187,39 @@ export default function DashboardHome() {
             <h2 className="text-lg font-bold text-white">Presentes Recebidos</h2>
             <span className="bg-white/10 text-white text-xs font-bold px-2 py-0.5 rounded-full">{gifts.length}</span>
           </div>
+
           <div className="space-y-3">
-            {gifts.map(gift => (
+            {gifts.map((gift) => (
               <div key={gift.id} className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
                 <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  {/* Thumbnail */}
                   <div className="w-14 h-14 bg-[#111] rounded-lg overflow-hidden flex-shrink-0">
                     {gift.product_thumbnail && <img src={gift.product_thumbnail} alt="" className="w-full h-full object-cover" />}
                   </div>
 
-                  {/* Info */}
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs bg-white/10 text-white px-2 py-0.5 rounded-full font-medium">🎁 Presente</span>
+                      <span className="text-xs bg-white/10 text-white px-2 py-0.5 rounded-full font-medium">Presente</span>
                     </div>
                     <p className="text-sm font-semibold text-white">{gift.product_title}</p>
                     <p className="text-xs text-[#555]">
                       De: <span className="text-white font-medium">{gift.sender_name || gift.sender_email}</span>
                     </p>
-                    {gift.message && (
-                      <p className="text-xs text-[#555] italic">"{gift.message}"</p>
-                    )}
-                    <p className="text-[10px] text-[#555]/60">
-                      {new Date(gift.created_at).toLocaleDateString('pt-BR')}
-                    </p>
+                    {gift.message && <p className="text-xs text-[#555] italic">"{gift.message}"</p>}
+                    <p className="text-[10px] text-[#555]/60">{new Date(gift.created_at).toLocaleDateString('pt-BR')}</p>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex gap-2 flex-shrink-0">
                     <button
                       onClick={() => handleAcceptGift(gift)}
-                      className="flex items-center gap-1.5 h-9 px-4 bg-white text-black text-xs font-bold rounded-lg hover:bg-white/90 transition-colors"
+                      disabled={processingGiftId === gift.id}
+                      className="flex items-center gap-1.5 h-9 px-4 bg-white text-black text-xs font-bold rounded-lg hover:bg-white/90 transition-colors disabled:opacity-60"
                     >
                       <Check className="h-3.5 w-3.5" /> Aceitar
                     </button>
                     <button
                       onClick={() => handleDeclineGift(gift)}
-                      className="flex items-center gap-1.5 h-9 px-3 border border-[#1A1A1A] text-[#555] text-xs rounded-lg hover:bg-[#111] transition-colors"
+                      disabled={processingGiftId === gift.id}
+                      className="flex items-center gap-1.5 h-9 px-3 border border-[#1A1A1A] text-[#555] text-xs rounded-lg hover:bg-[#111] transition-colors disabled:opacity-60"
                     >
                       <X className="h-3.5 w-3.5" /> Recusar
                     </button>
@@ -194,7 +231,6 @@ export default function DashboardHome() {
         </div>
       )}
 
-      {/* Wallet */}
       <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6 space-y-4">
         <div className="flex items-center gap-3">
           <Wallet className="h-5 w-5 text-white" />
@@ -205,12 +241,12 @@ export default function DashboardHome() {
         </div>
         {wallet?.transactions?.length > 0 && (
           <div className="space-y-2 pt-2 border-t border-[#1A1A1A]">
-            <div className="text-xs font-medium text-[#555]">Transações recentes</div>
-            {wallet.transactions.slice(-3).reverse().map((tx, i) => (
-              <div key={i} className="flex justify-between text-xs">
+            <div className="text-xs font-medium text-[#555]">Transacoes recentes</div>
+            {wallet.transactions.slice(-3).reverse().map((tx, index) => (
+              <div key={index} className="flex justify-between text-xs">
                 <span className="text-[#555]">{tx.description}</span>
                 <span className={`font-semibold ${tx.amount > 0 ? 'text-green-500' : 'text-red-400'}`}>
-                  {tx.amount > 0 ? '+' : ''}R${tx.amount?.toFixed(2)}
+                  {tx.amount > 0 ? '+' : ''}R${Number(tx.amount || 0).toFixed(2)}
                 </span>
               </div>
             ))}
@@ -218,7 +254,6 @@ export default function DashboardHome() {
         )}
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => (
           <div key={stat.label} className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-5">
@@ -229,19 +264,19 @@ export default function DashboardHome() {
         ))}
       </div>
 
-      {/* Recent Orders */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-white">Pedidos Recentes</h2>
           {orders.length > 0 && (
-            <button 
+            <button
               onClick={() => navigate('/dashboard/orders')}
               className="text-xs text-[#555] hover:text-white flex items-center gap-1 transition-colors"
             >
-              Ver todos →
+              Ver todos ->
             </button>
           )}
         </div>
+
         {orders.length === 0 ? (
           <p className="text-sm text-[#555]">Nenhum pedido ainda.</p>
         ) : (
@@ -251,18 +286,17 @@ export default function DashboardHome() {
                 <div className="flex items-center gap-3">
                   <div className={`w-2 h-2 rounded-full ${order.status === 'completed' ? 'bg-white' : 'bg-[#555]'}`} />
                   <div>
-                    <div className="text-sm font-medium text-white">
-                      {order.items?.map(i => i.product_title).join(', ') || 'Pedido'}
-                    </div>
+                    <div className="text-sm font-medium text-white">{order.items?.map((item) => item.product_title).join(', ') || 'Pedido'}</div>
                     <div className="text-xs text-[#555]">
-                      {new Date(order.created_at).toLocaleDateString('pt-BR')}
+                      {getOrderDate(order) ? new Date(getOrderDate(order)).toLocaleDateString('pt-BR') : '-'}
                     </div>
                   </div>
                 </div>
+
                 <div className="text-right">
-                  <div className="text-sm font-bold text-white">R${order.total_amount?.toFixed(2)}</div>
+                  <div className="text-sm font-bold text-white">R${Number(order.total_amount || 0).toFixed(2)}</div>
                   <div className={`text-xs capitalize ${order.status === 'completed' ? 'text-white' : 'text-[#555]'}`}>
-                    {order.status === 'completed' ? 'Concluído' : order.status === 'pending' ? 'Pendente' : 'Cancelado'}
+                    {order.status === 'completed' ? 'Concluido' : order.status === 'pending' ? 'Pendente' : 'Cancelado'}
                   </div>
                 </div>
               </div>
@@ -271,7 +305,6 @@ export default function DashboardHome() {
         )}
       </div>
 
-      {/* Activity Log */}
       <div className="space-y-4">
         <h2 className="text-lg font-bold text-white">Log de Atividades</h2>
         <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
@@ -280,16 +313,16 @@ export default function DashboardHome() {
               <tr className="border-b border-[#1A1A1A] bg-[#111]">
                 <th className="text-left px-4 py-3 font-medium text-[#555]">IP</th>
                 <th className="text-left px-4 py-3 font-medium text-[#555]">Evento</th>
-                <th className="text-left px-4 py-3 font-medium text-[#555]">Data & Hora</th>
-               </tr>
+                <th className="text-left px-4 py-3 font-medium text-[#555]">Data e Hora</th>
+              </tr>
             </thead>
             <tbody>
-              {activityLog.map((log, i) => (
-                <tr key={i} className="border-b border-[#1A1A1A] last:border-0 hover:bg-[#111] transition-colors">
+              {activityLog.map((log, index) => (
+                <tr key={index} className="border-b border-[#1A1A1A] last:border-0 hover:bg-[#111] transition-colors">
                   <td className="px-4 py-3 font-mono text-[#555]">{log.ip}</td>
                   <td className="px-4 py-3 text-white capitalize">{log.type}</td>
                   <td className="px-4 py-3 text-[#555]">{new Date(log.date).toLocaleString('pt-BR')}</td>
-                 </tr>
+                </tr>
               ))}
             </tbody>
           </table>
