@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Copy, Check, Shield, CheckCircle, Info, X } from 'lucide-react';
+import { Copy, Check, Shield, CheckCircle, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import QRCode from 'qrcode';
 
@@ -39,7 +39,6 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
   const qrContainerRef        = useRef(null);
   const qrRendered            = useRef(false);
 
-  // reset + gera código
   useEffect(() => {
     if (!open) {
       setReady(false);
@@ -61,12 +60,11 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
     return () => clearTimeout(t);
   }, [open, total]);
 
-  // renderiza QR
   useEffect(() => {
     if (!ready || !qrContainerRef.current || !pixCode || qrRendered.current) return;
     qrRendered.current = true;
     QRCode.toDataURL(pixCode, {
-      width: 200,
+      width: 180,
       margin: 2,
       color: { dark: '#000000', light: '#ffffff' },
     }).then((url) => {
@@ -74,10 +72,10 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
       qrContainerRef.current.innerHTML = '';
       const img = document.createElement('img');
       img.src = url;
-      img.width = 200;
-      img.height = 200;
+      img.width = 180;
+      img.height = 180;
       img.style.display = 'block';
-      img.style.borderRadius = '12px';
+      img.style.borderRadius = '0';
       qrContainerRef.current.appendChild(img);
     }).catch(console.error);
   }, [ready, pixCode]);
@@ -91,162 +89,154 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
 
   if (!open) return null;
 
-  const itemName = cartItems?.[0]?.name ?? cartItems?.[0]?.product_title ?? 'Asset digital';
+  const itemName = cartItems?.[0]?.name ?? 'Asset digital';
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col">
-      {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-[#1A1A1A] bg-[#0A0A0A]">
+    <div className="fixed inset-0 z-50 bg-[#060606] flex flex-col">
+
+      {/* Topbar */}
+      <div className="flex-shrink-0 flex items-center justify-between px-6 py-3.5 border-b border-[#141414] bg-[#080808]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-            <span className="text-black font-black text-xs">M</span>
+          <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center">
+            <span className="text-black font-black text-[10px] tracking-tighter">M</span>
           </div>
-          <span className="text-white font-bold text-sm tracking-tight">Marketplace</span>
+          <span className="text-white font-bold text-[13px] tracking-tight">Marketplace</span>
         </div>
-        <button onClick={onClose} className="text-[#555] hover:text-white transition-colors">
-          <X className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-1.5 bg-[#0f0f0f] border border-[#1e1e1e] rounded-full px-3 py-1.5">
+          <Shield className="h-2.5 w-2.5 text-[#333]" />
+          <span className="text-[10px] text-[#333] font-semibold">SSL · Banco Central</span>
+        </div>
       </div>
 
-      {/* Body - Layout responsivo */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Conteúdo principal - scrollável */}
-        <div className="flex-1 overflow-y-auto px-6 py-8">
-          {!ready ? (
-            <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-              <div className="w-10 h-10 border-2 border-[#1A1A1A] border-t-white rounded-full animate-spin" />
-              <p className="text-sm text-[#555]">Gerando código PIX...</p>
+      {/* Body */}
+      <div className="flex flex-1 min-h-0">
+
+        {/* Main */}
+        <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center px-8 py-10">
+
+          {!ready && (
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-8 h-8 border border-[#1c1c1c] border-t-[#555] rounded-full animate-spin" />
+              <p className="text-[12px] text-[#333]">Gerando código PIX...</p>
             </div>
-          ) : (
-            <div className="max-w-md mx-auto space-y-6">
-              {/* Título */}
-              <div className="text-center space-y-2">
-                <div className="w-14 h-14 bg-green-500/10 rounded-full flex items-center justify-center mx-auto">
-                  <CheckCircle className="h-7 w-7 text-green-500" />
+          )}
+
+          {ready && (
+            <div className="w-full max-w-[380px] flex flex-col items-center gap-5">
+
+              {/* Ícone + título */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-14 h-14 rounded-full border-2 border-[#2a2a2a] flex items-center justify-center">
+                  <CheckCircle className="h-6 w-6 text-[#666]" strokeWidth={1.5} />
                 </div>
-                <h2 className="text-xl font-black text-white">Pedido realizado com sucesso</h2>
-                <p className="text-sm text-[#555]">Estamos quase lá! Finalize o pagamento.</p>
+                <div className="text-center">
+                  <h2 className="text-[18px] font-black text-white tracking-tight mb-1">
+                    Pedido realizado com sucesso
+                  </h2>
+                  <p className="text-[12px] text-[#444]">Estamos quase lá! Finalize o pagamento.</p>
+                </div>
               </div>
 
               {/* QR Code */}
-              <div className="bg-white rounded-2xl p-4 flex justify-center">
-                <div ref={qrContainerRef} className="w-52 h-52" />
-              </div>
-              <div className="text-center">
-                <span className="text-[10px] text-[#555] bg-[#0A0A0A] px-3 py-1 rounded-full border border-[#1A1A1A]">
-                  PIX
-                </span>
+              <div style={{ background: '#fff', padding: '12px', display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <div ref={qrContainerRef} style={{ lineHeight: 0, fontSize: 0 }} />
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#00c2ff]" />
+                  <span className="text-[9px] font-black text-[#777] tracking-widest uppercase">pix</span>
+                </div>
               </div>
 
-              {/* Código PIX */}
-              <div className="space-y-2">
-                <label className="text-xs text-[#555]">Código PIX (Copia e Cola)</label>
-                <div className="flex border border-[#1A1A1A] rounded-xl overflow-hidden">
-                  <div className="flex-1 bg-[#0A0A0A] px-4 py-3 font-mono text-xs text-[#555] break-all max-h-24 overflow-y-auto">
-                    {pixCode}
-                  </div>
-                  <button
-                    onClick={handleCopy}
-                    className={`flex-shrink-0 px-5 transition-all ${
-                      copied
-                        ? 'bg-green-500/10 text-green-500 border-l border-green-500/20'
-                        : 'bg-white text-black hover:bg-white/90'
-                    }`}
-                  >
-                    {copied ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
-                  </button>
+              {/* Campo código + botão copiar - CORRIGIDO: texto quebra linha */}
+              <div className="w-full flex border border-[#1e1e1e] rounded-xl overflow-hidden">
+                <div className="flex-1 bg-[#0a0a0a] px-3.5 py-3 font-mono text-[11px] text-[#555] break-words min-w-0">
+                  {pixCode}
                 </div>
+                <button
+                  onClick={handleCopy}
+                  className={`flex-shrink-0 flex items-center justify-center w-12 transition-all
+                    ${copied
+                      ? 'bg-[#0f1a0f] text-[#4ade80] border-l border-[#1e3a1e]'
+                      : 'bg-white text-black hover:opacity-90'
+                    }`}
+                >
+                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </button>
               </div>
 
               {/* Passo a passo */}
-              <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-4 space-y-3">
-                <p className="text-xs font-semibold text-white">Como pagar via PIX</p>
-                <div className="space-y-2">
-                  {[
-                    'Acesse o aplicativo do seu banco',
-                    'Escolha pagar com PIX Copia e Cola',
-                    'Cole o código e confirme o pagamento'
-                  ].map((s, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <div className="w-5 h-5 rounded-full bg-[#111] border border-[#1A1A1A] flex items-center justify-center">
-                        <span className="text-[10px] text-[#555] font-bold">{i + 1}</span>
-                      </div>
-                      <span className="text-sm text-[#666]">{s}</span>
-                    </div>
-                  ))}
-                </div>
+              <div className="w-full flex flex-col gap-2">
+                {[
+                  'Acesse o aplicativo do seu banco',
+                  'Escolha pagar com Pix Copia e Cola',
+                  'Copie e cole o código e confirme o pagamento',
+                ].map((s, i) => (
+                  <div key={i} className="flex items-center gap-2.5">
+                    <span className="text-[11px] text-[#444] font-bold">{i + 1}.</span>
+                    <span className="text-[12px] text-[#3a3a3a]">{s}</span>
+                  </div>
+                ))}
               </div>
 
               {/* Nota informativa */}
-              <div className="flex items-start gap-3 p-3 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl">
-                <Info className="h-4 w-4 text-[#555] flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-[#555] leading-relaxed">
-                  <span className="text-white font-medium">Este código tem validade de 15 minutos.</span>{' '}
-                  Após o pagamento, o pedido será aprovado em até 30 minutos em dias úteis.
+              <div className="w-full flex items-start gap-2.5 bg-[#0a0a0a] border border-[#151515] rounded-lg px-3.5 py-3">
+                <Info className="h-3.5 w-3.5 text-[#2a2a2a] flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                <p className="text-[11px] text-[#333] leading-relaxed">
+                  <span className="text-[#444] font-semibold">Este código tem validade de 15 minutos.</span>{' '}
+                  Assim que realizar o pagamento, o pedido será aprovado e você receberá um e-mail de confirmação.
                 </p>
               </div>
 
               {/* Botão voltar */}
               <button
                 onClick={onClose}
-                className="w-full py-3 border border-[#1A1A1A] rounded-xl bg-transparent text-[#666] text-sm font-medium hover:border-[#333] hover:text-white transition-all"
+                className="w-full py-3.5 border border-[#222] rounded-xl bg-transparent text-[#888] text-[13px] font-bold hover:border-[#444] hover:text-white transition-all"
               >
-                Voltar
+                Voltar ao dashboard
               </button>
+
             </div>
           )}
         </div>
 
-        {/* Sidebar direita - Desktop */}
-        <aside className="hidden lg:flex flex-col w-80 flex-shrink-0 border-l border-[#1A1A1A] bg-[#0A0A0A] overflow-y-auto">
-          <div className="p-6 space-y-6">
-            {/* Resumo */}
-            <div>
-              <h3 className="text-xs font-semibold text-white mb-4">Resumo do pedido</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#555]">{itemName}</span>
-                  <span className="text-white">R$ {total?.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#555]">Forma de pagamento</span>
-                  <span className="text-white">PIX</span>
-                </div>
-                <div className="border-t border-[#1A1A1A] pt-3 mt-2">
-                  <div className="flex justify-between">
-                    <span className="text-white font-bold">Total</span>
-                    <span className="text-white font-black text-lg">R$ {total?.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
+        {/* Sidebar direita */}
+        <aside className="hidden lg:flex flex-col w-60 flex-shrink-0 border-l border-[#111] bg-[#080808] overflow-y-auto">
+          <div className="px-5 py-5 border-b border-[#111]">
+            <p className="text-[9px] text-[#282828] font-bold uppercase tracking-widest mb-3">Resumo do pedido</p>
+            <div className="flex justify-between items-baseline mb-2.5">
+              <span className="text-[11px] text-[#333]">{itemName}</span>
+              <span className="text-[11px] text-[#666] font-semibold">R$ {(total || 0).toFixed(2)}</span>
             </div>
+            <div className="flex justify-between items-baseline mb-2.5">
+              <span className="text-[11px] text-[#333]">Forma de pagamento</span>
+              <span className="text-[11px] text-[#666] font-semibold">Pix</span>
+            </div>
+            <div className="flex justify-between items-baseline pt-2.5 border-t border-[#141414]">
+              <span className="text-[12px] text-white font-bold">Total</span>
+              <span className="text-[16px] text-white font-black tracking-tight">
+                R$ {(total || 0).toFixed(2)}
+              </span>
+            </div>
+          </div>
 
-            {/* Código da transação */}
-            <div>
-              <h3 className="text-xs font-semibold text-white mb-2">Código da transação</h3>
-              <div className="bg-[#050505] border border-[#1A1A1A] rounded-lg p-3">
-                <p className="text-[10px] text-[#555] font-mono break-all">{txid}</p>
-              </div>
+          <div className="px-5 py-5 border-b border-[#111]">
+            <p className="text-[9px] text-[#282828] font-bold uppercase tracking-widest mb-2">Código da transação</p>
+            <div className="bg-[#060606] border border-[#161616] rounded-lg px-3 py-2.5">
+              <p className="text-[9px] text-[#2e2e2e] font-mono break-all leading-relaxed">{txid}</p>
             </div>
+          </div>
 
-            {/* Detalhes */}
-            <div>
-              <h3 className="text-xs font-semibold text-white mb-3">Detalhes</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-xs text-[#555]">Favorecido</span>
-                  <span className="text-xs text-white">Natan Lima</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-xs text-[#555]">Chave PIX</span>
-                  <span className="text-xs text-white break-all text-right max-w-[150px]">natanpacheco@gmail.com</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-xs text-[#555]">Instituição</span>
-                  <span className="text-xs text-white">Banco Central</span>
-                </div>
+          <div className="px-5 py-5">
+            <p className="text-[9px] text-[#282828] font-bold uppercase tracking-widest mb-3">Detalhes</p>
+            {[
+              { k: 'Favorecido',  v: 'Natan Lima' },
+              { k: 'Chave PIX',   v: 'natanpacheco@gmail.com' },
+              { k: 'Instituição', v: 'Banco Central' },
+            ].map(({ k, v }) => (
+              <div key={k} className="flex justify-between items-baseline mb-2.5 last:mb-0">
+                <span className="text-[11px] text-[#2e2e2e]">{k}</span>
+                <span className="text-[11px] text-[#555] font-medium max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap text-right">{v}</span>
               </div>
-            </div>
+            ))}
           </div>
         </aside>
       </div>
