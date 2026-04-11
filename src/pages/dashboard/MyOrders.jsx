@@ -23,7 +23,6 @@ export default function MyOrders() {
   }, []);
 
   const loadLocalStorageData = () => {
-    // Carregar pedidos com download
     const storedDownloaded = localStorage.getItem('downloaded_orders');
     if (storedDownloaded) {
       try {
@@ -33,7 +32,6 @@ export default function MyOrders() {
       }
     }
     
-    // Carregar pedidos com reembolso solicitado
     const storedRefunded = localStorage.getItem('refunded_orders');
     if (storedRefunded) {
       try {
@@ -50,11 +48,9 @@ export default function MyOrders() {
       const allOrders = await base44.entities.Order.filter({ customer_email: me.email }, '-created_date');
       setOrders(allOrders || []);
 
-      // Buscar reembolsos do banco
       const refunds = await base44.entities.RefundRequest.filter({ user_email: me.email });
       const refundIds = (refunds || []).map((refund) => refund.order_id);
       
-      // Mesclar com localStorage
       const storedRefunded = JSON.parse(localStorage.getItem('refunded_orders') || '[]');
       setRefundedOrderIds([...new Set([...refundIds, ...storedRefunded])]);
     } catch (error) {
@@ -77,9 +73,13 @@ export default function MyOrders() {
       return;
     }
 
-    // Verificar se já solicitou reembolso
     if (refundedOrderIds.includes(order.id)) {
       toast.error('Este pedido possui solicitação de reembolso pendente');
+      return;
+    }
+
+    if (order.status === 'refunded') {
+      toast.error('Este pedido foi reembolsado');
       return;
     }
 
@@ -98,6 +98,7 @@ export default function MyOrders() {
     if (order.status !== 'completed') return false;
     if (refundedOrderIds.includes(order.id)) return false;
     if (downloadedOrderIds.includes(order.id)) return false;
+    if (order.status === 'refunded') return false;
 
     const orderDate = getOrderDate(order);
     if (!orderDate) return false;
@@ -112,6 +113,7 @@ export default function MyOrders() {
   const canDownload = (order) => {
     if (order.status !== 'completed') return false;
     if (refundedOrderIds.includes(order.id)) return false;
+    if (order.status === 'refunded') return false;
     return true;
   };
 
@@ -119,6 +121,7 @@ export default function MyOrders() {
     pending: { icon: Clock, label: 'Aguardando Pagamento', className: 'text-[#666]' },
     completed: { icon: CheckCircle, label: 'Concluído', className: 'text-white' },
     cancelled: { icon: XCircle, label: 'Cancelado', className: 'text-red-500' },
+    refunded: { icon: CheckCircle, label: 'Reembolsado', className: 'text-green-500' },
   };
 
   if (loading) {
@@ -148,7 +151,7 @@ export default function MyOrders() {
             const refundable = canRefund(order);
             const showDownload = canDownload(order);
             const orderDate = getOrderDate(order);
-            const hasRefundRequest = refundedOrderIds.includes(order.id);
+            const hasRefundRequest = refundedOrderIds.includes(order.id) && order.status !== 'refunded';
 
             return (
               <div key={order.id} className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
@@ -169,6 +172,11 @@ export default function MyOrders() {
                     {hasRefundRequest && (
                       <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500">
                         Reembolso solicitado
+                      </span>
+                    )}
+                    {order.status === 'refunded' && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-500">
+                        Reembolsado
                       </span>
                     )}
                   </div>
@@ -210,7 +218,6 @@ export default function MyOrders() {
                         <div className="text-xs text-[#555]">{item.license_name}</div>
                       </div>
 
-                      {/* Botão de download individual - só aparece se não tiver reembolso */}
                       {order.status === 'completed' && item.file_url && showDownload && (
                         <Button
                           size="sm"
@@ -225,17 +232,21 @@ export default function MyOrders() {
                         </Button>
                       )}
                       
-                      {/* Mostrar que reembolso foi solicitado */}
                       {order.status === 'completed' && !showDownload && hasRefundRequest && (
                         <div className="text-xs text-yellow-500 bg-yellow-500/10 px-2 py-1 rounded-lg">
                           Aguardando análise
+                        </div>
+                      )}
+
+                      {order.status === 'refunded' && (
+                        <div className="text-xs text-green-500 bg-green-500/10 px-2 py-1 rounded-lg">
+                          Reembolsado
                         </div>
                       )}
                     </div>
                   ))}
                 </div>
 
-                {/* Botão "Baixar Todos" - só aparece se não tiver reembolso */}
                 {order.status === 'completed' && showDownload && (
                   <div className="px-4 pb-4">
                     <Button 
@@ -271,7 +282,7 @@ export default function MyOrders() {
             setRefundedOrderIds((prev) => [...new Set([...prev, orderId])]);
             localStorage.setItem('refunded_orders', JSON.stringify([...refundedOrderIds, orderId]));
             setRefundOrder(null);
-            toast.info('Botões de download foram desabilitados para este pedido');
+            toast.info('Solicitação de reembolso enviada. Aguarde análise.');
           }}
         />
       )}

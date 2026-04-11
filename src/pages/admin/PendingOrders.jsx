@@ -173,9 +173,9 @@ export default function PendingOrders() {
       const order = orders[0];
 
       if (order) {
-        // Atualiza status do pedido para cancelled
+        // Atualiza status do pedido para refunded (reembolsado)
         await base44.entities.Order.update(order.id, {
-          status: 'cancelled',
+          status: 'refunded',
         });
 
         // Notifica o usuário que o reembolso foi aprovado
@@ -190,8 +190,6 @@ export default function PendingOrders() {
       }
 
       toast.success(`Reembolso aprovado! O valor será estornado para o cliente.`);
-      
-      // Remove da lista de pendentes
       setRefundRequests(prev => prev.filter(r => r.id !== refund.id));
     } catch (e) {
       console.error(e);
@@ -221,8 +219,6 @@ export default function PendingOrders() {
       });
 
       toast.success(`Reembolso recusado.`);
-      
-      // Remove da lista de pendentes
       setRefundRequests(prev => prev.filter(r => r.id !== refund.id));
     } catch (e) {
       console.error(e);
