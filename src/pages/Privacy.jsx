@@ -80,11 +80,11 @@ export default function Privacy() {
 
               <h2 className="text-2xl font-bold text-white mt-8 mb-4">10. Contato</h2>
               <p className="text-[#666] leading-relaxed mb-4">
-                Para questões sobre privacidade, entre em contato: privacidade@marketplace.com
+                Para questões sobre privacidade, entre em contato: privacidade@DevAssets.com
               </p>
 
               <div className="border-t border-[#1A1A1A] pt-6 mt-8">
-                <p className="text-xs text-[#444]">© 2026 Marketplace. Todos os direitos reservados.</p>
+                <p className="text-xs text-[#444]">© 2026 DevAssets. Todos os direitos reservados.</p>
               </div>
             </div>
           </div>

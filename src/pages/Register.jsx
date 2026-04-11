@@ -234,7 +234,7 @@ export default function Register() {
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
               <span className="text-black font-black text-sm">M</span>
             </div>
-            <span className="text-white font-bold text-lg tracking-tight">Marketplace</span>
+            <span className="text-white font-bold text-lg tracking-tight">DevAssets</span>
           </div>
 
           {step === 'otp' ? (

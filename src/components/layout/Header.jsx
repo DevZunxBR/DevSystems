@@ -74,7 +74,7 @@ export default function Header() {
               <span className="text-black font-black text-sm">M</span>
             )}
           </div>
-          <span className="text-white font-bold text-lg hidden sm:block tracking-tight">Marketplace</span>
+          <span className="text-white font-bold text-lg hidden sm:block tracking-tight">DevAssets</span>
         </Link>
 
         <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl">

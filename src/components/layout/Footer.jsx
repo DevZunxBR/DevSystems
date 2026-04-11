@@ -68,7 +68,7 @@ export default function Footer() {
           <div className="space-y-3">
             <Link to="/" className="inline-flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-white text-black font-black text-xs flex items-center justify-center">M</div>
-              <span className="text-white font-bold tracking-tight">Marketplace</span>
+              <span className="text-white font-bold tracking-tight">DevAssets</span>
             </Link>
 
             <p className="text-xs text-[#555] leading-relaxed max-w-[210px]">

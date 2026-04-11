@@ -35,12 +35,12 @@ export default function Terms() {
 
               <h2 className="text-2xl font-bold text-white mt-8 mb-4">1. Aceitação dos Termos</h2>
               <p className="text-[#666] leading-relaxed mb-4">
-                Ao acessar e usar o Marketplace, você concorda em cumprir estes Termos de Uso. Se você não concordar com qualquer parte destes termos, não use nossa plataforma.
+                Ao acessar e usar o DevAssets, você concorda em cumprir estes Termos de Uso. Se você não concordar com qualquer parte destes termos, não use nossa plataforma.
               </p>
 
               <h2 className="text-2xl font-bold text-white mt-8 mb-4">2. Descrição do Serviço</h2>
               <p className="text-[#666] leading-relaxed mb-4">
-                O Marketplace é uma plataforma que conecta compradores a vendedores de assets digitais, incluindo scripts, sistemas completos e UI kits para desenvolvedores.
+                O DevAssets é uma plataforma que conecta compradores a vendedores de assets digitais, incluindo scripts, sistemas completos e UI kits para desenvolvedores.
               </p>
 
               <h2 className="text-2xl font-bold text-white mt-8 mb-4">3. Conta de Usuário</h2>
@@ -65,7 +65,7 @@ export default function Terms() {
 
               <h2 className="text-2xl font-bold text-white mt-8 mb-4">7. Limitação de Responsabilidade</h2>
               <p className="text-[#666] leading-relaxed mb-4">
-                O Marketplace não se responsabiliza por danos indiretos ou perdas decorrentes do uso dos assets adquiridos na plataforma.
+                O DevAssets não se responsabiliza por danos indiretos ou perdas decorrentes do uso dos assets adquiridos na plataforma.
               </p>
 
               <h2 className="text-2xl font-bold text-white mt-8 mb-4">8. Modificações dos Termos</h2>
@@ -75,11 +75,11 @@ export default function Terms() {
 
               <h2 className="text-2xl font-bold text-white mt-8 mb-4">9. Contato</h2>
               <p className="text-[#666] leading-relaxed mb-4">
-                Em caso de dúvidas sobre estes Termos de Uso, entre em contato pelo e-mail: suporte@marketplace.com
+                Em caso de dúvidas sobre estes Termos de Uso, entre em contato pelo e-mail: suporte@DevAssets.com
               </p>
 
               <div className="border-t border-[#1A1A1A] pt-6 mt-8">
-                <p className="text-xs text-[#444]">© 2026 Marketplace. Todos os direitos reservados.</p>
+                <p className="text-xs text-[#444]">© 2026 DevAssets. Todos os direitos reservados.</p>
               </div>
             </div>
           </div>

@@ -132,7 +132,7 @@ export default function Documentation() {
           <div className="mb-10 pb-10 border-b border-[#111]">
             <h2 className="text-3xl font-black text-white mb-3">Documentação</h2>
             <p className="text-[#555] leading-relaxed text-sm max-w-xl">
-              Bem-vindo à documentação oficial do Marketplace. Aqui você encontra tudo que precisa para usar a plataforma.
+              Bem-vindo à documentação oficial do DevAssets. Aqui você encontra tudo que precisa para usar a plataforma.
             </p>
           </div>
 
@@ -177,7 +177,7 @@ export default function Documentation() {
             </p>
             <div className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-lg p-4 mb-4">
               <p className="text-[10px] text-[#444] uppercase tracking-widest font-semibold mb-1">Chave PIX</p>
-              <p className="text-sm text-[#ccc] font-medium">pagamentos@marketplace.com</p>
+              <p className="text-sm text-[#ccc] font-medium">pagamentos@DevAssets.com</p>
             </div>
             <p className="text-[#666] text-sm leading-relaxed">
               Após o pagamento, seu pedido será aprovado em até <span className="text-white font-medium">30 minutos</span> em dias úteis.
@@ -281,7 +281,7 @@ export default function Documentation() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-lg p-4">
                 <p className="text-[10px] text-[#444] uppercase tracking-widest font-semibold mb-1">E-mail</p>
-                <p className="text-sm text-[#ccc] font-medium">suporte@marketplace.com</p>
+                <p className="text-sm text-[#ccc] font-medium">suporte@DevAssets.com</p>
               </div>
               <div className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-lg p-4">
                 <p className="text-[10px] text-[#444] uppercase tracking-widest font-semibold mb-1">Canal</p>
