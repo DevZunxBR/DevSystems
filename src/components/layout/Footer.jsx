@@ -61,8 +61,6 @@ const SOCIAL_LINKS = [
 ];
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
-
   return (
     <footer className="border-t border-[#1A1A1A] bg-[#000]">
       <div className="max-w-7xl mx-auto px-4 py-8 md:py-10">
@@ -107,18 +105,6 @@ export default function Footer() {
               </ul>
             </div>
           ))}
-        </div>
-
-        <div className="mt-6 pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-          <p className="text-[11px] text-[#444]">© {currentYear} Marketplace. Todos os direitos reservados.</p>
-          <div className="flex items-center gap-4 text-[11px] text-[#444]">
-            <Link to="/terms" className="hover:text-white transition-colors">
-              Termos
-            </Link>
-            <Link to="/privacy" className="hover:text-white transition-colors">
-              Privacidade
-            </Link>
-          </div>
         </div>
       </div>
     </footer>
