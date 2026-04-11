@@ -12,6 +12,7 @@ export default function Header() {
   const [walletBalance, setWalletBalance] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [logoLoadError, setLogoLoadError] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -60,8 +61,17 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#000]/95 backdrop-blur-md border-b border-[#1A1A1A]">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-            <span className="text-black font-black text-sm">M</span>
+          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+            {!logoLoadError ? (
+              <img
+                src="assets/images/Logo.png"
+                alt="Logo"
+                className="w-full h-full object-cover"
+                onError={() => setLogoLoadError(true)}
+              />
+            ) : (
+              <span className="text-black font-black text-sm">M</span>
+            )}
           </div>
           <span className="text-white font-bold text-lg hidden sm:block tracking-tight">Marketplace</span>
         </Link>
