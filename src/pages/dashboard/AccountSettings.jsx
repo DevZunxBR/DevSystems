@@ -3,28 +3,13 @@ import { useState, useEffect } from 'react';
 import { base44, supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { User, Key, Mail, Eye, EyeOff, Lock } from 'lucide-react';
+import { User, Key, Mail, Lock } from 'lucide-react';
 
 export default function AccountSettings() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({ display_name: '', bio: '' });
-  
-  // States para mudança de email (BLOQUEADO)
-  const [showChangeEmail, setShowChangeEmail] = useState(false);
-  
-  // States para mudança de senha
-  const [showChangePassword, setShowChangePassword] = useState(false);
-  const [passwordData, setPasswordData] = useState({ new_password: '', confirm_password: '', code: '' });
-  const [passwordStep, setPasswordStep] = useState('form');
-  const [sendingPasswordCode, setSendingPasswordCode] = useState(false);
-  const [changingPassword, setChangingPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
-  // Debounce para evitar 429
-  const [lastSentTime, setLastSentTime] = useState(0);
 
   useEffect(() => {
     loadUser();
@@ -61,85 +46,6 @@ export default function AccountSettings() {
     }
   };
 
-  // ==================== MUDANÇA DE SENHA ====================
-  const sendPasswordCode = async () => {
-    const now = Date.now();
-    if (now - lastSentTime < 60000) {
-      const remaining = Math.ceil((60000 - (now - lastSentTime)) / 1000);
-      toast.error(`Aguarde ${remaining} segundos antes de enviar outro código`);
-      return;
-    }
-
-    if (!passwordData.new_password) {
-      toast.error('Digite a nova senha');
-      return;
-    }
-    if (passwordData.new_password !== passwordData.confirm_password) {
-      toast.error('As senhas não coincidem');
-      return;
-    }
-    if (passwordData.new_password.length < 6) {
-      toast.error('A senha deve ter pelo menos 6 caracteres');
-      return;
-    }
-
-    setSendingPasswordCode(true);
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(user?.email);
-      
-      if (error) throw error;
-      
-      setLastSentTime(Date.now());
-      setPasswordStep('code');
-      toast.success('Código de verificação enviado para seu email!');
-    } catch (error) {
-      if (error.status === 429) {
-        toast.error('Muitas tentativas. Aguarde alguns minutos.');
-      } else {
-        toast.error('Erro ao enviar código. Tente novamente.');
-      }
-    } finally {
-      setSendingPasswordCode(false);
-    }
-  };
-
-  const verifyPasswordCode = async () => {
-    if (!passwordData.code) {
-      toast.error('Digite o código de verificação');
-      return;
-    }
-
-    setChangingPassword(true);
-    try {
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        email: user?.email,
-        token: passwordData.code,
-        type: 'email',
-      });
-      
-      if (verifyError) throw verifyError;
-      
-      const { error } = await supabase.auth.updateUser({
-        password: passwordData.new_password,
-      });
-      
-      if (error) throw error;
-      
-      toast.success('Senha alterada com sucesso!');
-      setShowChangePassword(false);
-      setPasswordData({ new_password: '', confirm_password: '', code: '' });
-      setPasswordStep('form');
-      
-      setTimeout(() => {
-        base44.auth.logout('/');
-      }, 2000);
-    } catch (error) {
-      toast.error('Código inválido ou expirado');
-    } finally {
-      setChangingPassword(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -152,7 +58,7 @@ export default function AccountSettings() {
     <div className="space-y-8 max-w-2xl">
       <div>
         <h1 className="text-2xl font-bold text-foreground tracking-tight">Configurações</h1>
-        <p className="text-sm text-muted-foreground mt-1">Gerencie seu perfil e segurança</p>
+        <p className="text-sm text-muted-foreground mt-1">Gerencie seu perfil</p>
       </div>
 
       {/* Profile */}
@@ -200,7 +106,7 @@ export default function AccountSettings() {
         </Button>
       </form>
 
-      {/* Security */}
+      {/* Security - Ambas bloqueadas */}
       <div className="bg-card border border-border rounded-xl p-6 space-y-4">
         <div className="flex items-center gap-3 pb-4 border-b border-border">
           <Key className="h-5 w-5 text-muted-foreground" />
@@ -220,92 +126,20 @@ export default function AccountSettings() {
           </div>
         </div>
 
-        {/* Mudar Senha */}
-        <div className="pt-4 border-t border-border">
-          <button
-            onClick={() => setShowChangePassword(!showChangePassword)}
-            className="flex items-center justify-between w-full py-2 text-left"
-          >
+        {/* Mudar Senha - BLOQUEADO */}
+        <div className="pt-4 border-t border-border opacity-60 cursor-not-allowed">
+          <div className="flex items-center justify-between w-full py-2">
             <div>
-              <p className="text-sm font-semibold text-foreground">Alterar senha</p>
-              <p className="text-xs text-muted-foreground">Altere sua senha de acesso</p>
+              <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Lock className="h-3.5 w-3.5" /> Alterar senha
+              </p>
+              <p className="text-xs text-muted-foreground">Altere sua senha de acesso (bloqueado)</p>
             </div>
             <Key className="h-4 w-4 text-muted-foreground" />
-          </button>
-
-          {showChangePassword && (
-            <div className="mt-4 p-4 bg-secondary/30 border border-border rounded-lg">
-              {passwordStep === 'form' ? (
-                <div className="space-y-3">
-                  <div className="relative">
-                    <input
-                      type={showNewPassword ? 'text' : 'password'}
-                      placeholder="Nova senha"
-                      value={passwordData.new_password}
-                      onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
-                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                    >
-                      {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <input
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="Confirmar nova senha"
-                      value={passwordData.confirm_password}
-                      onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
-                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                    >
-                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button onClick={sendPasswordCode} disabled={sendingPasswordCode} className="bg-white text-black">
-                      {sendingPasswordCode ? 'Enviando...' : 'Enviar código'}
-                    </Button>
-                    <Button variant="outline" onClick={() => setShowChangePassword(false)}>
-                      Cancelar
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground">
-                    Enviamos um código para <strong>{user?.email}</strong>
-                  </p>
-                  <input
-                    type="text"
-                    placeholder="Código de verificação"
-                    value={passwordData.code}
-                    onChange={(e) => setPasswordData({ ...passwordData, code: e.target.value })}
-                    className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground text-center tracking-widest font-mono"
-                  />
-                  <div className="flex gap-2">
-                    <Button onClick={verifyPasswordCode} disabled={changingPassword} className="bg-white text-black">
-                      {changingPassword ? 'Alterando...' : 'Confirmar'}
-                    </Button>
-                    <Button variant="outline" onClick={() => {
-                      setPasswordStep('form');
-                      setShowChangePassword(false);
-                      setPasswordData({ new_password: '', confirm_password: '', code: '' });
-                    }}>
-                      Cancelar
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-2">
+            Para alterar sua senha, entre em contato com o suporte.
+          </p>
         </div>
       </div>
     </div>
