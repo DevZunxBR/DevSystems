@@ -51,7 +51,7 @@ export default function Home() {
                 alt="Background"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-black/68" />
+              <div className="absolute inset-0 bg-black/56" />
             </div>
           ))}
         </div>
@@ -78,7 +78,7 @@ export default function Home() {
             <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold h-11 px-6 text-sm gap-2 rounded-xl">
               Explorar Assets <ArrowRight className="h-4 w-4" />
             </Button>
-            <Button variant="outline" onClick={() => navigate('/store')} className="bg-[#111] border-[#1A1A1A] text-[#999] hover:bg-[#181818] hover:text-white h-11 px-6 text-sm rounded-xl">
+            <Button variant="outline" onClick={() => navigate('/store')} className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl">
               Ver Categorias <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
