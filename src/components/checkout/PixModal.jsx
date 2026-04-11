@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Copy, Check, Shield, Clock, Smartphone, QrCode, ArrowLeft, CheckCircle, CreditCard, Banknote, Building } from 'lucide-react';
+import { Copy, Check, Shield, Clock, Smartphone, QrCode, ArrowLeft, CheckCircle, CreditCard, Banknote, Building, X } from 'lucide-react';
 import { toast } from 'sonner';
 import QRCode from 'qrcode';
+import { Button } from '@/components/ui/button';
 
 // Gera código PIX real no padrão EMV do Banco Central (NÃO MODIFICADO)
 function gerarPixCopiaECola({ chave, nome, cidade, valor, txid }) {
@@ -43,13 +44,26 @@ export default function PixModal({ open, onClose, total }) {
   const [timeLeft, setTimeLeft] = useState(15 * 60);
   const [pixCode, setPixCode] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const qrRef = useRef(null);
+
+  // Loading inicial ao abrir
+  useEffect(() => {
+    if (open) {
+      setInitialLoading(true);
+      const timer = setTimeout(() => {
+        setInitialLoading(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!open) { 
       setStep('loading'); 
       setTimeLeft(15 * 60);
       setShowSuccess(false);
+      setInitialLoading(true);
       return; 
     }
 
@@ -112,22 +126,37 @@ export default function PixModal({ open, onClose, total }) {
 
   if (!open) return null;
 
+  // Loading inicial
+  if (initialLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md">
+        <div className="text-center space-y-4">
+          <div className="relative w-16 h-16 mx-auto">
+            <div className="absolute inset-0 rounded-full border-2 border-[#1A1A1A]" />
+            <div className="absolute inset-0 rounded-full border-2 border-t-white animate-spin" />
+          </div>
+          <p className="text-sm text-white/60 animate-pulse">Preparando pagamento...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Tela de sucesso
   if (showSuccess) {
     return (
-      <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
-        <div className="text-center space-y-6 max-w-md mx-auto p-8">
-          <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto animate-bounce">
-            <CheckCircle className="h-10 w-10 text-white" />
+      <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center">
+        <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-8 text-center space-y-5 max-w-md mx-4">
+          <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto animate-bounce">
+            <CheckCircle className="h-8 w-8 text-white" />
           </div>
-          <h2 className="text-2xl font-black text-white">Pagamento Confirmado!</h2>
-          <p className="text-[#666] text-sm">
-            Seu pedido foi registrado com sucesso. Você receberá uma confirmação por email.
+          <h2 className="text-xl font-black text-white">Pagamento Confirmado!</h2>
+          <p className="text-sm text-[#666]">
+            Seu pedido foi registrado com sucesso.
           </p>
-          <p className="text-[#555] text-xs">
-            Aguarde a aprovação do pagamento para fazer o download dos seus arquivos.
+          <p className="text-xs text-[#555]">
+            Aguarde a aprovação para fazer o download dos seus arquivos.
           </p>
-          <Button onClick={handleClose} className="bg-white text-black hover:bg-white/90 font-semibold px-8">
+          <Button onClick={handleClose} className="bg-white text-black hover:bg-white/90 font-semibold w-full">
             Voltar para a loja
           </Button>
         </div>
@@ -136,170 +165,152 @@ export default function PixModal({ open, onClose, total }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black">
-      <div className="min-h-screen flex flex-col lg:flex-row">
-        
-        {/* Sidebar Esquerda - Informações do Pedido */}
-        <div className="lg:w-80 bg-[#0A0A0A] border-r border-[#1A1A1A] p-6 flex flex-col">
-          {/* Logo */}
-          <div className="flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-              <span className="text-black font-black text-sm">M</span>
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl overflow-hidden">
+        <div className="flex flex-col md:flex-row">
+          
+          {/* Sidebar Esquerda - Informações */}
+          <div className="md:w-80 bg-[#050505] p-6 space-y-6">
+            {/* Logo e Fechar */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                  <span className="text-black font-black text-sm">M</span>
+                </div>
+                <span className="text-white font-bold tracking-tight text-sm">Marketplace</span>
+              </div>
+              <button onClick={onClose} className="text-[#555] hover:text-white transition-colors">
+                <X className="h-5 w-5" />
+              </button>
             </div>
-            <span className="text-white font-bold tracking-tight">Marketplace</span>
-          </div>
 
-          {/* Informações do pagamento */}
-          <div className="space-y-6">
+            {/* Valor */}
             <div>
-              <p className="text-[10px] text-[#444] uppercase tracking-wider mb-2">Valor a pagar</p>
+              <p className="text-[10px] text-[#444] uppercase tracking-wider mb-1">Valor a pagar</p>
               <p className="text-3xl font-black text-white">R$ {(total || 0).toFixed(2)}</p>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 text-sm text-[#555]">
-                <CreditCard className="h-4 w-4" />
+            {/* Informações */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center gap-3 text-xs text-[#555]">
+                <CreditCard className="h-3.5 w-3.5" />
                 <span>Pagamento via PIX</span>
               </div>
-              <div className="flex items-center gap-3 text-sm text-[#555]">
-                <Building className="h-4 w-4" />
+              <div className="flex items-center gap-3 text-xs text-[#555]">
+                <Building className="h-3.5 w-3.5" />
                 <span>Banco Central do Brasil</span>
               </div>
-              <div className="flex items-center gap-3 text-sm text-[#555]">
-                <Shield className="h-4 w-4" />
+              <div className="flex items-center gap-3 text-xs text-[#555]">
+                <Shield className="h-3.5 w-3.5" />
                 <span>Transação segura</span>
               </div>
             </div>
 
+            {/* Favorecido */}
             <div className="border-t border-[#1A1A1A] pt-4">
-              <p className="text-[10px] text-[#444] uppercase tracking-wider mb-2">Favorecido</p>
+              <p className="text-[10px] text-[#444] uppercase tracking-wider mb-1">Favorecido</p>
               <p className="text-sm font-semibold text-white">Natan da Rocha Lima Pacheco</p>
-              <p className="text-xs text-[#555] mt-1">natanpachecorocha@gmail.com</p>
+              <p className="text-xs text-[#555] mt-0.5">natanpachecorocha@gmail.com</p>
             </div>
 
+            {/* Timer */}
             <div className="border-t border-[#1A1A1A] pt-4">
-              <p className="text-[10px] text-[#444] uppercase tracking-wider mb-2">Prazo de pagamento</p>
+              <p className="text-[10px] text-[#444] uppercase tracking-wider mb-1">Prazo de pagamento</p>
               <div className="flex items-center gap-2">
                 <Clock className={`h-4 w-4 ${timeLeft < 60 ? 'text-red-400' : 'text-[#555]'}`} />
-                <span className={`text-lg font-mono font-bold ${timeLeft < 60 ? 'text-red-400' : 'text-white'}`}>
+                <span className={`text-xl font-mono font-bold ${timeLeft < 60 ? 'text-red-400' : 'text-white'}`}>
                   {formatTime(timeLeft)}
                 </span>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Conteúdo Principal - Direita */}
-        <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <div className="border-b border-[#1A1A1A] bg-[#0A0A0A] p-4 flex items-center gap-4">
-            <button onClick={onClose} className="p-2 text-[#555] hover:text-white transition-colors lg:hidden">
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            <div className="flex items-center gap-2">
+          {/* Conteúdo Direita - Pagamento */}
+          <div className="flex-1 p-6">
+            {/* Título */}
+            <div className="flex items-center gap-2 mb-6">
               <div className="w-6 h-6 bg-white rounded-md flex items-center justify-center">
                 <span className="text-black font-black text-[8px]">PIX</span>
               </div>
               <span className="text-sm font-semibold text-white">Pagamento PIX</span>
             </div>
-          </div>
 
-          {/* Loading */}
-          {step === 'loading' && (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center space-y-4">
-                <div className="relative w-16 h-16 mx-auto">
-                  <div className="absolute inset-0 rounded-full border-2 border-[#1A1A1A]" />
-                  <div className="absolute inset-0 rounded-full border-2 border-t-white animate-spin" />
-                </div>
-                <p className="text-sm text-white">Gerando código PIX...</p>
-                <p className="text-xs text-[#555]">Conectando ao Banco Central</p>
-              </div>
+            {/* Tabs */}
+            <div className="flex bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-1 mb-6">
+              <button
+                onClick={() => setStep('qr')}
+                className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
+                  step === 'qr' ? 'bg-white text-black' : 'text-[#555] hover:text-white'
+                }`}
+              >
+                <Smartphone className="h-4 w-4" /> QR Code
+              </button>
+              <button
+                onClick={() => setStep('code')}
+                className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
+                  step === 'code' ? 'bg-white text-black' : 'text-[#555] hover:text-white'
+                }`}
+              >
+                <Copy className="h-4 w-4" /> Copiar código
+              </button>
             </div>
-          )}
 
-          {/* Conteúdo do Pagamento */}
-          {(step === 'qr' || step === 'code') && (
-            <div className="flex-1 p-6">
-              <div className="max-w-md mx-auto space-y-6">
-                {/* Tabs */}
-                <div className="flex bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-1">
-                  <button
-                    onClick={() => setStep('qr')}
-                    className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
-                      step === 'qr' ? 'bg-white text-black' : 'text-[#555] hover:text-white'
-                    }`}
-                  >
-                    <Smartphone className="h-4 w-4" /> QR Code
-                  </button>
-                  <button
-                    onClick={() => setStep('code')}
-                    className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
-                      step === 'code' ? 'bg-white text-black' : 'text-[#555] hover:text-white'
-                    }`}
-                  >
-                    <Copy className="h-4 w-4" /> Copiar código
-                  </button>
+            {/* QR Code */}
+            {step === 'qr' && (
+              <div className="bg-white rounded-2xl p-6 flex justify-center mb-6">
+                <div className="w-52 h-52">
+                  <canvas ref={qrRef} className="w-full h-full" />
                 </div>
+              </div>
+            )}
 
-                {/* QR Code */}
-                {step === 'qr' && (
-                  <div className="bg-white rounded-2xl p-6 flex justify-center">
-                    <div className="w-56 h-56">
-                      <canvas ref={qrRef} className="w-full h-full" />
-                    </div>
-                  </div>
-                )}
-
-                {/* Copia e Cola */}
-                {step === 'code' && (
-                  <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-4">
-                    <p className="text-xs text-[#555] mb-2">Código PIX (Copia e Cola)</p>
-                    <p className="text-xs text-white font-mono break-all select-all bg-[#111] p-3 rounded-lg">
-                      {pixCode}
-                    </p>
-                    <button
-                      onClick={copyCode}
-                      className={`w-full mt-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all ${
-                        copied ? 'bg-green-500 text-white' : 'bg-white text-black hover:bg-white/90'
-                      }`}
-                    >
-                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                      {copied ? 'Código copiado!' : 'Copiar código PIX'}
-                    </button>
-                  </div>
-                )}
-
-                {/* Passo a passo */}
-                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-4">
-                  <p className="text-xs font-semibold text-white mb-3">Como pagar via PIX</p>
-                  <div className="space-y-2">
-                    {[
-                      'Abra o app do seu banco',
-                      'Escolha pagar via PIX',
-                      step === 'qr' ? 'Escaneie o QR Code' : 'Cole o código copiado',
-                      'Confirme o pagamento'
-                    ].map((s, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full bg-[#111] border border-[#333] flex items-center justify-center">
-                          <span className="text-[9px] text-[#555] font-semibold">{i + 1}</span>
-                        </div>
-                        <span className="text-xs text-[#666]">{s}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Botão de confirmar pagamento (simula) */}
+            {/* Copia e Cola */}
+            {step === 'code' && (
+              <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-4 mb-6">
+                <p className="text-xs text-[#555] mb-2">Código PIX (Copia e Cola)</p>
+                <p className="text-xs text-white font-mono break-all select-all bg-[#111] p-3 rounded-lg">
+                  {pixCode}
+                </p>
                 <button
-                  onClick={handleSuccess}
-                  className="w-full py-3 bg-white text-black font-bold rounded-xl hover:bg-white/90 transition-all"
+                  onClick={copyCode}
+                  className={`w-full mt-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all ${
+                    copied ? 'bg-green-500 text-white' : 'bg-white text-black hover:bg-white/90'
+                  }`}
                 >
-                  Já paguei, confirmar pedido
+                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied ? 'Código copiado!' : 'Copiar código PIX'}
                 </button>
               </div>
+            )}
+
+            {/* Passo a passo */}
+            <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-4 mb-6">
+              <p className="text-xs font-semibold text-white mb-3">Como pagar via PIX</p>
+              <div className="space-y-2">
+                {[
+                  'Abra o app do seu banco',
+                  'Escolha pagar via PIX',
+                  step === 'qr' ? 'Escaneie o QR Code' : 'Cole o código copiado',
+                  'Confirme o pagamento'
+                ].map((s, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-[#111] border border-[#333] flex items-center justify-center">
+                      <span className="text-[9px] text-[#555] font-semibold">{i + 1}</span>
+                    </div>
+                    <span className="text-xs text-[#666]">{s}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
+
+            {/* Botão de confirmação */}
+            <button
+              onClick={handleSuccess}
+              className="w-full py-3 bg-white text-black font-bold rounded-xl hover:bg-white/90 transition-all"
+            >
+              Já paguei, confirmar pedido
+            </button>
+          </div>
         </div>
       </div>
     </div>
