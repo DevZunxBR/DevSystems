@@ -116,7 +116,7 @@ try {
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 40px; border-radius: 12px;">
           <div style="margin-bottom: 32px;">
-            <div style="display: inline-block; background: #32BCAD; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 14px;">DevVault</div>
+            <div style="display: inline-block; background: #32BCAD; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 14px;">DevAssets</div>
           </div>
           <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 8px;">Pagamento Aprovado!</h1>
           <p style="color: #999; margin-bottom: 32px;">Seu pagamento foi confirmado e seus arquivos estão prontos para download.</p>
@@ -127,7 +127,7 @@ try {
             <p style="color: #32BCAD; font-size: 13px;">Cashback recebido: R$${cashback.toFixed(2)}</p>
           </div>
           <a href="https://dev-systems.vercel.app/dashboard/orders" style="display: inline-block; background: #fff; color: #000; padding: 14px 28px; border-radius: 10px; font-weight: bold; text-decoration: none; font-size: 14px;">Acessar Meus Pedidos →</a>
-          <p style="color: #444; font-size: 12px; margin-top: 32px;">DevVault • Todos os direitos reservados</p>
+          <p style="color: #444; font-size: 12px; margin-top: 32px;">DevAssets • Todos os direitos reservados</p>
         </div>
       `,
     },

@@ -39,7 +39,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-black p-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-black text-white">DevVault</h1>
+          <h1 className="text-2xl font-black text-white">DevAssets</h1>
           <p className="text-sm text-[#666] mt-1">
             {mode === 'login' ? 'Entre na sua conta' : 'Crie sua conta'}
           </p>

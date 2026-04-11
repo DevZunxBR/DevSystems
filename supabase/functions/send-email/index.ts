@@ -20,7 +20,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
       },
       body: JSON.stringify({
-        from: 'DevVault <onboarding@resend.dev>',
+        from: 'DevAssets <onboarding@resend.dev>',
         to,
         subject,
         html,
