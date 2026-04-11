@@ -1,4 +1,5 @@
 ﻿import { Link } from 'react-router-dom';
+import logoImage from '@/assets/images/Logo.png';
 
 function DiscordIcon() {
   return (
@@ -66,8 +67,8 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 py-8 md:py-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8">
           <div className="space-y-3">
-            <Link to="/" className="inline-flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-white text-black font-black text-xs flex items-center justify-center">M</div>
+            <Link to="/" className="inline-flex items-center gap-1.5">
+              <div className="w-7 h-7 rounded-lg overflow-hidden flex items-center justify-center"><img src={logoImage} alt="Logo" className="w-full h-full object-cover" /></div>
               <span className="text-white font-bold tracking-tight">DevAssets</span>
             </Link>
 
@@ -110,3 +111,4 @@ export default function Footer() {
     </footer>
   );
 }
+
