@@ -13,12 +13,16 @@ export default function MyOrders() {
   const [loading, setLoading] = useState(true);
   const [pixModalData, setPixModalData] = useState(null);
   const [refundOrder, setRefundOrder] = useState(null);
-  const [refundedOrderIds, setRefundedOrderIds] = useState([]);
   const [pendingRefundIds, setPendingRefundIds] = useState([]);
+  const [approvedRefundIds, setApprovedRefundIds] = useState([]);
   const [downloadedOrderIds, setDownloadedOrderIds] = useState([]);
 
   useEffect(() => {
     loadOrders();
+    loadLocalStorage();
+  }, []);
+
+  const loadLocalStorage = () => {
     const stored = localStorage.getItem('downloaded_orders');
     if (stored) {
       try {
@@ -27,7 +31,7 @@ export default function MyOrders() {
         setDownloadedOrderIds([]);
       }
     }
-  }, []);
+  };
 
   const loadOrders = async () => {
     try {
@@ -35,13 +39,13 @@ export default function MyOrders() {
       const allOrders = await base44.entities.Order.filter({ customer_email: me.email }, '-created_date');
       setOrders(allOrders || []);
 
-      // Buscar reembolsos pendentes e aprovados
+      // Buscar todos os reembolsos
       const refunds = await base44.entities.RefundRequest.filter({ user_email: me.email });
-      const pendingIds = (refunds || []).filter(r => r.status === 'pending').map(r => r.order_id);
-      const approvedIds = (refunds || []).filter(r => r.status === 'approved').map(r => r.order_id);
+      const pending = (refunds || []).filter(r => r.status === 'pending').map(r => r.order_id);
+      const approved = (refunds || []).filter(r => r.status === 'approved').map(r => r.order_id);
       
-      setPendingRefundIds(pendingIds);
-      setRefundedOrderIds(approvedIds);
+      setPendingRefundIds(pending);
+      setApprovedRefundIds(approved);
     } catch (error) {
       console.error(error);
       toast.error('Não foi possível carregar seus pedidos.');
@@ -63,12 +67,12 @@ export default function MyOrders() {
     }
 
     if (pendingRefundIds.includes(order.id)) {
-      toast.error('Solicitação de reembolso pendente. Aguarde análise.');
+      toast.error('Solicitação de reembolso pendente');
       return;
     }
 
-    if (refundedOrderIds.includes(order.id)) {
-      toast.error('Este pedido foi reembolsado.');
+    if (approvedRefundIds.includes(order.id)) {
+      toast.error('Este pedido foi reembolsado');
       return;
     }
 
@@ -86,7 +90,7 @@ export default function MyOrders() {
   const canRefund = (order) => {
     if (order.status !== 'completed') return false;
     if (pendingRefundIds.includes(order.id)) return false;
-    if (refundedOrderIds.includes(order.id)) return false;
+    if (approvedRefundIds.includes(order.id)) return false;
     if (downloadedOrderIds.includes(order.id)) return false;
 
     const orderDate = getOrderDate(order);
@@ -100,9 +104,9 @@ export default function MyOrders() {
   };
 
   const statusConfig = {
-    pending: { icon: Clock, label: 'Aguardando Pagamento', className: 'text-[#666]' },
+    pending: { icon: Clock, label: 'Aguardando Pagamento', className: 'text-[#555]' },
     completed: { icon: CheckCircle, label: 'Concluído', className: 'text-white' },
-    cancelled: { icon: XCircle, label: 'Cancelado', className: 'text-red-500' },
+    cancelled: { icon: XCircle, label: 'Cancelado', className: 'text-[#555]' },
   };
 
   if (loading) {
@@ -131,7 +135,7 @@ export default function MyOrders() {
             const StatusIcon = status.icon;
             const refundable = canRefund(order);
             const hasPendingRefund = pendingRefundIds.includes(order.id);
-            const hasApprovedRefund = refundedOrderIds.includes(order.id);
+            const hasApprovedRefund = approvedRefundIds.includes(order.id);
             const orderDate = getOrderDate(order);
 
             return (
@@ -151,12 +155,12 @@ export default function MyOrders() {
                         : '-'}
                     </span>
                     {hasPendingRefund && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500">
+                      <span className="text-xs px-2 py-0.5 rounded-full border border-[#333] text-[#555]">
                         Reembolso solicitado
                       </span>
                     )}
                     {hasApprovedRefund && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-500">
+                      <span className="text-xs px-2 py-0.5 rounded-full border border-[#333] text-[#555]">
                         Reembolso aprovado
                       </span>
                     )}
@@ -214,13 +218,13 @@ export default function MyOrders() {
                       )}
                       
                       {hasPendingRefund && (
-                        <div className="text-xs text-yellow-500 bg-yellow-500/10 px-2 py-1 rounded-lg">
+                        <div className="text-xs text-[#555] border border-[#333] px-2 py-1 rounded-lg">
                           Aguardando análise
                         </div>
                       )}
                       
                       {hasApprovedRefund && (
-                        <div className="text-xs text-green-500 bg-green-500/10 px-2 py-1 rounded-lg">
+                        <div className="text-xs text-[#555] border border-[#333] px-2 py-1 rounded-lg">
                           Reembolsado
                         </div>
                       )}
@@ -259,7 +263,7 @@ export default function MyOrders() {
           onSuccess={(orderId) => {
             setPendingRefundIds((prev) => [...new Set([...prev, orderId])]);
             setRefundOrder(null);
-            toast.success('Solicitação de reembolso enviada!');
+            loadOrders();
           }}
         />
       )}

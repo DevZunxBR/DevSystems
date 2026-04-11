@@ -29,10 +29,14 @@ export default function RefundModal({ open, order, onClose, onSuccess }) {
         downloaded: false,
         pix_key: pixKey,
       });
-      toast.success('Solicitação de reembolso enviada! Responderemos em até 48h.');
+      toast.success('Solicitação de reembolso enviada!');
       onSuccess(order.id);
-    } catch { toast.error('Falha ao enviar solicitação'); }
-    finally { setSubmitting(false); }
+      onClose();
+    } catch { 
+      toast.error('Falha ao enviar solicitação'); 
+    } finally { 
+      setSubmitting(false); 
+    }
   };
 
   return (
@@ -45,7 +49,7 @@ export default function RefundModal({ open, order, onClose, onSuccess }) {
             </div>
             <div>
               <h3 className="text-lg font-bold text-white">Solicitar Reembolso</h3>
-              <p className="text-xs text-[#555]">Valor: R${order?.total_amount?.toFixed(2)}</p>
+              <p className="text-xs text-[#555]">Valor: R$ {order?.total_amount?.toFixed(2)}</p>
             </div>
           </div>
         </div>

@@ -40,11 +40,9 @@ export default function RefundRequests() {
         const orders = await base44.entities.Order.filter({ id: r.order_id });
         const order = orders[0];
         if (order) {
-          // Atualiza status do pedido para refunded
           await base44.entities.Order.update(order.id, { status: 'refunded' });
         }
         
-        // Notifica o usuário
         await base44.entities.Notification.create({
           user_email: r.user_email,
           title: 'Reembolso Aprovado',
@@ -66,7 +64,7 @@ export default function RefundRequests() {
         toast.success('Reembolso negado');
       }
       
-      // Remove da lista local
+      // Remove o card da lista imediatamente
       setRequests(prev => prev.filter(req => req.id !== id));
       
     } catch (error) {
@@ -159,7 +157,7 @@ export default function RefundRequests() {
                   ) : (
                     <CheckCircle className="h-4 w-4" />
                   )}
-                  Aprovar (fazer PIX manual)
+                  Aprovar
                 </Button>
                 <Button 
                   onClick={() => handleAction(r.id, 'denied')} 
