@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, Menu, X, Wallet } from 'lucide-react';
+import { ShoppingCart, Menu, X, Wallet } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -11,7 +11,6 @@ export default function Header() {
   const [user, setUser] = useState(null);
   const [cartCount, setCartCount] = useState(0);
   const [walletBalance, setWalletBalance] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [logoLoadError, setLogoLoadError] = useState(false);
   const navigate = useNavigate();
@@ -48,14 +47,6 @@ export default function Header() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/store?search=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery('');
-    }
-  };
-
   const handleLogout = () => base44.auth.logout('/');
 
   return (
@@ -76,19 +67,6 @@ export default function Header() {
           </div>
           <span className="text-white font-bold text-lg hidden sm:block tracking-tight">DevAssets</span>
         </Link>
-
-        <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#444]" />
-            <input
-              type="text"
-              placeholder="Buscar assets"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 pl-10 pr-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#333]"
-            />
-          </div>
-        </form>
 
         <div className="flex items-center gap-1 sm:gap-2">
           <Link to="/store" className="hidden sm:block text-xs text-[#666] hover:text-white transition-colors px-2">
@@ -151,13 +129,6 @@ export default function Header() {
 
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-[#1A1A1A] bg-[#000] p-4 space-y-3">
-          <form onSubmit={handleSearch}>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#444]" />
-              <input type="text" placeholder="Buscar..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-10 pr-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-sm text-white placeholder:text-[#444] focus:outline-none" />
-            </div>
-          </form>
           <Link to="/store" className="block text-sm text-[#666] hover:text-white py-2" onClick={() => setMobileMenuOpen(false)}>Asset Library</Link>
           {user && walletBalance !== null && (
             <div className="flex items-center gap-2 text-sm text-white py-2">
