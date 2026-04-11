@@ -26,6 +26,9 @@ export default function AccountSettings() {
   const [changingPassword, setChangingPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // Debounce para evitar 429
+  const [lastSentTime, setLastSentTime] = useState(0);
 
   useEffect(() => {
     loadUser();
@@ -63,44 +66,87 @@ export default function AccountSettings() {
   };
 
   // ==================== MUDANÇA DE EMAIL ====================
-const sendEmailCode = async () => {
-  if (!emailData.new_email) {
-    toast.error('Digite o novo email');
-    return;
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailData.new_email)) {
-    toast.error('Email inválido');
-    return;
-  }
-  if (emailData.new_email === user?.email) {
-    toast.error('O novo email é igual ao atual');
-    return;
-  }
+  const sendEmailCode = async () => {
+    const now = Date.now();
+    if (now - lastSentTime < 60000) {
+      const remaining = Math.ceil((60000 - (now - lastSentTime)) / 1000);
+      toast.error(`Aguarde ${remaining} segundos antes de enviar outro código`);
+      return;
+    }
 
-  setSendingCode(true);
-  try {
-    // FORÇAR OTP EM VEZ DE MAGIC LINK
-    const { error } = await supabase.auth.signInWithOtp({
-      email: emailData.new_email,
-      options: {
-        shouldCreateUser: false,
-        // Isso força o envio de código numérico
-      },
-    });
-    
-    if (error) throw error;
-    
-    setEmailStep('code');
-    toast.success('Código de verificação enviado para o novo email!');
-  } catch (error) {
-    toast.error('Erro ao enviar código. Tente novamente.');
-  } finally {
-    setSendingCode(false);
-  }
-};
+    if (!emailData.new_email) {
+      toast.error('Digite o novo email');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailData.new_email)) {
+      toast.error('Email inválido');
+      return;
+    }
+    if (emailData.new_email === user?.email) {
+      toast.error('O novo email é igual ao atual');
+      return;
+    }
+
+    setSendingCode(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: emailData.new_email,
+        options: {
+          shouldCreateUser: false,
+        },
+      });
+      
+      if (error) throw error;
+      
+      setLastSentTime(Date.now());
+      setEmailStep('code');
+      toast.success('Código de verificação enviado para o novo email!');
+    } catch (error) {
+      if (error.status === 429) {
+        toast.error('Muitas tentativas. Aguarde alguns minutos e tente novamente.');
+      } else {
+        toast.error('Erro ao enviar código. Tente novamente.');
+      }
+    } finally {
+      setSendingCode(false);
+    }
+  };
+
+  const verifyEmailCode = async () => {
+    if (!emailData.code) {
+      toast.error('Digite o código de verificação');
+      return;
+    }
+
+    setChangingEmail(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        email: emailData.new_email,
+      });
+      
+      if (error) throw error;
+      
+      toast.success('Email alterado com sucesso!');
+      setShowChangeEmail(false);
+      setEmailData({ new_email: '', code: '' });
+      setEmailStep('form');
+      loadUser();
+    } catch (error) {
+      toast.error(error.message || 'Código inválido ou expirado');
+    } finally {
+      setChangingEmail(false);
+    }
+  };
 
   // ==================== MUDANÇA DE SENHA ====================
   const sendPasswordCode = async () => {
+    const now = Date.now();
+    if (now - lastSentTime < 60000) {
+      const remaining = Math.ceil((60000 - (now - lastSentTime)) / 1000);
+      toast.error(`Aguarde ${remaining} segundos antes de enviar outro código`);
+      return;
+    }
+
     if (!passwordData.new_password) {
       toast.error('Digite a nova senha');
       return;
@@ -120,10 +166,15 @@ const sendEmailCode = async () => {
       
       if (error) throw error;
       
+      setLastSentTime(Date.now());
       setPasswordStep('code');
       toast.success('Código de verificação enviado para seu email!');
     } catch (error) {
-      toast.error('Erro ao enviar código. Tente novamente.');
+      if (error.status === 429) {
+        toast.error('Muitas tentativas. Aguarde alguns minutos e tente novamente.');
+      } else {
+        toast.error('Erro ao enviar código. Tente novamente.');
+      }
     } finally {
       setSendingPasswordCode(false);
     }
@@ -232,7 +283,10 @@ const sendEmailCode = async () => {
 
         {/* Mudar Email */}
         <div>
-          <button onClick={() => setShowChangeEmail(!showChangeEmail)} className="flex items-center justify-between w-full py-2 text-left">
+          <button
+            onClick={() => setShowChangeEmail(!showChangeEmail)}
+            className="flex items-center justify-between w-full py-2 text-left"
+          >
             <div>
               <p className="text-sm font-semibold text-foreground">Alterar email</p>
               <p className="text-xs text-muted-foreground">Altere seu endereço de email</p>
@@ -255,15 +309,19 @@ const sendEmailCode = async () => {
                     <Button onClick={sendEmailCode} disabled={sendingCode} className="bg-white text-black">
                       {sendingCode ? 'Enviando...' : 'Enviar código'}
                     </Button>
-                    <Button variant="outline" onClick={() => setShowChangeEmail(false)}>Cancelar</Button>
+                    <Button variant="outline" onClick={() => setShowChangeEmail(false)}>
+                      Cancelar
+                    </Button>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground">Enviamos um código para <strong>{emailData.new_email}</strong></p>
+                  <p className="text-xs text-muted-foreground">
+                    Enviamos um código para <strong>{emailData.new_email}</strong>
+                  </p>
                   <input
                     type="text"
-                    placeholder="Código"
+                    placeholder="Código de verificação"
                     value={emailData.code}
                     onChange={(e) => setEmailData({ ...emailData, code: e.target.value })}
                     className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground text-center tracking-widest font-mono"
@@ -276,7 +334,9 @@ const sendEmailCode = async () => {
                       setEmailStep('form');
                       setShowChangeEmail(false);
                       setEmailData({ new_email: '', code: '' });
-                    }}>Cancelar</Button>
+                    }}>
+                      Cancelar
+                    </Button>
                   </div>
                 </div>
               )}
@@ -286,7 +346,10 @@ const sendEmailCode = async () => {
 
         {/* Mudar Senha */}
         <div className="pt-4 border-t border-border">
-          <button onClick={() => setShowChangePassword(!showChangePassword)} className="flex items-center justify-between w-full py-2 text-left">
+          <button
+            onClick={() => setShowChangePassword(!showChangePassword)}
+            className="flex items-center justify-between w-full py-2 text-left"
+          >
             <div>
               <p className="text-sm font-semibold text-foreground">Alterar senha</p>
               <p className="text-xs text-muted-foreground">Altere sua senha de acesso</p>
@@ -306,7 +369,11 @@ const sendEmailCode = async () => {
                       onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
                       className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground pr-10"
                     />
-                    <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    >
                       {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
@@ -318,7 +385,11 @@ const sendEmailCode = async () => {
                       onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
                       className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground pr-10"
                     />
-                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    >
                       {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
@@ -326,15 +397,19 @@ const sendEmailCode = async () => {
                     <Button onClick={sendPasswordCode} disabled={sendingPasswordCode} className="bg-white text-black">
                       {sendingPasswordCode ? 'Enviando...' : 'Enviar código'}
                     </Button>
-                    <Button variant="outline" onClick={() => setShowChangePassword(false)}>Cancelar</Button>
+                    <Button variant="outline" onClick={() => setShowChangePassword(false)}>
+                      Cancelar
+                    </Button>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground">Enviamos um código para <strong>{user?.email}</strong></p>
+                  <p className="text-xs text-muted-foreground">
+                    Enviamos um código para <strong>{user?.email}</strong>
+                  </p>
                   <input
                     type="text"
-                    placeholder="Código"
+                    placeholder="Código de verificação"
                     value={passwordData.code}
                     onChange={(e) => setPasswordData({ ...passwordData, code: e.target.value })}
                     className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground text-center tracking-widest font-mono"
@@ -347,7 +422,9 @@ const sendEmailCode = async () => {
                       setPasswordStep('form');
                       setShowChangePassword(false);
                       setPasswordData({ new_password: '', confirm_password: '', code: '' });
-                    }}>Cancelar</Button>
+                    }}>
+                      Cancelar
+                    </Button>
                   </div>
                 </div>
               )}
