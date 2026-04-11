@@ -1,10 +1,9 @@
 ﻿import { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Download, Clock, CheckCircle, XCircle, QrCode, RotateCcw } from 'lucide-react';
+import { Download, Clock, CheckCircle, XCircle, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import PixModal from '@/components/checkout/PixModal';
-import RefundModal from '@/components/orders/RefundModal';
 
 const getOrderDate = (order) => order?.created_date || order?.created_at || null;
 
@@ -12,17 +11,10 @@ export default function MyOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pixModalData, setPixModalData] = useState(null);
-  const [refundOrder, setRefundOrder] = useState(null);
-  const [pendingRefundIds, setPendingRefundIds] = useState([]);
-  const [approvedRefundIds, setApprovedRefundIds] = useState([]);
   const [downloadedOrderIds, setDownloadedOrderIds] = useState([]);
 
   useEffect(() => {
     loadOrders();
-    loadLocalStorage();
-  }, []);
-
-  const loadLocalStorage = () => {
     const stored = localStorage.getItem('downloaded_orders');
     if (stored) {
       try {
@@ -31,21 +23,13 @@ export default function MyOrders() {
         setDownloadedOrderIds([]);
       }
     }
-  };
+  }, []);
 
   const loadOrders = async () => {
     try {
       const me = await base44.auth.me();
       const allOrders = await base44.entities.Order.filter({ customer_email: me.email }, '-created_date');
       setOrders(allOrders || []);
-
-      // Buscar todos os reembolsos
-      const refunds = await base44.entities.RefundRequest.filter({ user_email: me.email });
-      const pending = (refunds || []).filter(r => r.status === 'pending').map(r => r.order_id);
-      const approved = (refunds || []).filter(r => r.status === 'approved').map(r => r.order_id);
-      
-      setPendingRefundIds(pending);
-      setApprovedRefundIds(approved);
     } catch (error) {
       console.error(error);
       toast.error('Não foi possível carregar seus pedidos.');
@@ -66,16 +50,6 @@ export default function MyOrders() {
       return;
     }
 
-    if (pendingRefundIds.includes(order.id)) {
-      toast.error('Solicitação de reembolso pendente');
-      return;
-    }
-
-    if (approvedRefundIds.includes(order.id)) {
-      toast.error('Este pedido foi reembolsado');
-      return;
-    }
-
     const urls = (order.items || []).map((item) => item.file_url).filter(Boolean);
 
     if (urls.length === 0) {
@@ -87,26 +61,10 @@ export default function MyOrders() {
     registerDownloadedOrder(order.id);
   };
 
-  const canRefund = (order) => {
-    if (order.status !== 'completed') return false;
-    if (pendingRefundIds.includes(order.id)) return false;
-    if (approvedRefundIds.includes(order.id)) return false;
-    if (downloadedOrderIds.includes(order.id)) return false;
-
-    const orderDate = getOrderDate(order);
-    if (!orderDate) return false;
-
-    const createdAt = new Date(orderDate);
-    if (Number.isNaN(createdAt.getTime())) return false;
-
-    const hours48 = 48 * 60 * 60 * 1000;
-    return Date.now() - createdAt.getTime() < hours48;
-  };
-
   const statusConfig = {
-    pending: { icon: Clock, label: 'Aguardando Pagamento', className: 'text-[#555]' },
+    pending: { icon: Clock, label: 'Aguardando Pagamento', className: 'text-[#666]' },
     completed: { icon: CheckCircle, label: 'Concluído', className: 'text-white' },
-    cancelled: { icon: XCircle, label: 'Cancelado', className: 'text-[#555]' },
+    cancelled: { icon: XCircle, label: 'Cancelado', className: 'text-red-500' },
   };
 
   if (loading) {
@@ -133,9 +91,6 @@ export default function MyOrders() {
           {orders.map((order) => {
             const status = statusConfig[order.status] || statusConfig.pending;
             const StatusIcon = status.icon;
-            const refundable = canRefund(order);
-            const hasPendingRefund = pendingRefundIds.includes(order.id);
-            const hasApprovedRefund = approvedRefundIds.includes(order.id);
             const orderDate = getOrderDate(order);
 
             return (
@@ -154,16 +109,6 @@ export default function MyOrders() {
                           })
                         : '-'}
                     </span>
-                    {hasPendingRefund && (
-                      <span className="text-xs px-2 py-0.5 rounded-full border border-[#333] text-[#555]">
-                        Reembolso solicitado
-                      </span>
-                    )}
-                    {hasApprovedRefund && (
-                      <span className="text-xs px-2 py-0.5 rounded-full border border-[#333] text-[#555]">
-                        Reembolso aprovado
-                      </span>
-                    )}
                   </div>
 
                   <div className="flex items-center gap-2 flex-wrap">
@@ -178,16 +123,7 @@ export default function MyOrders() {
                         <QrCode className="h-3 w-3" /> Ver QR Code
                       </Button>
                     )}
-                    {refundable && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setRefundOrder(order)}
-                        className="border-[#1A1A1A] text-[#666] hover:bg-[#111] hover:text-white gap-1.5 text-xs h-8"
-                      >
-                        <RotateCcw className="h-3 w-3" /> Reembolso
-                      </Button>
-                    )}
+                    {/* Botão de reembolso REMOVIDO */}
                   </div>
                 </div>
 
@@ -203,7 +139,7 @@ export default function MyOrders() {
                         <div className="text-xs text-[#555]">{item.license_name}</div>
                       </div>
 
-                      {order.status === 'completed' && item.file_url && !hasPendingRefund && !hasApprovedRefund && (
+                      {order.status === 'completed' && item.file_url && (
                         <Button
                           size="sm"
                           variant="outline"
@@ -216,23 +152,11 @@ export default function MyOrders() {
                           <Download className="h-3 w-3" /> Download
                         </Button>
                       )}
-                      
-                      {hasPendingRefund && (
-                        <div className="text-xs text-[#555] border border-[#333] px-2 py-1 rounded-lg">
-                          Aguardando análise
-                        </div>
-                      )}
-                      
-                      {hasApprovedRefund && (
-                        <div className="text-xs text-[#555] border border-[#333] px-2 py-1 rounded-lg">
-                          Reembolsado
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
 
-                {order.status === 'completed' && !hasPendingRefund && !hasApprovedRefund && (
+                {order.status === 'completed' && (
                   <div className="px-4 pb-4">
                     <Button onClick={() => handleDownload(order)} className="bg-white text-black hover:bg-white/90 gap-2 text-sm w-full sm:w-auto">
                       <Download className="h-4 w-4" /> Baixar Todos
@@ -252,19 +176,6 @@ export default function MyOrders() {
           pixCode={pixModalData.pixCode}
           total={pixModalData.total}
           currency={pixModalData.currency}
-        />
-      )}
-
-      {refundOrder && (
-        <RefundModal
-          open={!!refundOrder}
-          order={refundOrder}
-          onClose={() => setRefundOrder(null)}
-          onSuccess={(orderId) => {
-            setPendingRefundIds((prev) => [...new Set([...prev, orderId])]);
-            setRefundOrder(null);
-            loadOrders();
-          }}
         />
       )}
     </div>
