@@ -39,6 +39,7 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
   const qrContainerRef        = useRef(null);
   const qrRendered            = useRef(false);
 
+  // reset + gera código
   useEffect(() => {
     if (!open) {
       setReady(false);
@@ -60,6 +61,7 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
     return () => clearTimeout(t);
   }, [open, total]);
 
+  // renderiza QR — usa toDataURL e injeta uma única <img> quadrada
   useEffect(() => {
     if (!ready || !qrContainerRef.current || !pixCode || qrRendered.current) return;
     qrRendered.current = true;
@@ -69,6 +71,7 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
       color: { dark: '#000000', light: '#ffffff' },
     }).then((url) => {
       if (!qrContainerRef.current) return;
+      // limpa e injeta somente 1 img, sem arredondamento
       qrContainerRef.current.innerHTML = '';
       const img = document.createElement('img');
       img.src = url;
@@ -94,7 +97,7 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
   return (
     <div className="fixed inset-0 z-50 bg-[#060606] flex flex-col">
 
-      {/* Topbar */}
+      {/* ── Topbar ── */}
       <div className="flex-shrink-0 flex items-center justify-between px-6 py-3.5 border-b border-[#141414] bg-[#080808]">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center">
@@ -108,12 +111,13 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
         </div>
       </div>
 
-      {/* Body */}
+      {/* ── Body ── */}
       <div className="flex flex-1 min-h-0">
 
-        {/* Main */}
+        {/* ── Main ── */}
         <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center px-8 py-10">
 
+          {/* Loading */}
           {!ready && (
             <div className="flex flex-col items-center gap-4">
               <div className="w-8 h-8 border border-[#1c1c1c] border-t-[#555] rounded-full animate-spin" />
@@ -121,6 +125,7 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
             </div>
           )}
 
+          {/* Conteúdo */}
           {ready && (
             <div className="w-full max-w-[380px] flex flex-col items-center gap-5">
 
@@ -137,7 +142,7 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
                 </div>
               </div>
 
-              {/* QR Code */}
+              {/* QR Code — 1 img quadrada, sem border-radius */}
               <div style={{ background: '#fff', padding: '12px', display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                 <div ref={qrContainerRef} style={{ lineHeight: 0, fontSize: 0 }} />
                 <div className="flex items-center gap-1.5">
@@ -146,9 +151,9 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
                 </div>
               </div>
 
-              {/* Campo código + botão copiar - CORRIGIDO: texto quebra linha */}
+              {/* Campo código + botão copiar (só ícone) */}
               <div className="w-full flex border border-[#1e1e1e] rounded-xl overflow-hidden">
-                <div className="flex-1 bg-[#0a0a0a] px-3.5 py-3 font-mono text-[11px] text-[#555] break-words min-w-0">
+                <div className="flex-1 bg-[#0a0a0a] px-3.5 py-3 font-mono text-[11px] text-[#555] overflow-hidden text-ellipsis whitespace-nowrap min-w-0">
                   {pixCode}
                 </div>
                 <button
@@ -159,7 +164,10 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
                       : 'bg-white text-black hover:opacity-90'
                     }`}
                 >
-                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied
+                    ? <Check className="h-4 w-4" />
+                    : <Copy className="h-4 w-4" />
+                  }
                 </button>
               </div>
 
@@ -198,8 +206,10 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
           )}
         </div>
 
-        {/* Sidebar direita */}
-        <aside className="hidden lg:flex flex-col w-60 flex-shrink-0 border-l border-[#111] bg-[#080808] overflow-y-auto">
+        {/* ── Sidebar direita ── */}
+        <aside className="hidden lg:flex flex-col w-60 flex-shrink-0 border-l border-[#111] bg-[#080808]">
+
+          {/* Resumo */}
           <div className="px-5 py-5 border-b border-[#111]">
             <p className="text-[9px] text-[#282828] font-bold uppercase tracking-widest mb-3">Resumo do pedido</p>
             <div className="flex justify-between items-baseline mb-2.5">
@@ -218,6 +228,7 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
             </div>
           </div>
 
+          {/* Código da transação */}
           <div className="px-5 py-5 border-b border-[#111]">
             <p className="text-[9px] text-[#282828] font-bold uppercase tracking-widest mb-2">Código da transação</p>
             <div className="bg-[#060606] border border-[#161616] rounded-lg px-3 py-2.5">
@@ -225,6 +236,7 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
             </div>
           </div>
 
+          {/* Detalhes */}
           <div className="px-5 py-5">
             <p className="text-[9px] text-[#282828] font-bold uppercase tracking-widest mb-3">Detalhes</p>
             {[
@@ -238,6 +250,7 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
               </div>
             ))}
           </div>
+
         </aside>
       </div>
     </div>
