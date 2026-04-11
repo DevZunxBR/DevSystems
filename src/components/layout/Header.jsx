@@ -62,7 +62,7 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#000]/95 backdrop-blur-md border-b border-[#1A1A1A]">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
             {!logoLoadError ? (
               <img
                 src={logoImage}
