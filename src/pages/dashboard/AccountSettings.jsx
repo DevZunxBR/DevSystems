@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { base44, supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { User, Key, Mail, Eye, EyeOff, Check, X, ArrowLeft } from 'lucide-react';
+import { User, Key, Mail, Eye, EyeOff } from 'lucide-react';
 
 export default function AccountSettings() {
   const [user, setUser] = useState(null);
@@ -13,21 +13,14 @@ export default function AccountSettings() {
   
   // States para mudança de email
   const [showChangeEmail, setShowChangeEmail] = useState(false);
-  const [emailData, setEmailData] = useState({
-    new_email: '',
-    code: ''
-  });
+  const [emailData, setEmailData] = useState({ new_email: '', code: '' });
   const [emailStep, setEmailStep] = useState('form');
   const [sendingCode, setSendingCode] = useState(false);
   const [changingEmail, setChangingEmail] = useState(false);
   
   // States para mudança de senha
   const [showChangePassword, setShowChangePassword] = useState(false);
-  const [passwordData, setPasswordData] = useState({
-    new_password: '',
-    confirm_password: '',
-    code: ''
-  });
+  const [passwordData, setPasswordData] = useState({ new_password: '', confirm_password: '', code: '' });
   const [passwordStep, setPasswordStep] = useState('form');
   const [sendingPasswordCode, setSendingPasswordCode] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
@@ -118,7 +111,7 @@ export default function AccountSettings() {
       
       if (error) throw error;
       
-      toast.success('Email alterado com sucesso! Você precisará confirmar no novo email.');
+      toast.success('Email alterado com sucesso!');
       setShowChangeEmail(false);
       setEmailData({ new_email: '', code: '' });
       setEmailStep('form');
@@ -131,7 +124,6 @@ export default function AccountSettings() {
   };
 
   // ==================== MUDANÇA DE SENHA ====================
-  // FUNÇÃO PARA ENVIAR CÓDIGO DE REDEFINIÇÃO DE SENHA
   const sendPasswordCode = async () => {
     if (!passwordData.new_password) {
       toast.error('Digite a nova senha');
@@ -148,10 +140,7 @@ export default function AccountSettings() {
 
     setSendingPasswordCode(true);
     try {
-      // Isso envia o email com o código OTP
-      const { error } = await supabase.auth.resetPasswordForEmail(user?.email, {
-        redirectTo: window.location.origin + '/dashboard/settings',
-      });
+      const { error } = await supabase.auth.resetPasswordForEmail(user?.email);
       
       if (error) throw error;
       
@@ -164,7 +153,6 @@ export default function AccountSettings() {
     }
   };
 
-  // FUNÇÃO PARA VERIFICAR O CÓDIGO E ALTERAR A SENHA
   const verifyPasswordCode = async () => {
     if (!passwordData.code) {
       toast.error('Digite o código de verificação');
@@ -173,7 +161,6 @@ export default function AccountSettings() {
 
     setChangingPassword(true);
     try {
-      // Verificar o código OTP
       const { error: verifyError } = await supabase.auth.verifyOtp({
         email: user?.email,
         token: passwordData.code,
@@ -182,7 +169,6 @@ export default function AccountSettings() {
       
       if (verifyError) throw verifyError;
       
-      // Se o código for válido, alterar a senha
       const { error } = await supabase.auth.updateUser({
         password: passwordData.new_password,
       });
@@ -194,7 +180,6 @@ export default function AccountSettings() {
       setPasswordData({ new_password: '', confirm_password: '', code: '' });
       setPasswordStep('form');
       
-      // Deslogar para usar nova senha
       setTimeout(() => {
         base44.auth.logout('/');
       }, 2000);
@@ -271,10 +256,7 @@ export default function AccountSettings() {
 
         {/* Mudar Email */}
         <div>
-          <button
-            onClick={() => setShowChangeEmail(!showChangeEmail)}
-            className="flex items-center justify-between w-full py-2 text-left"
-          >
+          <button onClick={() => setShowChangeEmail(!showChangeEmail)} className="flex items-center justify-between w-full py-2 text-left">
             <div>
               <p className="text-sm font-semibold text-foreground">Alterar email</p>
               <p className="text-xs text-muted-foreground">Altere seu endereço de email</p>
@@ -297,19 +279,15 @@ export default function AccountSettings() {
                     <Button onClick={sendEmailCode} disabled={sendingCode} className="bg-white text-black">
                       {sendingCode ? 'Enviando...' : 'Enviar código'}
                     </Button>
-                    <Button variant="outline" onClick={() => setShowChangeEmail(false)}>
-                      Cancelar
-                    </Button>
+                    <Button variant="outline" onClick={() => setShowChangeEmail(false)}>Cancelar</Button>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground">
-                    Enviamos um código para <strong>{emailData.new_email}</strong>
-                  </p>
+                  <p className="text-xs text-muted-foreground">Enviamos um código para <strong>{emailData.new_email}</strong></p>
                   <input
                     type="text"
-                    placeholder="Código de verificação"
+                    placeholder="Código"
                     value={emailData.code}
                     onChange={(e) => setEmailData({ ...emailData, code: e.target.value })}
                     className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground text-center tracking-widest font-mono"
@@ -322,9 +300,7 @@ export default function AccountSettings() {
                       setEmailStep('form');
                       setShowChangeEmail(false);
                       setEmailData({ new_email: '', code: '' });
-                    }}>
-                      Cancelar
-                    </Button>
+                    }}>Cancelar</Button>
                   </div>
                 </div>
               )}
@@ -334,10 +310,7 @@ export default function AccountSettings() {
 
         {/* Mudar Senha */}
         <div className="pt-4 border-t border-border">
-          <button
-            onClick={() => setShowChangePassword(!showChangePassword)}
-            className="flex items-center justify-between w-full py-2 text-left"
-          >
+          <button onClick={() => setShowChangePassword(!showChangePassword)} className="flex items-center justify-between w-full py-2 text-left">
             <div>
               <p className="text-sm font-semibold text-foreground">Alterar senha</p>
               <p className="text-xs text-muted-foreground">Altere sua senha de acesso</p>
@@ -357,11 +330,7 @@ export default function AccountSettings() {
                       onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
                       className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground pr-10"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                    >
+                    <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                       {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
@@ -373,48 +342,36 @@ export default function AccountSettings() {
                       onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
                       className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground pr-10"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                    >
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                       {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                   <div className="flex gap-2">
-                    {/* BOTÃO QUE CHAMA A FUNÇÃO sendPasswordCode */}
                     <Button onClick={sendPasswordCode} disabled={sendingPasswordCode} className="bg-white text-black">
-                      {sendingPasswordCode ? 'Enviando...' : 'Enviar código para o email'}
+                      {sendingPasswordCode ? 'Enviando...' : 'Enviar código'}
                     </Button>
-                    <Button variant="outline" onClick={() => setShowChangePassword(false)}>
-                      Cancelar
-                    </Button>
+                    <Button variant="outline" onClick={() => setShowChangePassword(false)}>Cancelar</Button>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground">
-                    Enviamos um código de verificação para <strong>{user?.email}</strong>
-                  </p>
+                  <p className="text-xs text-muted-foreground">Enviamos um código para <strong>{user?.email}</strong></p>
                   <input
                     type="text"
-                    placeholder="Código de verificação"
+                    placeholder="Código"
                     value={passwordData.code}
                     onChange={(e) => setPasswordData({ ...passwordData, code: e.target.value })}
                     className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground text-center tracking-widest font-mono"
                   />
                   <div className="flex gap-2">
-                    {/* BOTÃO QUE CHAMA A FUNÇÃO verifyPasswordCode */}
                     <Button onClick={verifyPasswordCode} disabled={changingPassword} className="bg-white text-black">
-                      {changingPassword ? 'Alterando...' : 'Confirmar e alterar'}
+                      {changingPassword ? 'Alterando...' : 'Confirmar'}
                     </Button>
                     <Button variant="outline" onClick={() => {
                       setPasswordStep('form');
                       setShowChangePassword(false);
                       setPasswordData({ new_password: '', confirm_password: '', code: '' });
-                    }}>
-                      Cancelar
-                    </Button>
+                    }}>Cancelar</Button>
                   </div>
                 </div>
               )}
