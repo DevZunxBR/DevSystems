@@ -44,6 +44,12 @@ const toNumber = (value) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
+const isTypingElement = (element) => {
+  if (!element) return false;
+  const tag = element.tagName?.toLowerCase();
+  return tag === 'input' || tag === 'textarea' || tag === 'select' || element.isContentEditable;
+};
+
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -86,6 +92,27 @@ export default function ProductDetail() {
     if (product?.thumbnail) return [product.thumbnail];
     return [];
   }, [product]);
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+
+    const onKeyDown = (event) => {
+      if (isTypingElement(document.activeElement)) return;
+
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        setSelectedImage((current) => (current === 0 ? images.length - 1 : current - 1));
+      }
+
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        setSelectedImage((current) => (current === images.length - 1 ? 0 : current + 1));
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [images.length]);
 
   const hasDiscount =
     product?.discount_price_brl &&
@@ -227,6 +254,14 @@ export default function ProductDetail() {
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto px-4 py-8">
+      <div className="mb-3 text-xs text-[#555]">
+        <button onClick={() => navigate('/store')} className="hover:text-white transition-colors">
+          Loja
+        </button>
+        <span className="mx-1">/</span>
+        <span className="text-[#777]">{product.category || 'Produto'}</span>
+      </div>
+
       <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-[#555] hover:text-white mb-6 transition-colors">
         <ChevronLeft className="h-4 w-4" /> Voltar
       </button>
@@ -255,23 +290,29 @@ export default function ProductDetail() {
                   >
                     <ChevronRight className="h-4 w-4" />
                   </button>
+                  <div className="absolute bottom-3 right-3 px-2 py-1 rounded-md bg-black/60 text-[11px] text-white">
+                    {selectedImage + 1}/{images.length}
+                  </div>
                 </>
               )}
             </div>
 
             {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {images.map((img, index) => (
-                  <button
-                    key={img + index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-colors ${
-                      index === selectedImage ? 'border-white' : 'border-[#1A1A1A] hover:border-[#333]'
-                    }`}
-                  >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
-                  </button>
-                ))}
+              <div className="space-y-2">
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {images.map((img, index) => (
+                    <button
+                      key={img + index}
+                      onClick={() => setSelectedImage(index)}
+                      className={`flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-colors ${
+                        index === selectedImage ? 'border-white' : 'border-[#1A1A1A] hover:border-[#333]'
+                      }`}
+                    >
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[11px] text-[#555]">Atalhos: use as teclas ← e → para trocar imagens.</p>
               </div>
             )}
           </div>
@@ -294,6 +335,14 @@ export default function ProductDetail() {
               <div>
                 <h1 className="text-xl font-bold text-white">{product.title}</h1>
                 {product.description && <p className="text-sm text-[#666] mt-1">{product.description}</p>}
+                <div className="flex flex-wrap items-center gap-2 mt-3">
+                  {product.category && (
+                    <span className="text-[10px] px-2 py-1 rounded-full border border-[#1A1A1A] text-[#666]">{product.category}</span>
+                  )}
+                  {product.file_size && (
+                    <span className="text-[10px] px-2 py-1 rounded-full border border-[#1A1A1A] text-[#666]">{product.file_size}</span>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-end gap-2">
