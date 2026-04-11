@@ -1,4 +1,4 @@
-﻿// src/pages/ProductDetail.jsx - Apenas cards cinzas removidos
+﻿// src/pages/ProductDetail.jsx - Apenas cards da galeria, descrição e reviews removidos (sidebar mantida)
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -323,10 +323,10 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {/* Coluna da direita - Informações do produto */}
+        {/* Coluna da direita - Card da sidebar mantido intacto */}
         <div className="lg:col-span-3">
           <div className="sticky top-24 space-y-4">
-            <div className="space-y-5">
+            <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-6 space-y-5">
               <div>
                 <h1 className="text-xl font-bold text-white">{product.title}</h1>
                 {product.description && <p className="text-sm text-[#666] mt-1">{product.description}</p>}
