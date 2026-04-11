@@ -17,7 +17,7 @@ export default function AccountSettings() {
     new_email: '',
     code: ''
   });
-  const [emailStep, setEmailStep] = useState('form'); // 'form' | 'code'
+  const [emailStep, setEmailStep] = useState('form');
   const [sendingCode, setSendingCode] = useState(false);
   const [changingEmail, setChangingEmail] = useState(false);
   
@@ -28,7 +28,7 @@ export default function AccountSettings() {
     confirm_password: '',
     code: ''
   });
-  const [passwordStep, setPasswordStep] = useState('form'); // 'form' | 'code'
+  const [passwordStep, setPasswordStep] = useState('form');
   const [sendingPasswordCode, setSendingPasswordCode] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -86,12 +86,10 @@ export default function AccountSettings() {
 
     setSendingCode(true);
     try {
-      // Enviar código para o novo email
       const { error } = await supabase.auth.signInWithOtp({
         email: emailData.new_email,
         options: {
           shouldCreateUser: false,
-          emailRedirectTo: window.location.origin,
         },
       });
       
@@ -114,7 +112,6 @@ export default function AccountSettings() {
 
     setChangingEmail(true);
     try {
-      // Verificar código e atualizar email
       const { error } = await supabase.auth.updateUser({
         email: emailData.new_email,
       });
@@ -125,8 +122,6 @@ export default function AccountSettings() {
       setShowChangeEmail(false);
       setEmailData({ new_email: '', code: '' });
       setEmailStep('form');
-      
-      // Recarregar usuário
       loadUser();
     } catch (error) {
       toast.error(error.message || 'Código inválido ou expirado');
@@ -136,6 +131,7 @@ export default function AccountSettings() {
   };
 
   // ==================== MUDANÇA DE SENHA ====================
+  // FUNÇÃO PARA ENVIAR CÓDIGO DE REDEFINIÇÃO DE SENHA
   const sendPasswordCode = async () => {
     if (!passwordData.new_password) {
       toast.error('Digite a nova senha');
@@ -152,18 +148,15 @@ export default function AccountSettings() {
 
     setSendingPasswordCode(true);
     try {
-      // Enviar código de verificação para o email do usuário
-      const { error } = await supabase.auth.signInWithOtp({
-        email: user?.email,
-        options: {
-          shouldCreateUser: false,
-        },
+      // Isso envia o email com o código OTP
+      const { error } = await supabase.auth.resetPasswordForEmail(user?.email, {
+        redirectTo: window.location.origin + '/dashboard/settings',
       });
       
       if (error) throw error;
       
       setPasswordStep('code');
-      toast.success('Código enviado para seu email!');
+      toast.success('Código de verificação enviado para seu email!');
     } catch (error) {
       toast.error('Erro ao enviar código. Tente novamente.');
     } finally {
@@ -171,6 +164,7 @@ export default function AccountSettings() {
     }
   };
 
+  // FUNÇÃO PARA VERIFICAR O CÓDIGO E ALTERAR A SENHA
   const verifyPasswordCode = async () => {
     if (!passwordData.code) {
       toast.error('Digite o código de verificação');
@@ -179,7 +173,7 @@ export default function AccountSettings() {
 
     setChangingPassword(true);
     try {
-      // Verificar o código via OTP
+      // Verificar o código OTP
       const { error: verifyError } = await supabase.auth.verifyOtp({
         email: user?.email,
         token: passwordData.code,
@@ -188,7 +182,7 @@ export default function AccountSettings() {
       
       if (verifyError) throw verifyError;
       
-      // Alterar a senha
+      // Se o código for válido, alterar a senha
       const { error } = await supabase.auth.updateUser({
         password: passwordData.new_password,
       });
@@ -205,7 +199,7 @@ export default function AccountSettings() {
         base44.auth.logout('/');
       }, 2000);
     } catch (error) {
-      toast.error(error.message || 'Código inválido ou expirado');
+      toast.error('Código inválido ou expirado');
     } finally {
       setChangingPassword(false);
     }
@@ -388,6 +382,7 @@ export default function AccountSettings() {
                     </button>
                   </div>
                   <div className="flex gap-2">
+                    {/* BOTÃO QUE CHAMA A FUNÇÃO sendPasswordCode */}
                     <Button onClick={sendPasswordCode} disabled={sendingPasswordCode} className="bg-white text-black">
                       {sendingPasswordCode ? 'Enviando...' : 'Enviar código para o email'}
                     </Button>
@@ -409,6 +404,7 @@ export default function AccountSettings() {
                     className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground text-center tracking-widest font-mono"
                   />
                   <div className="flex gap-2">
+                    {/* BOTÃO QUE CHAMA A FUNÇÃO verifyPasswordCode */}
                     <Button onClick={verifyPasswordCode} disabled={changingPassword} className="bg-white text-black">
                       {changingPassword ? 'Alterando...' : 'Confirmar e alterar'}
                     </Button>
