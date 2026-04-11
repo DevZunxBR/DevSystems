@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Copy, Check, CheckCircle, Info, X, Clock, Shield } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Copy, Check, CheckCircle, Shield, X, ArrowLeft, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import QRCode from 'qrcode';
@@ -32,8 +32,7 @@ function gerarPixCopiaECola({ chave, nome, cidade, valor, txid }) {
 }
 // ────────────────────────────────────────────────────────────────────────────
 
-// Hook: calcula scale para caber na tela
-function useAutoScale(targetW, targetH, padding = 24) {
+function useAutoScale(targetW, targetH, padding = 32) {
   const [scale, setScale] = useState(1);
   useEffect(() => {
     const calc = () => {
@@ -48,50 +47,23 @@ function useAutoScale(targetW, targetH, padding = 24) {
   return scale;
 }
 
-// Timer
-function CountdownTimer({ startTime }) {
-  const [remaining, setRemaining] = useState(15 * 60);
-  useEffect(() => {
-    if (!startTime) return;
-    const interval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - startTime) / 1000);
-      const left = Math.max(0, 15 * 60 - elapsed);
-      setRemaining(left);
-      if (left <= 0) clearInterval(interval);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [startTime]);
-  const m = Math.floor(remaining / 60);
-  const s = remaining % 60;
-  const isLow = remaining < 120;
-  return (
-    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${isLow ? 'border-[#3a1a1a] bg-[#1a0a0a]' : 'border-[#1e1e1e] bg-[#0a0a0a]'}`}>
-      <Clock className={`h-3 w-3 ${isLow ? 'text-[#ef4444]' : 'text-[#444]'}`} />
-      <span className={`text-[11px] font-mono font-bold tabular-nums ${isLow ? 'text-[#ef4444]' : 'text-[#555]'}`}>
-        {String(m).padStart(2, '0')}:{String(s).padStart(2, '0')}
-      </span>
-      <span className="text-[10px] text-[#2a2a2a]">restantes</span>
-    </div>
-  );
-}
+const MODAL_W = 860;
+const MODAL_H = 540;
 
-// Dimensões base do modal (design source-of-truth)
-const MODAL_W = 820;
-const MODAL_H = 580;
+const stagger = (i) => ({ initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { delay: 0.08 + i * 0.06, duration: 0.35, ease: [0.22, 1, 0.36, 1] } });
 
 export default function PixModal({ open, onClose, total, cartItems = [] }) {
-  const [ready, setReady]         = useState(false);
-  const [pixCode, setPixCode]     = useState('');
-  const [txid, setTxid]           = useState('');
-  const [copied, setCopied]       = useState(false);
-  const [startTime, setStartTime] = useState(null);
-  const qrContainerRef            = useRef(null);
-  const qrRendered                = useRef(false);
-  const scale                     = useAutoScale(MODAL_W, MODAL_H);
+  const [ready, setReady]     = useState(false);
+  const [pixCode, setPixCode] = useState('');
+  const [txid, setTxid]       = useState('');
+  const [copied, setCopied]   = useState(false);
+  const qrContainerRef        = useRef(null);
+  const qrRendered            = useRef(false);
+  const scale                 = useAutoScale(MODAL_W, MODAL_H);
 
   useEffect(() => {
     if (!open) {
-      setReady(false); setCopied(false); setStartTime(null);
+      setReady(false); setCopied(false);
       qrRendered.current = false;
       return;
     }
@@ -105,24 +77,22 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
       txid: id,
     });
     setPixCode(code);
-    const t = setTimeout(() => { setReady(true); setStartTime(Date.now()); }, 1800);
+    const t = setTimeout(() => setReady(true), 1600);
     return () => clearTimeout(t);
   }, [open, total]);
 
   useEffect(() => {
     if (!ready || !qrContainerRef.current || !pixCode || qrRendered.current) return;
     qrRendered.current = true;
-    QRCode.toDataURL(pixCode, {
-      width: 160, margin: 2,
-      color: { dark: '#000000', light: '#ffffff' },
-    }).then((url) => {
-      if (!qrContainerRef.current) return;
-      qrContainerRef.current.innerHTML = '';
-      const img = document.createElement('img');
-      img.src = url; img.width = 160; img.height = 160;
-      img.style.display = 'block'; img.style.borderRadius = '0';
-      qrContainerRef.current.appendChild(img);
-    }).catch(console.error);
+    QRCode.toDataURL(pixCode, { width: 156, margin: 2, color: { dark: '#000', light: '#fff' } })
+      .then((url) => {
+        if (!qrContainerRef.current) return;
+        qrContainerRef.current.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = url; img.width = 156; img.height = 156;
+        img.style.display = 'block'; img.style.borderRadius = '0';
+        qrContainerRef.current.appendChild(img);
+      }).catch(console.error);
   }, [ready, pixCode]);
 
   const handleCopy = async () => {
@@ -137,47 +107,43 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
   return (
     <AnimatePresence>
       {open && (
-        /* Backdrop */
         <motion.div
-          key="backdrop"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          transition={{ duration: 0.25 }}
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.88)' }}
           onClick={(e) => e.target === e.currentTarget && onClose()}
         >
-          {/* Modal auto-scale wrapper */}
           <motion.div
-            key="modal"
-            initial={{ opacity: 0, scale: 0.92, y: 20 }}
+            initial={{ opacity: 0, scale: 0.94, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 20 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            style={{
-              width: MODAL_W,
-              height: MODAL_H,
-              transform: `scale(${scale})`,
-              transformOrigin: 'center center',
-            }}
-            className="relative bg-[#080808] border border-[#141414] rounded-2xl overflow-hidden flex flex-col shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
+            exit={{ opacity: 0, scale: 0.94, y: 16 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            style={{ width: MODAL_W, height: MODAL_H, transform: `scale(${scale})`, transformOrigin: 'center center' }}
+            className="relative bg-[#070707] border border-[#161616] rounded-2xl overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
           >
+
             {/* ── Topbar ── */}
-            <div className="flex-shrink-0 flex items-center justify-between px-6 py-3 border-b border-[#111] bg-[#060606]">
-              <div className="flex items-center gap-2.5">
-                <div className="w-6 h-6 bg-white rounded-md flex items-center justify-center">
-                  <span className="text-black font-black text-[9px] tracking-tighter">M</span>
-                </div>
-                <span className="text-white font-bold text-[12px] tracking-tight">Marketplace</span>
-              </div>
+            <div className="flex-shrink-0 flex items-center justify-between px-7 py-3.5 border-b border-[#111] bg-[#050505]">
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 bg-[#0f0f0f] border border-[#1e1e1e] rounded-full px-3 py-1">
-                  <Shield className="h-2.5 w-2.5 text-[#333]" />
-                  <span className="text-[9px] text-[#333] font-semibold">SSL · Banco Central</span>
+                <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center">
+                  <span className="text-black font-black text-[10px] tracking-tighter">M</span>
+                </div>
+                <span className="text-white font-bold text-[13px] tracking-tight">Marketplace</span>
+                <div className="w-px h-4 bg-[#1a1a1a]" />
+                <span className="text-[11px] text-[#2e2e2e] font-medium">Checkout seguro</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-1.5 border border-[#1a1a1a] rounded-full px-3 py-1 bg-[#0a0a0a]">
+                  <Shield className="h-2.5 w-2.5 text-[#2e2e2e]" />
+                  <span className="text-[9px] text-[#2e2e2e] font-semibold tracking-wide">SSL · Banco Central</span>
                 </div>
                 <button
                   onClick={onClose}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#1e1e1e] bg-[#0f0f0f] text-[#444] hover:text-white hover:border-[#333] transition-all"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#1a1a1a] bg-[#0a0a0a] text-[#333] hover:text-[#aaa] hover:border-[#333] transition-all"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -187,146 +153,143 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
             {/* ── Body ── */}
             <div className="flex flex-1 min-h-0">
 
-              {/* ── Main ── */}
-              <div className="flex-1 flex flex-col items-center justify-center px-8 overflow-hidden">
+              {/* ── LEFT: Main ── */}
+              <div className="flex-1 flex items-center justify-center px-10 overflow-hidden">
                 <AnimatePresence mode="wait">
+
                   {/* Loading */}
                   {!ready && (
                     <motion.div
                       key="loading"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      className="flex flex-col items-center gap-4"
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="flex flex-col items-center gap-5"
                     >
-                      <div className="relative w-10 h-10">
-                        <div className="absolute inset-0 border border-[#1c1c1c] border-t-[#555] rounded-full animate-spin" />
-                        <div className="absolute inset-[4px] border border-[#1c1c1c] border-b-[#333] rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.2s' }} />
+                      <div className="relative w-11 h-11">
+                        <div className="absolute inset-0 border border-[#1c1c1c] border-t-[#444] rounded-full animate-spin" />
+                        <div className="absolute inset-[5px] border border-[#1c1c1c] border-b-[#2a2a2a] rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.4s' }} />
                       </div>
-                      <div className="text-center">
-                        <p className="text-[12px] text-[#444] font-medium">Gerando código PIX</p>
-                        <p className="text-[10px] text-[#222] mt-0.5">Aguarde um momento...</p>
+                      <div className="text-center space-y-1">
+                        <p className="text-[13px] text-[#3a3a3a] font-semibold">Gerando código PIX</p>
+                        <p className="text-[10px] text-[#222]">Conectando ao Banco Central...</p>
                       </div>
                     </motion.div>
                   )}
 
-                  {/* Conteúdo */}
+                  {/* Ready */}
                   {ready && (
                     <motion.div
                       key="content"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{ duration: 0.4 }}
-                      className="w-full flex flex-col items-center gap-4"
+                      transition={{ duration: 0.3 }}
+                      className="w-full flex flex-col gap-4"
                     >
-                      {/* Header */}
-                      <motion.div
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.05 }}
-                        className="flex items-center gap-3"
-                      >
-                        <div className="relative w-10 h-10 rounded-full border border-[#1a1a1a] flex items-center justify-center flex-shrink-0">
-                          <CheckCircle className="h-5 w-5 text-[#4ade80]" strokeWidth={1.5} />
-                          <motion.div
+                      {/* Status badge + title */}
+                      <motion.div {...stagger(0)} className="flex items-center gap-3">
+                        <div className="relative">
+                          <div className="w-11 h-11 rounded-xl border border-[#1a1a1a] bg-[#0a0a0a] flex items-center justify-center">
+                            <CheckCircle className="h-5 w-5 text-[#4ade80]" strokeWidth={1.5} />
+                          </div>
+                          <motion.span
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            transition={{ delay: 0.3, type: 'spring', stiffness: 400 }}
-                            className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#4ade80] rounded-full flex items-center justify-center"
+                            transition={{ delay: 0.35, type: 'spring', stiffness: 500, damping: 20 }}
+                            className="absolute -top-1 -right-1 w-4 h-4 bg-[#4ade80] rounded-full flex items-center justify-center"
                           >
-                            <Check className="h-2.5 w-2.5 text-black" strokeWidth={3} />
-                          </motion.div>
+                            <Check className="h-2.5 w-2.5 text-black" strokeWidth={3.5} />
+                          </motion.span>
                         </div>
                         <div>
-                          <h2 className="text-[16px] font-black text-white tracking-tight leading-tight">
-                            Pedido realizado!
-                          </h2>
-                          <p className="text-[11px] text-[#444]">Finalize o pagamento via PIX</p>
+                          <p className="text-[15px] font-black text-white tracking-tight leading-none mb-0.5">
+                            Pedido confirmado
+                          </p>
+                          <p className="text-[11px] text-[#3a3a3a]">
+                            Conclua o pagamento para liberar o acesso
+                          </p>
                         </div>
                       </motion.div>
 
-                      {/* QR + Code row */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="w-full flex items-center gap-5"
-                      >
+                      {/* Divider */}
+                      <div className="w-full h-px bg-[#111]" />
+
+                      {/* QR + instruções */}
+                      <div className="flex items-start gap-6">
                         {/* QR */}
-                        <div className="flex-shrink-0 flex flex-col items-center gap-1.5">
-                          <div className="bg-white p-3 rounded-xl">
+                        <motion.div {...stagger(1)} className="flex-shrink-0 flex flex-col items-center gap-2">
+                          <div className="p-3 bg-white rounded-xl shadow-[0_0_0_1px_rgba(255,255,255,0.04)]">
                             <div ref={qrContainerRef} style={{ lineHeight: 0, fontSize: 0 }} />
                           </div>
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-[#1a1a1a] bg-[#0a0a0a]">
                             <div className="w-1.5 h-1.5 rounded-full bg-[#00c2ff] animate-pulse" />
-                            <span className="text-[8px] font-black text-[#555] tracking-[0.15em] uppercase">pix</span>
+                            <span className="text-[8px] font-black text-[#555] tracking-[0.2em] uppercase">Pix</span>
                           </div>
-                        </div>
+                        </motion.div>
 
-                        {/* Right side */}
+                        {/* Right column */}
                         <div className="flex-1 flex flex-col gap-3.5">
-                          {/* Timer */}
-                          <CountdownTimer startTime={startTime} />
-
                           {/* Código */}
-                          <div>
-                            <p className="text-[8px] text-[#282828] font-bold uppercase tracking-[0.15em] mb-1.5">
+                          <motion.div {...stagger(2)}>
+                            <p className="text-[8px] text-[#252525] font-bold uppercase tracking-[0.18em] mb-1.5">
                               Pix Copia e Cola
                             </p>
-                            <div className="flex border border-[#1e1e1e] rounded-xl overflow-hidden hover:border-[#2a2a2a] transition-colors">
-                              <div className="flex-1 bg-[#0a0a0a] px-3 py-2.5 font-mono text-[10px] text-[#555] overflow-hidden text-ellipsis whitespace-nowrap min-w-0 select-all">
+                            <div className="flex border border-[#1a1a1a] rounded-xl overflow-hidden hover:border-[#252525] transition-colors">
+                              <div className="flex-1 bg-[#0a0a0a] px-3.5 py-2.5 font-mono text-[10px] text-[#4a4a4a] overflow-hidden text-ellipsis whitespace-nowrap select-all">
                                 {pixCode}
                               </div>
                               <button
                                 onClick={handleCopy}
-                                className={`flex-shrink-0 flex items-center justify-center w-10 transition-all duration-300
-                                  ${copied ? 'bg-[#0f1a0f] text-[#4ade80] border-l border-[#1e3a1e]' : 'bg-white text-black hover:opacity-90 active:scale-95'}`}
+                                className={`flex-shrink-0 flex items-center justify-center gap-1.5 px-4 text-[11px] font-semibold transition-all duration-300
+                                  ${copied
+                                    ? 'bg-[#0d1f0d] text-[#4ade80] border-l border-[#1e3a1e]'
+                                    : 'bg-white text-black hover:bg-[#f0f0f0] active:scale-95'
+                                  }`}
                               >
-                                {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                                {copied
+                                  ? <><Check className="h-3.5 w-3.5" /><span>Copiado</span></>
+                                  : <><Copy className="h-3.5 w-3.5" /><span>Copiar</span></>
+                                }
                               </button>
                             </div>
-                          </div>
+                          </motion.div>
 
-                          {/* Passos */}
-                          <div className="flex flex-col gap-0">
+                          {/* Steps */}
+                          <motion.div {...stagger(3)} className="flex flex-col gap-px">
+                            <p className="text-[8px] text-[#252525] font-bold uppercase tracking-[0.18em] mb-2">
+                              Como pagar
+                            </p>
                             {[
-                              'Abra o app do seu banco',
-                              'Escolha Pix Copia e Cola',
-                              'Cole o código e confirme',
-                            ].map((s, i) => (
-                              <div key={i} className="flex items-center gap-2 py-1.5">
-                                <div className="w-5 h-5 rounded-full bg-[#0f0f0f] border border-[#1e1e1e] flex items-center justify-center flex-shrink-0">
-                                  <span className="text-[9px] text-[#555] font-bold">{i + 1}</span>
+                              { n: '1', text: 'Abra o app do seu banco' },
+                              { n: '2', text: 'Selecione Pix → Copia e Cola' },
+                              { n: '3', text: 'Cole o código e confirme o valor' },
+                            ].map(({ n, text }) => (
+                              <div key={n} className="flex items-center gap-2.5 py-1.5 group">
+                                <div className="w-5 h-5 rounded-full border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center flex-shrink-0 group-hover:border-[#333] transition-colors">
+                                  <span className="text-[9px] text-[#444] font-bold">{n}</span>
                                 </div>
-                                <span className="text-[11px] text-[#444]">{s}</span>
+                                <span className="text-[11px] text-[#3a3a3a] group-hover:text-[#555] transition-colors">{text}</span>
                               </div>
                             ))}
-                          </div>
+                          </motion.div>
+
+                          {/* Info strip */}
+                          <motion.div {...stagger(4)} className="flex items-center gap-2.5 bg-[#0a0a0a] border border-[#141414] rounded-xl px-3.5 py-2.5">
+                            <Zap className="h-3.5 w-3.5 text-[#222] flex-shrink-0" strokeWidth={1.5} />
+                            <p className="text-[10px] text-[#2e2e2e] leading-relaxed">
+                              Aprovação <span className="text-[#444] font-semibold">instantânea</span> após o pagamento. Acesso liberado por e-mail automaticamente.
+                            </p>
+                          </motion.div>
                         </div>
-                      </motion.div>
+                      </div>
 
-                      {/* Nota */}
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                        className="w-full flex items-start gap-2.5 bg-[#0a0a0a] border border-[#151515] rounded-xl px-4 py-3"
-                      >
-                        <Info className="h-3.5 w-3.5 text-[#2a2a2a] flex-shrink-0 mt-0.5" strokeWidth={1.5} />
-                        <p className="text-[11px] text-[#333] leading-relaxed">
-                          <span className="text-[#555] font-semibold">Pagamento instantâneo.</span>{' '}
-                          Após confirmação você receberá um e-mail com o acesso ao produto.
-                        </p>
-                      </motion.div>
-
-                      {/* Botão voltar */}
+                      {/* Back btn */}
                       <motion.button
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.25 }}
+                        {...stagger(5)}
                         onClick={onClose}
-                        className="w-full py-3 border border-[#1e1e1e] rounded-xl bg-transparent text-[#555] text-[12px] font-bold hover:border-[#444] hover:text-white hover:bg-[#0a0a0a] active:scale-[0.98] transition-all duration-300"
+                        className="flex items-center justify-center gap-2 w-full py-2.5 border border-[#161616] rounded-xl bg-transparent text-[#333] text-[11px] font-semibold hover:border-[#333] hover:text-[#888] hover:bg-[#0a0a0a] active:scale-[0.99] transition-all duration-300"
                       >
+                        <ArrowLeft className="h-3.5 w-3.5" />
                         Voltar ao dashboard
                       </motion.button>
                     </motion.div>
@@ -334,74 +297,76 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
                 </AnimatePresence>
               </div>
 
-              {/* ── Sidebar ── */}
-              <aside className="w-[200px] flex-shrink-0 border-l border-[#111] bg-[#060606] flex flex-col">
-                {/* Resumo */}
-                <div className="px-5 py-5 border-b border-[#111]">
-                  <p className="text-[8px] text-[#222] font-bold uppercase tracking-[0.2em] mb-3">
-                    Resumo
+              {/* ── RIGHT: Sidebar ── */}
+              <aside className="w-[210px] flex-shrink-0 border-l border-[#0f0f0f] bg-[#050505] flex flex-col">
+
+                {/* Order summary */}
+                <div className="px-5 py-5 border-b border-[#0f0f0f]">
+                  <p className="text-[8px] text-[#1e1e1e] font-bold uppercase tracking-[0.22em] mb-4">
+                    Resumo do pedido
                   </p>
-                  <div className="space-y-2.5">
+                  <div className="space-y-3">
                     <div className="flex justify-between items-baseline">
-                      <span className="text-[10px] text-[#3a3a3a]">{itemName}</span>
-                      <span className="text-[10px] text-[#555] font-semibold tabular-nums">
-                        R$ {(total || 0).toFixed(2)}
-                      </span>
+                      <span className="text-[10px] text-[#333] flex-1 mr-2 overflow-hidden text-ellipsis whitespace-nowrap">{itemName}</span>
+                      <span className="text-[10px] text-[#555] font-semibold tabular-nums flex-shrink-0">R$ {(total || 0).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-baseline">
-                      <span className="text-[10px] text-[#3a3a3a]">Taxa</span>
+                      <span className="text-[10px] text-[#333]">Taxa</span>
                       <span className="text-[10px] text-[#4ade80] font-semibold">Grátis</span>
                     </div>
                     <div className="flex justify-between items-baseline">
-                      <span className="text-[10px] text-[#3a3a3a]">Método</span>
-                      <div className="flex items-center gap-1">
+                      <span className="text-[10px] text-[#333]">Método</span>
+                      <div className="flex items-center gap-1.5">
                         <div className="w-1 h-1 rounded-full bg-[#00c2ff]" />
                         <span className="text-[10px] text-[#555] font-semibold">Pix</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex justify-between items-baseline pt-3 mt-3 border-t border-[#141414]">
+                  <div className="flex justify-between items-center pt-3.5 mt-3.5 border-t border-[#111]">
                     <span className="text-[11px] text-white font-bold">Total</span>
-                    <span className="text-[16px] text-white font-black tracking-tight tabular-nums">
+                    <span className="text-[17px] text-white font-black tracking-tight tabular-nums">
                       R$ {(total || 0).toFixed(2)}
                     </span>
                   </div>
                 </div>
 
-                {/* Transação */}
-                <div className="px-5 py-4 border-b border-[#111]">
-                  <p className="text-[8px] text-[#222] font-bold uppercase tracking-[0.2em] mb-2">
-                    Transação
+                {/* Transaction ID */}
+                <div className="px-5 py-4 border-b border-[#0f0f0f]">
+                  <p className="text-[8px] text-[#1e1e1e] font-bold uppercase tracking-[0.22em] mb-2.5">
+                    ID da transação
                   </p>
-                  <div className="bg-[#060606] border border-[#161616] rounded-lg px-2.5 py-2">
-                    <p className="text-[8px] text-[#2e2e2e] font-mono break-all leading-relaxed select-all">
+                  <div className="bg-[#070707] border border-[#141414] rounded-lg px-3 py-2">
+                    <p className="text-[8px] text-[#252525] font-mono break-all leading-relaxed select-all">
                       {txid}
                     </p>
                   </div>
                 </div>
 
-                {/* Detalhes */}
+                {/* Details */}
                 <div className="px-5 py-4 flex-1">
-                  <p className="text-[8px] text-[#222] font-bold uppercase tracking-[0.2em] mb-3">
+                  <p className="text-[8px] text-[#1e1e1e] font-bold uppercase tracking-[0.22em] mb-4">
                     Detalhes
                   </p>
-                  <div className="space-y-2.5">
+                  <div className="space-y-3.5">
                     {[
-                      { k: 'Favorecido', v: 'Natan Lima' },
-                      { k: 'Chave PIX',  v: 'natanpacheco@gmail.com' },
+                      { k: 'Favorecido',  v: 'Natan Lima' },
+                      { k: 'Chave PIX',   v: 'natanpacheco@...' },
                       { k: 'Instituição', v: 'Banco Central' },
                     ].map(({ k, v }) => (
                       <div key={k} className="flex flex-col gap-0.5">
-                        <span className="text-[8px] text-[#2a2a2a] font-semibold uppercase tracking-wide">{k}</span>
-                        <span className="text-[10px] text-[#444] font-medium overflow-hidden text-ellipsis whitespace-nowrap">{v}</span>
+                        <span className="text-[8px] text-[#1e1e1e] font-bold uppercase tracking-wider">{k}</span>
+                        <span className="text-[10px] text-[#3a3a3a] font-medium">{v}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Footer */}
-                <div className="px-5 py-3 border-t border-[#111]">
-                  <p className="text-[8px] text-[#1a1a1a] text-center">Marketplace · v2.0</p>
+                <div className="px-5 py-3 border-t border-[#0f0f0f]">
+                  <div className="flex items-center justify-center gap-1.5">
+                    <Shield className="h-2.5 w-2.5 text-[#1a1a1a]" />
+                    <p className="text-[8px] text-[#1a1a1a] font-medium">Checkout 100% seguro</p>
+                  </div>
                 </div>
               </aside>
             </div>
