@@ -234,7 +234,7 @@ export default function Register() {
         <div>
           <div className="flex items-center gap-2 mb-8">
             {/* Logo - sem fundo branco */}
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
+            <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden">
               {!logoLoadError ? (
                 <img
                   src={logoImage}
