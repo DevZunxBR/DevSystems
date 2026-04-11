@@ -94,10 +94,10 @@ export default function PixModal({ open, onClose, total }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-sm bg-[#050505] border border-[#1A1A1A] rounded-xl overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center">
+      <div className="w-full max-w-sm bg-[#050505] border border-[#1A1A1A] rounded-xl overflow-hidden mx-4">
 
-        {/* Header simplificado - sem borda extra */}
+        {/* Header simplificado */}
         <div className="flex items-center justify-between px-4 py-3 bg-[#0A0A0A]">
           <button onClick={onClose} className="text-[#555] hover:text-white transition-colors">
             <ArrowLeft className="h-4 w-4" />
@@ -179,7 +179,7 @@ export default function PixModal({ open, onClose, total }) {
                   }`}
                 >
                   {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                  {copied ? 'Copiado!' : 'Copiar código'}
+                  {copied ? 'Copiado!' : 'Copiar'}
                 </button>
               </div>
             )}
@@ -190,7 +190,7 @@ export default function PixModal({ open, onClose, total }) {
               <p className="text-[10px] font-semibold text-white">Natan da Rocha Lima Pacheco</p>
             </div>
 
-            {/* Passo a passo simplificado */}
+            {/* Passo a passo */}
             <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg p-2">
               <p className="text-[9px] font-semibold text-white mb-1">Como pagar</p>
               <div className="space-y-1">
@@ -211,7 +211,7 @@ export default function PixModal({ open, onClose, total }) {
             {/* Footer */}
             <div className="flex items-center justify-center gap-2 pt-1">
               <Shield className="h-2.5 w-2.5 text-[#444]" />
-              <span className="text-[8px] text-[#444]">Transação segura</span>
+              <span className="text-[8px] text-[#444]">Seguro</span>
               <span className="text-[8px] text-[#444]">•</span>
               <span className="text-[8px] text-[#444]">Banco Central</span>
             </div>
