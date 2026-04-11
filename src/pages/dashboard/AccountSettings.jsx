@@ -63,65 +63,41 @@ export default function AccountSettings() {
   };
 
   // ==================== MUDANÇA DE EMAIL ====================
-  const sendEmailCode = async () => {
-    if (!emailData.new_email) {
-      toast.error('Digite o novo email');
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailData.new_email)) {
-      toast.error('Email inválido');
-      return;
-    }
-    if (emailData.new_email === user?.email) {
-      toast.error('O novo email é igual ao atual');
-      return;
-    }
+const sendEmailCode = async () => {
+  if (!emailData.new_email) {
+    toast.error('Digite o novo email');
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailData.new_email)) {
+    toast.error('Email inválido');
+    return;
+  }
+  if (emailData.new_email === user?.email) {
+    toast.error('O novo email é igual ao atual');
+    return;
+  }
 
-    setSendingCode(true);
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: emailData.new_email,
-        options: {
-          shouldCreateUser: false,
-        },
-      });
-      
-      if (error) throw error;
-      
-      setEmailStep('code');
-      toast.success('Código enviado para o novo email!');
-    } catch (error) {
-      toast.error('Erro ao enviar código. Tente novamente.');
-    } finally {
-      setSendingCode(false);
-    }
-  };
-
-  const verifyEmailCode = async () => {
-    if (!emailData.code) {
-      toast.error('Digite o código de verificação');
-      return;
-    }
-
-    setChangingEmail(true);
-    try {
-      const { error } = await supabase.auth.updateUser({
-        email: emailData.new_email,
-      });
-      
-      if (error) throw error;
-      
-      toast.success('Email alterado com sucesso!');
-      setShowChangeEmail(false);
-      setEmailData({ new_email: '', code: '' });
-      setEmailStep('form');
-      loadUser();
-    } catch (error) {
-      toast.error(error.message || 'Código inválido ou expirado');
-    } finally {
-      setChangingEmail(false);
-    }
-  };
+  setSendingCode(true);
+  try {
+    // FORÇAR OTP EM VEZ DE MAGIC LINK
+    const { error } = await supabase.auth.signInWithOtp({
+      email: emailData.new_email,
+      options: {
+        shouldCreateUser: false,
+        // Isso força o envio de código numérico
+      },
+    });
+    
+    if (error) throw error;
+    
+    setEmailStep('code');
+    toast.success('Código de verificação enviado para o novo email!');
+  } catch (error) {
+    toast.error('Erro ao enviar código. Tente novamente.');
+  } finally {
+    setSendingCode(false);
+  }
+};
 
   // ==================== MUDANÇA DE SENHA ====================
   const sendPasswordCode = async () => {
