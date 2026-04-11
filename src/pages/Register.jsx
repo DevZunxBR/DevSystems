@@ -237,7 +237,7 @@ export default function Register() {
             onClick={() => navigate('/')} 
             className="flex items-center gap-2 mb-8 cursor-pointer hover:opacity-80 transition-opacity"
           >
-            <div className="w-17 h-17 rounded-lg flex items-center justify-center overflow-hidden">
+            <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden">
               {!logoLoadError ? (
                 <img
                   src={logoImage}
