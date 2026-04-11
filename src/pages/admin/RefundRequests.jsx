@@ -1,4 +1,3 @@
-// src/pages/admin/RefundRequests.jsx
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -25,53 +24,28 @@ export default function RefundRequests() {
   };
 
   const handleAction = async (id, status) => {
-    try {
-      const r = requests.find(req => req.id === id);
-      
-      // Atualiza status do reembolso
-      await base44.entities.RefundRequest.update(id, { status });
-      
-      if (status === 'approved' && r) {
-        // Busca o pedido original
-        const orders = await base44.entities.Order.filter({ id: r.order_id });
-        const order = orders[0];
-        
-        if (order) {
-          // Atualiza status do pedido para refunded (reembolsado)
-          await base44.entities.Order.update(order.id, {
-            status: 'refunded',
-          });
-        }
-        
-        // Notifica o usuário
-        await base44.entities.Notification.create({
-          user_email: r.user_email,
-          title: 'Reembolso Aprovado',
-          message: `Seu reembolso de R$${r.amount_brl?.toFixed(2)} foi aprovado. Transferência via PIX em breve.`,
-          type: 'payment',
-          read: false,
-          link: '/dashboard/orders',
-        });
-        
-        toast.success('Reembolso aprovado! Status do pedido atualizado para "Reembolsado"');
-        
-      } else if (status === 'denied' && r) {
-        await base44.entities.Notification.create({
-          user_email: r.user_email,
-          title: 'Reembolso Negado',
-          message: `Sua solicitação de reembolso de R$${r.amount_brl?.toFixed(2)} foi negada.`,
-          type: 'system',
-          read: false,
-        });
-        toast.success('Reembolso negado');
-      }
-      
-      setRequests(requests.filter(req => req.id !== id));
-      
-    } catch (error) {
-      console.error(error);
-      toast.error('Falha ao processar solicitação');
+    await base44.entities.RefundRequest.update(id, { status });
+    const r = requests.find(req => req.id === id);
+    if (status === 'approved' && r) {
+      await base44.entities.Notification.create({
+        user_email: r.user_email,
+        title: 'Reembolso Aprovado',
+        message: `Seu reembolso de R$${r.amount_brl?.toFixed(2)} foi aprovado. Transferência via PIX em breve.`,
+        type: 'payment',
+        read: false,
+        link: '/dashboard/orders',
+      });
+    } else if (status === 'denied' && r) {
+      await base44.entities.Notification.create({
+        user_email: r.user_email,
+        title: 'Reembolso Negado',
+        message: `Sua solicitação de reembolso de R$${r.amount_brl?.toFixed(2)} foi negada.`,
+        type: 'system',
+        read: false,
+      });
     }
+    setRequests(requests.filter(req => req.id !== id));
+    toast.success(status === 'approved' ? 'Reembolso aprovado' : 'Reembolso negado');
   };
 
   const copyPixKey = (key) => {
@@ -95,7 +69,7 @@ export default function RefundRequests() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-black text-white tracking-tight">Solicitações de Reembolso</h1>
-        <p className="text-sm text-[#555] mt-1">Solicitações pendentes (expiram em 48h ou após download)</p>
+        <p className="text-sm text-[#555] mt-1">Solicitudes pendentes (expiram em 48h ou após download)</p>
       </div>
 
       {requests.length === 0 ? (

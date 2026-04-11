@@ -1,4 +1,3 @@
-// src/components/orders/RefundModal.jsx
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -13,15 +12,11 @@ export default function RefundModal({ open, order, onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!reason.trim() || !pixKey.trim()) { 
-      toast.error('Preencha todos os campos'); 
-      return; 
-    }
+    if (!reason.trim() || !pixKey.trim()) { toast.error('Preencha todos os campos'); return; }
     setSubmitting(true);
     try {
       const me = await base44.auth.me();
       const expires = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
-      
       await base44.entities.RefundRequest.create({
         user_email: me.email,
         user_name: me.full_name || me.email,
@@ -34,21 +29,10 @@ export default function RefundModal({ open, order, onClose, onSuccess }) {
         downloaded: false,
         pix_key: pixKey,
       });
-      
       toast.success('Solicitação de reembolso enviada! Responderemos em até 48h.');
-      
-      // Marcar pedido como solicitado reembolso para esconder botões de download
-      const refundedOrders = JSON.parse(localStorage.getItem('refunded_orders') || '[]');
-      localStorage.setItem('refunded_orders', JSON.stringify([...refundedOrders, order.id]));
-      
       onSuccess(order.id);
-      onClose();
-    } catch (error) {
-      console.error(error);
-      toast.error('Falha ao enviar solicitação');
-    } finally { 
-      setSubmitting(false); 
-    }
+    } catch { toast.error('Falha ao enviar solicitação'); }
+    finally { setSubmitting(false); }
   };
 
   return (
@@ -61,7 +45,7 @@ export default function RefundModal({ open, order, onClose, onSuccess }) {
             </div>
             <div>
               <h3 className="text-lg font-bold text-white">Solicitar Reembolso</h3>
-              <p className="text-xs text-[#555]">Valor: R$ {order?.total_amount?.toFixed(2)}</p>
+              <p className="text-xs text-[#555]">Valor: R${order?.total_amount?.toFixed(2)}</p>
             </div>
           </div>
         </div>

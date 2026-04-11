@@ -1,5 +1,4 @@
-﻿// src/pages/dashboard/MyOrders.jsx
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Download, Clock, CheckCircle, XCircle, QrCode, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,28 +18,15 @@ export default function MyOrders() {
 
   useEffect(() => {
     loadOrders();
-    loadLocalStorageData();
-  }, []);
-
-  const loadLocalStorageData = () => {
-    const storedDownloaded = localStorage.getItem('downloaded_orders');
-    if (storedDownloaded) {
+    const stored = localStorage.getItem('downloaded_orders');
+    if (stored) {
       try {
-        setDownloadedOrderIds(JSON.parse(storedDownloaded));
+        setDownloadedOrderIds(JSON.parse(stored));
       } catch {
         setDownloadedOrderIds([]);
       }
     }
-    
-    const storedRefunded = localStorage.getItem('refunded_orders');
-    if (storedRefunded) {
-      try {
-        setRefundedOrderIds(JSON.parse(storedRefunded));
-      } catch {
-        setRefundedOrderIds([]);
-      }
-    }
-  };
+  }, []);
 
   const loadOrders = async () => {
     try {
@@ -49,13 +35,10 @@ export default function MyOrders() {
       setOrders(allOrders || []);
 
       const refunds = await base44.entities.RefundRequest.filter({ user_email: me.email });
-      const refundIds = (refunds || []).map((refund) => refund.order_id);
-      
-      const storedRefunded = JSON.parse(localStorage.getItem('refunded_orders') || '[]');
-      setRefundedOrderIds([...new Set([...refundIds, ...storedRefunded])]);
+      setRefundedOrderIds((refunds || []).map((refund) => refund.order_id));
     } catch (error) {
       console.error(error);
-      toast.error('Não foi possível carregar seus pedidos.');
+      toast.error('Nao foi possivel carregar seus pedidos.');
     } finally {
       setLoading(false);
     }
@@ -69,24 +52,14 @@ export default function MyOrders() {
 
   const handleDownload = (order) => {
     if (order.status !== 'completed') {
-      toast.error('Pagamento não confirmado');
-      return;
-    }
-
-    if (refundedOrderIds.includes(order.id)) {
-      toast.error('Este pedido possui solicitação de reembolso pendente');
-      return;
-    }
-
-    if (order.status === 'refunded') {
-      toast.error('Este pedido foi reembolsado');
+      toast.error('Pagamento nao confirmado');
       return;
     }
 
     const urls = (order.items || []).map((item) => item.file_url).filter(Boolean);
 
     if (urls.length === 0) {
-      toast.error('Nenhum arquivo disponível para download.');
+      toast.error('Nenhum arquivo disponivel para download.');
       return;
     }
 
@@ -98,7 +71,6 @@ export default function MyOrders() {
     if (order.status !== 'completed') return false;
     if (refundedOrderIds.includes(order.id)) return false;
     if (downloadedOrderIds.includes(order.id)) return false;
-    if (order.status === 'refunded') return false;
 
     const orderDate = getOrderDate(order);
     if (!orderDate) return false;
@@ -110,18 +82,10 @@ export default function MyOrders() {
     return Date.now() - createdAt.getTime() < hours48;
   };
 
-  const canDownload = (order) => {
-    if (order.status !== 'completed') return false;
-    if (refundedOrderIds.includes(order.id)) return false;
-    if (order.status === 'refunded') return false;
-    return true;
-  };
-
   const statusConfig = {
     pending: { icon: Clock, label: 'Aguardando Pagamento', className: 'text-[#666]' },
-    completed: { icon: CheckCircle, label: 'Concluído', className: 'text-white' },
+    completed: { icon: CheckCircle, label: 'Concluido', className: 'text-white' },
     cancelled: { icon: XCircle, label: 'Cancelado', className: 'text-red-500' },
-    refunded: { icon: CheckCircle, label: 'Reembolsado', className: 'text-green-500' },
   };
 
   if (loading) {
@@ -136,7 +100,7 @@ export default function MyOrders() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-black text-white tracking-tight">Meus Pedidos</h1>
-        <p className="text-sm text-[#555] mt-1">Histórico de compras e downloads</p>
+        <p className="text-sm text-[#555] mt-1">Historico de compras e downloads</p>
       </div>
 
       {orders.length === 0 ? (
@@ -149,9 +113,7 @@ export default function MyOrders() {
             const status = statusConfig[order.status] || statusConfig.pending;
             const StatusIcon = status.icon;
             const refundable = canRefund(order);
-            const showDownload = canDownload(order);
             const orderDate = getOrderDate(order);
-            const hasRefundRequest = refundedOrderIds.includes(order.id) && order.status !== 'refunded';
 
             return (
               <div key={order.id} className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
@@ -169,20 +131,10 @@ export default function MyOrders() {
                           })
                         : '-'}
                     </span>
-                    {hasRefundRequest && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500">
-                        Reembolso solicitado
-                      </span>
-                    )}
-                    {order.status === 'refunded' && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-500">
-                        Reembolsado
-                      </span>
-                    )}
                   </div>
 
                   <div className="flex items-center gap-2 flex-wrap">
-                    <div className="text-sm font-bold text-white">R$ {Number(order.total_amount || 0).toFixed(2)}</div>
+                    <div className="text-sm font-bold text-white">R${Number(order.total_amount || 0).toFixed(2)}</div>
                     {order.status === 'pending' && order.pix_code && order.pix_code !== 'WALLET_PAYMENT' && (
                       <Button
                         size="sm"
@@ -218,7 +170,7 @@ export default function MyOrders() {
                         <div className="text-xs text-[#555]">{item.license_name}</div>
                       </div>
 
-                      {order.status === 'completed' && item.file_url && showDownload && (
+                      {order.status === 'completed' && item.file_url && (
                         <Button
                           size="sm"
                           variant="outline"
@@ -231,28 +183,13 @@ export default function MyOrders() {
                           <Download className="h-3 w-3" /> Download
                         </Button>
                       )}
-                      
-                      {order.status === 'completed' && !showDownload && hasRefundRequest && (
-                        <div className="text-xs text-yellow-500 bg-yellow-500/10 px-2 py-1 rounded-lg">
-                          Aguardando análise
-                        </div>
-                      )}
-
-                      {order.status === 'refunded' && (
-                        <div className="text-xs text-green-500 bg-green-500/10 px-2 py-1 rounded-lg">
-                          Reembolsado
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
 
-                {order.status === 'completed' && showDownload && (
+                {order.status === 'completed' && (
                   <div className="px-4 pb-4">
-                    <Button 
-                      onClick={() => handleDownload(order)} 
-                      className="bg-white text-black hover:bg-white/90 gap-2 text-sm w-full sm:w-auto"
-                    >
+                    <Button onClick={() => handleDownload(order)} className="bg-white text-black hover:bg-white/90 gap-2 text-sm w-full sm:w-auto">
                       <Download className="h-4 w-4" /> Baixar Todos
                     </Button>
                   </div>
@@ -280,9 +217,7 @@ export default function MyOrders() {
           onClose={() => setRefundOrder(null)}
           onSuccess={(orderId) => {
             setRefundedOrderIds((prev) => [...new Set([...prev, orderId])]);
-            localStorage.setItem('refunded_orders', JSON.stringify([...refundedOrderIds, orderId]));
             setRefundOrder(null);
-            toast.info('Solicitação de reembolso enviada. Aguarde análise.');
           }}
         />
       )}
