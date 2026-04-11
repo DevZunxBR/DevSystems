@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { Eye, EyeOff } from 'lucide-react';
+import logoImage from '@/assets/images/Logo.png';
 
 // Importe suas imagens aqui
 import devRegisterBg1 from '@/assets/images/DevRegister.png';
@@ -19,6 +20,7 @@ export default function Register() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirm: '' });
   const [otp, setOtp] = useState(['', '', '', '', '', '', '', '']);
   const inputRefs = useRef([]);
+  const [logoLoadError, setLogoLoadError] = useState(false);
   
   // States para mostrar/esconder senha
   const [showPassword, setShowPassword] = useState(false);
@@ -231,8 +233,20 @@ export default function Register() {
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 space-y-8">
         <div>
           <div className="flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-              <span className="text-black font-black text-sm">M</span>
+            {/* Logo - mesma do Header */}
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden bg-white">
+              {!logoLoadError ? (
+                <img
+                  src={logoImage}
+                  alt="Logo"
+                  className="w-full h-full object-cover"
+                  onError={() => setLogoLoadError(true)}
+                />
+              ) : (
+                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                  <span className="text-black font-black text-sm">M</span>
+                </div>
+              )}
             </div>
             <span className="text-white font-bold text-lg tracking-tight">DevAssets</span>
           </div>
