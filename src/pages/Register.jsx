@@ -232,9 +232,12 @@ export default function Register() {
       {/* Left - Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 space-y-8">
         <div>
-          <div className="flex items-center gap-2 mb-8">
-            {/* Logo - sem fundo branco */}
-            <div className="w-18 h-18 rounded-lg flex items-center justify-center overflow-hidden">
+          {/* Logo clicável */}
+          <div 
+            onClick={() => navigate('/')} 
+            className="flex items-center gap-2 mb-8 cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden">
               {!logoLoadError ? (
                 <img
                   src={logoImage}
