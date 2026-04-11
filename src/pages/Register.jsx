@@ -233,19 +233,17 @@ export default function Register() {
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 space-y-8">
         <div>
           <div className="flex items-center gap-2 mb-8">
-            {/* Logo - mesma do Header */}
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden bg-white">
+            {/* Logo - sem fundo branco */}
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
               {!logoLoadError ? (
                 <img
                   src={logoImage}
                   alt="Logo"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                   onError={() => setLogoLoadError(true)}
                 />
               ) : (
-                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                  <span className="text-black font-black text-sm">M</span>
-                </div>
+                <span className="text-white font-black text-sm">M</span>
               )}
             </div>
             <span className="text-white font-bold text-lg tracking-tight">DevAssets</span>
