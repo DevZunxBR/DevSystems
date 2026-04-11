@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Copy, Check, Shield, CheckCircle, Info } from 'lucide-react';
+import { Copy, Check, CheckCircle, Info, X } from 'lucide-react';
 import { toast } from 'sonner';
 import QRCode from 'qrcode';
 
@@ -94,25 +94,24 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
   return (
     <div className="fixed inset-0 z-50 bg-[#060606] flex flex-col">
 
-      {/* Topbar */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-3.5 border-b border-[#141414] bg-[#080808]">
+      {/* Header simples - sem borda extra */}
+      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 bg-[#060606]">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center">
             <span className="text-black font-black text-[10px] tracking-tighter">M</span>
           </div>
           <span className="text-white font-bold text-[13px] tracking-tight">Marketplace</span>
         </div>
-        <div className="flex items-center gap-1.5 bg-[#0f0f0f] border border-[#1e1e1e] rounded-full px-3 py-1.5">
-          <Shield className="h-2.5 w-2.5 text-[#333]" />
-          <span className="text-[10px] text-[#333] font-semibold">SSL · Banco Central</span>
-        </div>
+        <button onClick={onClose} className="text-[#555] hover:text-white transition-colors">
+          <X className="h-5 w-5" />
+        </button>
       </div>
 
       {/* Body */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
 
         {/* Main */}
-        <div className="flex-1 overflow-y-auto flex flex-col items-center px-6 py-8">
+        <div className="flex-1 overflow-y-auto flex flex-col items-center px-6 py-6">
           {!ready ? (
             <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
               <div className="w-8 h-8 border border-[#1c1c1c] border-t-[#555] rounded-full animate-spin" />
@@ -142,7 +141,7 @@ export default function PixModal({ open, onClose, total, cartItems = [] }) {
                 <span className="text-[9px] font-black text-[#777] tracking-widest uppercase">pix</span>
               </div>
 
-              {/* Campo código + botão copiar - CORRIGIDO: texto completo com quebra */}
+              {/* Campo código + botão copiar */}
               <div className="w-full">
                 <p className="text-[10px] text-[#444] mb-2 ml-1">Código PIX (Copia e Cola)</p>
                 <div className="flex border border-[#1e1e1e] rounded-xl overflow-hidden">
