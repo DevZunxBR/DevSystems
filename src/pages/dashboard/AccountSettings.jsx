@@ -96,14 +96,23 @@ export default function AccountSettings() {
         },
       });
       
-      if (error) throw error;
+      if (error) {
+        if (error.status === 422) {
+          toast.error('Email inválido ou já cadastrado. Tente outro email.');
+        } else {
+          toast.error(error.message);
+        }
+        return;
+      }
       
       setLastSentTime(Date.now());
       setEmailStep('code');
       toast.success('Código de verificação enviado para o novo email!');
     } catch (error) {
       if (error.status === 429) {
-        toast.error('Muitas tentativas. Aguarde alguns minutos e tente novamente.');
+        toast.error('Muitas tentativas. Aguarde alguns minutos.');
+      } else if (error.status === 422) {
+        toast.error('Email inválido ou já cadastrado.');
       } else {
         toast.error('Erro ao enviar código. Tente novamente.');
       }
@@ -124,7 +133,14 @@ export default function AccountSettings() {
         email: emailData.new_email,
       });
       
-      if (error) throw error;
+      if (error) {
+        if (error.status === 422) {
+          toast.error('Este email já está em uso ou é inválido. Tente outro email.');
+        } else {
+          toast.error(error.message);
+        }
+        return;
+      }
       
       toast.success('Email alterado com sucesso!');
       setShowChangeEmail(false);
@@ -132,7 +148,7 @@ export default function AccountSettings() {
       setEmailStep('form');
       loadUser();
     } catch (error) {
-      toast.error(error.message || 'Código inválido ou expirado');
+      toast.error(error.message || 'Erro ao alterar email');
     } finally {
       setChangingEmail(false);
     }
@@ -171,7 +187,7 @@ export default function AccountSettings() {
       toast.success('Código de verificação enviado para seu email!');
     } catch (error) {
       if (error.status === 429) {
-        toast.error('Muitas tentativas. Aguarde alguns minutos e tente novamente.');
+        toast.error('Muitas tentativas. Aguarde alguns minutos.');
       } else {
         toast.error('Erro ao enviar código. Tente novamente.');
       }
