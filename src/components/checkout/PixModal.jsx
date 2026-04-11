@@ -94,7 +94,7 @@ export default function PixModal({ open, onClose, total }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="w-full max-w-sm bg-[#050505] border border-[#1A1A1A] rounded-xl overflow-hidden mx-4">
 
         {/* Header simplificado */}
