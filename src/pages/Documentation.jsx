@@ -1,4 +1,4 @@
-// src/pages/Documentation.jsx
+// src/pages/Documentation.jsx - Estilo GitBook
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -7,18 +7,16 @@ import {
 } from 'lucide-react';
 
 const DOCS_SECTIONS = [
-  { id: 'buying',    title: 'Como Comprar',         icon: ShoppingCart,     group: 'Guia' },
-  { id: 'payment',   title: 'Pagamento via PIX',     icon: CreditCard,       group: 'Guia' },
-  { id: 'downloads', title: 'Downloads',             icon: Download,         group: 'Guia' },
-  { id: 'wallet',    title: 'Carteira & Cashback',   icon: Wallet,           group: 'Guia' },
-  { id: 'refund',    title: 'Reembolsos',            icon: RotateCcw,        group: 'Guia' },
-  { id: 'licenses',  title: 'Licenças',              icon: FileText,         group: 'Guia' },
-  { id: 'security',  title: 'Segurança',             icon: Shield,           group: 'Ajuda' },
-  { id: 'support',   title: 'Suporte',               icon: HeadphonesIcon,   group: 'Ajuda' },
-  { id: 'faq',       title: 'Perguntas Frequentes',  icon: HelpCircle,       group: 'Ajuda' },
+  { id: 'buying', title: 'Como Comprar', icon: ShoppingCart },
+  { id: 'payment', title: Pagamento, icon: CreditCard },
+  { id: 'downloads', title: 'Downloads', icon: Download },
+  { id: 'wallet', title: 'Carteira', icon: Wallet },
+  { id: 'refund', title: 'Reembolsos', icon: RotateCcw },
+  { id: 'licenses', title: 'Licenças', icon: FileText },
+  { id: 'security', title: 'Segurança', icon: Shield },
+  { id: 'support', title: 'Suporte', icon: HeadphonesIcon },
+  { id: 'faq', title: 'FAQ', icon: HelpCircle },
 ];
-
-const GROUPS = ['Guia', 'Ajuda'];
 
 export default function Documentation() {
   const navigate = useNavigate();
@@ -37,22 +35,23 @@ export default function Documentation() {
     setActiveSection(id);
     const el = document.getElementById(id);
     if (el && contentRef.current) {
-      contentRef.current.scrollTo({ top: el.offsetTop - 24, behavior: 'smooth' });
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     window.history.pushState({}, '', `#${id}`);
   };
 
-  // Update active section on scroll
   useEffect(() => {
     const content = contentRef.current;
     if (!content) return;
     const handler = () => {
       const ids = DOCS_SECTIONS.map(s => s.id);
       let current = ids[0];
-      ids.forEach(id => {
+      for (const id of ids) {
         const el = document.getElementById(id);
-        if (el && el.offsetTop - content.scrollTop <= 80) current = id;
-      });
+        if (el && el.offsetTop - content.scrollTop <= 100) {
+          current = id;
+        }
+      }
       setActiveSection(current);
     };
     content.addEventListener('scroll', handler);
@@ -60,63 +59,56 @@ export default function Documentation() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
-      <div className="border-b border-[#1A1A1A] bg-[#0A0A0A] sticky top-0 z-10 flex-shrink-0">
+      <div className="border-b border-gray-200 bg-white sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-4">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-sm text-[#555] hover:text-white transition-colors"
+            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Voltar
           </button>
-          <h1 className="text-white font-bold text-lg">Documentação</h1>
+          <h1 className="text-gray-900 font-semibold text-lg">Documentação</h1>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-0 flex flex-1 w-full gap-0">
+      <div className="max-w-7xl mx-auto px-6 py-0 flex flex-1 w-full gap-8">
         {/* Sidebar */}
-        <aside className="hidden lg:flex flex-col w-56 flex-shrink-0 border-r border-[#1A1A1A] py-8 pr-6 sticky top-[57px] h-[calc(100vh-57px)]">
-          {GROUPS.map(group => (
-            <div key={group} className="mb-6">
-              <p className="text-[10px] font-semibold text-[#333] uppercase tracking-widest mb-2 px-3">
-                {group}
-              </p>
-              <nav className="space-y-0.5">
-                {DOCS_SECTIONS.filter(s => s.group === group).map(({ id, title, icon: Icon }) => (
-                  <button
-                    key={id}
-                    onClick={() => scrollToSection(id)}
-                    className={`w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all
-                      ${activeSection === id
-                        ? 'text-white bg-[#111] border-l-2 border-white rounded-l-none'
-                        : 'text-[#555] hover:text-[#ccc] hover:bg-[#0f0f0f]'
-                      }`}
-                  >
-                    <Icon className="h-3.5 w-3.5 flex-shrink-0" />
-                    {title}
-                  </button>
-                ))}
-              </nav>
-            </div>
-          ))}
+        <aside className="hidden lg:block w-64 flex-shrink-0 py-8 sticky top-[57px] h-[calc(100vh-57px)] overflow-y-auto">
+          <nav className="space-y-0.5">
+            {DOCS_SECTIONS.map(({ id, title, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => scrollToSection(id)}
+                className={`w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors
+                  ${activeSection === id
+                    ? 'bg-gray-100 text-gray-900 font-medium'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+              >
+                <Icon className="h-4 w-4 flex-shrink-0" />
+                {title}
+              </button>
+            ))}
+          </nav>
 
-          <div className="mt-auto border-t border-[#1A1A1A] pt-4">
-            <p className="text-[10px] font-semibold text-[#333] uppercase tracking-widest mb-2 px-3">Legal</p>
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 px-3">Legal</p>
             <nav className="space-y-0.5">
               <button
                 onClick={() => navigate('/terms')}
-                className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#555] hover:text-[#ccc] hover:bg-[#0f0f0f] transition-all"
+                className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
               >
-                <FileText className="h-3.5 w-3.5" />
+                <FileText className="h-4 w-4" />
                 Termos de Uso
               </button>
               <button
                 onClick={() => navigate('/privacy')}
-                className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#555] hover:text-[#ccc] hover:bg-[#0f0f0f] transition-all"
+                className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
               >
-                <Lock className="h-3.5 w-3.5" />
+                <Lock className="h-4 w-4" />
                 Política de Privacidade
               </button>
             </nav>
@@ -126,203 +118,130 @@ export default function Documentation() {
         {/* Main content */}
         <main
           ref={contentRef}
-          className="flex-1 min-w-0 overflow-y-auto h-[calc(100vh-57px)] py-10 px-10"
+          className="flex-1 min-w-0 overflow-y-auto h-[calc(100vh-57px)] py-8 px-0 lg:px-4"
         >
-          {/* Page intro */}
-          <div className="mb-10 pb-10 border-b border-[#111]">
-            <h2 className="text-3xl font-black text-white mb-3">Documentação</h2>
-            <p className="text-[#555] leading-relaxed text-sm max-w-xl">
-              Bem-vindo à documentação oficial do DevAssets. Aqui você encontra tudo que precisa para usar a plataforma.
-            </p>
+          <div className="max-w-3xl mx-auto">
+            {/* Intro */}
+            <div className="mb-12 pb-8 border-b border-gray-200">
+              <h1 className="text-4xl font-bold text-gray-900 mb-3">Documentação</h1>
+              <p className="text-gray-600 leading-relaxed">
+                Bem-vindo à documentação oficial do DevAssets.
+              </p>
+            </div>
+
+            {/* Como Comprar */}
+            <section id="buying" className="mb-12 scroll-mt-20">
+              <div className="flex items-center gap-2 mb-4">
+                <ShoppingCart className="h-5 w-5 text-gray-500" />
+                <h2 className="text-2xl font-semibold text-gray-900">Como Comprar</h2>
+              </div>
+              <p className="text-gray-600 mb-4">Siga os passos abaixo:</p>
+              <ol className="list-decimal list-inside space-y-2 text-gray-600 ml-4">
+                <li>Navegue pela loja e encontre o asset desejado</li>
+                <li>Clique em "Adicionar ao Carrinho"</li>
+                <li>Preencha seus dados no checkout</li>
+                <li>Finalize o pagamento via PIX</li>
+                <li>Aguarde a aprovação do pedido</li>
+                <li>Baixe seus arquivos em Meus Pedidos</li>
+              </ol>
+            </section>
+
+            {/* Pagamento */}
+            <section id="payment" className="mb-12 scroll-mt-20">
+              <div className="flex items-center gap-2 mb-4">
+                <CreditCard className="h-5 w-5 text-gray-500" />
+                <h2 className="text-2xl font-semibold text-gray-900">Pagamento</h2>
+              </div>
+              <p className="text-gray-600 mb-2">Aceitamos PIX.</p>
+              <p className="text-gray-600">
+                <strong className="text-gray-900">Chave PIX:</strong> pagamentos@devassets.com
+              </p>
+              <p className="text-gray-600 mt-2">Aprovação em até 30 minutos.</p>
+            </section>
+
+            {/* Downloads */}
+            <section id="downloads" className="mb-12 scroll-mt-20">
+              <div className="flex items-center gap-2 mb-4">
+                <Download className="h-5 w-5 text-gray-500" />
+                <h2 className="text-2xl font-semibold text-gray-900">Downloads</h2>
+              </div>
+              <p className="text-gray-600">
+                Arquivos disponíveis por 7 dias. Acesse Meus Pedidos.
+              </p>
+            </section>
+
+            {/* Carteira */}
+            <section id="wallet" className="mb-12 scroll-mt-20">
+              <div className="flex items-center gap-2 mb-4">
+                <Wallet className="h-5 w-5 text-gray-500" />
+                <h2 className="text-2xl font-semibold text-gray-900">Carteira</h2>
+              </div>
+              <p className="text-gray-600">5% de cashback em cada compra.</p>
+            </section>
+
+            {/* Reembolsos */}
+            <section id="refund" className="mb-12 scroll-mt-20">
+              <div className="flex items-center gap-2 mb-4">
+                <RotateCcw className="h-5 w-5 text-gray-500" />
+                <h2 className="text-2xl font-semibold text-gray-900">Reembolsos</h2>
+              </div>
+              <p className="text-gray-600">Solicite em até 7 dias.</p>
+            </section>
+
+            {/* Licenças */}
+            <section id="licenses" className="mb-12 scroll-mt-20">
+              <div className="flex items-center gap-2 mb-4">
+                <FileText className="h-5 w-5 text-gray-500" />
+                <h2 className="text-2xl font-semibold text-gray-900">Licenças</h2>
+              </div>
+              <ul className="list-disc list-inside space-y-1 text-gray-600 ml-4">
+                <li>Padrão - 1 projeto</li>
+                <li>Extendida - múltiplos projetos</li>
+                <li>Comercial - sem restrições</li>
+              </ul>
+            </section>
+
+            {/* Segurança */}
+            <section id="security" className="mb-12 scroll-mt-20">
+              <div className="flex items-center gap-2 mb-4">
+                <Shield className="h-5 w-5 text-gray-500" />
+                <h2 className="text-2xl font-semibold text-gray-900">Segurança</h2>
+              </div>
+              <p className="text-gray-600">Criptografia SSL. Pagamentos seguros via PIX.</p>
+            </section>
+
+            {/* Suporte */}
+            <section id="support" className="mb-12 scroll-mt-20">
+              <div className="flex items-center gap-2 mb-4">
+                <HeadphonesIcon className="h-5 w-5 text-gray-500" />
+                <h2 className="text-2xl font-semibold text-gray-900">Suporte</h2>
+              </div>
+              <p className="text-gray-600">Segunda a Sexta, 09h às 18h.</p>
+              <p className="text-gray-600 mt-1">E-mail: suporte@devassets.com</p>
+            </section>
+
+            {/* FAQ */}
+            <section id="faq" className="mb-12 scroll-mt-20">
+              <div className="flex items-center gap-2 mb-4">
+                <HelpCircle className="h-5 w-5 text-gray-500" />
+                <h2 className="text-2xl font-semibold text-gray-900">FAQ</h2>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <p className="font-medium text-gray-900">Quanto tempo leva para aprovar?</p>
+                  <p className="text-gray-600">Até 30 minutos em dias úteis.</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">Posso usar em múltiplos projetos?</p>
+                  <p className="text-gray-600">Depende da licença adquirida.</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">Link expirou?</p>
+                  <p className="text-gray-600">Contate o suporte para reativar.</p>
+                </div>
+              </div>
+            </section>
           </div>
-
-          {/* Buying */}
-          <section id="buying" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
-            <div className="flex items-center gap-2 mb-3">
-              <ShoppingCart className="h-3.5 w-3.5 text-[#444]" />
-              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Compras</span>
-            </div>
-            <h2 className="text-xl font-bold text-white mb-4">Como Comprar</h2>
-            <p className="text-[#666] text-sm leading-relaxed mb-4">
-              Comprar na nossa plataforma é simples. Siga os passos abaixo:
-            </p>
-            <ol className="space-y-3">
-              {[
-                'Navegue pela loja e encontre o asset desejado',
-                'Clique em "Adicionar ao Carrinho"',
-                'Preencha seus dados no checkout',
-                'Finalize o pagamento via PIX',
-                'Aguarde a aprovação do pedido (até 30 minutos)',
-                'Baixe seus arquivos em Meus Pedidos',
-              ].map((step, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full border border-[#2a2a2a] flex items-center justify-center text-[11px] text-[#555] mt-0.5">
-                    {i + 1}
-                  </span>
-                  <span className="text-sm text-[#666] leading-relaxed">{step}</span>
-                </li>
-              ))}
-            </ol>
-          </section>
-
-          {/* Payment */}
-          <section id="payment" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
-            <div className="flex items-center gap-2 mb-3">
-              <CreditCard className="h-3.5 w-3.5 text-[#444]" />
-              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Pagamento</span>
-            </div>
-            <h2 className="text-xl font-bold text-white mb-4">Pagamento via PIX</h2>
-            <p className="text-[#666] text-sm leading-relaxed mb-4">
-              Trabalhamos exclusivamente com PIX — o meio de pagamento instantâneo do Banco Central.
-            </p>
-            <div className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-lg p-4 mb-4">
-              <p className="text-[10px] text-[#444] uppercase tracking-widest font-semibold mb-1">Chave PIX</p>
-              <p className="text-sm text-[#ccc] font-medium">pagamentos@DevAssets.com</p>
-            </div>
-            <p className="text-[#666] text-sm leading-relaxed">
-              Após o pagamento, seu pedido será aprovado em até <span className="text-white font-medium">30 minutos</span> em dias úteis.
-            </p>
-          </section>
-
-          {/* Downloads */}
-          <section id="downloads" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
-            <div className="flex items-center gap-2 mb-3">
-              <Download className="h-3.5 w-3.5 text-[#444]" />
-              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Arquivos</span>
-            </div>
-            <h2 className="text-xl font-bold text-white mb-4">Downloads</h2>
-            <p className="text-[#666] text-sm leading-relaxed mb-3">
-              Após a aprovação do pagamento, seus arquivos ficam disponíveis por <span className="text-white font-medium">7 dias</span>.
-            </p>
-            <p className="text-[#666] text-sm leading-relaxed">
-              Acesse <span className="text-white font-medium">Meus Pedidos</span> no dashboard e clique em "Download" para baixar seus arquivos. Se o link expirar, entre em contato com o suporte.
-            </p>
-          </section>
-
-          {/* Wallet */}
-          <section id="wallet" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
-            <div className="flex items-center gap-2 mb-3">
-              <Wallet className="h-3.5 w-3.5 text-[#444]" />
-              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Carteira</span>
-            </div>
-            <h2 className="text-xl font-bold text-white mb-4">Carteira & Cashback</h2>
-            <p className="text-[#666] text-sm leading-relaxed mb-3">
-              Toda compra aprovada gera <span className="text-white font-medium">5% de cashback</span> creditado automaticamente na sua carteira.
-            </p>
-            <p className="text-[#666] text-sm leading-relaxed">
-              O saldo acumulado pode ser usado para abater em compras futuras diretamente no checkout.
-            </p>
-          </section>
-
-          {/* Refund */}
-          <section id="refund" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
-            <div className="flex items-center gap-2 mb-3">
-              <RotateCcw className="h-3.5 w-3.5 text-[#444]" />
-              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Reembolso</span>
-            </div>
-            <h2 className="text-xl font-bold text-white mb-4">Política de Reembolso</h2>
-            <p className="text-[#666] text-sm leading-relaxed mb-3">
-              Você pode solicitar reembolso dentro de <span className="text-white font-medium">7 dias</span> após a aprovação do pedido.
-            </p>
-            <p className="text-[#666] text-sm leading-relaxed">
-              Para solicitar, acesse <span className="text-white font-medium">Meus Pedidos</span> e clique em "Solicitar Reembolso". O valor é estornado em até 5 dias úteis.
-            </p>
-          </section>
-
-          {/* Licenses */}
-          <section id="licenses" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
-            <div className="flex items-center gap-2 mb-3">
-              <FileText className="h-3.5 w-3.5 text-[#444]" />
-              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Licenças</span>
-            </div>
-            <h2 className="text-xl font-bold text-white mb-4">Licenças</h2>
-            <p className="text-[#666] text-sm leading-relaxed mb-5">
-              Cada asset vem com uma licença que define como você pode utilizá-lo. Escolha a que se encaixa no seu projeto:
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {[
-                { name: 'Padrão', desc: 'Uso em 1 projeto pessoal ou comercial' },
-                { name: 'Extendida', desc: 'Uso em múltiplos projetos' },
-                { name: 'Comercial', desc: 'Uso sem restrições de escala' },
-              ].map(({ name, desc }) => (
-                <div key={name} className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-lg p-4">
-                  <p className="text-sm font-semibold text-[#ccc] mb-1">{name}</p>
-                  <p className="text-xs text-[#555] leading-relaxed">{desc}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Security */}
-          <section id="security" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
-            <div className="flex items-center gap-2 mb-3">
-              <Shield className="h-3.5 w-3.5 text-[#444]" />
-              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Segurança</span>
-            </div>
-            <h2 className="text-xl font-bold text-white mb-4">Segurança</h2>
-            <p className="text-[#666] text-sm leading-relaxed mb-3">
-              A segurança dos seus dados é nossa prioridade. Utilizamos criptografia <span className="text-white font-medium">SSL</span> em todas as páginas.
-            </p>
-            <p className="text-[#666] text-sm leading-relaxed">
-              Pagamentos são processados via PIX diretamente pelo Banco Central, sem armazenar dados bancários na plataforma.
-            </p>
-          </section>
-
-          {/* Support */}
-          <section id="support" className="scroll-mt-6 mb-10 pb-10 border-b border-[#111]">
-            <div className="flex items-center gap-2 mb-3">
-              <HeadphonesIcon className="h-3.5 w-3.5 text-[#444]" />
-              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">Suporte</span>
-            </div>
-            <h2 className="text-xl font-bold text-white mb-4">Suporte</h2>
-            <p className="text-[#666] text-sm leading-relaxed mb-5">
-              Atendemos de <span className="text-white font-medium">segunda a sexta, das 09h às 18h (BRT)</span>.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-lg p-4">
-                <p className="text-[10px] text-[#444] uppercase tracking-widest font-semibold mb-1">E-mail</p>
-                <p className="text-sm text-[#ccc] font-medium">suporte@DevAssets.com</p>
-              </div>
-              <div className="bg-[#0f0f0f] border border-[#1e1e1e] rounded-lg p-4">
-                <p className="text-[10px] text-[#444] uppercase tracking-widest font-semibold mb-1">Canal</p>
-                <p className="text-sm text-[#ccc] font-medium">Discord da plataforma</p>
-              </div>
-            </div>
-          </section>
-
-          {/* FAQ */}
-          <section id="faq" className="scroll-mt-6 mb-10">
-            <div className="flex items-center gap-2 mb-3">
-              <HelpCircle className="h-3.5 w-3.5 text-[#444]" />
-              <span className="text-[10px] text-[#444] uppercase tracking-widest font-semibold">FAQ</span>
-            </div>
-            <h2 className="text-xl font-bold text-white mb-6">Perguntas Frequentes</h2>
-            <div className="space-y-0 divide-y divide-[#111]">
-              {[
-                {
-                  q: 'Quanto tempo leva para aprovar o pagamento?',
-                  a: 'Em dias úteis, a aprovação ocorre em até 30 minutos. Fora do horário comercial, pode levar até 12 horas.',
-                },
-                {
-                  q: 'Posso usar o asset em mais de um projeto?',
-                  a: 'Depende da licença adquirida. A licença padrão permite uso em 1 projeto. Para múltiplos projetos, adquira a licença extendida ou comercial.',
-                },
-                {
-                  q: 'O link de download expirou. O que fazer?',
-                  a: 'Entre em contato com o suporte informando o número do pedido. Reativamos o link por mais 7 dias.',
-                },
-                {
-                  q: 'Posso pagar com cartão ou boleto?',
-                  a: 'No momento aceitamos apenas PIX. Estamos trabalhando para adicionar novos métodos de pagamento em breve.',
-                },
-              ].map(({ q, a }) => (
-                <div key={q} className="py-5">
-                  <p className="text-sm font-semibold text-[#ccc] mb-2">{q}</p>
-                  <p className="text-sm text-[#555] leading-relaxed">{a}</p>
-                </div>
-              ))}
-            </div>
-          </section>
         </main>
       </div>
     </div>
