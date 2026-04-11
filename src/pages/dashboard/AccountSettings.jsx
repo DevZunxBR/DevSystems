@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { base44, supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { User, Key, Mail, Eye, EyeOff } from 'lucide-react';
+import { User, Key, Mail, Eye, EyeOff, Lock } from 'lucide-react';
 
 export default function AccountSettings() {
   const [user, setUser] = useState(null);
@@ -11,12 +11,8 @@ export default function AccountSettings() {
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({ display_name: '', bio: '' });
   
-  // States para mudança de email
+  // States para mudança de email (BLOQUEADO)
   const [showChangeEmail, setShowChangeEmail] = useState(false);
-  const [emailData, setEmailData] = useState({ new_email: '', code: '' });
-  const [emailStep, setEmailStep] = useState('form');
-  const [sendingCode, setSendingCode] = useState(false);
-  const [changingEmail, setChangingEmail] = useState(false);
   
   // States para mudança de senha
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -62,95 +58,6 @@ export default function AccountSettings() {
       toast.error('Erro ao salvar configurações');
     } finally {
       setSaving(false);
-    }
-  };
-
-  // ==================== MUDANÇA DE EMAIL ====================
-  const sendEmailCode = async () => {
-    const now = Date.now();
-    if (now - lastSentTime < 60000) {
-      const remaining = Math.ceil((60000 - (now - lastSentTime)) / 1000);
-      toast.error(`Aguarde ${remaining} segundos antes de enviar outro código`);
-      return;
-    }
-
-    if (!emailData.new_email) {
-      toast.error('Digite o novo email');
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailData.new_email)) {
-      toast.error('Email inválido');
-      return;
-    }
-    if (emailData.new_email === user?.email) {
-      toast.error('O novo email é igual ao atual');
-      return;
-    }
-
-    setSendingCode(true);
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: emailData.new_email,
-        options: {
-          shouldCreateUser: false,
-        },
-      });
-      
-      if (error) {
-        if (error.status === 422) {
-          toast.error('Email inválido ou já cadastrado. Tente outro email.');
-        } else {
-          toast.error(error.message);
-        }
-        return;
-      }
-      
-      setLastSentTime(Date.now());
-      setEmailStep('code');
-      toast.success('Código de verificação enviado para o novo email!');
-    } catch (error) {
-      if (error.status === 429) {
-        toast.error('Muitas tentativas. Aguarde alguns minutos.');
-      } else if (error.status === 422) {
-        toast.error('Email inválido ou já cadastrado.');
-      } else {
-        toast.error('Erro ao enviar código. Tente novamente.');
-      }
-    } finally {
-      setSendingCode(false);
-    }
-  };
-
-  const verifyEmailCode = async () => {
-    if (!emailData.code) {
-      toast.error('Digite o código de verificação');
-      return;
-    }
-
-    setChangingEmail(true);
-    try {
-      const { error } = await supabase.auth.updateUser({
-        email: emailData.new_email,
-      });
-      
-      if (error) {
-        if (error.status === 422) {
-          toast.error('Este email já está em uso ou é inválido. Tente outro email.');
-        } else {
-          toast.error(error.message);
-        }
-        return;
-      }
-      
-      toast.success('Email alterado com sucesso!');
-      setShowChangeEmail(false);
-      setEmailData({ new_email: '', code: '' });
-      setEmailStep('form');
-      loadUser();
-    } catch (error) {
-      toast.error(error.message || 'Erro ao alterar email');
-    } finally {
-      setChangingEmail(false);
     }
   };
 
@@ -264,6 +171,9 @@ export default function AccountSettings() {
               disabled
               className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-muted-foreground cursor-not-allowed"
             />
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Para alterar seu email, entre em contato com o suporte.
+            </p>
           </div>
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome de exibição</label>
@@ -297,67 +207,17 @@ export default function AccountSettings() {
           <h2 className="text-lg font-bold text-foreground">Segurança</h2>
         </div>
 
-        {/* Mudar Email */}
-        <div>
-          <button
-            onClick={() => setShowChangeEmail(!showChangeEmail)}
-            className="flex items-center justify-between w-full py-2 text-left"
-          >
+        {/* Mudar Email - BLOQUEADO */}
+        <div className="opacity-60 cursor-not-allowed">
+          <div className="flex items-center justify-between w-full py-2">
             <div>
-              <p className="text-sm font-semibold text-foreground">Alterar email</p>
-              <p className="text-xs text-muted-foreground">Altere seu endereço de email</p>
+              <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Lock className="h-3.5 w-3.5" /> Alterar email
+              </p>
+              <p className="text-xs text-muted-foreground">Altere seu endereço de email (bloqueado)</p>
             </div>
             <Mail className="h-4 w-4 text-muted-foreground" />
-          </button>
-
-          {showChangeEmail && (
-            <div className="mt-4 p-4 bg-secondary/30 border border-border rounded-lg">
-              {emailStep === 'form' ? (
-                <div className="space-y-3">
-                  <input
-                    type="email"
-                    placeholder="Novo email"
-                    value={emailData.new_email}
-                    onChange={(e) => setEmailData({ ...emailData, new_email: e.target.value })}
-                    className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground"
-                  />
-                  <div className="flex gap-2">
-                    <Button onClick={sendEmailCode} disabled={sendingCode} className="bg-white text-black">
-                      {sendingCode ? 'Enviando...' : 'Enviar código'}
-                    </Button>
-                    <Button variant="outline" onClick={() => setShowChangeEmail(false)}>
-                      Cancelar
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground">
-                    Enviamos um código para <strong>{emailData.new_email}</strong>
-                  </p>
-                  <input
-                    type="text"
-                    placeholder="Código de verificação"
-                    value={emailData.code}
-                    onChange={(e) => setEmailData({ ...emailData, code: e.target.value })}
-                    className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground text-center tracking-widest font-mono"
-                  />
-                  <div className="flex gap-2">
-                    <Button onClick={verifyEmailCode} disabled={changingEmail} className="bg-white text-black">
-                      {changingEmail ? 'Verificando...' : 'Confirmar'}
-                    </Button>
-                    <Button variant="outline" onClick={() => {
-                      setEmailStep('form');
-                      setShowChangeEmail(false);
-                      setEmailData({ new_email: '', code: '' });
-                    }}>
-                      Cancelar
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+          </div>
         </div>
 
         {/* Mudar Senha */}
