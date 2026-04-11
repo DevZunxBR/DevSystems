@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import NotificationBell from '@/components/notifications/NotificationBell';
+import logoImage from '@/assets/images/Logo.png';
 
 export default function Header() {
   const [user, setUser] = useState(null);
@@ -64,7 +65,7 @@ export default function Header() {
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center overflow-hidden">
             {!logoLoadError ? (
               <img
-                src="assets/images/Logo.png"
+                src={logoImage}
                 alt="Logo"
                 className="w-full h-full object-cover"
                 onError={() => setLogoLoadError(true)}
