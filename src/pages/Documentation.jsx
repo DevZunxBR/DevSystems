@@ -1,4 +1,4 @@
-// src/pages/Documentation.jsx - Estilo GitBook
+// src/pages/Documentation.jsx - Estilo GitBook (CORRIGIDO)
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -8,7 +8,7 @@ import {
 
 const DOCS_SECTIONS = [
   { id: 'buying', title: 'Como Comprar', icon: ShoppingCart },
-  { id: 'payment', title: Pagamento, icon: CreditCard },
+  { id: 'payment', title: 'Pagamento', icon: CreditCard }, // <-- AQUI ESTAVA O ERRO
   { id: 'downloads', title: 'Downloads', icon: Download },
   { id: 'wallet', title: 'Carteira', icon: Wallet },
   { id: 'refund', title: 'Reembolsos', icon: RotateCcw },
