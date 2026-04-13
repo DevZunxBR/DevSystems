@@ -1,7 +1,7 @@
-// src/pages/Cart.jsx - Com suporte a presentes
+// src/pages/Cart.jsx - Sem opção de saldo da carteira
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, ShoppingCart, ArrowRight, Wallet, AlertCircle, RefreshCw, Gift } from 'lucide-react';
+import { Trash2, ShoppingCart, ArrowRight, AlertCircle, RefreshCw, Gift } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -9,9 +9,6 @@ import { toast } from 'sonner';
 export default function Cart() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [wallet, setWallet] = useState(null);
-  const [useWalletBalance, setUseWalletBalance] = useState(false);
-  const [payingWithWallet, setPayingWithWallet] = useState(false);
   const [removingId, setRemovingId] = useState(null);
   const navigate = useNavigate();
 
@@ -19,12 +16,8 @@ export default function Cart() {
     setLoading(true);
     try {
       const me = await base44.auth.me();
-      const [cartItems, wallets] = await Promise.all([
-        base44.entities.CartItem.filter({ user_email: me.email }),
-        base44.entities.Wallet.filter({ user_email: me.email }),
-      ]);
+      const cartItems = await base44.entities.CartItem.filter({ user_email: me.email });
       setItems(cartItems);
-      setWallet(wallets[0] || null);
     } catch (error) {
       console.error('Erro ao carregar carrinho:', error);
       toast.error('Erro ao carregar carrinho');
@@ -52,90 +45,9 @@ export default function Cart() {
   };
 
   const total = items.reduce((sum, item) => sum + (item.price_brl || 0), 0);
-  const walletBalance = wallet?.balance_usd || 0;
-  const canPayFully = walletBalance >= total;
-  const walletDiscount = useWalletBalance ? Math.min(walletBalance, total) : 0;
-  const remainingTotal = Math.max(0, total - walletDiscount);
   
   // Verificar se tem presente no carrinho
   const hasGift = items.some(item => item.is_gift === true);
-
-  const handlePayWithWallet = async () => {
-    if (!canPayFully) {
-      toast.error('Saldo insuficiente para esta compra');
-      return;
-    }
-    
-    setPayingWithWallet(true);
-    try {
-      const me = await base44.auth.me();
-      const orderItems = items.map(item => ({
-        product_id: item.product_id,
-        product_title: item.product_title,
-        license_name: item.license_name,
-        price: item.price_brl,
-        thumbnail: item.thumbnail,
-        file_url: item.file_url,
-        is_gift: item.is_gift || false,
-        gift_recipient_email: item.gift_recipient_email,
-        gift_message: item.gift_message,
-        gift_sender_name: item.gift_sender_name,
-      }));
-
-      await base44.entities.Order.create({
-        customer_email: me.email,
-        customer_name: me.full_name || me.email,
-        status: 'completed',
-        payment_method: 'wallet',
-        currency: 'BRL',
-        total_amount: total,
-        items: orderItems,
-        billing_name: me.full_name || me.email,
-        billing_email: me.email,
-        pix_code: 'WALLET_PAYMENT',
-        download_token: `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`,
-      });
-
-      const newBalance = walletBalance - total;
-      const tx = {
-        type: 'purchase',
-        amount: -total,
-        description: `Compra: ${orderItems.map(i => i.product_title).join(', ')}`,
-        date: new Date().toISOString()
-      };
-
-      await base44.entities.Wallet.update(wallet.id, {
-        balance_usd: newBalance,
-        transactions: [...(wallet.transactions || []), tx],
-      });
-
-      setWallet(prev => ({ ...prev, balance_usd: newBalance, transactions: [...(prev.transactions || []), tx] }));
-      
-      // Limpa carrinho
-      for (const item of items) {
-        await base44.entities.CartItem.delete(item.id);
-      }
-      setItems([]);
-      setUseWalletBalance(false);
-
-      await base44.entities.Notification.create({
-        user_email: me.email,
-        title: 'Compra realizada com sucesso!',
-        message: `Você comprou ${orderItems.length} item(ns) usando saldo da carteira. Acesse Meus Pedidos para baixar.`,
-        type: 'payment',
-        read: false,
-        link: '/dashboard/orders',
-      });
-
-      toast.success('Compra realizada com sucesso!');
-      navigate('/dashboard/orders');
-    } catch (error) {
-      console.error('Erro no pagamento:', error);
-      toast.error('Falha ao processar pagamento. Tente novamente.');
-    } finally { 
-      setPayingWithWallet(false); 
-    }
-  };
 
   if (loading) {
     return (
@@ -262,36 +174,6 @@ export default function Cart() {
             <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6 space-y-5 sticky top-24">
               <h3 className="text-lg font-bold text-white">Resumo do Pedido</h3>
 
-              {/* Saldo da Carteira */}
-              {wallet && walletBalance > 0 && (
-                <div className="p-3 bg-[#111] border border-[#1A1A1A] rounded-lg space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Wallet className="h-4 w-4 text-[#666]" />
-                      <span className="text-sm text-white">Saldo disponível</span>
-                    </div>
-                    <span className="text-sm font-bold text-white">R$ {walletBalance.toFixed(2)}</span>
-                  </div>
-                  
-                  <label className="flex items-center gap-2 cursor-pointer pt-2 border-t border-[#1A1A1A]">
-                    <input
-                      type="checkbox"
-                      checked={useWalletBalance}
-                      onChange={(e) => setUseWalletBalance(e.target.checked)}
-                      className="rounded border-[#333] bg-transparent"
-                    />
-                    <span className="text-xs text-[#888]">
-                      Usar saldo da carteira
-                      {!canPayFully && useWalletBalance && (
-                        <span className="text-yellow-600 ml-1">
-                          (saldo insuficiente, restará R$ {remainingTotal.toFixed(2)})
-                        </span>
-                      )}
-                    </span>
-                  </label>
-                </div>
-              )}
-
               {/* Totais */}
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between text-[#666]">
@@ -299,19 +181,12 @@ export default function Cart() {
                   <span>R$ {total.toFixed(2)}</span>
                 </div>
                 
-                {useWalletBalance && walletDiscount > 0 && (
-                  <div className="flex justify-between text-green-500">
-                    <span>Saldo aplicado</span>
-                    <span>- R$ {walletDiscount.toFixed(2)}</span>
-                  </div>
-                )}
-                
                 <div className="flex justify-between font-bold text-white pt-3 border-t border-[#1A1A1A] text-base">
                   <span>Total</span>
-                  <span className="text-xl">R$ {(useWalletBalance ? remainingTotal : total).toFixed(2)}</span>
+                  <span className="text-xl">R$ {total.toFixed(2)}</span>
                 </div>
 
-                {/* Aviso de frete */}
+                {/* Aviso */}
                 <div className="flex items-start gap-2 p-2 bg-[#111] rounded-lg">
                   <AlertCircle className="h-3 w-3 text-[#555] mt-0.5 flex-shrink-0" />
                   <p className="text-[10px] text-[#555]">
@@ -322,33 +197,13 @@ export default function Cart() {
 
               {/* Botões de ação */}
               <div className="space-y-2">
-                {useWalletBalance && canPayFully ? (
-                  <Button 
-                    onClick={handlePayWithWallet} 
-                    disabled={payingWithWallet} 
-                    className="w-full bg-white text-black hover:bg-white/90 font-bold gap-2 h-12"
-                  >
-                    {payingWithWallet ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                        Processando...
-                      </>
-                    ) : (
-                      <>
-                        <Wallet className="h-4 w-4" />
-                        Pagar com Saldo
-                      </>
-                    )}
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={() => navigate('/checkout')} 
-                    className="w-full bg-white text-black hover:bg-white/90 font-bold gap-2 h-12"
-                  >
-                    Finalizar Compra
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                )}
+                <Button 
+                  onClick={() => navigate('/checkout')} 
+                  className="w-full bg-white text-black hover:bg-white/90 font-bold gap-2 h-12"
+                >
+                  Finalizar Compra
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
                 
                 <Button 
                   variant="outline" 
