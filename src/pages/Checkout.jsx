@@ -1,4 +1,4 @@
-// src/pages/Checkout.jsx - Com lógica de saldo para pagamento via PIX
+// src/pages/Checkout.jsx - Completo
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44, supabase } from '@/api/base44Client';
@@ -50,7 +50,6 @@ export default function Checkout() {
       setItems([{ ...product, id: 'direct_' + Date.now() }]);
       setBilling(prev => ({ ...prev, name: me.full_name || '', email: me.email || '' }));
       
-      // Buscar carteira do usuário
       const wallets = await base44.entities.Wallet.filter({ user_email: me.email });
       setWallet(wallets[0] || null);
       
@@ -96,7 +95,6 @@ export default function Checkout() {
   const walletDiscount = useWallet ? Math.min(walletBalance, afterCoupon) : 0;
   const remainingToPay = Math.max(0, afterCoupon - walletDiscount);
   
-  // Verificar se o saldo cobre o valor total (com cupom aplicado)
   const canPayFullyWithWallet = useWallet && walletBalance >= afterCoupon;
 
   const applyCoupon = async () => {
@@ -118,7 +116,7 @@ export default function Checkout() {
     }
   };
 
-  // Pagamento com saldo (sem PIX)
+  // Pagamento com saldo (NÃO abre modal PIX)
   const handlePayWithWallet = async () => {
     if (!canPayFullyWithWallet) {
       toast.error('Saldo insuficiente para pagar com saldo');
@@ -141,7 +139,7 @@ export default function Checkout() {
         gift_sender_name: item.gift_sender_name,
       }));
 
-      // Criar pedido com status completed
+      // Criar pedido com status COMPLETED (já aprovado)
       const order = await base44.entities.Order.create({
         customer_email: me.email,
         customer_name: billing.name,
@@ -185,6 +183,16 @@ export default function Checkout() {
         }
       }
 
+      // Notificação de compra com saldo
+      await base44.entities.Notification.create({
+        user_email: me.email,
+        title: 'Compra realizada com sucesso!',
+        message: `Você comprou ${orderItems.length} item(ns) usando saldo da carteira. Os downloads já estão disponíveis.`,
+        type: 'payment',
+        read: false,
+        link: '/dashboard/orders',
+      });
+
       toast.success('Compra realizada com sucesso usando saldo da carteira!');
       navigate('/dashboard/orders');
     } catch (error) {
@@ -195,7 +203,7 @@ export default function Checkout() {
     }
   };
 
-  // Pagamento via PIX (normal)
+  // Pagamento via PIX (abre modal)
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!billing.name || !billing.email) { toast.error('Preencha todos os campos'); return; }
@@ -257,7 +265,6 @@ export default function Checkout() {
     }
   };
 
-  // Verificar se tem presente no carrinho
   const hasGift = items.some(item => item.is_gift);
 
   if (loading) {
@@ -292,7 +299,6 @@ export default function Checkout() {
     <div className="min-h-screen max-w-5xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-foreground tracking-tight mb-8">Checkout</h1>
 
-      {/* Aviso de presente */}
       {hasGift && (
         <div className="mb-6 p-4 bg-pink-500/10 border border-pink-500/20 rounded-xl flex items-center gap-3">
           <Gift className="h-5 w-5 text-pink-400" />
@@ -304,7 +310,6 @@ export default function Checkout() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        {/* Billing */}
         <div className="lg:col-span-3">
           <form onSubmit={(e) => buttonConfig.action(e)} className="bg-card border border-border rounded-xl p-6 space-y-5">
             <h2 className="text-lg font-bold text-foreground">Dados de Cobrança</h2>
@@ -388,7 +393,6 @@ export default function Checkout() {
               </div>
             </div>
 
-            {/* Botão dinâmico */}
             <Button 
               type="submit" 
               disabled={buttonConfig.disabled} 
