@@ -1,10 +1,10 @@
-// src/pages/Checkout.jsx - Atualizado com compra direta
+// src/pages/Checkout.jsx - Com lógica de saldo para pagamento via PIX
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44, supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Tag, X, Wallet, Gift } from 'lucide-react';
+import { Tag, X, Wallet, Gift, ArrowRight } from 'lucide-react';
 import PixModal from '@/components/checkout/PixModal';
 
 export default function Checkout() {
@@ -23,6 +23,7 @@ export default function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [useWallet, setUseWallet] = useState(false);
+  const [payingWithWallet, setPayingWithWallet] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,7 +34,6 @@ export default function Checkout() {
     }
   }, [isDirectPurchase]);
 
-  // Carregar compra direta (Comprar Agora)
   const loadDirectPurchase = async () => {
     setLoading(true);
     try {
@@ -50,7 +50,10 @@ export default function Checkout() {
       setItems([{ ...product, id: 'direct_' + Date.now() }]);
       setBilling(prev => ({ ...prev, name: me.full_name || '', email: me.email || '' }));
       
-      // Limpar sessionStorage
+      // Buscar carteira do usuário
+      const wallets = await base44.entities.Wallet.filter({ user_email: me.email });
+      setWallet(wallets[0] || null);
+      
       sessionStorage.removeItem('direct_purchase');
     } catch (error) {
       console.error('Erro ao carregar compra direta:', error);
@@ -91,7 +94,10 @@ export default function Checkout() {
 
   const afterCoupon = Math.max(0, subtotal - couponDiscount);
   const walletDiscount = useWallet ? Math.min(walletBalance, afterCoupon) : 0;
-  const total = Math.max(0, afterCoupon - walletDiscount);
+  const remainingToPay = Math.max(0, afterCoupon - walletDiscount);
+  
+  // Verificar se o saldo cobre o valor total (com cupom aplicado)
+  const canPayFullyWithWallet = useWallet && walletBalance >= afterCoupon;
 
   const applyCoupon = async () => {
     if (!couponInput.trim()) return;
@@ -104,6 +110,7 @@ export default function Checkout() {
       if (c.max_uses && c.uses_count >= c.max_uses) { toast.error('Cupom esgotado'); return; }
       setAppliedCoupon(c);
       toast.success(`Cupom aplicado! ${c.discount_percent ? c.discount_percent + '% de desconto' : symbol + Number(c.discount_fixed_usd || 0).toFixed(2) + ' de desconto'}`);
+      setCouponInput('');
     } catch {
       toast.error('Falha ao verificar cupom');
     } finally {
@@ -111,13 +118,91 @@ export default function Checkout() {
     }
   };
 
+  // Pagamento com saldo (sem PIX)
+  const handlePayWithWallet = async () => {
+    if (!canPayFullyWithWallet) {
+      toast.error('Saldo insuficiente para pagar com saldo');
+      return;
+    }
+
+    setPayingWithWallet(true);
+    try {
+      const me = await base44.auth.me();
+      const orderItems = items.map(item => ({
+        product_id: item.product_id,
+        product_title: item.product_title,
+        license_name: item.license_name,
+        price: item.price_brl || 0,
+        thumbnail: item.thumbnail,
+        file_url: item.file_url,
+        is_gift: item.is_gift || false,
+        gift_recipient_email: item.gift_recipient_email,
+        gift_message: item.gift_message,
+        gift_sender_name: item.gift_sender_name,
+      }));
+
+      // Criar pedido com status completed
+      const order = await base44.entities.Order.create({
+        customer_email: me.email,
+        customer_name: billing.name,
+        status: 'completed',
+        payment_method: 'wallet',
+        currency: 'BRL',
+        total_amount: remainingToPay,
+        items: orderItems,
+        billing_name: billing.name,
+        billing_email: billing.email,
+        billing_document: billing.document,
+        pix_code: 'WALLET_PAYMENT',
+        download_token: `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`,
+        wallet_used: walletDiscount,
+        coupon_discount: couponDiscount,
+        subtotal_amount: subtotal,
+      });
+
+      if (appliedCoupon) {
+        await base44.entities.Coupon.update(appliedCoupon.id, { uses_count: (appliedCoupon.uses_count || 0) + 1 });
+      }
+
+      // Atualizar carteira (debita o valor)
+      const newBalance = walletBalance - remainingToPay;
+      const tx = {
+        type: 'purchase',
+        amount: -remainingToPay,
+        description: `Compra: ${orderItems.map(i => i.product_title).join(', ')}`,
+        date: new Date().toISOString()
+      };
+
+      await base44.entities.Wallet.update(wallet.id, {
+        balance_usd: newBalance,
+        transactions: [...(wallet.transactions || []), tx],
+      });
+
+      // Limpar carrinho (se não for compra direta)
+      if (!isDirectPurchase) {
+        for (const item of items) {
+          await base44.entities.CartItem.delete(item.id);
+        }
+      }
+
+      toast.success('Compra realizada com sucesso usando saldo da carteira!');
+      navigate('/dashboard/orders');
+    } catch (error) {
+      console.error(error);
+      toast.error('Falha ao processar pagamento com saldo');
+    } finally {
+      setPayingWithWallet(false);
+    }
+  };
+
+  // Pagamento via PIX (normal)
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!billing.name || !billing.email) { toast.error('Preencha todos os campos'); return; }
     setSubmitting(true);
     try {
       const me = await base44.auth.me();
-      const pixGenerated = `00020126580014br.gov.bcb.pix0136${Date.now()}${Math.random().toString(36).slice(2, 8)}520400005303986540${total.toFixed(2)}5802BR`;
+      const pixGenerated = `00020126580014br.gov.bcb.pix0136${Date.now()}${Math.random().toString(36).slice(2, 8)}520400005303986540${remainingToPay.toFixed(2)}5802BR`;
 
       const orderItems = items.map(item => ({
         product_id: item.product_id,
@@ -138,7 +223,7 @@ export default function Checkout() {
         status: 'pending',
         payment_method: 'pix',
         currency: 'BRL',
-        total_amount: total,
+        total_amount: remainingToPay,
         items: orderItems,
         billing_name: billing.name,
         billing_email: billing.email,
@@ -154,7 +239,7 @@ export default function Checkout() {
         await base44.entities.Coupon.update(appliedCoupon.id, { uses_count: (appliedCoupon.uses_count || 0) + 1 });
       }
 
-      // Limpar carrinho APENAS se não for compra direta
+      // Limpar carrinho (se não for compra direta)
       if (!isDirectPurchase) {
         for (const item of items) {
           await base44.entities.CartItem.delete(item.id);
@@ -163,7 +248,7 @@ export default function Checkout() {
 
       setCurrentOrder(order);
       setPixCode(pixGenerated);
-      setFinalTotal(total);
+      setFinalTotal(remainingToPay);
       setShowPix(true);
     } catch {
       toast.error('Falha ao realizar pedido');
@@ -183,6 +268,26 @@ export default function Checkout() {
     );
   }
 
+  // Determinar texto e ação do botão principal
+  const getButtonConfig = () => {
+    if (useWallet && canPayFullyWithWallet) {
+      return {
+        text: `Pagar com Saldo (R$ ${remainingToPay.toFixed(2)})`,
+        action: handlePayWithWallet,
+        loading: payingWithWallet,
+        disabled: payingWithWallet
+      };
+    }
+    return {
+      text: `Pagar R$ ${remainingToPay.toFixed(2)} via PIX`,
+      action: handleSubmit,
+      loading: submitting,
+      disabled: submitting
+    };
+  };
+
+  const buttonConfig = getButtonConfig();
+
   return (
     <div className="min-h-screen max-w-5xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-foreground tracking-tight mb-8">Checkout</h1>
@@ -201,11 +306,11 @@ export default function Checkout() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* Billing */}
         <div className="lg:col-span-3">
-          <form onSubmit={handleSubmit} className="bg-card border border-border rounded-xl p-6 space-y-5">
+          <form onSubmit={(e) => buttonConfig.action(e)} className="bg-card border border-border rounded-xl p-6 space-y-5">
             <h2 className="text-lg font-bold text-foreground">Dados de Cobrança</h2>
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo*</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo *</label>
                 <input type="text" value={billing.name} onChange={(e) => setBilling({ ...billing, name: e.target.value })}
                   className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" required />
               </div>
@@ -215,7 +320,7 @@ export default function Checkout() {
                   className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" required />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">CPF / CNPJ (Opcional)</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">CPF / CNPJ</label>
                 <input type="text" value={billing.document} onChange={(e) => setBilling({ ...billing, document: e.target.value })}
                   className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
               </div>
@@ -234,7 +339,12 @@ export default function Checkout() {
                 </label>
                 {useWallet && walletDiscount > 0 && (
                   <p className="text-xs text-green-500">
-                     {symbol}{walletDiscount.toFixed(2)} de saldo serão descontados ao confirmar o pagamento
+                    ✓ {symbol}{walletDiscount.toFixed(2)} de saldo serão descontados
+                    {canPayFullyWithWallet && (
+                      <span className="block text-green-500 font-semibold mt-1">
+                        🎉 Saldo suficiente! Você pode pagar com saldo.
+                      </span>
+                    )}
                   </p>
                 )}
               </div>
@@ -253,7 +363,7 @@ export default function Checkout() {
                 </div>
               ) : (
                 <div className="flex gap-2">
-                  <input type="text" placeholder="DEVMARKETPLACE10" value={couponInput}
+                  <input type="text" placeholder="DESCONTO10" value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
                     className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring font-mono" />
@@ -278,8 +388,13 @@ export default function Checkout() {
               </div>
             </div>
 
-            <Button type="submit" disabled={submitting} className="w-full bg-white text-black hover:bg-white/90 font-semibold h-12">
-              {submitting ? 'Processando...' : `Pagar ${symbol}${total.toFixed(2)}`}
+            {/* Botão dinâmico */}
+            <Button 
+              type="submit" 
+              disabled={buttonConfig.disabled} 
+              className="w-full bg-white text-black hover:bg-white/90 font-semibold h-12"
+            >
+              {buttonConfig.loading ? 'Processando...' : buttonConfig.text}
             </Button>
           </form>
         </div>
@@ -326,8 +441,8 @@ export default function Checkout() {
                 </div>
               )}
               <div className="flex justify-between font-bold text-lg text-foreground pt-1 border-t border-border">
-                <span>Total</span>
-                <span>{symbol}{total.toFixed(2)}</span>
+                <span>Total a pagar</span>
+                <span>{symbol}{remainingToPay.toFixed(2)}</span>
               </div>
             </div>
           </div>
