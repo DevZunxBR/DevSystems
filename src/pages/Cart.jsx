@@ -1,7 +1,7 @@
-// src/pages/Cart.jsx - Sem opção de saldo da carteira
+// src/pages/Cart.jsx - Com resumo detalhado
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, ShoppingCart, ArrowRight, AlertCircle, RefreshCw, Gift } from 'lucide-react';
+import { Trash2, ShoppingCart, ArrowRight, AlertCircle, RefreshCw, Gift, Tag } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -10,6 +10,9 @@ export default function Cart() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [removingId, setRemovingId] = useState(null);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponInput, setCouponInput] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
   const navigate = useNavigate();
 
   const loadCart = useCallback(async () => {
@@ -44,7 +47,54 @@ export default function Cart() {
     }
   };
 
-  const total = items.reduce((sum, item) => sum + (item.price_brl || 0), 0);
+  const applyCoupon = async () => {
+    if (!couponInput.trim()) {
+      toast.error('Digite um código de cupom');
+      return;
+    }
+    setCouponLoading(true);
+    try {
+      const coupons = await base44.entities.Coupon.filter({ code: couponInput.trim().toUpperCase(), active: true });
+      if (coupons.length === 0) { 
+        toast.error('Cupom inválido ou expirado'); 
+        return; 
+      }
+      const c = coupons[0];
+      if (c.expires_at && new Date(c.expires_at) < new Date()) { 
+        toast.error('Cupom expirado'); 
+        return; 
+      }
+      if (c.max_uses && c.uses_count >= c.max_uses) { 
+        toast.error('Cupom esgotado'); 
+        return; 
+      }
+      setAppliedCoupon(c);
+      toast.success(`Cupom ${c.code} aplicado!`);
+      setCouponInput('');
+    } catch {
+      toast.error('Falha ao verificar cupom');
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    toast.info('Cupom removido');
+  };
+
+  const subtotal = items.reduce((sum, item) => sum + (item.price_brl || 0), 0);
+  
+  let couponDiscount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.discount_percent) {
+      couponDiscount = subtotal * (appliedCoupon.discount_percent / 100);
+    } else if (appliedCoupon.discount_fixed_usd) {
+      couponDiscount = appliedCoupon.discount_fixed_usd;
+    }
+  }
+  
+  const total = Math.max(0, subtotal - couponDiscount);
   
   // Verificar se tem presente no carrinho
   const hasGift = items.some(item => item.is_gift === true);
@@ -169,34 +219,98 @@ export default function Cart() {
             ))}
           </div>
 
-          {/* Resumo */}
+          {/* Resumo do Pedido - Detalhado */}
           <div>
             <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6 space-y-5 sticky top-24">
               <h3 className="text-lg font-bold text-white">Resumo do Pedido</h3>
 
-              {/* Totais */}
-              <div className="space-y-3 text-sm">
+              {/* Lista de itens no resumo */}
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                {items.map((item) => (
+                  <div key={item.id} className="flex justify-between text-sm">
+                    <div className="flex-1">
+                      <span className="text-[#666]">{item.product_title}</span>
+                      {item.is_gift && (
+                        <span className="text-[10px] text-white/50 ml-1">(Presente)</span>
+                      )}
+                    </div>
+                    <span className="text-white">R$ {item.price_brl?.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-[#1A1A1A] pt-3 space-y-2 text-sm">
+                {/* Subtotal */}
                 <div className="flex justify-between text-[#666]">
-                  <span>Subtotal ({items.length} {items.length === 1 ? 'item' : 'itens'})</span>
-                  <span>R$ {total.toFixed(2)}</span>
+                  <span>Subtotal</span>
+                  <span>R$ {subtotal.toFixed(2)}</span>
                 </div>
                 
-                <div className="flex justify-between font-bold text-white pt-3 border-t border-[#1A1A1A] text-base">
+                {/* Desconto do cupom */}
+                {appliedCoupon && couponDiscount > 0 && (
+                  <div className="flex justify-between text-green-500">
+                    <span className="flex items-center gap-1">
+                      <Tag className="h-3 w-3" /> Cupom ({appliedCoupon.code})
+                    </span>
+                    <span>- R$ {couponDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+                
+                {/* Total */}
+                <div className="flex justify-between font-bold text-white pt-2 border-t border-[#1A1A1A] text-base">
                   <span>Total</span>
                   <span className="text-xl">R$ {total.toFixed(2)}</span>
                 </div>
+              </div>
 
-                {/* Aviso */}
-                <div className="flex items-start gap-2 p-2 bg-[#111] rounded-lg">
-                  <AlertCircle className="h-3 w-3 text-[#555] mt-0.5 flex-shrink-0" />
-                  <p className="text-[10px] text-[#555]">
-                    Entrega manual via download após confirmação do pagamento
-                  </p>
-                </div>
+              {/* Cupom de desconto */}
+              <div className="pt-2">
+                {appliedCoupon ? (
+                  <div className="flex items-center justify-between p-2 bg-[#111] border border-[#1A1A1A] rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Tag className="h-3.5 w-3.5 text-green-500" />
+                      <span className="text-xs text-white">{appliedCoupon.code}</span>
+                    </div>
+                    <button
+                      onClick={removeCoupon}
+                      className="text-xs text-[#555] hover:text-red-500 transition-colors"
+                    >
+                      Remover
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Cupom de desconto"
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
+                      className="flex-1 h-9 px-3 bg-[#111] border border-[#1A1A1A] rounded-lg text-xs text-white placeholder:text-[#444] focus:outline-none focus:border-white/30"
+                    />
+                    <Button
+                      onClick={applyCoupon}
+                      disabled={couponLoading}
+                      variant="outline"
+                      size="sm"
+                      className="border-[#1A1A1A] text-[#666] hover:text-white text-xs h-9"
+                    >
+                      {couponLoading ? '...' : 'Aplicar'}
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Aviso */}
+              <div className="flex items-start gap-2 p-2 bg-[#111] rounded-lg">
+                <AlertCircle className="h-3 w-3 text-[#555] mt-0.5 flex-shrink-0" />
+                <p className="text-[10px] text-[#555]">
+                  Entrega manual via download após confirmação do pagamento
+                </p>
               </div>
 
               {/* Botões de ação */}
-              <div className="space-y-2">
+              <div className="space-y-2 pt-2">
                 <Button 
                   onClick={() => navigate('/checkout')} 
                   className="w-full bg-white text-black hover:bg-white/90 font-bold gap-2 h-12"
