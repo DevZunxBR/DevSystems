@@ -344,7 +344,7 @@ export default function Checkout() {
             </div>
 
             <Button type="submit" disabled={submitting} className="w-full bg-white text-black hover:bg-white/90 font-semibold h-12">
-              {submitting ? 'Processando...' : isZeroTotal ? 'Finalizar Pedido (R$ 0,00)' : `Pagar ${symbol}${total.toFixed(2)}`}
+              {submitting ? 'Processando...' : isZeroTotal ? 'Finalizar Pedido Com Saldo ' : `Pagar ${symbol}${total.toFixed(2)}`}
             </Button>
           </form>
         </div>
