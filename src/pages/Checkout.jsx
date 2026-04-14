@@ -1,10 +1,10 @@
-// src/pages/Checkout.jsx - Com suporte a pedidos de R$ 0,00
+// src/pages/Checkout.jsx - Corrigido
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44, supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Tag, X, Wallet, Gift } from 'lucide-react';
+import { Tag, X, Wallet, Gift, AlertCircle } from 'lucide-react';
 import PixModal from '@/components/checkout/PixModal';
 
 export default function Checkout() {
@@ -116,7 +116,7 @@ export default function Checkout() {
     }
   };
 
-  // Função para criar pedido (usada tanto para PIX quanto para valor zero)
+  // Função para criar pedido
   const createOrder = async (status, paymentMethod, pixCodeValue = null) => {
     const me = await base44.auth.me();
     const orderItems = items.map(item => ({
@@ -188,7 +188,8 @@ export default function Checkout() {
     
     setSubmitting(true);
     try {
-      await createOrder('pending', 'free');
+      // Usar 'pix' como payment_method (não usar 'free' para evitar erro 400)
+      await createOrder('pending', 'pix', 'FREE_ORDER');
       
       toast.success('Pedido realizado com sucesso! Aguarde a aprovação.');
       navigate('/dashboard/orders');
@@ -258,17 +259,6 @@ export default function Checkout() {
           <div className="flex-1">
             <p className="text-sm font-medium text-white">Presentes no carrinho!</p>
             <p className="text-xs text-pink-400/80">Após a aprovação do pagamento, os presentes serão enviados automaticamente.</p>
-          </div>
-        </div>
-      )}
-
-      {/* Aviso de compra gratuita */}
-      {isZeroTotal && (
-        <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-3">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-white">Compra com valor total R$ 0,00!</p>
-            <p className="text-xs text-green-400/80">Após finalizar, seu pedido será enviado para aprovação.</p>
           </div>
         </div>
       )}
@@ -359,10 +349,22 @@ export default function Checkout() {
           </form>
         </div>
 
-        {/* Summary */}
+        {/* Summary - com aviso de compra gratuita no painel fixo */}
         <div className="lg:col-span-2">
           <div className="bg-card border border-border rounded-xl p-6 space-y-4 sticky top-24">
             <h2 className="text-lg font-bold text-foreground">Resumo</h2>
+            
+            {/* Aviso de compra gratuita no painel fixo (sem cor verde) */}
+            {isZeroTotal && (
+              <div className="p-3 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 text-[#555] flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-xs text-white font-medium">Compra com valor total R$ 0,00</p>
+                  <p className="text-[10px] text-[#555] mt-0.5">Após finalizar, seu pedido será enviado para aprovação.</p>
+                </div>
+              </div>
+            )}
+            
             <div className="space-y-3">
               {items.map((item) => (
                 <div key={item.id} className="flex items-center gap-3">
