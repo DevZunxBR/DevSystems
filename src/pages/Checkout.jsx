@@ -1,4 +1,4 @@
-// src/pages/Checkout.jsx - Com suporte a pedidos de R$ 0,00
+// src/pages/Checkout.jsx - Com valores válidos para payment_method
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44, supabase } from '@/api/base44Client';
@@ -136,14 +136,14 @@ export default function Checkout() {
       customer_email: me.email,
       customer_name: billing.name,
       status: status,
-      payment_method: paymentMethod,
+      payment_method: paymentMethod, // 'pix' ou 'wallet' ou 'free' - verifique quais são aceitos
       currency: 'BRL',
       total_amount: total,
       items: orderItems,
       billing_name: billing.name,
       billing_email: billing.email,
       billing_document: billing.document,
-      pix_code: pixCodeValue || 'NO_PAYMENT',
+      pix_code: pixCodeValue || (paymentMethod === 'pix' ? 'PENDING_PIX' : 'NO_PAYMENT'),
       download_token: `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`,
       wallet_used: walletDiscount,
       coupon_discount: couponDiscount,
@@ -188,7 +188,8 @@ export default function Checkout() {
     
     setSubmitting(true);
     try {
-      await createOrder('pending', 'free');
+      // Usar 'pix' como payment_method (já que 'free' não é aceito)
+      await createOrder('pending', 'pix', 'FREE_ORDER');
       
       toast.success('Pedido realizado com sucesso! Aguarde a aprovação.');
       navigate('/dashboard/orders');
