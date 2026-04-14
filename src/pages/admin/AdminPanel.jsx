@@ -1,6 +1,6 @@
 // src/pages/admin/AdminPanel.jsx
 import { useState, useEffect } from 'react';
-import { Link, Outlet, useLocation, Navigate } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag, Lock } from 'lucide-react';
 import { toast } from 'sonner';
@@ -36,7 +36,6 @@ export default function AdminPanel() {
         return;
       }
       
-      // Verificar se o usuário tem role admin
       const isUserAdmin = me.role === 'admin';
       
       if (!isUserAdmin) {
@@ -57,10 +56,10 @@ export default function AdminPanel() {
     }
   };
 
-  // Tela de loading (sem delay de 1 segundo, apenas enquanto verifica)
+  // Tela de loading
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center space-y-3">
           <div className="w-10 h-10 border-2 border-[#1A1A1A] border-t-white rounded-full animate-spin mx-auto" />
           <p className="text-sm text-[#555]">Verificando credenciais...</p>
@@ -69,21 +68,26 @@ export default function AdminPanel() {
     );
   }
 
-  // Se não for admin, redireciona imediatamente (sem delay)
+  // Tela de acesso negado (cadeado branco)
   if (!isAdmin || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto">
-            <Lock className="h-8 w-8 text-red-500" />
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-center space-y-6 max-w-md mx-auto px-4">
+          <div className="w-20 h-20 bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl flex items-center justify-center mx-auto">
+            <Lock className="h-10 w-10 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Acesso Negado</h1>
-          <p className="text-sm text-[#555] max-w-md">
-            Você não tem permissão para acessar esta área. Apenas administradores podem acessar o painel.
-          </p>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-black text-white">Acesso Restrito</h1>
+            <p className="text-sm text-[#555]">
+              Você não tem permissão para acessar esta área.
+            </p>
+            <p className="text-xs text-[#444]">
+              Apenas administradores podem acessar o painel de controle.
+            </p>
+          </div>
           <button
             onClick={() => window.location.href = '/'}
-            className="mt-4 px-6 py-2 bg-white text-black rounded-lg text-sm font-semibold hover:bg-white/90 transition-colors"
+            className="mt-4 px-6 py-2.5 bg-white text-black rounded-lg text-sm font-semibold hover:bg-white/90 transition-colors"
           >
             Voltar para a loja
           </button>
@@ -113,7 +117,7 @@ export default function AdminPanel() {
               <ShieldCheck className="h-4 w-4 text-white" />
               <span className="text-xs font-medium text-white">Administrador</span>
             </div>
-            <p className="text-[10px] text-[#555] mt-1">{user?.email}</p>
+            <p className="text-[10px] text-[#555] mt-1 break-all">{user?.email}</p>
           </div>
 
           <nav className="space-y-1">
