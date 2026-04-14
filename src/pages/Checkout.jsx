@@ -1,4 +1,4 @@
-// src/pages/Checkout.jsx - Atualizado com compra direta
+// src/pages/Checkout.jsx - Com suporte a pedidos de R$ 0,00
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44, supabase } from '@/api/base44Client';
@@ -33,7 +33,6 @@ export default function Checkout() {
     }
   }, [isDirectPurchase]);
 
-  // Carregar compra direta (Comprar Agora)
   const loadDirectPurchase = async () => {
     setLoading(true);
     try {
@@ -50,7 +49,9 @@ export default function Checkout() {
       setItems([{ ...product, id: 'direct_' + Date.now() }]);
       setBilling(prev => ({ ...prev, name: me.full_name || '', email: me.email || '' }));
       
-      // Limpar sessionStorage
+      const wallets = await base44.entities.Wallet.filter({ user_email: me.email });
+      setWallet(wallets[0] || null);
+      
       sessionStorage.removeItem('direct_purchase');
     } catch (error) {
       console.error('Erro ao carregar compra direta:', error);
@@ -93,6 +94,9 @@ export default function Checkout() {
   const walletDiscount = useWallet ? Math.min(walletBalance, afterCoupon) : 0;
   const total = Math.max(0, afterCoupon - walletDiscount);
 
+  // Verificar se o total é zero (compra grátis)
+  const isZeroTotal = total === 0;
+
   const applyCoupon = async () => {
     if (!couponInput.trim()) return;
     setCouponLoading(true);
@@ -104,6 +108,7 @@ export default function Checkout() {
       if (c.max_uses && c.uses_count >= c.max_uses) { toast.error('Cupom esgotado'); return; }
       setAppliedCoupon(c);
       toast.success(`Cupom aplicado! ${c.discount_percent ? c.discount_percent + '% de desconto' : symbol + Number(c.discount_fixed_usd || 0).toFixed(2) + ' de desconto'}`);
+      setCouponInput('');
     } catch {
       toast.error('Falha ao verificar cupom');
     } finally {
@@ -111,64 +116,123 @@ export default function Checkout() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!billing.name || !billing.email) { toast.error('Preencha todos os campos'); return; }
+  // Função para criar pedido (usada tanto para PIX quanto para valor zero)
+  const createOrder = async (status, paymentMethod, pixCodeValue = null) => {
+    const me = await base44.auth.me();
+    const orderItems = items.map(item => ({
+      product_id: item.product_id,
+      product_title: item.product_title,
+      license_name: item.license_name,
+      price: item.price_brl || 0,
+      thumbnail: item.thumbnail,
+      file_url: item.file_url,
+      is_gift: item.is_gift || false,
+      gift_recipient_email: item.gift_recipient_email,
+      gift_message: item.gift_message,
+      gift_sender_name: item.gift_sender_name,
+    }));
+
+    const order = await base44.entities.Order.create({
+      customer_email: me.email,
+      customer_name: billing.name,
+      status: status,
+      payment_method: paymentMethod,
+      currency: 'BRL',
+      total_amount: total,
+      items: orderItems,
+      billing_name: billing.name,
+      billing_email: billing.email,
+      billing_document: billing.document,
+      pix_code: pixCodeValue || 'NO_PAYMENT',
+      download_token: `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`,
+      wallet_used: walletDiscount,
+      coupon_discount: couponDiscount,
+      subtotal_amount: subtotal,
+    });
+
+    if (appliedCoupon) {
+      await base44.entities.Coupon.update(appliedCoupon.id, { uses_count: (appliedCoupon.uses_count || 0) + 1 });
+    }
+
+    // Atualizar carteira se usou saldo
+    if (useWallet && walletDiscount > 0 && wallet) {
+      const newBalance = walletBalance - walletDiscount;
+      const tx = {
+        type: 'purchase',
+        amount: -walletDiscount,
+        description: `Compra: ${orderItems.map(i => i.product_title).join(', ')}`,
+        date: new Date().toISOString()
+      };
+      await base44.entities.Wallet.update(wallet.id, {
+        balance_usd: newBalance,
+        transactions: [...(wallet.transactions || []), tx],
+      });
+    }
+
+    // Limpar carrinho (se não for compra direta)
+    if (!isDirectPurchase) {
+      for (const item of items) {
+        await base44.entities.CartItem.delete(item.id);
+      }
+    }
+
+    return order;
+  };
+
+  // Handle para compras com valor zero (não abre PIX)
+  const handleZeroTotalOrder = async () => {
+    if (!billing.name || !billing.email) { 
+      toast.error('Preencha todos os campos'); 
+      return; 
+    }
+    
+    setSubmitting(true);
+    try {
+      await createOrder('pending', 'free');
+      
+      toast.success('Pedido realizado com sucesso! Aguarde a aprovação.');
+      navigate('/dashboard/orders');
+    } catch (error) {
+      console.error(error);
+      toast.error('Falha ao realizar pedido');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Handle para pagamento PIX
+  const handlePixPayment = async () => {
+    if (!billing.name || !billing.email) { 
+      toast.error('Preencha todos os campos'); 
+      return; 
+    }
+    
     setSubmitting(true);
     try {
       const me = await base44.auth.me();
       const pixGenerated = `00020126580014br.gov.bcb.pix0136${Date.now()}${Math.random().toString(36).slice(2, 8)}520400005303986540${total.toFixed(2)}5802BR`;
 
-      const orderItems = items.map(item => ({
-        product_id: item.product_id,
-        product_title: item.product_title,
-        license_name: item.license_name,
-        price: item.price_brl || 0,
-        thumbnail: item.thumbnail,
-        file_url: item.file_url,
-        is_gift: item.is_gift || false,
-        gift_recipient_email: item.gift_recipient_email,
-        gift_message: item.gift_message,
-        gift_sender_name: item.gift_sender_name,
-      }));
-
-      const order = await base44.entities.Order.create({
-        customer_email: me.email,
-        customer_name: billing.name,
-        status: 'pending',
-        payment_method: 'pix',
-        currency: 'BRL',
-        total_amount: total,
-        items: orderItems,
-        billing_name: billing.name,
-        billing_email: billing.email,
-        billing_document: billing.document,
-        pix_code: pixGenerated,
-        download_token: `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`,
-        wallet_used: walletDiscount,
-        coupon_discount: couponDiscount,
-        subtotal_amount: subtotal,
-      });
-
-      if (appliedCoupon) {
-        await base44.entities.Coupon.update(appliedCoupon.id, { uses_count: (appliedCoupon.uses_count || 0) + 1 });
-      }
-
-      // Limpar carrinho APENAS se não for compra direta
-      if (!isDirectPurchase) {
-        for (const item of items) {
-          await base44.entities.CartItem.delete(item.id);
-        }
-      }
-
+      const order = await createOrder('pending', 'pix', pixGenerated);
+      
       setCurrentOrder(order);
       setPixCode(pixGenerated);
       setFinalTotal(total);
       setShowPix(true);
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error('Falha ao realizar pedido');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (isZeroTotal) {
+      handleZeroTotalOrder();
+    } else {
+      handlePixPayment();
     }
   };
 
@@ -198,6 +262,17 @@ export default function Checkout() {
         </div>
       )}
 
+      {/* Aviso de compra gratuita */}
+      {isZeroTotal && (
+        <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-3">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-white">Compra com valor total R$ 0,00!</p>
+            <p className="text-xs text-green-400/80">Após finalizar, seu pedido será enviado para aprovação.</p>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* Billing */}
         <div className="lg:col-span-3">
@@ -205,7 +280,7 @@ export default function Checkout() {
             <h2 className="text-lg font-bold text-foreground">Dados de Cobrança</h2>
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo*</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo *</label>
                 <input type="text" value={billing.name} onChange={(e) => setBilling({ ...billing, name: e.target.value })}
                   className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" required />
               </div>
@@ -234,7 +309,7 @@ export default function Checkout() {
                 </label>
                 {useWallet && walletDiscount > 0 && (
                   <p className="text-xs text-green-500">
-                     {symbol}{walletDiscount.toFixed(2)} de saldo serão descontados ao confirmar o pagamento
+                    ✓ {symbol}{walletDiscount.toFixed(2)} de saldo serão descontados
                   </p>
                 )}
               </div>
@@ -253,7 +328,7 @@ export default function Checkout() {
                 </div>
               ) : (
                 <div className="flex gap-2">
-                  <input type="text" placeholder="DEVMARKETPLACE10" value={couponInput}
+                  <input type="text" placeholder="DESCONTO10" value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
                     className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring font-mono" />
@@ -279,7 +354,7 @@ export default function Checkout() {
             </div>
 
             <Button type="submit" disabled={submitting} className="w-full bg-white text-black hover:bg-white/90 font-semibold h-12">
-              {submitting ? 'Processando...' : `Pagar ${symbol}${total.toFixed(2)}`}
+              {submitting ? 'Processando...' : isZeroTotal ? 'Finalizar Pedido (R$ 0,00)' : `Pagar ${symbol}${total.toFixed(2)}`}
             </Button>
           </form>
         </div>
