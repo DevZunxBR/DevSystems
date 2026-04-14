@@ -1,6 +1,7 @@
-﻿import { useEffect, useState } from 'react';
+﻿// src/pages/dashboard/MyOrders.jsx
+import { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Download, Clock, CheckCircle, XCircle, QrCode } from 'lucide-react';
+import { Download, Clock, CheckCircle, XCircle, QrCode, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import PixModal from '@/components/checkout/PixModal';
@@ -92,6 +93,7 @@ export default function MyOrders() {
             const status = statusConfig[order.status] || statusConfig.pending;
             const StatusIcon = status.icon;
             const orderDate = getOrderDate(order);
+            const isPending = order.status === 'pending';
 
             return (
               <div key={order.id} className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
@@ -113,7 +115,7 @@ export default function MyOrders() {
 
                   <div className="flex items-center gap-2 flex-wrap">
                     <div className="text-sm font-bold text-white">R$ {Number(order.total_amount || 0).toFixed(2)}</div>
-                    {order.status === 'pending' && order.pix_code && order.pix_code !== 'WALLET_PAYMENT' && (
+                    {order.status === 'pending' && order.pix_code && order.pix_code !== 'WALLET_PAYMENT' && order.pix_code !== 'FREE_ORDER' && (
                       <Button
                         size="sm"
                         variant="outline"
@@ -123,9 +125,19 @@ export default function MyOrders() {
                         <QrCode className="h-3 w-3" /> Ver QR Code
                       </Button>
                     )}
-                    {/* Botão de reembolso REMOVIDO */}
                   </div>
                 </div>
+
+                {/* Mensagem para pedidos pendentes */}
+                {isPending && (
+                  <div className="mx-4 mt-4 p-3 bg-[#111] border border-[#1A1A1A] rounded-lg flex items-start gap-2">
+                    <Info className="h-4 w-4 text-[#555] flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-xs text-white">Após fazer o pagamento, aguarde o produto ser aprovado.</p>
+                      <p className="text-[10px] text-[#555] mt-0.5">Assim que aprovado, estará disponível para download.</p>
+                    </div>
+                  </div>
+                )}
 
                 <div className="p-4 space-y-3">
                   {order.items?.map((item, index) => (

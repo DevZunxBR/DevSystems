@@ -1,7 +1,9 @@
+// src/components/checkout/PixModal.jsx
 import { useState, useEffect, useRef } from 'react';
-import { Copy, Check, ArrowLeft, Shield, Clock, Smartphone } from 'lucide-react';
+import { Copy, Check, ArrowLeft, Shield, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
 import QRCode from 'qrcode';
+import { useNavigate } from 'react-router-dom';
 
 // Gera código PIX real no padrão EMV do Banco Central (NÃO MODIFICADO)
 function gerarPixCopiaECola({ chave, nome, cidade, valor, txid }) {
@@ -38,14 +40,14 @@ function gerarPixCopiaECola({ chave, nome, cidade, valor, txid }) {
 }
 
 export default function PixModal({ open, onClose, total }) {
+  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [step, setStep] = useState('loading');
-  const [timeLeft, setTimeLeft] = useState(15 * 60);
   const [pixCode, setPixCode] = useState('');
   const qrRef = useRef(null);
 
   useEffect(() => {
-    if (!open) { setStep('loading'); setTimeLeft(15 * 60); return; }
+    if (!open) { setStep('loading'); return; }
 
     const txid = `DEV${Date.now()}`.substring(0, 25);
     const codigo = gerarPixCopiaECola({
@@ -71,24 +73,16 @@ export default function PixModal({ open, onClose, total }) {
     }
   }, [step, pixCode]);
 
-  useEffect(() => {
-    if (step !== 'qr' && step !== 'code') return;
-    const interval = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) { clearInterval(interval); return 0; }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [step]);
-
-  const formatTime = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
-
   const copyCode = async () => {
     await navigator.clipboard.writeText(pixCode);
     setCopied(true);
     toast.success('Código PIX copiado!');
     setTimeout(() => setCopied(false), 3000);
+  };
+
+  const handleGoToDashboard = () => {
+    onClose();
+    navigate('/dashboard/orders');
   };
 
   if (!open) return null;
@@ -130,14 +124,10 @@ export default function PixModal({ open, onClose, total }) {
           {/* Payment */}
           {(step === 'qr' || step === 'code') && (
             <div className="p-4 space-y-4">
-              {/* Valor e Timer */}
+              {/* Valor */}
               <div className="text-center">
                 <p className="text-[10px] text-[#555]">Valor</p>
                 <p className="text-2xl font-black text-white">R$ {(total || 0).toFixed(2)}</p>
-                <div className="flex items-center justify-center gap-1 mt-1">
-                  <Clock className={`h-3 w-3 ${timeLeft < 60 ? 'text-red-400' : 'text-[#555]'}`} />
-                  <span className={`text-[10px] font-mono ${timeLeft < 60 ? 'text-red-400' : 'text-white'}`}>{formatTime(timeLeft)}</span>
-                </div>
               </div>
 
               {/* Tabs */}
@@ -203,7 +193,7 @@ export default function PixModal({ open, onClose, total }) {
                     'Abra o app do banco',
                     'Pague via PIX',
                     step === 'qr' ? 'Escaneie o QR Code' : 'Cole o código',
-                    'Confirme'
+                    'Confirme o pagamento'
                   ].map((s, i) => (
                     <div key={i} className="flex items-center gap-1.5">
                       <span className="text-[8px] text-[#555] font-bold">{i + 1}</span>
@@ -212,6 +202,14 @@ export default function PixModal({ open, onClose, total }) {
                   ))}
                 </div>
               </div>
+
+              {/* Botão voltar para o dashboard */}
+              <button
+                onClick={handleGoToDashboard}
+                className="w-full py-2.5 mt-2 bg-white text-black rounded-lg text-xs font-bold hover:bg-white/90 transition-all"
+              >
+                Voltar para Meus Pedidos
+              </button>
 
               {/* Footer */}
               <div className="flex items-center justify-center gap-2 pt-1">
