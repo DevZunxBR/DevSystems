@@ -1,10 +1,10 @@
-// src/pages/Checkout.jsx - Corrigido
+// src/pages/Checkout.jsx - Com checkboxes e botão dinâmico para saldo
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44, supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Tag, X, Wallet, Gift, AlertCircle } from 'lucide-react';
+import { Tag, X, Wallet, Gift, AlertCircle, CheckSquare, FileText, Shield } from 'lucide-react';
 import PixModal from '@/components/checkout/PixModal';
 
 export default function Checkout() {
@@ -23,6 +23,11 @@ export default function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [useWallet, setUseWallet] = useState(false);
+  
+  // Checkboxes de confirmação
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [confirmInfo, setConfirmInfo] = useState(false);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -96,6 +101,12 @@ export default function Checkout() {
 
   // Verificar se o total é zero (compra grátis)
   const isZeroTotal = total === 0;
+  
+  // Verificar se o saldo cobre o valor total
+  const canPayFullyWithWallet = useWallet && walletBalance >= afterCoupon;
+  
+  // Verificar se os checkboxes estão marcados
+  const canProceed = agreeTerms && confirmInfo;
 
   const applyCoupon = async () => {
     if (!couponInput.trim()) return;
@@ -179,6 +190,27 @@ export default function Checkout() {
     return order;
   };
 
+  // Pagamento com saldo (quando saldo cobre o valor total)
+  const handlePayWithWallet = async () => {
+    if (!canPayFullyWithWallet) {
+      toast.error('Saldo insuficiente para pagar com saldo');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await createOrder('completed', 'wallet', 'WALLET_PAYMENT');
+      
+      toast.success('Compra realizada com sucesso usando saldo da carteira!');
+      navigate('/dashboard/orders');
+    } catch (error) {
+      console.error(error);
+      toast.error('Falha ao processar pagamento com saldo');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // Handle para compras com valor zero (não abre PIX)
   const handleZeroTotalOrder = async () => {
     if (!billing.name || !billing.email) { 
@@ -188,7 +220,6 @@ export default function Checkout() {
     
     setSubmitting(true);
     try {
-      // Usar 'pix' como payment_method (não usar 'free' para evitar erro 400)
       await createOrder('pending', 'pix', 'FREE_ORDER');
       
       toast.success('Pedido realizado com sucesso! Aguarde a aprovação.');
@@ -230,11 +261,26 @@ export default function Checkout() {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (isZeroTotal) {
+    if (!canProceed) {
+      toast.error('Você precisa aceitar os termos e confirmar as informações');
+      return;
+    }
+    
+    if (canPayFullyWithWallet) {
+      handlePayWithWallet();
+    } else if (isZeroTotal) {
       handleZeroTotalOrder();
     } else {
       handlePixPayment();
     }
+  };
+
+  // Determinar o texto do botão
+  const getButtonText = () => {
+    if (submitting) return 'Processando...';
+    if (canPayFullyWithWallet) return `Pagar com Saldo (R$ ${total.toFixed(2)})`;
+    if (isZeroTotal) return 'Finalizar Pedido (R$ 0,00)';
+    return `Pagar R$ ${total.toFixed(2)} via PIX`;
   };
 
   // Verificar se tem presente no carrinho
@@ -300,6 +346,11 @@ export default function Checkout() {
                 {useWallet && walletDiscount > 0 && (
                   <p className="text-xs text-green-500">
                     ✓ {symbol}{walletDiscount.toFixed(2)} de saldo serão descontados
+                    {canPayFullyWithWallet && (
+                      <span className="block text-green-500 font-semibold mt-1">
+                        🎉 Saldo suficiente! Você pode pagar com saldo.
+                      </span>
+                    )}
                   </p>
                 )}
               </div>
@@ -343,18 +394,62 @@ export default function Checkout() {
               </div>
             </div>
 
-            <Button type="submit" disabled={submitting} className="w-full bg-white text-black hover:bg-white/90 font-semibold h-12">
-              {submitting ? 'Processando...' : isZeroTotal ? 'Finalizar Pedido (R$ 0,00)' : `Pagar ${symbol}${total.toFixed(2)}`}
+            {/* Checkboxes de confirmação */}
+            <div className="space-y-3 pt-2 border-t border-border">
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={agreeTerms}
+                  onChange={(e) => setAgreeTerms(e.target.checked)}
+                  className="mt-0.5 rounded border-border bg-secondary text-white focus:ring-white focus:ring-offset-0"
+                />
+                <div className="flex-1">
+                  <span className="text-sm text-foreground group-hover:text-white transition-colors">
+                    Li e aceito os <button type="button" onClick={() => navigate('/terms')} className="text-white underline hover:no-underline">Termos de Uso</button> e a 
+                    <button type="button" onClick={() => navigate('/privacy')} className="text-white underline hover:no-underline ml-1">Política de Privacidade</button>
+                  </span>
+                </div>
+              </label>
+              
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={confirmInfo}
+                  onChange={(e) => setConfirmInfo(e.target.checked)}
+                  className="mt-0.5 rounded border-border bg-secondary text-white focus:ring-white focus:ring-offset-0"
+                />
+                <div className="flex-1">
+                  <span className="text-sm text-foreground group-hover:text-white transition-colors">
+                    Confirmo que as informações fornecidas estão corretas
+                  </span>
+                </div>
+              </label>
+            </div>
+
+            {/* Botão de pagamento (desabilitado se checkboxes não estiverem marcados) */}
+            <Button 
+              type="submit" 
+              disabled={submitting || !canProceed} 
+              className="w-full bg-white text-black hover:bg-white/90 font-semibold h-12 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {getButtonText()}
             </Button>
+            
+            {/* Aviso de checkboxes obrigatórias */}
+            {!canProceed && (
+              <p className="text-[10px] text-[#555] text-center">
+                Marque as opções acima para continuar
+              </p>
+            )}
           </form>
         </div>
 
-        {/* Summary - com aviso de compra gratuita no painel fixo */}
+        {/* Summary */}
         <div className="lg:col-span-2">
           <div className="bg-card border border-border rounded-xl p-6 space-y-4 sticky top-24">
             <h2 className="text-lg font-bold text-foreground">Resumo</h2>
             
-            {/* Aviso de compra gratuita no painel fixo (sem cor verde) */}
+            {/* Aviso de compra gratuita */}
             {isZeroTotal && (
               <div className="p-3 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg flex items-start gap-2">
                 <AlertCircle className="h-4 w-4 text-[#555] flex-shrink-0 mt-0.5" />
