@@ -1,4 +1,4 @@
-﻿// src/pages/ProductDetail.jsx
+﻿// src/pages/ProductDetail.jsx - Agora suporta produtos E bundles
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useCountdown } from '@/hooks/useCountdown';
 import FavoriteButton from '@/components/products/FavoriteButton';
-import { base44 } from '@/api/base44Client';
+import { base44, supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
@@ -57,70 +57,87 @@ export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [product, setProduct] = useState(null);
+  const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedLicense, setSelectedLicense] = useState(0);
   const [addingToCart, setAddingToCart] = useState(false);
   const [buyingNow, setBuyingNow] = useState(false);
+  const [isBundle, setIsBundle] = useState(false);
+  const [bundleProducts, setBundleProducts] = useState([]);
   const [productBundles, setProductBundles] = useState([]);
 
   useEffect(() => {
-    loadProduct();
+    loadItem();
   }, [id]);
 
   useEffect(() => {
     setSelectedImage(0);
     setSelectedLicense(0);
-  }, [product?.id]);
+  }, [item?.id]);
 
-  useEffect(() => {
-    if (product?.id) {
-      loadProductBundles();
-    }
-  }, [product?.id]);
-
-  const loadProductBundles = async () => {
-    try {
-      const allBundles = await base44.entities.Bundle.filter({ status: 'active' });
-      const bundlesWithProduct = [];
-      
-      for (const bundle of allBundles) {
-        const bundleProducts = await base44.entities.BundleProduct.listByBundle(bundle.id);
-        const productIds = bundleProducts.map(bp => bp.product_id);
-        if (productIds.includes(product.id)) {
-          bundlesWithProduct.push(bundle);
-        }
-      }
-      
-      setProductBundles(bundlesWithProduct);
-    } catch (error) {
-      console.error('Erro ao carregar bundles:', error);
-    }
-  };
-
-  const loadProduct = async () => {
+  const loadItem = async () => {
     setLoading(true);
     setLoadError('');
 
     try {
-      const loadedProduct = await base44.entities.Product.get(id);
-      setProduct(loadedProduct || null);
+      // Primeiro tenta carregar como produto
+      let loadedItem = null;
+      try {
+        loadedItem = await base44.entities.Product.get(id);
+        setIsBundle(false);
+      } catch {
+        // Se não for produto, tenta carregar como bundle
+        loadedItem = await base44.entities.Bundle.get(id);
+        setIsBundle(true);
+      }
+      
+      setItem(loadedItem || null);
+      
+      // Se for bundle, carregar os produtos do bundle
+      if (isBundle && loadedItem) {
+        const bundleProductsData = await supabase
+          .from('bundle_products')
+          .select('product_id')
+          .eq('bundle_id', id);
+        
+        const productIds = bundleProductsData.data.map(bp => bp.product_id);
+        const productsData = await Promise.all(productIds.map(pid => base44.entities.Product.get(pid)));
+        setBundleProducts(productsData);
+      }
+      
+      // Se for produto, carregar bundles que contêm este produto
+      if (!isBundle && loadedItem) {
+        const allBundles = await base44.entities.Bundle.filter({ status: 'active' });
+        const bundlesWithProduct = [];
+        
+        for (const bundle of allBundles) {
+          const bundleProductsData = await supabase
+            .from('bundle_products')
+            .select('product_id')
+            .eq('bundle_id', bundle.id);
+          const productIds = bundleProductsData.data.map(bp => bp.product_id);
+          if (productIds.includes(loadedItem.id)) {
+            bundlesWithProduct.push(bundle);
+          }
+        }
+        setProductBundles(bundlesWithProduct);
+      }
     } catch (error) {
       console.error(error);
-      setProduct(null);
-      setLoadError('Não foi possível carregar o produto.');
+      setItem(null);
+      setLoadError('Não foi possível carregar o item.');
     } finally {
       setLoading(false);
     }
   };
 
   const images = useMemo(() => {
-    if (product?.images?.length) return product.images;
-    if (product?.thumbnail) return [product.thumbnail];
+    if (item?.images?.length) return item.images;
+    if (item?.thumbnail) return [item.thumbnail];
     return [];
-  }, [product]);
+  }, [item]);
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -143,26 +160,30 @@ export default function ProductDetail() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [images.length]);
 
-  const hasDiscount =
-    product?.discount_price_brl &&
-    product?.discount_expires_at &&
-    new Date(product.discount_expires_at) > new Date();
-
-  const currentLicense = product?.licenses?.[selectedLicense];
+  const hasDiscount = item?.discount_price_brl && item?.discount_expires_at && new Date(item.discount_expires_at) > new Date();
+  const currentLicense = item?.licenses?.[selectedLicense];
+  const isClosed = Boolean(item?.closed);
 
   const metadata = useMemo(
     () =>
       [
-        { icon: FileBox, label: 'Tamanho', value: product?.file_size },
-        { icon: Layers, label: 'Categoria', value: product?.category },
-        { icon: Settings, label: 'Versões', value: product?.supported_versions },
-        { icon: Tag, label: 'Tags', value: product?.tags?.join(', ') },
-      ].filter((item) => item.value),
-    [product]
+        { icon: FileBox, label: 'Tamanho', value: item?.file_size },
+        { icon: Layers, label: 'Categoria', value: item?.category },
+        { icon: Settings, label: 'Versões', value: item?.supported_versions },
+        { icon: Tag, label: 'Tags', value: item?.tags?.join(', ') },
+      ].filter((m) => m.value),
+    [item]
   );
 
   const getCurrentPrice = () => {
-    const license = product?.licenses?.[selectedLicense];
+    if (isBundle) {
+      return {
+        brl: hasDiscount ? toNumber(item?.discount_price_brl) : toNumber(item?.price_brl),
+        usd: 0,
+      };
+    }
+    
+    const license = item?.licenses?.[selectedLicense];
     if (license) {
       return {
         brl: toNumber(license.price_brl),
@@ -171,8 +192,8 @@ export default function ProductDetail() {
     }
 
     return {
-      brl: hasDiscount ? toNumber(product?.discount_price_brl) : toNumber(product?.price_brl),
-      usd: toNumber(product?.price_usd),
+      brl: hasDiscount ? toNumber(item?.discount_price_brl) : toNumber(item?.price_brl),
+      usd: toNumber(item?.price_usd),
     };
   };
 
@@ -191,25 +212,42 @@ export default function ProductDetail() {
   };
 
   const addToCartAndGoToCart = async () => {
-    if (!product) return;
+    if (!item) return;
 
     setAddingToCart(true);
     try {
       const me = await base44.auth.me();
-      const license = product.licenses?.[selectedLicense];
-
-      await base44.entities.CartItem.create({
-        user_email: me.email,
-        product_id: product.id,
-        product_title: product.title,
-        license_name: license?.name || 'Standard',
-        price_usd: price.usd || toNumber(product.price_usd),
-        price_brl: price.brl || toNumber(product.price_brl),
-        thumbnail: product.thumbnail,
-        file_url: product.file_url,
-      });
-
-      toast.success('Adicionado ao carrinho!');
+      
+      if (isBundle) {
+        // Adicionar todos os produtos do bundle
+        for (const product of bundleProducts) {
+          await base44.entities.CartItem.create({
+            user_email: me.email,
+            product_id: product.id,
+            product_title: product.title,
+            license_name: 'Standard',
+            price_usd: product.price_usd,
+            price_brl: product.price_brl,
+            thumbnail: product.thumbnail,
+            file_url: product.file_url,
+          });
+        }
+      } else {
+        // Adicionar produto normal
+        const license = item.licenses?.[selectedLicense];
+        await base44.entities.CartItem.create({
+          user_email: me.email,
+          product_id: item.id,
+          product_title: item.title,
+          license_name: license?.name || 'Standard',
+          price_usd: price.usd || toNumber(item.price_usd),
+          price_brl: price.brl || toNumber(item.price_brl),
+          thumbnail: item.thumbnail,
+          file_url: item.file_url,
+        });
+      }
+      
+      toast.success(isBundle ? 'Bundle adicionado ao carrinho!' : 'Adicionado ao carrinho!');
       navigate('/cart');
     } catch (error) {
       console.error(error);
@@ -221,33 +259,7 @@ export default function ProductDetail() {
   };
 
   const buyNow = async () => {
-    if (!product) return;
-
-    setBuyingNow(true);
-    try {
-      await base44.auth.me();
-      const license = product.licenses?.[selectedLicense];
-
-      const directProduct = {
-        product_id: product.id,
-        product_title: product.title,
-        license_name: license?.name || 'Standard',
-        price_usd: price.usd || toNumber(product.price_usd),
-        price_brl: price.brl || toNumber(product.price_brl),
-        thumbnail: product.thumbnail,
-        file_url: product.file_url,
-        is_direct_purchase: true,
-      };
-
-      sessionStorage.setItem('direct_purchase', JSON.stringify(directProduct));
-      navigate('/checkout?direct=true');
-    } catch (error) {
-      console.error(error);
-      toast.error('Faça login primeiro');
-      navigate('/register');
-    } finally {
-      setBuyingNow(false);
-    }
+    await addToCartAndGoToCart();
   };
 
   if (loading) {
@@ -263,7 +275,7 @@ export default function ProductDetail() {
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center space-y-3">
           <p className="text-[#555]">{loadError}</p>
-          <Button variant="outline" onClick={loadProduct} className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white">
+          <Button variant="outline" onClick={loadItem} className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white">
             Tentar novamente
           </Button>
         </div>
@@ -271,15 +283,13 @@ export default function ProductDetail() {
     );
   }
 
-  if (!product) {
+  if (!item) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-[#555]">Produto não encontrado</p>
+        <p className="text-[#555]">Item não encontrado</p>
       </div>
     );
   }
-
-  const isClosed = Boolean(product.closed);
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto px-4 py-8">
@@ -290,11 +300,11 @@ export default function ProductDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-10">
         {/* Coluna da esquerda - Galeria e descrição */}
         <div className="lg:col-span-7 space-y-6">
-          {/* Galeria de imagens - SEM CARD CINZA */}
+          {/* Galeria de imagens */}
           <div className="space-y-3">
             <div className="relative aspect-video bg-[#050505] border border-[#1A1A1A] rounded-xl overflow-hidden">
               {images.length > 0 ? (
-                <img src={images[selectedImage]} alt={product.title} className="w-full h-full object-cover" />
+                <img src={images[selectedImage]} alt={item.title} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-[#555]">Sem imagem disponível</div>
               )}
@@ -337,21 +347,46 @@ export default function ProductDetail() {
             )}
           </div>
 
-          {/* Descrição - SEM CARD CINZA */}
+          {/* Descrição */}
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-white">Descrição</h2>
             <div className="prose prose-sm prose-invert max-w-none text-[#888]">
-              <ReactMarkdown>{product.long_description || product.description || 'Sem descrição disponível.'}</ReactMarkdown>
+              <ReactMarkdown>{item.long_description || item.description || 'Sem descrição disponível.'}</ReactMarkdown>
             </div>
           </div>
 
-          {/* Reviews - SEM CARD CINZA */}
+          {/* Produtos do Bundle (se for bundle) */}
+          {isBundle && bundleProducts.length > 0 && (
+            <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6 space-y-4">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <PackageIcon className="h-4 w-4" /> Produtos incluídos ({bundleProducts.length})
+              </h3>
+              <div className="space-y-3">
+                {bundleProducts.map((product) => (
+                  <div key={product.id} className="flex items-center gap-3 p-3 bg-[#111] rounded-lg">
+                    <div className="w-10 h-10 bg-[#0A0A0A] rounded-lg overflow-hidden flex-shrink-0">
+                      {product.thumbnail && <img src={product.thumbnail} alt="" className="w-full h-full object-cover" />}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-white">{product.title}</p>
+                      <p className="text-xs text-[#555]">{product.category}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-white">R$ {product.price_brl?.toFixed(2)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Reviews */}
           <div className="border-t border-[#1A1A1A] pt-6">
-            <ReviewSection productId={product.id} />
+            <ReviewSection productId={item.id} isBundle={isBundle} />
           </div>
 
-          {/* Available in Bundles */}
-          {productBundles.length > 0 && (
+          {/* Available in Bundles (se for produto) */}
+          {!isBundle && productBundles.length > 0 && (
             <div className="mt-8 pt-6 border-t border-[#1A1A1A]">
               <h3 className="text-base font-bold text-white mb-4">Available in Bundles</h3>
               <p className="text-sm text-[#555] mb-4">
@@ -360,13 +395,13 @@ export default function ProductDetail() {
               <div className="space-y-3">
                 {productBundles.map((bundle) => {
                   const bundlePrice = bundle.discount_price_brl || bundle.price_brl;
-                  const hasDiscount = bundle.discount_price_brl && bundle.discount_price_brl < bundle.price_brl;
+                  const hasBundleDiscount = bundle.discount_price_brl && bundle.discount_price_brl < bundle.price_brl;
                   const savings = bundle.price_brl - (bundle.discount_price_brl || bundle.price_brl);
                   
                   return (
                     <div
                       key={bundle.id}
-                      onClick={() => navigate(`/bundle/${bundle.id}`)}
+                      onClick={() => navigate(`/product/${bundle.id}`)}
                       className="flex items-center justify-between p-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl hover:border-[#333] transition-all cursor-pointer group"
                     >
                       <div className="flex items-center gap-4">
@@ -383,7 +418,7 @@ export default function ProductDetail() {
                         </div>
                       </div>
                       <div className="text-right">
-                        {hasDiscount && (
+                        {hasBundleDiscount && (
                           <p className="text-xs text-green-500">Save R$ {savings.toFixed(2)}</p>
                         )}
                         <p className="text-sm font-bold text-white">R$ {bundlePrice?.toFixed(2)}</p>
@@ -398,31 +433,31 @@ export default function ProductDetail() {
           )}
         </div>
 
-        {/* Coluna da direita - Card da sidebar mantido intacto */}
+        {/* Coluna da direita */}
         <div className="lg:col-span-3">
           <div className="sticky top-24 space-y-4">
             <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-6 space-y-5">
               <div>
-                <h1 className="text-xl font-bold text-white">{product.title}</h1>
-                {product.description && <p className="text-sm text-[#666] mt-1">{product.description}</p>}
+                <h1 className="text-xl font-bold text-white">{item.title}</h1>
+                {item.description && <p className="text-sm text-[#666] mt-1">{item.description}</p>}
                 <div className="flex flex-wrap items-center gap-2 mt-3">
-                  {product.category && (
-                    <span className="text-[10px] px-2 py-1 rounded-full border border-[#1A1A1A] text-[#666]">{product.category}</span>
+                  {item.category && (
+                    <span className="text-[10px] px-2 py-1 rounded-full border border-[#1A1A1A] text-[#666]">{item.category}</span>
                   )}
-                  {product.file_size && (
-                    <span className="text-[10px] px-2 py-1 rounded-full border border-[#1A1A1A] text-[#666]">{product.file_size}</span>
+                  {isBundle && (
+                    <span className="text-[10px] px-2 py-1 rounded-full border border-[#1A1A1A] text-[#666]">Bundle</span>
                   )}
                 </div>
               </div>
 
               <div className="flex items-end gap-2">
                 <span className="text-3xl font-black text-white">R$ {toNumber(displayPrice).toFixed(2)}</span>
-                {hasDiscount && !currentLicense && toNumber(product.price_brl) > 0 && (
-                  <span className="text-lg text-[#555] line-through mb-0.5">R$ {toNumber(product.price_brl).toFixed(2)}</span>
+                {hasDiscount && !currentLicense && toNumber(item.price_brl) > 0 && (
+                  <span className="text-lg text-[#555] line-through mb-0.5">R$ {toNumber(item.price_brl).toFixed(2)}</span>
                 )}
               </div>
 
-              {product.licenses?.length > 0 && (
+              {!isBundle && item.licenses?.length > 0 && (
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-[#666]">Licença</label>
                   <Select value={String(selectedLicense)} onValueChange={(value) => setSelectedLicense(Number(value))}>
@@ -430,7 +465,7 @@ export default function ProductDetail() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-[#0A0A0A] border-[#1A1A1A]">
-                      {product.licenses.map((license, index) => (
+                      {item.licenses.map((license, index) => (
                         <SelectItem key={`${license.name}-${index}`} value={String(index)} className="text-white">
                           {license.name} - R$ {toNumber(license.price_brl).toFixed(2)}
                         </SelectItem>
@@ -440,12 +475,12 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              {hasDiscount && !currentLicense && <DiscountCountdown expiresAt={product.discount_expires_at} />}
+              {hasDiscount && !currentLicense && <DiscountCountdown expiresAt={item.discount_expires_at} />}
 
               <div className="space-y-2">
                 {isClosed ? (
                   <div className="w-full flex items-center justify-center gap-2 h-11 bg-[#111] border border-[#1A1A1A] rounded-xl text-[#555] text-sm font-semibold">
-                    <Lock className="h-4 w-4" /> Produto indisponível
+                    <Lock className="h-4 w-4" /> {isBundle ? 'Bundle indisponível' : 'Produto indisponível'}
                   </div>
                 ) : (
                   <>
@@ -468,10 +503,10 @@ export default function ProductDetail() {
                   </>
                 )}
 
-                <FavoriteButton product={product} className="w-full justify-center h-11 rounded-xl border border-[#1A1A1A] text-xs gap-1.5" />
+                {!isBundle && <FavoriteButton product={item} className="w-full justify-center h-11 rounded-xl border border-[#1A1A1A] text-xs gap-1.5" />}
               </div>
 
-              {metadata.length > 0 && (
+              {metadata.length > 0 && !isBundle && (
                 <div className="space-y-3 pt-4 border-t border-[#1A1A1A]">
                   {metadata.map((item) => (
                     <div key={item.label} className="flex items-start gap-3">
