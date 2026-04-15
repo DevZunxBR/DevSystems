@@ -1,4 +1,4 @@
-﻿// src/pages/ProductDetail.jsx - Apenas cards da galeria, descrição e reviews removidos (sidebar mantida)
+﻿// src/pages/ProductDetail.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -12,6 +12,8 @@ import {
   Settings,
   Lock,
   Clock,
+  Package as PackageIcon,
+  ArrowRight
 } from 'lucide-react';
 import { useCountdown } from '@/hooks/useCountdown';
 import FavoriteButton from '@/components/products/FavoriteButton';
@@ -62,6 +64,7 @@ export default function ProductDetail() {
   const [selectedLicense, setSelectedLicense] = useState(0);
   const [addingToCart, setAddingToCart] = useState(false);
   const [buyingNow, setBuyingNow] = useState(false);
+  const [productBundles, setProductBundles] = useState([]);
 
   useEffect(() => {
     loadProduct();
@@ -71,6 +74,31 @@ export default function ProductDetail() {
     setSelectedImage(0);
     setSelectedLicense(0);
   }, [product?.id]);
+
+  useEffect(() => {
+    if (product?.id) {
+      loadProductBundles();
+    }
+  }, [product?.id]);
+
+  const loadProductBundles = async () => {
+    try {
+      const allBundles = await base44.entities.Bundle.filter({ status: 'active' });
+      const bundlesWithProduct = [];
+      
+      for (const bundle of allBundles) {
+        const bundleProducts = await base44.entities.BundleProduct.listByBundle(bundle.id);
+        const productIds = bundleProducts.map(bp => bp.product_id);
+        if (productIds.includes(product.id)) {
+          bundlesWithProduct.push(bundle);
+        }
+      }
+      
+      setProductBundles(bundlesWithProduct);
+    } catch (error) {
+      console.error('Erro ao carregar bundles:', error);
+    }
+  };
 
   const loadProduct = async () => {
     setLoading(true);
@@ -321,6 +349,53 @@ export default function ProductDetail() {
           <div className="border-t border-[#1A1A1A] pt-6">
             <ReviewSection productId={product.id} />
           </div>
+
+          {/* Available in Bundles */}
+          {productBundles.length > 0 && (
+            <div className="mt-8 pt-6 border-t border-[#1A1A1A]">
+              <h3 className="text-base font-bold text-white mb-4">Available in Bundles</h3>
+              <p className="text-sm text-[#555] mb-4">
+                This product is included in bundles. Save money by purchasing the bundle instead!
+              </p>
+              <div className="space-y-3">
+                {productBundles.map((bundle) => {
+                  const bundlePrice = bundle.discount_price_brl || bundle.price_brl;
+                  const hasDiscount = bundle.discount_price_brl && bundle.discount_price_brl < bundle.price_brl;
+                  const savings = bundle.price_brl - (bundle.discount_price_brl || bundle.price_brl);
+                  
+                  return (
+                    <div
+                      key={bundle.id}
+                      onClick={() => navigate(`/bundle/${bundle.id}`)}
+                      className="flex items-center justify-between p-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl hover:border-[#333] transition-all cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-[#111] rounded-lg flex items-center justify-center">
+                          {bundle.thumbnail ? (
+                            <img src={bundle.thumbnail} alt="" className="w-full h-full object-cover rounded-lg" />
+                          ) : (
+                            <PackageIcon className="h-6 w-6 text-[#555]" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-white">{bundle.title}</p>
+                          <p className="text-xs text-[#555]">{bundle.total_products || 0} products</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        {hasDiscount && (
+                          <p className="text-xs text-green-500">Save R$ {savings.toFixed(2)}</p>
+                        )}
+                        <p className="text-sm font-bold text-white">R$ {bundlePrice?.toFixed(2)}</p>
+                        <p className="text-xs text-[#555]">for the bundle</p>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-[#555] opacity-0 group-hover:opacity-100 transition-all" />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Coluna da direita - Card da sidebar mantido intacto */}

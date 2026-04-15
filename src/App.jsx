@@ -16,6 +16,7 @@ import Checkout from './pages/Checkout';
 import Documentation from './pages/Documentation';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
+import BundleDetail from './pages/BundleDetail';
 import DashboardHome from './pages/dashboard/DashboardHome';
 import MyOrders from './pages/dashboard/MyOrders';
 import AccountSettings from './pages/dashboard/AccountSettings';
@@ -26,6 +27,8 @@ import ManageProducts from './pages/admin/ManageProducts';
 import ManageCoupons from './pages/admin/ManageCoupons';
 import ProductForm from './pages/admin/ProductForm';
 import RefundRequests from './pages/admin/RefundRequests';
+import ManageBundles from './pages/admin/ManageBundles';
+import BundleForm from './pages/admin/BundleForm';
 import Register from './pages/Register';
 
 // Rota privada - redireciona para /register se não logado
@@ -53,6 +56,7 @@ const AuthenticatedApp = () => {
       <Route path="/docs" element={<Documentation />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
+      <Route path="/bundle/:id" element={<BundleDetail />} />
 
       <Route element={<AppLayout />}>
         <Route path="/" element={<Home />} />
@@ -148,6 +152,38 @@ const AuthenticatedApp = () => {
             </PrivateRoute>
           } />
           
+          <Route path="/admin/refunds" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <RefundRequests />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/admin/bundles" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <ManageBundles />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/admin/bundles/new" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <BundleForm />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/admin/bundles/edit/:id" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <BundleForm />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
           <Route path="/admin/products" element={
             <PrivateRoute>
               <MaintenanceGuard>
@@ -168,14 +204,6 @@ const AuthenticatedApp = () => {
             <PrivateRoute>
               <MaintenanceGuard>
                 <ProductForm />
-              </MaintenanceGuard>
-            </PrivateRoute>
-          } />
-          
-          <Route path="/admin/refunds" element={
-            <PrivateRoute>
-              <MaintenanceGuard>
-                <RefundRequests />
               </MaintenanceGuard>
             </PrivateRoute>
           } />
