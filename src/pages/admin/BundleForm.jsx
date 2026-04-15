@@ -1,11 +1,11 @@
-// src/pages/admin/BundleForm.jsx
+// src/pages/admin/BundleForm.jsx - IGUAL ao ProductForm
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { base44, supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { ArrowLeft, Plus, Trash2, Upload, Loader2, Package } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Upload, Loader2 } from 'lucide-react';
 
 const CATEGORIES = ['Scripts', 'Systems', 'UI Kits', 'Plugins', 'Templates', 'Assets', 'Tools'];
 
@@ -32,10 +32,11 @@ export default function BundleForm() {
   const [productSearch, setProductSearch] = useState('');
 
   const [form, setForm] = useState({
-    title: '', description: '', long_description: '',
-    price_brl: 0, discount_price_brl: 0, discount_expires_at: '',
-    category: 'Scripts', tags: [], thumbnail: '', images: [],
-    is_featured: false, status: 'active',
+    title: '', description: '', long_description: '', price_usd: 0, price_brl: 0,
+    discount_price_brl: 0, discount_expires_at: '',
+    category: 'Scripts', tags: [], thumbnail: '', images: [], file_url: '',
+    file_size: '', supported_versions: '', is_featured: false, closed: false, status: 'active',
+    licenses: [{ name: 'Standard', price_usd: 0, price_brl: 0, description: '' }],
   });
   const [tagInput, setTagInput] = useState('');
 
@@ -77,7 +78,8 @@ export default function BundleForm() {
     if (!file) return;
     setUploading(prev => ({ ...prev, [field]: true }));
     try {
-      const url = await uploadFile(file, 'bundles');
+      const folder = field === 'file_url' ? 'files' : 'bundles';
+      const url = await uploadFile(file, folder);
       if (field === 'images') {
         setForm(prev => ({ ...prev, images: [...(prev.images || []), url] }));
       } else {
@@ -167,7 +169,7 @@ export default function BundleForm() {
       </div>
 
       <div className="space-y-6">
-        {/* Basic Info - IGUAL ao ProductForm */}
+        {/* Basic Info */}
         <div className="bg-card border border-border rounded-xl p-6 space-y-4">
           <h2 className="text-lg font-bold text-foreground">Informações Básicas</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -209,10 +211,15 @@ export default function BundleForm() {
           </div>
         </div>
 
-        {/* Pricing - IGUAL ao ProductForm (só BRL) */}
+        {/* Pricing */}
         <div className="bg-card border border-border rounded-xl p-6 space-y-4">
           <h2 className="text-lg font-bold text-foreground">Preços</h2>
           <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Preço (USD)</label>
+              <input type="number" step="0.01" value={form.price_usd} onChange={(e) => setForm(p => ({ ...p, price_usd: parseFloat(e.target.value) || 0 }))}
+                className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+            </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Preço (BRL)</label>
               <input type="number" step="0.01" value={form.price_brl} onChange={(e) => setForm(p => ({ ...p, price_brl: parseFloat(e.target.value) || 0 }))}
@@ -223,26 +230,51 @@ export default function BundleForm() {
               <input type="number" step="0.01" value={form.discount_price_brl} onChange={(e) => setForm(p => ({ ...p, discount_price_brl: parseFloat(e.target.value) || 0 }))}
                 className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
             </div>
-            <div className="col-span-2">
+            <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Promoção Expira em</label>
               <input type="datetime-local" value={form.discount_expires_at ? form.discount_expires_at.slice(0,16) : ''}
                 onChange={(e) => setForm(p => ({ ...p, discount_expires_at: e.target.value ? new Date(e.target.value).toISOString() : '' }))}
                 className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
             </div>
           </div>
+
+          {/* Licenses */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium text-muted-foreground">Licenças</label>
+              <button onClick={() => setForm(p => ({ ...p, licenses: [...(p.licenses || []), { name: '', price_usd: 0, price_brl: 0, description: '' }] }))}
+                className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
+                <Plus className="h-3 w-3" /> Adicionar Licença
+              </button>
+            </div>
+            {form.licenses?.map((lic, i) => (
+              <div key={i} className="grid grid-cols-4 gap-2 items-end">
+                <input type="text" placeholder="Nome" value={lic.name}
+                  onChange={(e) => { const l = [...form.licenses]; l[i] = { ...l[i], name: e.target.value }; setForm(p => ({ ...p, licenses: l })); }}
+                  className="h-9 px-3 bg-secondary border border-border rounded-lg text-xs text-foreground focus:outline-none" />
+                <input type="number" placeholder="USD" step="0.01" value={lic.price_usd}
+                  onChange={(e) => { const l = [...form.licenses]; l[i] = { ...l[i], price_usd: parseFloat(e.target.value) || 0 }; setForm(p => ({ ...p, licenses: l })); }}
+                  className="h-9 px-3 bg-secondary border border-border rounded-lg text-xs text-foreground focus:outline-none" />
+                <input type="number" placeholder="BRL" step="0.01" value={lic.price_brl}
+                  onChange={(e) => { const l = [...form.licenses]; l[i] = { ...l[i], price_brl: parseFloat(e.target.value) || 0 }; setForm(p => ({ ...p, licenses: l })); }}
+                  className="h-9 px-3 bg-secondary border border-border rounded-lg text-xs text-foreground focus:outline-none" />
+                <button onClick={() => setForm(p => ({ ...p, licenses: p.licenses.filter((_, j) => j !== i) }))}
+                  className="h-9 flex items-center justify-center text-muted-foreground hover:text-destructive">
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Produtos do Bundle - NOVO (única diferença) */}
+        {/* Produtos do Bundle */}
         <div className="bg-card border border-border rounded-xl p-6 space-y-4">
-          <div className="flex items-center gap-2">
-            <Package className="h-5 w-5 text-muted-foreground" />
-            <h2 className="text-lg font-bold text-foreground">Produtos no Bundle</h2>
-          </div>
+          <h2 className="text-lg font-bold text-foreground">Produtos no Bundle</h2>
           
           {selectedProducts.length > 0 && (
             <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground">Produtos selecionados ({selectedProducts.length})</label>
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-60 overflow-y-auto">
                 {allProducts.filter(p => selectedProducts.includes(p.id)).map(product => (
                   <div key={product.id} className="flex items-center justify-between p-3 bg-secondary border border-border rounded-lg">
                     <div className="flex items-center gap-3">
@@ -295,9 +327,9 @@ export default function BundleForm() {
           </div>
         </div>
 
-        {/* Media - IGUAL ao ProductForm */}
+        {/* Media */}
         <div className="bg-card border border-border rounded-xl p-6 space-y-4">
-          <h2 className="text-lg font-bold text-foreground">Mídia</h2>
+          <h2 className="text-lg font-bold text-foreground">Mídia e Arquivos</h2>
           <div className="space-y-4">
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Thumbnail</label>
@@ -335,12 +367,35 @@ export default function BundleForm() {
                 </div>
               )}
             </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Arquivo para Download (ZIP/RAR)</label>
+              <label className="cursor-pointer">
+                <input type="file" onChange={(e) => handleFileUpload(e, 'file_url')} className="hidden" disabled={uploading.file_url} />
+                <div className="flex items-center gap-2 px-3 py-2 bg-secondary border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground transition-colors w-fit">
+                  {uploading.file_url ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                  {uploading.file_url ? 'Enviando...' : 'Upload Arquivo'}
+                </div>
+              </label>
+              {form.file_url && <p className="text-xs text-green-500 mt-1">✓ Arquivo enviado</p>}
+            </div>
           </div>
         </div>
 
-        {/* Metadata - IGUAL ao ProductForm */}
+        {/* Metadata */}
         <div className="bg-card border border-border rounded-xl p-6 space-y-4">
           <h2 className="text-lg font-bold text-foreground">Metadados</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Tamanho do Arquivo</label>
+              <input type="text" placeholder="ex: 12.5 MB" value={form.file_size} onChange={(e) => setForm(p => ({ ...p, file_size: e.target.value }))}
+                className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Versões Suportadas</label>
+              <input type="text" placeholder="ex: v1.0+" value={form.supported_versions} onChange={(e) => setForm(p => ({ ...p, supported_versions: e.target.value }))}
+                className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+            </div>
+          </div>
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1 block">Tags</label>
             <div className="flex gap-2">
@@ -364,9 +419,13 @@ export default function BundleForm() {
             <input type="checkbox" checked={form.is_featured} onChange={(e) => setForm(p => ({ ...p, is_featured: e.target.checked }))} className="rounded border-border" />
             Bundle em Destaque
           </label>
+          <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+            <input type="checkbox" checked={form.closed} onChange={(e) => setForm(p => ({ ...p, closed: e.target.checked }))} className="rounded border-border" />
+            <span className="text-red-400">Bundle Fechado</span> <span className="text-xs text-muted-foreground">(impede compras)</span>
+          </label>
         </div>
 
-        {/* Save - IGUAL ao ProductForm */}
+        {/* Save */}
         <div className="flex gap-3">
           <Button onClick={handleSave} disabled={saving || Object.values(uploading).some(Boolean)} className="bg-white text-black hover:bg-white/90 font-semibold">
             {saving ? 'Salvando...' : (isEdit ? 'Atualizar Bundle' : 'Criar Bundle')}
