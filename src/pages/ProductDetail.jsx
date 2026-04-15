@@ -1,4 +1,4 @@
-﻿// src/pages/ProductDetail.jsx - Apenas cards da galeria, descrição e reviews removidos (sidebar mantida)
+﻿// src/pages/ProductDetail.jsx - Original (sem bundles)
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -262,7 +262,6 @@ export default function ProductDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-10">
         {/* Coluna da esquerda - Galeria e descrição */}
         <div className="lg:col-span-7 space-y-6">
-          {/* Galeria de imagens - SEM CARD CINZA */}
           <div className="space-y-3">
             <div className="relative aspect-video bg-[#050505] border border-[#1A1A1A] rounded-xl overflow-hidden">
               {images.length > 0 ? (
@@ -309,7 +308,6 @@ export default function ProductDetail() {
             )}
           </div>
 
-          {/* Descrição - SEM CARD CINZA */}
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-white">Descrição</h2>
             <div className="prose prose-sm prose-invert max-w-none text-[#888]">
@@ -317,13 +315,12 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* Reviews - SEM CARD CINZA */}
           <div className="border-t border-[#1A1A1A] pt-6">
             <ReviewSection productId={product.id} />
           </div>
         </div>
 
-        {/* Coluna da direita - Card da sidebar mantido intacto */}
+        {/* Coluna da direita */}
         <div className="lg:col-span-3">
           <div className="sticky top-24 space-y-4">
             <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-6 space-y-5">

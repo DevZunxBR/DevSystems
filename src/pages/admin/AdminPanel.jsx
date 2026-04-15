@@ -68,7 +68,7 @@ export default function AdminPanel() {
     );
   }
 
-  // Tela de acesso negado (cadeado branco)
+  // Tela de acesso negado
   if (!isAdmin || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
