@@ -1,4 +1,4 @@
-﻿// src/pages/ProductDetail.jsx - COMPLETO (suporta produtos e bundles)
+﻿// src/pages/ProductDetail.jsx - COMPLETO para produtos E bundles (tudo igual)
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -82,7 +82,6 @@ export default function ProductDetail() {
     setLoadError('');
 
     try {
-      // Primeiro tenta carregar como produto
       let loadedProduct = null;
       let isBundleItem = false;
       
@@ -90,7 +89,6 @@ export default function ProductDetail() {
         loadedProduct = await base44.entities.Product.get(id);
         isBundleItem = false;
       } catch (productError) {
-        // Se não for produto, tenta como bundle
         try {
           loadedProduct = await base44.entities.Bundle.get(id);
           isBundleItem = true;
@@ -102,7 +100,6 @@ export default function ProductDetail() {
       setIsBundle(isBundleItem);
       setProduct(loadedProduct || null);
       
-      // Se for bundle, carregar os produtos do bundle
       if (isBundleItem && loadedProduct) {
         const bundleProductsData = await supabase
           .from('bundle_products')
@@ -114,7 +111,6 @@ export default function ProductDetail() {
         setBundleProducts(productsData);
       }
       
-      // Se for produto, carregar bundles que contêm este produto
       if (!isBundleItem && loadedProduct) {
         const allBundles = await base44.entities.Bundle.filter({ status: 'active' });
         const bundlesWithProduct = [];
@@ -171,16 +167,17 @@ export default function ProductDetail() {
   const currentLicense = product?.licenses?.[selectedLicense];
   const isClosed = Boolean(product?.closed);
 
+  // METADATA - funciona para produtos e bundles
   const metadata = useMemo(() => {
-    if (isBundle) return [];
-    
-    return [
+    const items = [
       { icon: FileBox, label: 'Tamanho', value: product?.file_size },
       { icon: Layers, label: 'Categoria', value: product?.category },
       { icon: Settings, label: 'Versões', value: product?.supported_versions },
       { icon: Tag, label: 'Tags', value: product?.tags?.join(', ') },
     ].filter((item) => item.value);
-  }, [product, isBundle]);
+    
+    return items;
+  }, [product]);
 
   const getCurrentPrice = () => {
     if (isBundle) {
@@ -226,21 +223,20 @@ export default function ProductDetail() {
       const me = await base44.auth.me();
       
       if (isBundle) {
-        // Adicionar todos os produtos do bundle ao carrinho
         for (const bundleProduct of bundleProducts) {
+          const license = bundleProduct.licenses?.[selectedLicense];
           await base44.entities.CartItem.create({
             user_email: me.email,
             product_id: bundleProduct.id,
             product_title: bundleProduct.title,
-            license_name: 'Standard',
-            price_usd: bundleProduct.price_usd,
-            price_brl: bundleProduct.price_brl,
+            license_name: license?.name || 'Standard',
+            price_usd: license?.price_usd || bundleProduct.price_usd,
+            price_brl: license?.price_brl || bundleProduct.price_brl,
             thumbnail: bundleProduct.thumbnail,
             file_url: bundleProduct.file_url,
           });
         }
       } else {
-        // Adicionar produto normal
         const license = product.licenses?.[selectedLicense];
         await base44.entities.CartItem.create({
           user_email: me.email,
@@ -305,9 +301,9 @@ export default function ProductDetail() {
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-10">
-        {/* Coluna da esquerda - Galeria e descrição */}
+        {/* Coluna da esquerda */}
         <div className="lg:col-span-7 space-y-6">
-          {/* Galeria de imagens */}
+          {/* Galeria */}
           <div className="space-y-3">
             <div className="relative aspect-video bg-[#050505] border border-[#1A1A1A] rounded-xl overflow-hidden">
               {images.length > 0 ? (
@@ -440,7 +436,7 @@ export default function ProductDetail() {
           )}
         </div>
 
-        {/* Coluna da direita - Card da sidebar */}
+        {/* Coluna da direita */}
         <div className="lg:col-span-3">
           <div className="sticky top-24 space-y-4">
             <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-6 space-y-5">
@@ -464,8 +460,8 @@ export default function ProductDetail() {
                 )}
               </div>
 
-              {/* Licenças - apenas para produtos */}
-              {!isBundle && product.licenses?.length > 0 && (
+              {/* Licenças - para produtos E bundles */}
+              {product.licenses?.length > 0 && (
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-[#666]">Licença</label>
                   <Select value={String(selectedLicense)} onValueChange={(value) => setSelectedLicense(Number(value))}>
@@ -511,12 +507,12 @@ export default function ProductDetail() {
                   </>
                 )}
 
-                {/* Botão favorito - apenas para produtos */}
-                {!isBundle && <FavoriteButton product={product} className="w-full justify-center h-11 rounded-xl border border-[#1A1A1A] text-xs gap-1.5" />}
+                {/* Botão favorito - para produtos E bundles */}
+                <FavoriteButton product={product} className="w-full justify-center h-11 rounded-xl border border-[#1A1A1A] text-xs gap-1.5" />
               </div>
 
-              {/* Metadados - apenas para produtos */}
-              {!isBundle && metadata.length > 0 && (
+              {/* Metadados - para produtos E bundles */}
+              {metadata.length > 0 && (
                 <div className="space-y-3 pt-4 border-t border-[#1A1A1A]">
                   {metadata.map((item) => (
                     <div key={item.label} className="flex items-start gap-3">
