@@ -16,7 +16,6 @@ import Checkout from './pages/Checkout';
 import Documentation from './pages/Documentation';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
-import BundleDetail from './pages/BundleDetail';
 import DashboardHome from './pages/dashboard/DashboardHome';
 import MyOrders from './pages/dashboard/MyOrders';
 import AccountSettings from './pages/dashboard/AccountSettings';
@@ -56,23 +55,19 @@ const AuthenticatedApp = () => {
       <Route path="/docs" element={<Documentation />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
-      <Route path="/product/:id" element={<ProductDetail />} />
 
       <Route element={<AppLayout />}>
+        {/* Página pública (Home) */}
         <Route path="/" element={<Home />} />
 
+        {/* Rota pública do produto (qualquer um pode ver, mesmo sem login) */}
+        <Route path="/product/:id" element={<ProductDetail />} />
+
+        {/* Rotas privadas (precisa estar logado) */}
         <Route path="/store" element={
           <PrivateRoute>
             <MaintenanceGuard>
               <Store />
-            </MaintenanceGuard>
-          </PrivateRoute>
-        } />
-        
-        <Route path="/product/:id" element={
-          <PrivateRoute>
-            <MaintenanceGuard>
-              <ProductDetail />
             </MaintenanceGuard>
           </PrivateRoute>
         } />
@@ -93,6 +88,7 @@ const AuthenticatedApp = () => {
           </PrivateRoute>
         } />
 
+        {/* Dashboard */}
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={
             <PrivateRoute>
@@ -127,6 +123,7 @@ const AuthenticatedApp = () => {
           } />
         </Route>
 
+        {/* Admin Panel */}
         <Route element={<AdminPanel />}>
           <Route path="/admin/coupons" element={
             <PrivateRoute>
