@@ -1,4 +1,4 @@
-﻿// src/pages/ProductDetail.jsx - Agora suporta produtos E bundles
+﻿// src/pages/ProductDetail.jsx - COMPLETO (suporta produtos e bundles)
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -57,7 +57,7 @@ export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [item, setItem] = useState(null);
+  const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [selectedImage, setSelectedImage] = useState(0);
@@ -69,34 +69,41 @@ export default function ProductDetail() {
   const [productBundles, setProductBundles] = useState([]);
 
   useEffect(() => {
-    loadItem();
+    loadProduct();
   }, [id]);
 
   useEffect(() => {
     setSelectedImage(0);
     setSelectedLicense(0);
-  }, [item?.id]);
+  }, [product?.id]);
 
-  const loadItem = async () => {
+  const loadProduct = async () => {
     setLoading(true);
     setLoadError('');
 
     try {
       // Primeiro tenta carregar como produto
-      let loadedItem = null;
+      let loadedProduct = null;
+      let isBundleItem = false;
+      
       try {
-        loadedItem = await base44.entities.Product.get(id);
-        setIsBundle(false);
-      } catch {
-        // Se não for produto, tenta carregar como bundle
-        loadedItem = await base44.entities.Bundle.get(id);
-        setIsBundle(true);
+        loadedProduct = await base44.entities.Product.get(id);
+        isBundleItem = false;
+      } catch (productError) {
+        // Se não for produto, tenta como bundle
+        try {
+          loadedProduct = await base44.entities.Bundle.get(id);
+          isBundleItem = true;
+        } catch (bundleError) {
+          throw new Error('Item não encontrado');
+        }
       }
       
-      setItem(loadedItem || null);
+      setIsBundle(isBundleItem);
+      setProduct(loadedProduct || null);
       
       // Se for bundle, carregar os produtos do bundle
-      if (isBundle && loadedItem) {
+      if (isBundleItem && loadedProduct) {
         const bundleProductsData = await supabase
           .from('bundle_products')
           .select('product_id')
@@ -108,7 +115,7 @@ export default function ProductDetail() {
       }
       
       // Se for produto, carregar bundles que contêm este produto
-      if (!isBundle && loadedItem) {
+      if (!isBundleItem && loadedProduct) {
         const allBundles = await base44.entities.Bundle.filter({ status: 'active' });
         const bundlesWithProduct = [];
         
@@ -118,7 +125,7 @@ export default function ProductDetail() {
             .select('product_id')
             .eq('bundle_id', bundle.id);
           const productIds = bundleProductsData.data.map(bp => bp.product_id);
-          if (productIds.includes(loadedItem.id)) {
+          if (productIds.includes(loadedProduct.id)) {
             bundlesWithProduct.push(bundle);
           }
         }
@@ -126,7 +133,7 @@ export default function ProductDetail() {
       }
     } catch (error) {
       console.error(error);
-      setItem(null);
+      setProduct(null);
       setLoadError('Não foi possível carregar o item.');
     } finally {
       setLoading(false);
@@ -134,10 +141,10 @@ export default function ProductDetail() {
   };
 
   const images = useMemo(() => {
-    if (item?.images?.length) return item.images;
-    if (item?.thumbnail) return [item.thumbnail];
+    if (product?.images?.length) return product.images;
+    if (product?.thumbnail) return [product.thumbnail];
     return [];
-  }, [item]);
+  }, [product]);
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -160,30 +167,30 @@ export default function ProductDetail() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [images.length]);
 
-  const hasDiscount = item?.discount_price_brl && item?.discount_expires_at && new Date(item.discount_expires_at) > new Date();
-  const currentLicense = item?.licenses?.[selectedLicense];
-  const isClosed = Boolean(item?.closed);
+  const hasDiscount = product?.discount_price_brl && product?.discount_expires_at && new Date(product.discount_expires_at) > new Date();
+  const currentLicense = product?.licenses?.[selectedLicense];
+  const isClosed = Boolean(product?.closed);
 
-const metadata = useMemo(() => {
-  if (isBundle) return []; // Bundles não têm metadata
-  
-  return [
-    { icon: FileBox, label: 'Tamanho', value: item?.file_size },
-    { icon: Layers, label: 'Categoria', value: item?.category },
-    { icon: Settings, label: 'Versões', value: item?.supported_versions },
-    { icon: Tag, label: 'Tags', value: item?.tags?.join(', ') },
-  ].filter(m => m.value);
-}, [item, isBundle]);
+  const metadata = useMemo(() => {
+    if (isBundle) return [];
+    
+    return [
+      { icon: FileBox, label: 'Tamanho', value: product?.file_size },
+      { icon: Layers, label: 'Categoria', value: product?.category },
+      { icon: Settings, label: 'Versões', value: product?.supported_versions },
+      { icon: Tag, label: 'Tags', value: product?.tags?.join(', ') },
+    ].filter((item) => item.value);
+  }, [product, isBundle]);
 
   const getCurrentPrice = () => {
     if (isBundle) {
       return {
-        brl: hasDiscount ? toNumber(item?.discount_price_brl) : toNumber(item?.price_brl),
-        usd: 0,
+        brl: hasDiscount ? toNumber(product?.discount_price_brl) : toNumber(product?.price_brl),
+        usd: toNumber(product?.price_usd || 0),
       };
     }
     
-    const license = item?.licenses?.[selectedLicense];
+    const license = product?.licenses?.[selectedLicense];
     if (license) {
       return {
         brl: toNumber(license.price_brl),
@@ -192,8 +199,8 @@ const metadata = useMemo(() => {
     }
 
     return {
-      brl: hasDiscount ? toNumber(item?.discount_price_brl) : toNumber(item?.price_brl),
-      usd: toNumber(item?.price_usd),
+      brl: hasDiscount ? toNumber(product?.discount_price_brl) : toNumber(product?.price_brl),
+      usd: toNumber(product?.price_usd),
     };
   };
 
@@ -212,38 +219,38 @@ const metadata = useMemo(() => {
   };
 
   const addToCartAndGoToCart = async () => {
-    if (!item) return;
+    if (!product) return;
 
     setAddingToCart(true);
     try {
       const me = await base44.auth.me();
       
       if (isBundle) {
-        // Adicionar todos os produtos do bundle
-        for (const product of bundleProducts) {
+        // Adicionar todos os produtos do bundle ao carrinho
+        for (const bundleProduct of bundleProducts) {
           await base44.entities.CartItem.create({
             user_email: me.email,
-            product_id: product.id,
-            product_title: product.title,
+            product_id: bundleProduct.id,
+            product_title: bundleProduct.title,
             license_name: 'Standard',
-            price_usd: product.price_usd,
-            price_brl: product.price_brl,
-            thumbnail: product.thumbnail,
-            file_url: product.file_url,
+            price_usd: bundleProduct.price_usd,
+            price_brl: bundleProduct.price_brl,
+            thumbnail: bundleProduct.thumbnail,
+            file_url: bundleProduct.file_url,
           });
         }
       } else {
         // Adicionar produto normal
-        const license = item.licenses?.[selectedLicense];
+        const license = product.licenses?.[selectedLicense];
         await base44.entities.CartItem.create({
           user_email: me.email,
-          product_id: item.id,
-          product_title: item.title,
+          product_id: product.id,
+          product_title: product.title,
           license_name: license?.name || 'Standard',
-          price_usd: price.usd || toNumber(item.price_usd),
-          price_brl: price.brl || toNumber(item.price_brl),
-          thumbnail: item.thumbnail,
-          file_url: item.file_url,
+          price_usd: price.usd || toNumber(product.price_usd),
+          price_brl: price.brl || toNumber(product.price_brl),
+          thumbnail: product.thumbnail,
+          file_url: product.file_url,
         });
       }
       
@@ -275,7 +282,7 @@ const metadata = useMemo(() => {
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center space-y-3">
           <p className="text-[#555]">{loadError}</p>
-          <Button variant="outline" onClick={loadItem} className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white">
+          <Button variant="outline" onClick={loadProduct} className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white">
             Tentar novamente
           </Button>
         </div>
@@ -283,7 +290,7 @@ const metadata = useMemo(() => {
     );
   }
 
-  if (!item) {
+  if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-[#555]">Item não encontrado</p>
@@ -304,7 +311,7 @@ const metadata = useMemo(() => {
           <div className="space-y-3">
             <div className="relative aspect-video bg-[#050505] border border-[#1A1A1A] rounded-xl overflow-hidden">
               {images.length > 0 ? (
-                <img src={images[selectedImage]} alt={item.title} className="w-full h-full object-cover" />
+                <img src={images[selectedImage]} alt={product.title} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-[#555]">Sem imagem disponível</div>
               )}
@@ -351,7 +358,7 @@ const metadata = useMemo(() => {
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-white">Descrição</h2>
             <div className="prose prose-sm prose-invert max-w-none text-[#888]">
-              <ReactMarkdown>{item.long_description || item.description || 'Sem descrição disponível.'}</ReactMarkdown>
+              <ReactMarkdown>{product.long_description || product.description || 'Sem descrição disponível.'}</ReactMarkdown>
             </div>
           </div>
 
@@ -362,17 +369,17 @@ const metadata = useMemo(() => {
                 <PackageIcon className="h-4 w-4" /> Produtos incluídos ({bundleProducts.length})
               </h3>
               <div className="space-y-3">
-                {bundleProducts.map((product) => (
-                  <div key={product.id} className="flex items-center gap-3 p-3 bg-[#111] rounded-lg">
+                {bundleProducts.map((bundleProduct) => (
+                  <div key={bundleProduct.id} className="flex items-center gap-3 p-3 bg-[#111] rounded-lg">
                     <div className="w-10 h-10 bg-[#0A0A0A] rounded-lg overflow-hidden flex-shrink-0">
-                      {product.thumbnail && <img src={product.thumbnail} alt="" className="w-full h-full object-cover" />}
+                      {bundleProduct.thumbnail && <img src={bundleProduct.thumbnail} alt="" className="w-full h-full object-cover" />}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-white">{product.title}</p>
-                      <p className="text-xs text-[#555]">{product.category}</p>
+                      <p className="text-sm font-medium text-white">{bundleProduct.title}</p>
+                      <p className="text-xs text-[#555]">{bundleProduct.category}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-white">R$ {product.price_brl?.toFixed(2)}</p>
+                      <p className="text-sm text-white">R$ {bundleProduct.price_brl?.toFixed(2)}</p>
                     </div>
                   </div>
                 ))}
@@ -382,7 +389,7 @@ const metadata = useMemo(() => {
 
           {/* Reviews */}
           <div className="border-t border-[#1A1A1A] pt-6">
-            <ReviewSection productId={item.id} isBundle={isBundle} />
+            <ReviewSection productId={product.id} />
           </div>
 
           {/* Available in Bundles (se for produto) */}
@@ -433,16 +440,16 @@ const metadata = useMemo(() => {
           )}
         </div>
 
-        {/* Coluna da direita */}
+        {/* Coluna da direita - Card da sidebar */}
         <div className="lg:col-span-3">
           <div className="sticky top-24 space-y-4">
             <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-6 space-y-5">
               <div>
-                <h1 className="text-xl font-bold text-white">{item.title}</h1>
-                {item.description && <p className="text-sm text-[#666] mt-1">{item.description}</p>}
+                <h1 className="text-xl font-bold text-white">{product.title}</h1>
+                {product.description && <p className="text-sm text-[#666] mt-1">{product.description}</p>}
                 <div className="flex flex-wrap items-center gap-2 mt-3">
-                  {item.category && (
-                    <span className="text-[10px] px-2 py-1 rounded-full border border-[#1A1A1A] text-[#666]">{item.category}</span>
+                  {product.category && (
+                    <span className="text-[10px] px-2 py-1 rounded-full border border-[#1A1A1A] text-[#666]">{product.category}</span>
                   )}
                   {isBundle && (
                     <span className="text-[10px] px-2 py-1 rounded-full border border-[#1A1A1A] text-[#666]">Bundle</span>
@@ -452,12 +459,13 @@ const metadata = useMemo(() => {
 
               <div className="flex items-end gap-2">
                 <span className="text-3xl font-black text-white">R$ {toNumber(displayPrice).toFixed(2)}</span>
-                {hasDiscount && !currentLicense && toNumber(item.price_brl) > 0 && (
-                  <span className="text-lg text-[#555] line-through mb-0.5">R$ {toNumber(item.price_brl).toFixed(2)}</span>
+                {hasDiscount && !currentLicense && toNumber(product.price_brl) > 0 && (
+                  <span className="text-lg text-[#555] line-through mb-0.5">R$ {toNumber(product.price_brl).toFixed(2)}</span>
                 )}
               </div>
 
-              {!isBundle && item.licenses?.length > 0 && (
+              {/* Licenças - apenas para produtos */}
+              {!isBundle && product.licenses?.length > 0 && (
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-[#666]">Licença</label>
                   <Select value={String(selectedLicense)} onValueChange={(value) => setSelectedLicense(Number(value))}>
@@ -465,7 +473,7 @@ const metadata = useMemo(() => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-[#0A0A0A] border-[#1A1A1A]">
-                      {item.licenses.map((license, index) => (
+                      {product.licenses.map((license, index) => (
                         <SelectItem key={`${license.name}-${index}`} value={String(index)} className="text-white">
                           {license.name} - R$ {toNumber(license.price_brl).toFixed(2)}
                         </SelectItem>
@@ -475,7 +483,7 @@ const metadata = useMemo(() => {
                 </div>
               )}
 
-              {hasDiscount && !currentLicense && <DiscountCountdown expiresAt={item.discount_expires_at} />}
+              {hasDiscount && !currentLicense && <DiscountCountdown expiresAt={product.discount_expires_at} />}
 
               <div className="space-y-2">
                 {isClosed ? (
@@ -503,10 +511,12 @@ const metadata = useMemo(() => {
                   </>
                 )}
 
-                {!isBundle && <FavoriteButton product={item} className="w-full justify-center h-11 rounded-xl border border-[#1A1A1A] text-xs gap-1.5" />}
+                {/* Botão favorito - apenas para produtos */}
+                {!isBundle && <FavoriteButton product={product} className="w-full justify-center h-11 rounded-xl border border-[#1A1A1A] text-xs gap-1.5" />}
               </div>
 
-              {metadata.length > 0 && !isBundle && (
+              {/* Metadados - apenas para produtos */}
+              {!isBundle && metadata.length > 0 && (
                 <div className="space-y-3 pt-4 border-t border-[#1A1A1A]">
                   {metadata.map((item) => (
                     <div key={item.label} className="flex items-start gap-3">
