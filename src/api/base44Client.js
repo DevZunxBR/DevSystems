@@ -37,6 +37,7 @@ const TABLE_MAP = {
   Review: 'reviews',
   Wallet: 'wallets',
   User: 'user_profiles',
+  // REMOVIDO: Bundle: 'bundles'  <--- NÃO EXISTE MAIS
 };
 
 const createEntityProxy = (entityName) => {
