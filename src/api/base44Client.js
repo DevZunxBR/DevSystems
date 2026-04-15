@@ -124,18 +124,19 @@ const bundleEntity = {
   },
 };
 
+// src/api/base44Client.js - Atualize a parte do BundleProduct
+
 const bundleProductEntity = {
-  ...createEntityProxy('BundleProduct'),
-  addProduct: async (bundleId, productId) => {
-    const { data, error } = await supabase
+  create: async (data) => {
+    const { data: result, error } = await supabase
       .from('bundle_products')
-      .insert([{ bundle_id: bundleId, product_id: productId }])
+      .insert([data])
       .select()
       .single();
     if (error) throw error;
-    return data;
+    return result;
   },
-  removeProduct: async (bundleId, productId) => {
+  delete: async (bundleId, productId) => {
     const { error } = await supabase
       .from('bundle_products')
       .delete()
@@ -169,6 +170,24 @@ const bundleProductEntity = {
     if (bundlesError) throw bundlesError;
     
     return bundles || [];
+  },
+  add: async (bundleId, productId) => {
+    const { data, error } = await supabase
+      .from('bundle_products')
+      .insert([{ bundle_id: bundleId, product_id: productId }])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  remove: async (bundleId, productId) => {
+    const { error } = await supabase
+      .from('bundle_products')
+      .delete()
+      .eq('bundle_id', bundleId)
+      .eq('product_id', productId);
+    if (error) throw error;
+    return true;
   },
 };
 

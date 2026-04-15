@@ -110,49 +110,49 @@ export default function BundleForm() {
   };
 
   const handleSave = async () => {
-    if (!form.title) { toast.error('Título é obrigatório'); return; }
-    if (selectedProducts.length === 0) { toast.error('Selecione pelo menos um produto'); return; }
+  if (!form.title) { toast.error('Título é obrigatório'); return; }
+  if (selectedProducts.length === 0) { toast.error('Selecione pelo menos um produto'); return; }
+  
+  setSaving(true);
+  try {
+    const saveData = { ...form, total_products: selectedProducts.length };
     
-    setSaving(true);
-    try {
-      const saveData = { ...form, total_products: selectedProducts.length };
-      
-      let bundleId;
-      if (isEdit) {
-        await base44.entities.Bundle.update(id, saveData);
-        bundleId = id;
-      } else {
-        const created = await base44.entities.Bundle.create(saveData);
-        bundleId = created.id;
-      }
-      
-      // Atualizar produtos do bundle
-      const currentProducts = await base44.entities.BundleProduct.listByBundle(bundleId);
-      const currentIds = currentProducts.map(bp => bp.product_id);
-      
-      // Remover produtos que não estão mais selecionados
-      for (const cp of currentProducts) {
-        if (!selectedProducts.includes(cp.product_id)) {
-          await base44.entities.BundleProduct.remove(bundleId, cp.product_id);
-        }
-      }
-      
-      // Adicionar novos produtos
-      for (const productId of selectedProducts) {
-        if (!currentIds.includes(productId)) {
-          await base44.entities.BundleProduct.add(bundleId, productId);
-        }
-      }
-      
-      toast.success(isEdit ? 'Bundle atualizado!' : 'Bundle criado!');
-      navigate('/admin/bundles');
-    } catch (error) {
-      console.error(error);
-      toast.error('Falha ao salvar');
-    } finally {
-      setSaving(false);
+    let bundleId;
+    if (isEdit) {
+      await base44.entities.Bundle.update(id, saveData);
+      bundleId = id;
+    } else {
+      const created = await base44.entities.Bundle.create(saveData);
+      bundleId = created.id;
     }
-  };
+    
+    // Buscar produtos atuais do bundle
+    const currentProducts = await base44.entities.BundleProduct.listByBundle(bundleId);
+    const currentIds = currentProducts.map(cp => cp.product_id);
+    
+    // Remover produtos que não estão mais selecionados
+    for (const cp of currentProducts) {
+      if (!selectedProducts.includes(cp.product_id)) {
+        await base44.entities.BundleProduct.remove(bundleId, cp.product_id);
+      }
+    }
+    
+    // Adicionar novos produtos
+    for (const productId of selectedProducts) {
+      if (!currentIds.includes(productId)) {
+        await base44.entities.BundleProduct.add(bundleId, productId);
+      }
+    }
+    
+    toast.success(isEdit ? 'Bundle atualizado!' : 'Bundle criado!');
+    navigate('/admin/bundles');
+  } catch (error) {
+    console.error(error);
+    toast.error('Falha ao salvar');
+  } finally {
+    setSaving(false);
+  }
+};
 
   if (loading) {
     return (
