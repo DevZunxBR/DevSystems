@@ -37,7 +37,6 @@ const TABLE_MAP = {
   Review: 'reviews',
   Wallet: 'wallets',
   User: 'user_profiles',
-  // REMOVIDO: Bundle: 'bundles'  <--- NÃO EXISTE MAIS
 };
 
 const createEntityProxy = (entityName) => {
@@ -85,15 +84,8 @@ const createEntityProxy = (entityName) => {
       return true;
     },
 
-    list: async (order = '-created_at', limit = 100) => {
-      let req = supabase.from(table).select('*');
-      if (order) {
-        const desc = order.startsWith('-');
-        const col = order.replace(/^-/, '').replace('created_date', 'created_at');
-        req = req.order(col, { ascending: !desc });
-      }
-      req = req.limit(limit);
-      const { data, error } = await req;
+    list: async () => {
+      const { data, error } = await supabase.from(table).select('*').order('created_at', { ascending: false });
       if (error) throw error;
       return data || [];
     },
@@ -102,10 +94,12 @@ const createEntityProxy = (entityName) => {
 
 const auth = {
   me: async () => {
+    // Usa cache se disponível — evita rate limit
     if (cachedUser && cachedProfile) {
       return cachedProfile;
     }
 
+    // Se tem cache do user mas não do profile, busca o profile
     if (cachedUser) {
       const { data: profile } = await supabase
         .from('user_profiles')
@@ -125,6 +119,7 @@ const auth = {
       return cachedProfile;
     }
 
+    // Último recurso — busca do Supabase
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) throw { status: 401 };
 
@@ -178,7 +173,7 @@ const auth = {
       .update(data)
       .eq('email', cachedUser.email);
     if (error) throw error;
-    cachedProfile = null;
+    cachedProfile = null; // Limpa cache do profile
     return true;
   },
 

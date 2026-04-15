@@ -1,4 +1,3 @@
-// src/pages/admin/ProductForm.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { base44, supabase } from '@/api/base44Client';
@@ -91,6 +90,7 @@ export default function ProductForm() {
         toast.success('Produto atualizado!');
       } else {
         const created = await base44.entities.Product.create(saveData);
+        // Notifica todos os usuários
         try {
           const users = await base44.entities.User.filter({}, '-created_at', 200);
           await Promise.allSettled(users.map(u => base44.entities.Notification.create({
