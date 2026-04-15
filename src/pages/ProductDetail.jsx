@@ -164,16 +164,16 @@ export default function ProductDetail() {
   const currentLicense = item?.licenses?.[selectedLicense];
   const isClosed = Boolean(item?.closed);
 
-  const metadata = useMemo(
-    () =>
-      [
-        { icon: FileBox, label: 'Tamanho', value: item?.file_size },
-        { icon: Layers, label: 'Categoria', value: item?.category },
-        { icon: Settings, label: 'Versões', value: item?.supported_versions },
-        { icon: Tag, label: 'Tags', value: item?.tags?.join(', ') },
-      ].filter((m) => m.value),
-    [item]
-  );
+const metadata = useMemo(() => {
+  if (isBundle) return []; // Bundles não têm metadata
+  
+  return [
+    { icon: FileBox, label: 'Tamanho', value: item?.file_size },
+    { icon: Layers, label: 'Categoria', value: item?.category },
+    { icon: Settings, label: 'Versões', value: item?.supported_versions },
+    { icon: Tag, label: 'Tags', value: item?.tags?.join(', ') },
+  ].filter(m => m.value);
+}, [item, isBundle]);
 
   const getCurrentPrice = () => {
     if (isBundle) {
