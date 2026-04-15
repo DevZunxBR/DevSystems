@@ -1,4 +1,4 @@
-﻿// src/pages/ProductDetail.jsx - COMPLETO para produtos E bundles (tudo igual)
+﻿// src/pages/ProductDetail.jsx - Corrigido (buyNow vai direto para checkout)
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -167,7 +167,6 @@ export default function ProductDetail() {
   const currentLicense = product?.licenses?.[selectedLicense];
   const isClosed = Boolean(product?.closed);
 
-  // METADATA - funciona para produtos e bundles
   const metadata = useMemo(() => {
     const items = [
       { icon: FileBox, label: 'Tamanho', value: product?.file_size },
@@ -215,6 +214,7 @@ export default function ProductDetail() {
     });
   };
 
+  // Adicionar ao carrinho e ir para o CARRINHO
   const addToCartAndGoToCart = async () => {
     if (!product) return;
 
@@ -261,8 +261,56 @@ export default function ProductDetail() {
     }
   };
 
+  // Comprar agora - vai direto para o CHECKOUT
   const buyNow = async () => {
-    await addToCartAndGoToCart();
+    if (!product) return;
+
+    setBuyingNow(true);
+    try {
+      const me = await base44.auth.me();
+      
+      let directProducts = [];
+      
+      if (isBundle) {
+        // Para bundle, criar um array de produtos
+        directProducts = bundleProducts.map(bundleProduct => {
+          const license = bundleProduct.licenses?.[selectedLicense];
+          return {
+            product_id: bundleProduct.id,
+            product_title: bundleProduct.title,
+            license_name: license?.name || 'Standard',
+            price_usd: license?.price_usd || bundleProduct.price_usd,
+            price_brl: license?.price_brl || bundleProduct.price_brl,
+            thumbnail: bundleProduct.thumbnail,
+            file_url: bundleProduct.file_url,
+            is_direct_purchase: true,
+          };
+        });
+      } else {
+        // Para produto normal
+        const license = product.licenses?.[selectedLicense];
+        directProducts = [{
+          product_id: product.id,
+          product_title: product.title,
+          license_name: license?.name || 'Standard',
+          price_usd: price.usd || toNumber(product.price_usd),
+          price_brl: price.brl || toNumber(product.price_brl),
+          thumbnail: product.thumbnail,
+          file_url: product.file_url,
+          is_direct_purchase: true,
+        }];
+      }
+      
+      // Salvar no sessionStorage
+      sessionStorage.setItem('direct_purchase', JSON.stringify(directProducts));
+      navigate('/checkout?direct=true');
+    } catch (error) {
+      console.error(error);
+      toast.error('Faça login primeiro');
+      navigate('/register');
+    } finally {
+      setBuyingNow(false);
+    }
   };
 
   if (loading) {
@@ -460,7 +508,7 @@ export default function ProductDetail() {
                 )}
               </div>
 
-              {/* Licenças - para produtos E bundles */}
+              {/* Licenças */}
               {product.licenses?.length > 0 && (
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-[#666]">Licença</label>
@@ -507,11 +555,10 @@ export default function ProductDetail() {
                   </>
                 )}
 
-                {/* Botão favorito - para produtos E bundles */}
                 <FavoriteButton product={product} className="w-full justify-center h-11 rounded-xl border border-[#1A1A1A] text-xs gap-1.5" />
               </div>
 
-              {/* Metadados - para produtos E bundles */}
+              {/* Metadados */}
               {metadata.length > 0 && (
                 <div className="space-y-3 pt-4 border-t border-[#1A1A1A]">
                   {metadata.map((item) => (
