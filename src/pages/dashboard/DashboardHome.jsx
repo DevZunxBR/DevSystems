@@ -268,12 +268,12 @@ export default function DashboardHome() {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-white">Pedidos Recentes</h2>
           {orders.length > 0 && (
-<button
-  onClick={() => navigate('/dashboard/orders')}
-  className="text-xs text-[#555] hover:text-white flex items-center gap-1 transition-colors"
->
-  Ver todos →
-</button>
+            <button
+              onClick={() => navigate('/dashboard/orders')}
+              className="text-xs text-[#555] hover:text-white flex items-center gap-1 transition-colors"
+            >
+              Ver todos →
+            </button>
           )}
         </div>
 
