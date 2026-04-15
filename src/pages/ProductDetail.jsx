@@ -1,4 +1,4 @@
-﻿// src/pages/ProductDetail.jsx - Original (sem bundles)
+﻿// src/pages/ProductDetail.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {

@@ -234,6 +234,7 @@ export default function ProductForm() {
           <h2 className="text-lg font-bold text-foreground">Mídia e Arquivos</h2>
           <p className="text-xs text-muted-foreground">Os arquivos são enviados para o Supabase Storage (bucket "products")</p>
           <div className="space-y-4">
+            {/* Thumbnail */}
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Thumbnail</label>
               <div className="flex items-center gap-3">
@@ -247,6 +248,8 @@ export default function ProductForm() {
                 {form.thumbnail && <img src={form.thumbnail} alt="" className="w-12 h-12 rounded-lg object-cover border border-border" />}
               </div>
             </div>
+
+            {/* Gallery */}
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Imagens da Galeria</label>
               <label className="cursor-pointer">
@@ -270,6 +273,8 @@ export default function ProductForm() {
                 </div>
               )}
             </div>
+
+            {/* File */}
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Arquivo para Download (ZIP/RAR)</label>
               <label className="cursor-pointer">
