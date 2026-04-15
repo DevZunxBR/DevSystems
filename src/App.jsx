@@ -26,8 +26,6 @@ import ManageProducts from './pages/admin/ManageProducts';
 import ManageCoupons from './pages/admin/ManageCoupons';
 import ProductForm from './pages/admin/ProductForm';
 import RefundRequests from './pages/admin/RefundRequests';
-import ManageBundles from './pages/admin/ManageBundles';
-import BundleForm from './pages/admin/BundleForm';
 import Register from './pages/Register';
 
 // Rota privada - redireciona para /register se não logado
@@ -57,17 +55,20 @@ const AuthenticatedApp = () => {
       <Route path="/privacy" element={<Privacy />} />
 
       <Route element={<AppLayout />}>
-        {/* Página pública (Home) */}
         <Route path="/" element={<Home />} />
 
-        {/* Rota pública do produto (qualquer um pode ver, mesmo sem login) */}
-        <Route path="/product/:id" element={<ProductDetail />} />
-
-        {/* Rotas privadas (precisa estar logado) */}
         <Route path="/store" element={
           <PrivateRoute>
             <MaintenanceGuard>
               <Store />
+            </MaintenanceGuard>
+          </PrivateRoute>
+        } />
+        
+        <Route path="/product/:id" element={
+          <PrivateRoute>
+            <MaintenanceGuard>
+              <ProductDetail />
             </MaintenanceGuard>
           </PrivateRoute>
         } />
@@ -88,7 +89,6 @@ const AuthenticatedApp = () => {
           </PrivateRoute>
         } />
 
-        {/* Dashboard */}
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={
             <PrivateRoute>
@@ -123,7 +123,6 @@ const AuthenticatedApp = () => {
           } />
         </Route>
 
-        {/* Admin Panel */}
         <Route element={<AdminPanel />}>
           <Route path="/admin/coupons" element={
             <PrivateRoute>
@@ -149,38 +148,6 @@ const AuthenticatedApp = () => {
             </PrivateRoute>
           } />
           
-          <Route path="/admin/refunds" element={
-            <PrivateRoute>
-              <MaintenanceGuard>
-                <RefundRequests />
-              </MaintenanceGuard>
-            </PrivateRoute>
-          } />
-          
-          <Route path="/admin/bundles" element={
-            <PrivateRoute>
-              <MaintenanceGuard>
-                <ManageBundles />
-              </MaintenanceGuard>
-            </PrivateRoute>
-          } />
-          
-          <Route path="/admin/bundles/new" element={
-            <PrivateRoute>
-              <MaintenanceGuard>
-                <BundleForm />
-              </MaintenanceGuard>
-            </PrivateRoute>
-          } />
-          
-          <Route path="/admin/bundles/edit/:id" element={
-            <PrivateRoute>
-              <MaintenanceGuard>
-                <BundleForm />
-              </MaintenanceGuard>
-            </PrivateRoute>
-          } />
-          
           <Route path="/admin/products" element={
             <PrivateRoute>
               <MaintenanceGuard>
@@ -201,6 +168,14 @@ const AuthenticatedApp = () => {
             <PrivateRoute>
               <MaintenanceGuard>
                 <ProductForm />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/admin/refunds" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <RefundRequests />
               </MaintenanceGuard>
             </PrivateRoute>
           } />

@@ -37,8 +37,6 @@ const TABLE_MAP = {
   Review: 'reviews',
   Wallet: 'wallets',
   User: 'user_profiles',
-  Bundle: 'bundles',
-  BundleProduct: 'bundle_products',
 };
 
 const createEntityProxy = (entityName) => {
@@ -86,109 +84,12 @@ const createEntityProxy = (entityName) => {
       return true;
     },
 
-    list: async (order = '-created_at', limit = 100) => {
-      let req = supabase.from(table).select('*');
-      if (order) {
-        const desc = order.startsWith('-');
-        const col = order.replace(/^-/, '').replace('created_date', 'created_at');
-        req = req.order(col, { ascending: !desc });
-      }
-      req = req.limit(limit);
-      const { data, error } = await req;
+    list: async () => {
+      const { data, error } = await supabase.from(table).select('*').order('created_at', { ascending: false });
       if (error) throw error;
       return data || [];
     },
   };
-};
-
-// Funções específicas para Bundle e BundleProduct
-const bundleEntity = {
-  ...createEntityProxy('Bundle'),
-  getProducts: async (bundleId) => {
-    const { data, error } = await supabase
-      .from('bundle_products')
-      .select('product_id')
-      .eq('bundle_id', bundleId);
-    if (error) throw error;
-    
-    const productIds = data.map(bp => bp.product_id);
-    if (productIds.length === 0) return [];
-    
-    const { data: products, error: productsError } = await supabase
-      .from('products')
-      .select('*')
-      .in('id', productIds);
-    if (productsError) throw productsError;
-    
-    return products || [];
-  },
-};
-
-// src/api/base44Client.js - Atualize a parte do BundleProduct
-
-const bundleProductEntity = {
-  create: async (data) => {
-    const { data: result, error } = await supabase
-      .from('bundle_products')
-      .insert([data])
-      .select()
-      .single();
-    if (error) throw error;
-    return result;
-  },
-  delete: async (bundleId, productId) => {
-    const { error } = await supabase
-      .from('bundle_products')
-      .delete()
-      .eq('bundle_id', bundleId)
-      .eq('product_id', productId);
-    if (error) throw error;
-    return true;
-  },
-  listByBundle: async (bundleId) => {
-    const { data, error } = await supabase
-      .from('bundle_products')
-      .select('*')
-      .eq('bundle_id', bundleId);
-    if (error) throw error;
-    return data || [];
-  },
-  listByProduct: async (productId) => {
-    const { data, error } = await supabase
-      .from('bundle_products')
-      .select('bundle_id')
-      .eq('product_id', productId);
-    if (error) throw error;
-    
-    const bundleIds = data.map(bp => bp.bundle_id);
-    if (bundleIds.length === 0) return [];
-    
-    const { data: bundles, error: bundlesError } = await supabase
-      .from('bundles')
-      .select('*')
-      .in('id', bundleIds);
-    if (bundlesError) throw bundlesError;
-    
-    return bundles || [];
-  },
-  add: async (bundleId, productId) => {
-    const { data, error } = await supabase
-      .from('bundle_products')
-      .insert([{ bundle_id: bundleId, product_id: productId }])
-      .select()
-      .single();
-    if (error) throw error;
-    return data;
-  },
-  remove: async (bundleId, productId) => {
-    const { error } = await supabase
-      .from('bundle_products')
-      .delete()
-      .eq('bundle_id', bundleId)
-      .eq('product_id', productId);
-    if (error) throw error;
-    return true;
-  },
 };
 
 const auth = {
@@ -290,20 +191,9 @@ const auth = {
 
 export const base44 = {
   integrations: {},
-  entities: {
-    get Product() { return createEntityProxy('Product'); },
-    get Order() { return createEntityProxy('Order'); },
-    get CartItem() { return createEntityProxy('CartItem'); },
-    get Coupon() { return createEntityProxy('Coupon'); },
-    get Favorite() { return createEntityProxy('Favorite'); },
-    get Notification() { return createEntityProxy('Notification'); },
-    get RefundRequest() { return createEntityProxy('RefundRequest'); },
-    get Review() { return createEntityProxy('Review'); },
-    get Wallet() { return createEntityProxy('Wallet'); },
-    get User() { return createEntityProxy('User'); },
-    get Bundle() { return bundleEntity; },
-    get BundleProduct() { return bundleProductEntity; },
-  },
+  entities: new Proxy({}, {
+    get: (_, entityName) => createEntityProxy(entityName),
+  }),
   auth,
   supabase,
 };
