@@ -1,0 +1,94 @@
+Equipe De Suporte:
+
+{
+  "content": "Olá! Obrigado por demonstrar interesse em fazer parte da equipe do **DevAssets**.\n\nLeia atentamente todos os requisitos e informações antes de preencher o formulário.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 113025693,
+      "title": "Equipe de Suporte  DevAssets ",
+      "description": "A equipe de Suporte do DevAssets é responsável por auxiliar criadores e compradores dentro da plataforma, garantindo uma experiência de qualidade para todos os membros da comunidade.",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "image": {
+        "url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494521407768367174/Texto_do_seu_paragrafo_1.gif?ex=69e2e906&is=69e19786&hm=580c9670cd690a1634e830b08b1cfd10ac2256fef352c9878d0512512f85a017&"
+      },
+      "fields": []
+    },
+    {
+      "id": 19391125,
+      "title": "Responsabilidades do Cargo",
+      "description": "Ao ingressar como membro de Suporte, você assumirá as seguintes responsabilidades.",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 50182195,
+          "name": "Atendimento",
+          "value": "Atender os membros que abrirem tickets com dúvidas, problemas ou solicitações relacionadas à plataforma.",
+          "inline": false
+        },
+        {
+          "id": 824266082,
+          "name": "Resolucao de Problemas",
+          "value": "Identificar e solucionar problemas relatados pelos usuários de forma ágil e profissional.",
+          "inline": false
+        },
+        {
+          "id": 474627443,
+          "name": "Comunicacao Interna",
+          "value": "Manter a equipe informada sobre casos relevantes e repassar situações que exijam atenção superior.",
+          "inline": false
+        }
+      ]
+    },
+    {
+      "id": 975698307,
+      "title": "Requisitos para se Candidatar",
+      "description": "Antes de preencher o formulário, certifique-se de que você atende aos requisitos abaixo.",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 552001943,
+          "name": "Disponibilidade",
+          "value": "Ter disponibilidade mínima de tempo para atender os membros com regularidade.",
+          "inline": true
+        },
+        {
+          "id": 898473234,
+          "name": "Comunicacao",
+          "value": "Saber se comunicar de forma clara, respeitosa e profissional.",
+          "inline": true
+        },
+        {
+          "id": 893419345,
+          "name": "Responsabilidade",
+          "value": "Ser comprometido com o cargo e cumprir as obrigações assumidas com a equipe.",
+          "inline": true
+        },
+        {
+          "id": 797810783,
+          "name": "Conduta",
+          "value": "Não possuir histórico de punições graves dentro do servidor do DevAssets.",
+          "inline": false
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0
+}

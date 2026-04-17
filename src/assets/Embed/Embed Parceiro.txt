@@ -1,0 +1,100 @@
+EMBED DE Parceiro Criador:
+
+{
+  "content": "Olá! Obrigado por demonstrar interesse em se tornar um Parceiro Criador do **DevAssets**.\n\nAntes de prosseguirmos, gostaríamos de apresentar como funciona a nossa parceria e o que esperamos dos nossos criadores.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 41398921,
+      "description": "Quer vender seus assets na plataforma? Siga os passos abaixo e faça parte da nossa comunidade de criadores.",
+      "fields": [
+        {
+          "id": 156722409,
+          "name": "Acesse a Plataforma",
+          "value": "Acesse o site do DevAssets e crie sua conta gratuitamente, Caso Não tiver Uma Conta.",
+          "inline": true
+        },
+        {
+          "id": 647556174,
+          "name": "Envie sua Candidatura",
+          "value": "preencha o formulário de parceria com seus dados.",
+          "inline": false
+        },
+        {
+          "id": 612893552,
+          "name": "Aguarde a Análise",
+          "value": "Nossa equipe irá analisar sua candidatura e retornará em breve com a decisão via ticket.",
+          "inline": false
+        }
+      ],
+      "title": "Como se Cadastrar como Parceiro Criador",
+      "footer": {
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&",
+        "text": "DevAssets Todos os Direitos Reservados"
+      },
+      "timestamp": "2026-04-16T03:00:00.000Z",
+      "color": 0,
+      "image": {
+        "url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494521407768367174/Texto_do_seu_paragrafo_1.gif?ex=69e2e906&is=69e19786&hm=580c9670cd690a1634e830b08b1cfd10ac2256fef352c9878d0512512f85a017&"
+      }
+    },
+    {
+      "id": 821297932,
+      "description": "Como Parceiro Criador, você receberá 87% do valor de cada venda realizada na plataforma. O DevAssets retém apenas 13% para cobrir custos operacionais da plataforma.",
+      "fields": [
+        {
+          "id": 156722409,
+          "name": "Prazo de Recebimento",
+          "value": "Após a confirmação do pagamento, o valor é repassado ao criador do asset em até 10 horas.",
+          "inline": true
+        },
+        {
+          "id": 647556174,
+          "name": "Comissão",
+          "value": "O criador recebe 87% do valor de cada venda. A loja retém apenas 13% para cobrir os custos operacionais da plataforma.",
+          "inline": true
+        }
+      ],
+      "title": "Comissão",
+      "footer": {
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&",
+        "text": "DevAssets Todos os Direitos Reservados"
+      },
+      "timestamp": "2026-04-16T03:00:00.000Z",
+      "color": 0
+    },
+    {
+      "id": 749383143,
+      "fields": [
+        {
+          "id": 932556984,
+          "name": "Originalidade dos Assets",
+          "value": "Todos os assets devem ser de sua própria autoria. Assets copiados ou de terceiros não são aceitos.",
+          "inline": true
+        },
+        {
+          "id": 488855640,
+          "name": "Direitos Autorais",
+          "value": "Os assets não podem conter material protegido por direitos autorais de terceiros.",
+          "inline": true
+        },
+        {
+          "id": 179363770,
+          "name": "Contrato de Parceria",
+          "value": "O parceiro deve aceitar e assinar o contrato, concordando com todos os termos do DevAssets.",
+          "inline": false
+        }
+      ],
+      "title": "Requisitos para se tornar um Parceiro Criador",
+      "color": 0,
+      "footer": {
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&",
+        "text": "DevAssets Todos os Direitos Reservados"
+      },
+      "timestamp": "2026-04-16T17:02:00.000Z"
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0
+}

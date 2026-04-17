@@ -1,0 +1,193 @@
+Embed Regras:
+
+{
+  "content": "Leia atentamente todas as regras antes de utilizar a plataforma **DevAssets**.\n\nO descumprimento de qualquer regra pode resultar em advertência, suspensão ou banimento permanente da plataforma.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 343001770,
+      "title": "Regras do Servidor — DevAssets Marketplace",
+      "description": "Para garantir uma experiência segura, justa e profissional para todos os membros, o DevAssets estabelece as seguintes regras de conduta e utilização da plataforma.",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "image": {
+        "url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494521407768367174/Texto_do_seu_paragrafo_1.gif?ex=69e2e906&is=69e19786&hm=580c9670cd690a1634e830b08b1cfd10ac2256fef352c9878d0512512f85a017&"
+      },
+      "fields": []
+    },
+    {
+      "id": 439668603,
+      "title": "Conduta Geral",
+      "description": "Regras de comportamento que se aplicam a todos os membros do servidor e da plataforma.",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 819204303,
+          "name": "Respeito",
+          "value": "Trate todos os membros com respeito e educação. Ofensas, discriminação, preconceito ou qualquer forma de assédio não serão tolerados.",
+          "inline": false
+        },
+        {
+          "id": 621187239,
+          "name": "Spam",
+          "value": "É proibido enviar mensagens repetidas, flood, divulgações não autorizadas ou qualquer tipo de spam nos canais do servidor.",
+          "inline": false
+        },
+        {
+          "id": 682106480,
+          "name": "Linguagem",
+          "value": "Mantenha uma linguagem adequada ao ambiente. Palavrões excessivos, conteúdo ofensivo ou impróprio são proibidos.",
+          "inline": false
+        }
+      ]
+    },
+    {
+      "id": 676537974,
+      "title": "Regras da Plataforma",
+      "description": "Regras obrigatórias para todos que utilizam o DevAssets como compradores ou criadores.",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 50744210,
+          "name": "Fraude",
+          "value": "É estritamente proibido realizar compras fraudulentas, estornos indevidos ou qualquer tentativa de burlar o sistema de pagamento da plataforma.",
+          "inline": false
+        },
+        {
+          "id": 513868348,
+          "name": "Pirataria",
+          "value": "É terminantemente proibido distribuir, revender ou compartilhar assets adquiridos na plataforma sem autorização do criador.",
+          "inline": false
+        },
+        {
+          "id": 148119010,
+          "name": "Contas Falsas",
+          "value": "A criação de contas falsas, duplicadas ou com informações fraudulentas resultará em banimento permanente da plataforma.",
+          "inline": false
+        },
+        {
+          "id": 875740732,
+          "name": "Manipulacao de Avaliacoes",
+          "value": "É proibido manipular avaliações de assets, seja comprando avaliações falsas ou prejudicando concorrentes de forma desonesta.",
+          "inline": false
+        }
+      ]
+    },
+    {
+      "id": 62813182,
+      "title": "Regras para Criadores",
+      "description": "Regras específicas para os Parceiros Criadores que publicam assets na plataforma.",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 338402730,
+          "name": "Qualidade",
+          "value": "Os assets publicados devem atender a um padrão mínimo de qualidade. Assets incompletos, com defeitos graves ou enganosos serão removidos.",
+          "inline": false
+        },
+        {
+          "id": 257406705,
+          "name": "Descricao Fiel",
+          "value": "A descrição, imagens e informações dos assets devem representar fielmente o produto. Propaganda enganosa é proibida e sujeita a penalidades.",
+          "inline": false
+        },
+        {
+          "id": 572687367,
+          "name": "Direitos Autorais",
+          "value": "É proibido publicar assets que contenham elementos protegidos por direitos autorais de terceiros sem a devida autorização.",
+          "inline": false
+        },
+        {
+          "id": 583525450,
+          "name": "Concorrencia Desleal",
+          "value": "É proibido utilizar a plataforma para prejudicar outros criadores de forma desonesta, incluindo cópias, plágios ou sabotagem.",
+          "inline": false
+        }
+      ]
+    },
+    {
+      "id": 826856352,
+      "title": "Penalidades",
+      "description": "O descumprimento das regras estará sujeito às seguintes penalidades, aplicadas de acordo com a gravidade da infração.",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 260987924,
+          "name": "Advertencia",
+          "value": "Aplicada em casos de infrações leves ou primeira ocorrência.",
+          "inline": true
+        },
+        {
+          "id": 768353412,
+          "name": "Suspensao Temporaria",
+          "value": "Aplicada em casos de infrações moderadas ou reincidência.",
+          "inline": true
+        },
+        {
+          "id": 694289006,
+          "name": "Banimento Permanente",
+          "value": "Aplicado em casos de infrações graves como fraude, pirataria ou violação de direitos autorais.",
+          "inline": false
+        }
+      ]
+    },
+    {
+      "id": 334421987,
+      "title": "Ajude a Manter a Plataforma Segura",
+      "description": "Caso você identifique algum membro ou criador descumprindo as regras do DevAssets, não fique em silêncio. Sua denúncia é essencial para mantermos um ambiente seguro, justo e confiável para toda a comunidade.",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 608545945,
+          "name": "Como Denunciar",
+          "value": "Abra um ticket de denúncia em nosso servidor e relate o ocorrido com o máximo de detalhes possível. Nossa equipe irá analisar o caso com seriedade e tomar as medidas cabíveis.",
+          "inline": false
+        },
+        {
+          "id": 198902615,
+          "name": "O que Informar",
+          "value": "Informe o nome do usuário envolvido, uma descrição clara do ocorrido e, se possível, prints ou evidências que comprovem a infração.",
+          "inline": false
+        },
+        {
+          "id": 394039967,
+          "name": "Confidencialidade",
+          "value": "Todas as denúncias são tratadas com total sigilo. A identidade do denunciante não será revelada em nenhuma circunstância.",
+          "inline": false
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0
+}
