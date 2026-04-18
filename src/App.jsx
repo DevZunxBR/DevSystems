@@ -28,11 +28,16 @@ import ProductForm from './pages/admin/ProductForm';
 import RefundRequests from './pages/admin/RefundRequests';
 import Register from './pages/Register';
 
+// IMPORTAÇÕES DE PAGAMENTOS (ADMIN)
+import ManagePayments from './pages/admin/ManagePayments';
+import PaySellers from './pages/admin/PaySellers';
+
 // IMPORTAÇÕES DO CRIADOR (SELLER)
 import SellerLayout from './components/layout/SellerLayout';
 import SellerDashboard from './pages/seller/SellerDashboard';
 import SellerOnboarding from './pages/seller/SellerOnboarding';
 import SellerProducts from './pages/seller/SellerProducts';
+import SellerProductForm from './pages/seller/SellerProductForm';
 import SellerOrders from './pages/seller/SellerOrders';
 import SellerAnalytics from './pages/seller/SellerAnalytics';
 
@@ -157,6 +162,22 @@ const AuthenticatedApp = () => {
               </MaintenanceGuard>
             </PrivateRoute>
           } />
+
+          <Route path="/admin/payments" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <ManagePayments />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/admin/pay-sellers" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <PaySellers />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
           
           <Route path="/admin/products" element={
             <PrivateRoute>
@@ -213,6 +234,14 @@ const AuthenticatedApp = () => {
             <PrivateRoute>
               <MaintenanceGuard>
                 <SellerProducts />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/seller/products/new" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <SellerProductForm />
               </MaintenanceGuard>
             </PrivateRoute>
           } />
