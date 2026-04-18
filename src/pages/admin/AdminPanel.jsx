@@ -2,12 +2,12 @@
 import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag, Lock } from 'lucide-react';
+import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag, Lock, DollarSign, Send } from 'lucide-react'; // ← Adicione DollarSign e Send aqui
 import { toast } from 'sonner';
 
 const navItems = [
-  { icon: DollarSign, label: 'Confirmar Pagamentos', path: '/admin/payments' }, // NOVO
-  { icon: Send, label: 'Pagar Criadores', path: '/admin/pay-sellers' }, // NOVO
+  { icon: DollarSign, label: 'Confirmar Pagamentos', path: '/admin/payments' },
+  { icon: Send, label: 'Pagar Criadores', path: '/admin/pay-sellers' },
   { icon: ClipboardList, label: 'Pedidos Pendentes', path: '/admin' },
   { icon: Package, label: 'Todos Pedidos', path: '/admin/orders' },
   { icon: ClipboardList, label: 'Reembolsos', path: '/admin/refunds' },
