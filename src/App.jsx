@@ -28,7 +28,7 @@ import ProductForm from './pages/admin/ProductForm';
 import RefundRequests from './pages/admin/RefundRequests';
 import Register from './pages/Register';
 
-// IMPORTACOES DO CRIADOR
+// IMPORTAÇÕES DO CRIADOR (SELLER)
 import SellerLayout from './components/layout/SellerLayout';
 import SellerDashboard from './pages/seller/SellerDashboard';
 import SellerOnboarding from './pages/seller/SellerOnboarding';
