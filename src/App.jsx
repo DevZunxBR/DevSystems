@@ -28,6 +28,14 @@ import ProductForm from './pages/admin/ProductForm';
 import RefundRequests from './pages/admin/RefundRequests';
 import Register from './pages/Register';
 
+// IMPORTACOES DO CRIADOR
+import SellerLayout from './components/layout/SellerLayout';
+import SellerDashboard from './pages/seller/SellerDashboard';
+import SellerOnboarding from './pages/seller/SellerOnboarding';
+import SellerProducts from './pages/seller/SellerProducts';
+import SellerOrders from './pages/seller/SellerOrders';
+import SellerAnalytics from './pages/seller/SellerAnalytics';
+
 // Rota privada - redireciona para /register se não logado
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, isLoadingAuth } = useAuth();
@@ -89,6 +97,7 @@ const AuthenticatedApp = () => {
           </PrivateRoute>
         } />
 
+        {/* Rotas do Dashboard do Cliente */}
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={
             <PrivateRoute>
@@ -123,6 +132,7 @@ const AuthenticatedApp = () => {
           } />
         </Route>
 
+        {/* Rotas do Admin */}
         <Route element={<AdminPanel />}>
           <Route path="/admin/coupons" element={
             <PrivateRoute>
@@ -176,6 +186,49 @@ const AuthenticatedApp = () => {
             <PrivateRoute>
               <MaintenanceGuard>
                 <RefundRequests />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+        </Route>
+
+        {/* Rotas do Criador/Seller */}
+        <Route path="/seller/onboarding" element={
+          <PrivateRoute>
+            <MaintenanceGuard>
+              <SellerOnboarding />
+            </MaintenanceGuard>
+          </PrivateRoute>
+        } />
+
+        <Route element={<SellerLayout />}>
+          <Route path="/seller/dashboard" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <SellerDashboard />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/seller/products" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <SellerProducts />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/seller/orders" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <SellerOrders />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          <Route path="/seller/analytics" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <SellerAnalytics />
               </MaintenanceGuard>
             </PrivateRoute>
           } />
