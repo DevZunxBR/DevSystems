@@ -78,7 +78,7 @@ export default function SellerProducts() {
           <h1 className="text-2xl font-bold text-white">Meus Produtos</h1>
           <p className="text-sm text-[#555] mt-1">{products.length} produto(s) cadastrado(s)</p>
         </div>
-        <Link to="/admin/products/new">
+        <Link to="/seller/products/new"> {/* ← MUDANÇA AQUI */}
           <Button className="bg-white text-black hover:bg-white/90 gap-2">
             <Plus className="h-4 w-4" /> Novo Produto
           </Button>
@@ -88,7 +88,7 @@ export default function SellerProducts() {
       {products.length === 0 ? (
         <div className="text-center py-16 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl">
           <p className="text-[#555] mb-4">Você ainda não tem produtos</p>
-          <Link to="/admin/products/new">
+          <Link to="/seller/products/new"> {/* ← MUDANÇA AQUI TAMBÉM */}
             <Button variant="outline" className="border-[#1A1A1A] text-white">
               Criar primeiro produto
             </Button>
@@ -130,7 +130,7 @@ export default function SellerProducts() {
                 >
                   {product.status === 'active' ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
-                <Link to={`/admin/products/edit/${product.id}`}>
+                <Link to={`/seller/products/edit/${product.id}`}> {/* ← MUDANÇA AQUI TAMBÉM */}
                   <button className="p-2 text-[#555] hover:text-white transition-colors" title="Editar">
                     <Pencil className="h-4 w-4" />
                   </button>

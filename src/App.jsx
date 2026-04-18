@@ -38,6 +38,7 @@ import SellerDashboard from './pages/seller/SellerDashboard';
 import SellerOnboarding from './pages/seller/SellerOnboarding';
 import SellerProducts from './pages/seller/SellerProducts';
 import SellerProductForm from './pages/seller/SellerProductForm';
+import SellerProductEdit from './pages/seller/SellerProductEdit'; // ← IMPORTE AQUI
 import SellerOrders from './pages/seller/SellerOrders';
 import SellerAnalytics from './pages/seller/SellerAnalytics';
 
@@ -242,6 +243,15 @@ const AuthenticatedApp = () => {
             <PrivateRoute>
               <MaintenanceGuard>
                 <SellerProductForm />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+
+          {/* ← ROTA DE EDIÇÃO - DENTRO DO SellerLayout */}
+          <Route path="/seller/products/edit/:id" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <SellerProductEdit />
               </MaintenanceGuard>
             </PrivateRoute>
           } />
