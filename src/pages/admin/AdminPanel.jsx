@@ -6,6 +6,8 @@ import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag, Lock } from 'luci
 import { toast } from 'sonner';
 
 const navItems = [
+  { icon: DollarSign, label: 'Confirmar Pagamentos', path: '/admin/payments' }, // NOVO
+  { icon: Send, label: 'Pagar Criadores', path: '/admin/pay-sellers' }, // NOVO
   { icon: ClipboardList, label: 'Pedidos Pendentes', path: '/admin' },
   { icon: Package, label: 'Todos Pedidos', path: '/admin/orders' },
   { icon: ClipboardList, label: 'Reembolsos', path: '/admin/refunds' },
