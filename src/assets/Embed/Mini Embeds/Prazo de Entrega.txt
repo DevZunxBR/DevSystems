@@ -1,0 +1,40 @@
+{
+  "content": "O tempo de entrega do seu asset varia de acordo com a forma de pagamento escolhida. \n\nA transparência nos prazos é um dos nossos compromissos com você.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 601294410,
+      "title": "Prazo de Entrega do Asset",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 663844193,
+          "name": "PIX",
+          "value": "Confirmação do pagamento em até 5 minutos. Aprovação do pedido e liberação do download em até 10 horas.",
+          "inline": false
+        },
+        {
+          "id": 814516797,
+          "name": "Carteiras Digitais",
+          "value": "Confirmação imediata do pagamento. Aprovação do pedido e liberação do download em até 3 horas.",
+          "inline": false
+        },
+        {
+          "id": 278634893,
+          "name": "Após a Aprovação",
+          "value": "Assim que o pedido for aprovado, o download estará disponível imediatamente no seu Dashboard.",
+          "inline": false
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0,
+  "username": "DevMessage",
+  "avatar_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494520096826331268/A_New_Design_-_Feito_com_PosterMyWall_2.png?ex=69e3908d&is=69e23f0d&hm=76d8ca0ad0fa412c38cc8c7a29b31265b9ba32dc734638b163e489b2b2e39962&"
+}

@@ -1,0 +1,128 @@
+{
+  "content": "Entenda as licenças de uso dos assets disponíveis na **DevAssets**.\n\nCada asset possui uma licença específica que define como você pode utilizá-lo. Leia atentamente antes de comprar.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 55076514,
+      "title": "Licenças de Uso — DevAssets",
+      "description": "Oferecemos diferentes tipos de licença para atender às necessidades de cada projeto. A escolha da licença impacta diretamente no valor do asset e nos direitos de uso.",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "image": {
+        "url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494521407768367174/Texto_do_seu_paragrafo_1.gif?ex=69e2e906&is=69e19786&hm=580c9670cd690a1634e830b08b1cfd10ac2256fef352c9878d0512512f85a017&"
+      },
+      "fields": []
+    },
+    {
+      "id": 851546919,
+      "title": "Tipos de Licença",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 19942070,
+          "name": "Licença Pessoal",
+          "value": "Uso permitido apenas em projetos pessoais e não comerciais. O asset não pode ser utilizado em produtos que gerem receita direta ou indireta. Não é permitida a redistribuição ou revenda do asset.",
+          "inline": false
+        },
+        {
+          "id": 515154088,
+          "name": "Licença Comercial Padrão",
+          "value": "Uso permitido em projetos comerciais, incluindo sites, sistemas, bots e aplicações que geram receita. O asset pode ser utilizado em um único projeto ou produto. Não é permitida a revenda do asset bruto.",
+          "inline": false
+        },
+        {
+          "id": 480211136,
+          "name": "Licença Comercial Estendida",
+          "value": "Uso permitido em múltiplos projetos ou produtos do mesmo comprador. Ideal para agências e desenvolvedores que atendem vários clientes. Não é permitida a revenda do asset bruto.",
+          "inline": false
+        },
+        {
+          "id": 82957015,
+          "name": "Licença Revenda OEM",
+          "value": "Permite incorporar o asset como parte de um produto maior que será revendido. O asset não pode ser revendido de forma isolada ou como produto principal. Sujeito a contrato específico.",
+          "inline": false
+        },
+        {
+          "id": 637026075,
+          "name": "Licença de Distribuição",
+          "value": "Permite redistribuir o asset gratuitamente, mantendo os créditos ao criador original. Não é permitida a cobrança pelo asset ou sua inclusão em produtos pagos sem autorização.",
+          "inline": false
+        }
+      ]
+    },
+    {
+      "id": 825254584,
+      "title": "O que Nao é Permitido em Todas as Licenças",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 869490320,
+          "name": "Remocao de Creditos",
+          "value": "Quando os créditos são obrigatórios, removê-los caracteriza violação de direitos autorais e sujeita o infrator às penalidades da plataforma.",
+          "inline": false
+        },
+        {
+          "id": 834289919,
+          "name": "Uso em Conteudo Ilicito",
+          "value": "Nenhum asset pode ser utilizado em projetos que promovam ilegalidades, discurso de ódio, pornografia, violência ou qualquer conteúdo que viole as leis brasileiras.",
+          "inline": false
+        },
+        {
+          "id": 937578903,
+          "name": "Engenharia Reversa",
+          "value": "É proibida a engenharia reversa, descompilação ou tentativa de extrair partes do asset para uso independente, salvo autorização explícita do criador.",
+          "inline": false
+        }
+      ]
+    },
+    {
+      "id": 87985860,
+      "title": "Como Saber a Licenca de um Asset",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 629485662,
+          "name": "Na Pagina do Produto",
+          "value": "Todo asset na DevAssets exibe claramente qual tipo de licença está sendo oferecida, logo abaixo do botão de compra. Sempre verifique antes de finalizar a compra.",
+          "inline": false
+        },
+        {
+          "id": 84859809,
+          "name": "No Dashboard Apos a Compra",
+          "value": "Após a compra, você pode acessar o contrato de licença completo no Dashboard, na seção do asset adquirido.",
+          "inline": false
+        },
+        {
+          "id": 543594387,
+          "name": "Duvidas Sobre Licenca",
+          "value": "Se você tem dúvidas sobre qual licença se aplica ao seu caso de uso, abra um ticket antes de comprar. Nossa equipe e o criador do asset podem esclarecer suas dúvidas.",
+          "inline": false
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0,
+  "username": "DevMessage",
+  "avatar_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494520096826331268/A_New_Design_-_Feito_com_PosterMyWall_2.png?ex=69e3908d&is=69e23f0d&hm=76d8ca0ad0fa412c38cc8c7a29b31265b9ba32dc734638b163e489b2b2e39962&"
+}

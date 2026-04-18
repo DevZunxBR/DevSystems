@@ -1,0 +1,52 @@
+{
+  "content": "Cada asset disponível na DevAssets possui uma licença específica que define os direitos de uso. \n\nÉ fundamental verificar a licença na página do produto antes de efetuar a compra para garantir que atende às suas necessidades.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 55076514,
+      "title": "Tipos de Licença DevAssets",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 19942070,
+          "name": "Licença Pessoal",
+          "value": "Permite o uso do asset apenas em projetos pessoais e não comerciais. O produto não pode gerar receita direta ou indireta.",
+          "inline": false
+        },
+        {
+          "id": 515154088,
+          "name": "Licença Comercial Padrão",
+          "value": "Permite o uso do asset em um único projeto comercial, incluindo sites, sistemas, bots e aplicações que geram receita.",
+          "inline": false
+        },
+        {
+          "id": 480211136,
+          "name": "Licença Comercial Estendida",
+          "value": "Permite o uso do asset em múltiplos projetos do mesmo comprador. Ideal para agências e desenvolvedores que atendem vários clientes.",
+          "inline": false
+        },
+        {
+          "id": 82957015,
+          "name": "Licença Revenda OEM",
+          "value": "Permite incorporar o asset como parte de um produto maior que será revendido. O asset não pode ser revendido de forma isolada.",
+          "inline": false
+        },
+        {
+          "id": 637026075,
+          "name": "Licença de Distribuição",
+          "value": "Permite redistribuir o asset gratuitamente, desde que os créditos ao criador original sejam mantidos.",
+          "inline": false
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0,
+  "username": "DevMessage",
+  "avatar_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494520096826331268/A_New_Design_-_Feito_com_PosterMyWall_2.png?ex=69e3908d&is=69e23f0d&hm=76d8ca0ad0fa412c38cc8c7a29b31265b9ba32dc734638b163e489b2b2e39962&"
+}

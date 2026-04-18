@@ -1,4 +1,3 @@
-Embed Regras:
 
 {
   "content": "Leia atentamente todas as regras antes de utilizar a plataforma **DevAssets**.\n\nO descumprimento de qualquer regra pode resultar em advertência, suspensão ou banimento permanente da plataforma.",

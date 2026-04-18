@@ -1,4 +1,3 @@
-Embed de  contrato de parceria:
 
 {
   "content": "Segue abaixo o contrato de parceria do **DevAssets**.\n\nLeia atentamente todos os termos antes de prosseguir. Ao continuar, você declara estar ciente e de acordo com todas as cláusulas estabelecidas.",

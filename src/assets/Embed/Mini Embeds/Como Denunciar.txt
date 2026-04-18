@@ -1,0 +1,40 @@
+{
+  "content": "A segurança e a integridade da comunidade DevAssets são prioridades. \n\nSua denúncia é fundamental para mantermos um ambiente justo e confiável para todos.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 334421987,
+      "title": "Como Fazer uma Denúncia",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 608545945,
+          "name": "Abra um Ticket de Denúncia",
+          "value": "Em nosso servidor do Discord, abra um ticket e selecione a tag Denúncia.",
+          "inline": false
+        },
+        {
+          "id": 198902615,
+          "name": "Informe os Dados Necessários",
+          "value": "Nome do usuário envolvido na violação, uma descrição clara e detalhada do ocorrido e, se possível, prints ou evidências que comprovem a infração.",
+          "inline": false
+        },
+        {
+          "id": 394039967,
+          "name": "Confidencialidade Garantida",
+          "value": "Todas as denúncias são tratadas com total sigilo. A identidade do denunciante não será revelada em nenhuma circunstância.",
+          "inline": false
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0,
+  "username": "DevMessage",
+  "avatar_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494520096826331268/A_New_Design_-_Feito_com_PosterMyWall_2.png?ex=69e3908d&is=69e23f0d&hm=76d8ca0ad0fa412c38cc8c7a29b31265b9ba32dc734638b163e489b2b2e39962&"
+}

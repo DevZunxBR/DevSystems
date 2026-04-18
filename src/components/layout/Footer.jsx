@@ -56,7 +56,7 @@ const FOOTER_GROUPS = [
 ];
 
 const SOCIAL_LINKS = [
-  { label: 'Discord', href: 'https://discord.gg/M5NVt4xcjn', Icon: DiscordIcon },
+  { label: 'Discord', href: 'https://discord.gg/c9NnUGU5sn', Icon: DiscordIcon },
   { label: 'YouTube', href: 'https://youtube.com/@seucanal', Icon: YoutubeIcon },
   { label: 'Instagram', href: 'https://instagram.com/seuperfil', Icon: InstagramIcon },
 ];

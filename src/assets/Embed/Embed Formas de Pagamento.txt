@@ -1,0 +1,92 @@
+{
+  "content": "A **DevAssets** oferece diversas formas de pagamento para sua comodidade e segurança.\n\nEscolha a opção mais conveniente para você e adquira seus assets de forma rápida e confiável.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 191368399,
+      "title": "Formas de Pagamento — DevAssets",
+      "description": "Todas as transações são processadas com segurança e criptografia de ponta a ponta. Confira as opções disponíveis:",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "image": {
+        "url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494521407768367174/Texto_do_seu_paragrafo_1.gif?ex=69e2e906&is=69e19786&hm=580c9670cd690a1634e830b08b1cfd10ac2256fef352c9878d0512512f85a017&"
+      },
+      "fields": []
+    },
+    {
+      "id": 574130866,
+      "title": "Métodos Disponíveis",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 936477118,
+          "name": "PIX",
+          "value": "Pagamento instantâneo com código QR ou chave aleatória. Aprovação em até 5 minutos. Disponível 24 horas por dia, 7 dias por semana.",
+          "inline": false
+        },
+        {
+          "id": 835066381,
+          "name": "Cartão de Crédito",
+          "value": "Não Disponivel.",
+          "inline": false
+        },
+        {
+          "id": 979508920,
+          "name": "Boleto Bancário",
+          "value": "Não Disponivel.",
+          "inline": false
+        },
+        {
+          "id": 478101332,
+          "name": "Carteira Digital",
+          "value": "Não Disponivel.",
+          "inline": false
+        }
+      ]
+    },
+    {
+      "id": 382609714,
+      "title": "Informações Importantes",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 678992414,
+          "name": "Segurança",
+          "value": "Todas as transações são criptografadas e processadas por gateways de pagamento certificados. Seus dados financeiros não são armazenados pela DevAssets.",
+          "inline": false
+        },
+        {
+          "id": 232937418,
+          "name": "Nota Fiscal",
+          "value": "Para compras acima de R$ 100,00, emitimos nota fiscal de serviços eletrônica. Solicite pelo suporte após a confirmação do pagamento.",
+          "inline": false
+        },
+        {
+          "id": 217584474,
+          "name": "Dúvidas",
+          "value": "Caso enfrente qualquer problema durante o pagamento, abra um ticket em nosso servidor que nossa equipe irá auxiliá-lo.",
+          "inline": false
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0,
+  "username": "DevMessage",
+  "avatar_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494520096826331268/A_New_Design_-_Feito_com_PosterMyWall_2.png?ex=69e3908d&is=69e23f0d&hm=76d8ca0ad0fa412c38cc8c7a29b31265b9ba32dc734638b163e489b2b2e39962&"
+}

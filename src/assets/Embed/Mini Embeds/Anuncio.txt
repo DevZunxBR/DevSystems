@@ -1,0 +1,101 @@
+{
+  "content": "Fique por dentro de todos os anúncios oficiais da DevAssets. \n\nAqui você encontrará as informações mais importantes sobre a plataforma, lançamentos, promoções e comunicados da equipe.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 888777672,
+      "title": "Announcement — DevAssets Oficial",
+      "description": "Este canal é dedicado exclusivamente para anúncios oficiais da plataforma. Todos os membros devem acompanhar para não perder nenhuma informação relevante.",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "image": {
+        "url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494521407768367174/Texto_do_seu_paragrafo_1.gif?ex=69e2e906&is=69e19786&hm=580c9670cd690a1634e830b08b1cfd10ac2256fef352c9878d0512512f85a017&"
+      },
+      "fields": []
+    },
+    {
+      "id": 888777673,
+      "title": "Tipos de Anúncio",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 300000001,
+          "name": "Lançamentos de Novos Assets",
+          "value": "Quando um novo asset chegar à loja, será anunciado aqui com nome, descrição, preço e link direto para compra.",
+          "inline": false
+        },
+        {
+          "id": 300000002,
+          "name": "Promocoes e Descontos",
+          "value": "Cupons de desconto, promoções sazonais e liquidações serão divulgadas exclusivamente neste canal.",
+          "inline": false
+        },
+        {
+          "id": 300000003,
+          "name": "Manutenções e Atualizacoes da Plataforma",
+          "value": "Informaremos com antecedência sobre paradas programadas, manutenções e melhorias no site.",
+          "inline": false
+        },
+        {
+          "id": 300000004,
+          "name": "Mudanças nas Politicas",
+          "value": "Alterações em termos de uso, políticas de reembolso, comissões ou regras da plataforma serão comunicadas aqui.",
+          "inline": false
+        },
+        {
+          "id": 300000005,
+          "name": "Eventos e Sorteios",
+          "value": "Quando houver eventos, desafios ou sorteios para a comunidade, as regras e premiações serão anunciadas neste canal.",
+          "inline": false
+        },
+        {
+          "id": 300000006,
+          "name": "Chamada para Parceiros",
+          "value": "Periodicamente abriremos chamadas para novos Parceiros Criadores. Os requisitos e prazos serão divulgados aqui.",
+          "inline": false
+        }
+      ]
+    },
+    {
+      "id": 888777674,
+      "title": "Regras do Canal de Anúncios",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 300000007,
+          "name": "Apenas Staff Posta",
+          "value": "Somente a equipe DevAssets pode criar mensagens neste canal. Membros comuns não têm permissão para postar.",
+          "inline": false
+        },
+        {
+          "id": 300000008,
+          "name": "Proibido Responder",
+          "value": "Este canal não é para discussões. Use o canal de suporte ou tickets para tirar dúvidas sobre os anúncios.",
+          "inline": false
+        },
+        {
+          "id": 300000009,
+          "name": "Ative as Notificacoes",
+          "value": "Recomendamos ativar as notificações deste canal para não perder nenhum anúncio importante.",
+          "inline": false
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0,
+  "username": "DevMessage",
+  "avatar_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494520096826331268/A_New_Design_-_Feito_com_PosterMyWall_2.png?ex=69e3908d&is=69e23f0d&hm=76d8ca0ad0fa412c38cc8c7a29b31265b9ba32dc734638b163e489b2b2e39962&"
+}

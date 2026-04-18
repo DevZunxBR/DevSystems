@@ -1,0 +1,46 @@
+{
+  "content": "Nossa equipe de suporte está disponível para atender você em diferentes canais. \n\nEscolha o mais conveniente e entraremos em contato o mais breve possível.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 714723567,
+      "title": "Canais de Suporte DevAssets",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 340123647,
+          "name": "Ticket no Discord",
+          "value": "Canal mais rápido e recomendado. Abra um ticket em nosso servidor e receba atendimento personalizado. Resposta em até 2 horas em dias úteis.",
+          "inline": false
+        },
+        {
+          "id": 826330761,
+          "name": "E-mail",
+          "value": "Envie suas dúvidas ou solicitações para suporte@devassets.com.br. Respondemos em até 24 horas úteis.",
+          "inline": false
+        },
+        {
+          "id": 397112686,
+          "name": "Central de Ajuda",
+          "value": "Acesse nosso site e clique em Central de Ajuda. Lá você encontra tutoriais, guias e artigos com soluções para os problemas mais comuns. Resposta imediata.",
+          "inline": false
+        },
+        {
+          "id": 146755580,
+          "name": "Horário de Atendimento",
+          "value": "Nosso suporte funciona de segunda a sexta-feira, das 9h às 18h. Atendimento em feriados pode sofrer alterações.",
+          "inline": false
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0,
+  "username": "DevMessage",
+  "avatar_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494520096826331268/A_New_Design_-_Feito_com_PosterMyWall_2.png?ex=69e3908d&is=69e23f0d&hm=76d8ca0ad0fa412c38cc8c7a29b31265b9ba32dc734638b163e489b2b2e39962&"
+}

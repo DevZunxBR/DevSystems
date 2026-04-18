@@ -1,4 +1,3 @@
-Equipe De Suporte:
 
 {
   "content": "Olá! Obrigado por demonstrar interesse em fazer parte da equipe do **DevAssets**.\n\nLeia atentamente todos os requisitos e informações antes de preencher o formulário.",

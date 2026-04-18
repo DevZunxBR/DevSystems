@@ -1,0 +1,194 @@
+{
+  "content": "Tire suas dúvidas sobre compras na **DevAssets**.\n\nSeparamos as perguntas mais frequentes de compradores para ajudar você a aproveitar ao máximo a plataforma.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 274313432,
+      "title": "FAQ Compradores — DevAssets",
+      "description": "Confira as respostas para as dúvidas mais comuns sobre o processo de compra, entrega e uso dos assets adquiridos em nossa plataforma.",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "image": {
+        "url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494521407768367174/Texto_do_seu_paragrafo_1.gif?ex=69e2e906&is=69e19786&hm=580c9670cd690a1634e830b08b1cfd10ac2256fef352c9878d0512512f85a017&"
+      },
+      "fields": []
+    },
+    {
+      "id": 770446271,
+      "title": "Compra e Pagamento",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 875618950,
+          "name": "Preciso criar uma conta para comprar?",
+          "value": "Sim, é necessário criar uma conta gratuita na DevAssets para realizar compras. A conta permite acessar seus pedidos, fazer downloads e obter suporte.",
+          "inline": false
+        },
+        {
+          "id": 878383127,
+          "name": "Posso comprar sem cartão de crédito?",
+          "value": "Sim. Aceitamos PIX,carteiras digitais como Mercado Pago e PicPay.",
+          "inline": false
+        },
+        {
+          "id": 683182218,
+          "name": "O site é seguro para informar meus dados?",
+          "value": "Sim. Utilizamos criptografia SSL de ponta a ponta e gateways de pagamento certificados. Seus dados  não são armazenados pela DevAssets.",
+          "inline": false
+        },
+        {
+          "id": 654326995,
+          "name": "Posso parcelar minha compra?",
+          "value": "No momento Esta indisponivel.",
+          "inline": false
+        }
+      ]
+    },
+    {
+      "id": 861722661,
+      "title": "Entrega e Download",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 731586295,
+          "name": "Como recebo o asset após a compra?",
+          "value": "Após a aprovação do pedido, o asset fica disponível para download diretamente no seu Dashboard, na seção Meus Pedidos.",
+          "inline": false
+        },
+        {
+          "id": 342724974,
+          "name": "Quanto tempo leva para liberar o download?",
+          "value": "Após a confirmação do pagamento, o pedido será aprovado em até 10 horas. O prazo pode variar de acordo com a demanda de pedidos no momento. Após a aprovação, o download estará disponível imediatamente.",
+          "inline": false
+        },
+        {
+          "id": 271196070,
+          "name": "Posso baixar o asset mais de uma vez?",
+          "value": "Sim. Você pode baixar o asset quantas vezes desejar. Recomendamos salvar uma cópia de segurança em seus arquivos.",
+          "inline": false
+        },
+        {
+          "id": 739520557,
+          "name": "O download expira?",
+          "value": "O  download disponível no Dashboard não expira.",
+          "inline": false
+        }
+      ]
+    },
+    {
+      "id": 735418820,
+      "title": "Produtos e Licenças",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 670403992,
+          "name": "O que são assets?",
+          "value": "Assets  são produtos prontos para uso em projetos de desenvolvimento, como scripts, sistemas, layouts, templates, APIs, bots e muito mais.",
+          "inline": false
+        },
+        {
+          "id": 545401943,
+          "name": "Posso revender um asset que comprei?",
+          "value": "Não, salvo se a licença do asset for do tipo Revenda ou OEM. A maioria das licenças é de uso pessoal ou comercial no próprio projeto, mas não permite revenda do asset bruto. Verifique a licença antes de comprar.",
+          "inline": false
+        },
+        {
+          "id": 984492285,
+          "name": "Os assets funcionam em qualquer plataforma?",
+          "value": "Cada asset possui requisitos específicos informados na descrição do produto. Verifique a compatibilidade com sua stack antes de efetuar a compra.",
+          "inline": false
+        },
+        {
+          "id": 913753095,
+          "name": "Recebo atualizações gratuitas?",
+          "value": "Depende da política do criador. Alguns assets oferecem atualizações gratuitas vitalícias, outros apenas por um período. Consulte a descrição do produto para mais detalhes.",
+          "inline": false
+        }
+      ]
+    },
+    {
+      "id": 472224460,
+      "title": "Suporte e Problemas",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 627650424,
+          "name": "Como entro em contato com o criador do asset?",
+          "value": "Após a compra, você pode abrir um ticket no Discord para falar diretamente com o criador sobre dúvidas técnicas ou suporte do produto.",
+          "inline": false
+        },
+        {
+          "id": 529512330,
+          "name": "O criador não responde meu suporte. O que fazer?",
+          "value": "Abra um ticket com a tag Suporte e informe a situação. Nossa equipe irá notificar o criador ou, se necessário, intermediar a solução do seu problema.",
+          "inline": false
+        },
+        {
+          "id": 67180367,
+          "name": "Esqueci minha senha. Como recuperar?",
+          "value": "Na página de login, clique em Esqueci minha senha e informe o e-mail cadastrado. Você receberá um link para redefinir sua senha.",
+          "inline": false
+        },
+        {
+          "id": 277887730,
+          "name": "Nao recebi o e-mail de confirmação. E agora?",
+          "value": "Verifique a caixa de spam ou lixo eletrônico. Se não encontrar, abra um ticket informando seu e-mail e número do pedido para reenviamos a confirmação.",
+          "inline": false
+        }
+      ]
+    },
+    {
+      "id": 555194929,
+      "title": "Outros",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 48671329,
+          "name": "E se o asset não funcionar no meu projeto?",
+          "value": "Antes de comprar, verifique os requisitos técnicos na descrição. Se o asset não funcionar mesmo dentro dos requisitos informados, abra um ticket que analisaremos o caso para reembolso ou substituição.",
+          "inline": false
+        },
+        {
+          "id": 470020375,
+          "name": "O criador abandonou o asset, e agora?",
+          "value": "Se o criador não presta suporte ou abandonou o produto, entre em contato conosco via ticket. Avaliamos cada caso e podemos oferecer reembolso ou crédito na plataforma.",
+          "inline": false
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0,
+  "username": "DevMessage",
+  "avatar_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494520096826331268/A_New_Design_-_Feito_com_PosterMyWall_2.png?ex=69e3908d&is=69e23f0d&hm=76d8ca0ad0fa412c38cc8c7a29b31265b9ba32dc734638b163e489b2b2e39962&"
+}

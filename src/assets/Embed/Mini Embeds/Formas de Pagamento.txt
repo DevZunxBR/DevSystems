@@ -1,0 +1,40 @@
+{
+  "content": "A DevAssets oferece opções de pagamento práticas e seguras para que você possa adquirir seus assets sem complicações. \n\nConfira as disponíveis no momento:",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 191368399,
+      "title": "Formas de Pagamento Disponíveis",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 936477118,
+          "name": "PIX",
+          "value": "Pagamento instantâneo com código QR ou chave aleatória. Aprovação em até 5 minutos. Disponível 24 horas por dia, 7 dias por semana.",
+          "inline": false
+        },
+        {
+          "id": 835066381,
+          "name": "Carteiras Digitais",
+          "value": "Aceitamos Mercado Pago e PicPay. Confirmação imediata do pagamento.",
+          "inline": false
+        },
+        {
+          "id": 979508920,
+          "name": "Indisponível no Momento",
+          "value": "Cartão de crédito e boleto bancário não estão disponíveis. Assim que retornarem, avisaremos em nossos canais oficiais.",
+          "inline": false
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0,
+  "username": "DevMessage",
+  "avatar_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494520096826331268/A_New_Design_-_Feito_com_PosterMyWall_2.png?ex=69e3908d&is=69e23f0d&hm=76d8ca0ad0fa412c38cc8c7a29b31265b9ba32dc734638b163e489b2b2e39962&"
+}

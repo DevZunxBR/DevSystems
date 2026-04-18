@@ -1,4 +1,4 @@
-EMBED DE Parceiro Criador:
+
 
 {
   "content": "Olá! Obrigado por demonstrar interesse em se tornar um Parceiro Criador do **DevAssets**.\n\nAntes de prosseguirmos, gostaríamos de apresentar como funciona a nossa parceria e o que esperamos dos nossos criadores.",

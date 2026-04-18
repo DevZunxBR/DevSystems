@@ -1,0 +1,46 @@
+{
+  "content": "Após a aprovação do seu pagamento, o asset adquirido ficará disponível em uma área exclusiva da plataforma. \n\nSiga as instruções abaixo para acessá-lo.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 693553335,
+      "title": "Onde Baixar Seu Asset",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 624625956,
+          "name": "Acesse o Dashboard",
+          "value": "Faça login no site da DevAssets com seu e-mail e senha cadastrados.",
+          "inline": false
+        },
+        {
+          "id": 220591196,
+          "name": "Vá até Meus Pedidos",
+          "value": "No menu principal, clique em Meus Pedidos para visualizar todas as suas compras.",
+          "inline": false
+        },
+        {
+          "id": 973198380,
+          "name": "Localize o Pedido Aprovado",
+          "value": "Procure pelo pedido com status Aprovado ou Concluído.",
+          "inline": false
+        },
+        {
+          "id": 693553336,
+          "name": "Clique em Download",
+          "value": "O arquivo estará disponível para download. Você pode baixá-lo quantas vezes desejar. Recomendamos salvar uma cópia de segurança.",
+          "inline": false
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0,
+  "username": "DevMessage",
+  "avatar_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494520096826331268/A_New_Design_-_Feito_com_PosterMyWall_2.png?ex=69e3908d&is=69e23f0d&hm=76d8ca0ad0fa412c38cc8c7a29b31265b9ba32dc734638b163e489b2b2e39962&"
+}

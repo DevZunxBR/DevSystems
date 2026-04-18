@@ -1,0 +1,98 @@
+{
+  "content": "Adquirir assets na **DevAssets** é rápido, seguro e simples.\n\nSiga o passo a passo abaixo para realizar sua primeira compra na plataforma.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 464653357,
+      "title": "Como Comprar na DevAssets",
+      "description": "Confira o passo a passo para adquirir seus assets com segurança e agilidade.",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "image": {
+        "url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494521407768367174/Texto_do_seu_paragrafo_1.gif?ex=69e2e906&is=69e19786&hm=580c9670cd690a1634e830b08b1cfd10ac2256fef352c9878d0512512f85a017&"
+      },
+      "fields": []
+    },
+    {
+      "id": 133727662,
+      "title": "Passo a Passo da Compra",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 69213677,
+          "name": "Acesse o Catálogo",
+          "value": "Navegue pelo nosso catálogo de assets e encontre o produto ideal para o seu projeto.",
+          "inline": false
+        },
+        {
+          "id": 840070475,
+          "name": "Escolha o Asset",
+          "value": "Clique no asset desejado para ver detalhes, descrição completa, imagens e avaliações de outros compradores.",
+          "inline": false
+        },
+        {
+          "id": 572035411,
+          "name": "Adicione ao Carrinho",
+          "value": "Clique em Comprar ou Adicionar ao Carrinho para prosseguir com a aquisição.",
+          "inline": false
+        },
+        {
+          "id": 755636687,
+          "name": "Finalize a Compra",
+          "value": "Informe seus dados, escolha a forma de pagamento e confirme o pedido.",
+          "inline": false
+        },
+        {
+          "id": 778531420,
+          "name": "Receba o Asset",
+          "value": "Após a confirmação do pagamento, o pedido será aprovado em até 10 horas. O prazo pode variar de acordo com a demanda de pedidos no momento. Após a aprovação, o asset estará disponível para download diretamente no seu Dashboard.",
+          "inline": false
+        }
+      ]
+    },
+    {
+      "id": 523063600,
+      "title": "Dicas Importantes",
+      "timestamp": "2026-04-17T03:00:00.000Z",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 427473820,
+          "name": "Leia a Descrição",
+          "value": "Antes de comprar, leia atentamente a descrição do asset, requisitos e versões compatíveis.",
+          "inline": false
+        },
+        {
+          "id": 769061076,
+          "name": "Verifique a Licença",
+          "value": "Confirme se a licença do asset atende às suas necessidades de uso pessoal ou comercial.",
+          "inline": false
+        },
+        {
+          "id": 480121956,
+          "name": "Suporte Pós-Venda",
+          "value": "Após a compra, você tem direito a suporte diretamente com o Site e o Criador do Asset.",
+          "inline": false
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0,
+  "username": "DevMessage",
+  "avatar_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494520096826331268/A_New_Design_-_Feito_com_PosterMyWall_2.png?ex=69e3908d&is=69e23f0d&hm=76d8ca0ad0fa412c38cc8c7a29b31265b9ba32dc734638b163e489b2b2e39962&"
+}

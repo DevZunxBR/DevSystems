@@ -1,0 +1,58 @@
+{
+  "content": "Olá! Seja bem-vindo ao suporte da DevAssets. \n\nNossa equipe está pronta para ajudar você. Para agilizar o atendimento e direcionar sua solicitação para o setor correto, por favor, informe qual das opções abaixo melhor descreve o seu caso.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 354017970,
+      "title": "Como Podemos Ajudar?",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 617803223,
+          "name": "Dúvida sobre Compra",
+          "value": "Esclarecimentos sobre produtos, formas de pagamento e processo de aquisição de assets.",
+          "inline": true
+        },
+        {
+          "id": 803913869,
+          "name": "Problema com Download",
+          "value": "Dificuldades para acessar, baixar ou utilizar o asset adquirido.",
+          "inline": true
+        },
+        {
+          "id": 283583836,
+          "name": "Reembolso ou Cancelamento",
+          "value": "Solicitação de reembolso ou cancelamento de compra seguindo nossa política.",
+          "inline": true
+        },
+        {
+          "id": 552846857,
+          "name": "Parceria Criador",
+          "value": "Dúvidas sobre o programa de parceiros, envio de assets ou comissões.",
+          "inline": true
+        },
+        {
+          "id": 41758994,
+          "name": "Denúncia",
+          "value": "Reportar violações de regras, plágio, comportamento inadequado ou fraudes.",
+          "inline": true
+        },
+        {
+          "id": 856337471,
+          "name": "Problema Técnico",
+          "value": "Dificuldades com a plataforma, bugs no site ou erros no sistema.",
+          "inline": true
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0,
+  "username": "DevMessage",
+  "avatar_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494520096826331268/A_New_Design_-_Feito_com_PosterMyWall_2.png?ex=69e3908d&is=69e23f0d&hm=76d8ca0ad0fa412c38cc8c7a29b31265b9ba32dc734638b163e489b2b2e39962&"
+}

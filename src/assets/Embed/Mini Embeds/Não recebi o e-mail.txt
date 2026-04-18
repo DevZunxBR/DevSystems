@@ -1,0 +1,40 @@
+{
+  "content": "É comum que e-mails caiam na caixa de spam ou sofram pequenos atrasos. \n\nAntes de abrir um ticket, siga as recomendações abaixo.",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 861722661,
+      "title": "Não Recebeu o E-mail?",
+      "color": 0,
+      "footer": {
+        "text": "DevAssets Todos os Direitos Reservados",
+        "icon_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494420575097979071/A_New_Design_-_Feito_com_PosterMyWall_3.png?ex=69e28b1e&is=69e1399e&hm=a05b22d4c9a45f41738821924ff35fb27d00193770e34ed86a6d020431e66647&"
+      },
+      "fields": [
+        {
+          "id": 731586295,
+          "name": "Verifique a Caixa de Spam",
+          "value": "Muitas vezes o e-mail é direcionado para a pasta de spam ou lixo eletrônico. Adicione nosso domínio à sua lista de contatos seguros.",
+          "inline": false
+        },
+        {
+          "id": 342724974,
+          "name": "Aguarde Alguns Minutos",
+          "value": "Pode haver atraso na entrega do e-mail devido ao provedor. Aguarde de 5 a 10 minutos e verifique novamente.",
+          "inline": false
+        },
+        {
+          "id": 271196070,
+          "name": "Ainda não recebeu?",
+          "value": "Abra um ticket em nosso servidor informando seu e-mail cadastrado e, se tiver, o número do pedido. Nossa equipe reenviará a confirmação manualmente.",
+          "inline": false
+        }
+      ]
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0,
+  "username": "DevMessage",
+  "avatar_url": "https://cdn.discordapp.com/attachments/1494420349712994545/1494520096826331268/A_New_Design_-_Feito_com_PosterMyWall_2.png?ex=69e3908d&is=69e23f0d&hm=76d8ca0ad0fa412c38cc8c7a29b31265b9ba32dc734638b163e489b2b2e39962&"
+}
