@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Store } from 'lucide-react';
+import { ArrowRight, Store, ChevronRight } from 'lucide-react'; // ← Adicione ChevronRight aqui
 import { Button } from '@/components/ui/button';
 
 // Importe suas imagens aqui
