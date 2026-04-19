@@ -41,7 +41,7 @@ export default function Register() {
     { text: "Scripts profissionais e sistemas completos para produção imediata.", author: "— Dev Team" },
   ];
 
-  // Trocar imagem a cada 5 segundos
+  // Trocar imagem a cada 10 segundos
   useEffect(() => {
     const interval = setInterval(() => {
       setIsTransitioning(true);
@@ -83,6 +83,7 @@ export default function Register() {
     }
   };
 
+  // Função de Login
   const handleLogin = async () => {
     if (!formData.email || !formData.password) {
       toast.error('Preencha email e senha');
@@ -90,14 +91,16 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
       if (error) throw error;
-      toast.success('Conta verificada! Bem-vindo!');
+      
+      toast.success('Bem-vindo de volta!');
       window.location.href = '/';
     } catch (err) {
+      console.error('Erro no login:', err);
       toast.error('Email ou senha incorretos');
     } finally {
       setLoading(false);
@@ -124,6 +127,7 @@ export default function Register() {
     }
   };
 
+  // Função de Registro
   const handleRegister = async () => {
     if (!formData.name || !formData.email || !formData.password) {
       toast.error('Preencha todos os campos');
@@ -152,29 +156,47 @@ export default function Register() {
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
-        options: { data: { full_name: formData.name } }
+        options: { 
+          data: { 
+            full_name: formData.name 
+          },
+          emailRedirectTo: window.location.origin
+        }
       });
+      
       if (error) throw error;
-      if (data.user) {
-        await supabase.from('user_profiles').upsert({
-          email: data.user.email,
-          full_name: formData.name,
-          role: 'user',
-        });
+      
+      if (data?.user) {
+        // Criar perfil do usuário
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .upsert({
+            email: data.user.email,
+            full_name: formData.name,
+            role: 'user',
+            created_at: new Date().toISOString()
+          });
+        
+        if (profileError) {
+          console.error('Erro ao criar perfil:', profileError);
+        }
+        
+        toast.success('Código de verificação enviado para seu email!');
+        setStep('otp');
       }
-      toast.success('Código enviado para seu email!');
-      setStep('otp');
     } catch (err) {
+      console.error('Erro no registro:', err);
       if (err.message?.includes('already registered')) {
         toast.error('Este email já está cadastrado. Faça login.');
       } else {
-        toast.error(err.message || 'Erro ao criar conta');
+        toast.error(err.message || 'Erro ao criar conta. Tente novamente.');
       }
     } finally {
       setLoading(false);
     }
   };
 
+  // Verificar OTP
   const handleVerifyOtp = async () => {
     const code = otp.join('');
     if (code.length !== 8) {
@@ -183,16 +205,19 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({
+      const { data, error } = await supabase.auth.verifyOtp({
         email: formData.email,
         token: code,
         type: 'signup',
       });
+      
       if (error) throw error;
-      toast.success('Conta verificada! Bem-vindo!');
+      
+      toast.success('Email verificado com sucesso!');
       navigate('/');
     } catch (err) {
-      toast.error('Código inválido ou expirado');
+      console.error('Erro na verificação:', err);
+      toast.error('Código inválido ou expirado. Solicite um novo código.');
       setOtp(['', '', '', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } finally {
@@ -200,19 +225,26 @@ export default function Register() {
     }
   };
 
+  // Reenviar OTP
   const handleResendOtp = async () => {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email: formData.email,
+        options: {
+          emailRedirectTo: window.location.origin,
+        },
       });
+      
       if (error) throw error;
-      toast.success('Novo código enviado!');
+      
+      toast.success('Novo código enviado para seu email!');
       setOtp(['', '', '', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
-    } catch {
-      toast.error('Erro ao reenviar código');
+    } catch (err) {
+      console.error('Erro ao reenviar:', err);
+      toast.error('Erro ao reenviar código. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -230,14 +262,14 @@ export default function Register() {
   return (
     <div className="min-h-screen flex">
       {/* Left - Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 space-y-8">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 space-y-8 bg-black">
         <div>
           {/* Logo clicável */}
           <div 
             onClick={() => navigate('/')} 
             className="flex items-center gap-2 mb-8 cursor-pointer hover:opacity-80 transition-opacity"
           >
-            <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden">
               {!logoLoadError ? (
                 <img
                   src={logoImage}
@@ -246,25 +278,25 @@ export default function Register() {
                   onError={() => setLogoLoadError(true)}
                 />
               ) : (
-                <span className="text-white font-black text-sm">M</span>
+                <span className="text-white font-black text-sm">DA</span>
               )}
             </div>
-            <span className="text-white font-bold text-lg tracking-tight">DevAssets</span>
+            <span className="text-white font-bold text-xl tracking-tight">DevAssets</span>
           </div>
 
           {step === 'otp' ? (
             <>
-              <h1 className="text-3xl font-black text-foreground tracking-tight">Verifique seu email</h1>
-              <p className="text-sm text-muted-foreground mt-2">
+              <h1 className="text-3xl font-black text-white tracking-tight">Verifique seu email</h1>
+              <p className="text-sm text-gray-400 mt-2">
                 Enviamos um código de 8 dígitos para <span className="text-white font-medium">{formData.email}</span>
               </p>
             </>
           ) : (
             <>
-              <h1 className="text-3xl font-black text-foreground tracking-tight">
+              <h1 className="text-3xl font-black text-white tracking-tight">
                 {mode === 'login' ? 'Entrar na sua conta' : 'Criar sua conta'}
               </h1>
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-sm text-gray-400 mt-2">
                 {mode === 'login' ? 'Bem-vindo de volta!' : 'Junte-se a milhares de desenvolvedores.'}
               </p>
             </>
@@ -286,7 +318,7 @@ export default function Register() {
                   onChange={e => handleOtpChange(index, e.target.value)}
                   onKeyDown={e => handleOtpKeyDown(index, e)}
                   onPaste={index === 0 ? handleOtpPaste : undefined}
-                  className="w-10 h-12 text-center text-lg font-bold bg-secondary border border-border rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all"
+                  className="w-12 h-14 text-center text-xl font-bold bg-[#1A1A1A] border border-[#333] rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all"
                 />
               ))}
             </div>
@@ -294,17 +326,17 @@ export default function Register() {
             <Button
               onClick={handleVerifyOtp}
               disabled={loading || otp.join('').length !== 8}
-              className="w-full bg-white text-black hover:bg-white/90 font-bold h-11"
+              className="w-full bg-white text-black hover:bg-white/90 font-bold h-12"
             >
               {loading ? 'Verificando...' : 'Verificar Código'}
             </Button>
 
             <div className="text-center space-y-2">
-              <p className="text-xs text-muted-foreground">Não recebeu o código?</p>
+              <p className="text-xs text-gray-500">Não recebeu o código?</p>
               <button
                 onClick={handleResendOtp}
                 disabled={loading}
-                className="text-sm text-foreground hover:underline font-medium disabled:opacity-50"
+                className="text-sm text-white hover:underline font-medium disabled:opacity-50"
               >
                 Reenviar código
               </button>
@@ -312,7 +344,7 @@ export default function Register() {
 
             <button
               onClick={() => { setStep('form'); setOtp(['', '', '', '', '', '', '', '']); }}
-              className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="w-full text-xs text-gray-500 hover:text-white transition-colors"
             >
               ← Voltar
             </button>
@@ -322,20 +354,32 @@ export default function Register() {
           <div className="space-y-4">
             {mode === 'register' && (
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo</label>
-                <input name="name" type="text" placeholder="Seu nome" value={formData.name} onChange={handleChange}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+                <label className="text-xs font-medium text-gray-400 mb-1 block">Nome Completo</label>
+                <input 
+                  name="name" 
+                  type="text" 
+                  placeholder="Seu nome" 
+                  value={formData.name} 
+                  onChange={handleChange}
+                  className="w-full h-11 px-4 bg-[#1A1A1A] border border-[#333] rounded-lg text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-white" 
+                />
               </div>
             )}
             
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">E-mail</label>
-              <input name="email" type="email" placeholder="seu@email.com" value={formData.email} onChange={handleChange}
-                className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+              <label className="text-xs font-medium text-gray-400 mb-1 block">E-mail</label>
+              <input 
+                name="email" 
+                type="email" 
+                placeholder="seu@email.com" 
+                value={formData.email} 
+                onChange={handleChange}
+                className="w-full h-11 px-4 bg-[#1A1A1A] border border-[#333] rounded-lg text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-white" 
+              />
             </div>
             
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Senha</label>
+              <label className="text-xs font-medium text-gray-400 mb-1 block">Senha</label>
               <div className="relative">
                 <input
                   name="password"
@@ -343,12 +387,12 @@ export default function Register() {
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring pr-10"
+                  className="w-full h-11 px-4 bg-[#1A1A1A] border border-[#333] rounded-lg text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-white pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -357,7 +401,7 @@ export default function Register() {
             
             {mode === 'register' && (
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Confirmar Senha</label>
+                <label className="text-xs font-medium text-gray-400 mb-1 block">Confirmar Senha</label>
                 <div className="relative">
                   <input
                     name="confirm"
@@ -365,12 +409,12 @@ export default function Register() {
                     placeholder="••••••••"
                     value={formData.confirm}
                     onChange={handleChange}
-                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring pr-10"
+                    className="w-full h-11 px-4 bg-[#1A1A1A] border border-[#333] rounded-lg text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-white pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
                   >
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -384,16 +428,19 @@ export default function Register() {
             <Button
               onClick={mode === 'login' ? handleLogin : handleRegister}
               disabled={loading}
-              className="w-full bg-white text-black hover:bg-white/90 font-bold h-11"
+              className="w-full bg-white text-black hover:bg-white/90 font-bold h-12"
             >
               {loading ? 'Carregando...' : mode === 'login' ? 'Entrar' : 'Criar Conta'}
             </Button>
 
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-xs text-gray-500 text-center">
               {mode === 'login' ? 'Não tem conta?' : 'Já tem conta?'}{' '}
               <button
-                onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setFormData({ name: '', email: '', password: '', confirm: '' }); }}
-                className="text-foreground hover:underline font-medium"
+                onClick={() => { 
+                  setMode(mode === 'login' ? 'register' : 'login'); 
+                  setFormData({ name: '', email: '', password: '', confirm: '' }); 
+                }}
+                className="text-white hover:underline font-medium"
               >
                 {mode === 'login' ? 'Criar conta' : 'Entrar'}
               </button>
@@ -421,7 +468,7 @@ export default function Register() {
             <p className="text-lg font-semibold text-white leading-relaxed">
               "{quotes[currentImageIndex].text}"
             </p>
-            <footer className="text-sm text-muted-foreground">{quotes[currentImageIndex].author}</footer>
+            <footer className="text-sm text-gray-400">{quotes[currentImageIndex].author}</footer>
           </blockquote>
         </div>
         
