@@ -1,3 +1,4 @@
+// src/api/base44Client.js
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://mjzrhbfrnngewtgddbvu.supabase.co';
@@ -11,9 +12,11 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   }
 });
 
+// Cache da sessão em memória — evita chamar getUser() repetidamente
 let cachedUser = null;
 let cachedProfile = null;
 
+// Atualiza o cache quando a sessão muda
 supabase.auth.onAuthStateChange((event, session) => {
   if (session?.user) {
     cachedUser = session.user;
@@ -81,15 +84,8 @@ const createEntityProxy = (entityName) => {
       return true;
     },
 
-    list: async (order = '-created_at', limit = 100) => {
-      let req = supabase.from(table).select('*');
-      if (order) {
-        const desc = order.startsWith('-');
-        const col = order.replace(/^-/, '').replace('created_date', 'created_at');
-        req = req.order(col, { ascending: !desc });
-      }
-      req = req.limit(limit);
-      const { data, error } = await req;
+    list: async () => {
+      const { data, error } = await supabase.from(table).select('*').order('created_at', { ascending: false });
       if (error) throw error;
       return data || [];
     },
@@ -98,10 +94,12 @@ const createEntityProxy = (entityName) => {
 
 const auth = {
   me: async () => {
+    // Usa cache se disponível — evita rate limit
     if (cachedUser && cachedProfile) {
       return cachedProfile;
     }
 
+    // Se tem cache do user mas não do profile, busca o profile
     if (cachedUser) {
       const { data: profile } = await supabase
         .from('user_profiles')
@@ -121,6 +119,7 @@ const auth = {
       return cachedProfile;
     }
 
+    // Último recurso — busca do Supabase
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) throw { status: 401 };
 
@@ -174,7 +173,7 @@ const auth = {
       .update(data)
       .eq('email', cachedUser.email);
     if (error) throw error;
-    cachedProfile = null;
+    cachedProfile = null; // Limpa cache do profile
     return true;
   },
 
