@@ -22,14 +22,18 @@ export default function Register() {
   const inputRefs = useRef([]);
   const [logoLoadError, setLogoLoadError] = useState(false);
   
+  // States para mostrar/esconder senha
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
+  // Slideshow state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   
+  // Lista de imagens (4 imagens)
   const images = [devRegisterBg1, devRegisterBg2, devRegisterBg3, devRegisterBg4];
   
+  // Frases diferentes para cada imagem
   const quotes = [
     { text: "A plataforma com os melhores assets e sistemas do mercado. Qualidade impecável.", author: "— Dev Community" },
     { text: "Encontre tudo que você precisa para seus projetos em um só lugar.", author: "— Dev Systems" },
@@ -37,6 +41,7 @@ export default function Register() {
     { text: "Scripts profissionais e sistemas completos para produção imediata.", author: "— Dev Team" },
   ];
 
+  // Trocar imagem a cada 5 segundos
   useEffect(() => {
     const interval = setInterval(() => {
       setIsTransitioning(true);
@@ -90,7 +95,7 @@ export default function Register() {
         password: formData.password,
       });
       if (error) throw error;
-      toast.success('Bem-vindo de volta!');
+      toast.success('Conta verificada! Bem-vindo!');
       window.location.href = '/';
     } catch (err) {
       toast.error('Email ou senha incorretos');
@@ -99,6 +104,7 @@ export default function Register() {
     }
   };
 
+  // Verificar se email já existe
   const checkEmailExists = async (email) => {
     try {
       const { data, error } = await supabase
@@ -132,6 +138,7 @@ export default function Register() {
       return;
     }
     
+    // Verificar se email já existe
     setLoading(true);
     const emailExists = await checkEmailExists(formData.email);
     
@@ -225,6 +232,7 @@ export default function Register() {
       {/* Left - Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 space-y-8">
         <div>
+          {/* Logo clicável */}
           <div 
             onClick={() => navigate('/')} 
             className="flex items-center gap-2 mb-8 cursor-pointer hover:opacity-80 transition-opacity"
@@ -263,6 +271,7 @@ export default function Register() {
           )}
         </div>
 
+        {/* OTP Step */}
         {step === 'otp' ? (
           <div className="space-y-6">
             <div className="flex gap-2 justify-center">
@@ -309,6 +318,7 @@ export default function Register() {
             </button>
           </div>
         ) : (
+          /* Form Step */
           <div className="space-y-4">
             {mode === 'register' && (
               <div>

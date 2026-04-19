@@ -1,3 +1,4 @@
+// src/pages/Home.jsx - Sem espaços extras
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ChevronRight } from 'lucide-react';
