@@ -310,29 +310,29 @@ export default function DashboardHome() {
         )}
       </div>
 
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-white">Log de Atividades</h2>
-        <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-[#1A1A1A] bg-[#111]">
-                <th className="text-left px-4 py-3 font-medium text-[#555]">IP</th>
-                <th className="text-left px-4 py-3 font-medium text-[#555]">Evento</th>
-                <th className="text-left px-4 py-3 font-medium text-[#555]">Data e Hora</th>
-              <tr>
-            </thead>
-            <tbody>
-              {activityLog.map((log, index) => (
-                <tr key={index} className="border-b border-[#1A1A1A] last:border-0 hover:bg-[#111] transition-colors">
-                  <td className="px-4 py-3 font-mono text-[#555]">{log.ip}</td>
-                  <td className="px-4 py-3 text-white capitalize">{log.type}</td>
-                  <td className="px-4 py-3 text-[#555]">{new Date(log.date).toLocaleString('pt-BR')}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+<div className="space-y-4">
+  <h2 className="text-lg font-bold text-white">Log de Atividades</h2>
+  <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
+    <table className="w-full text-xs">
+      <thead>
+        <tr className="border-b border-[#1A1A1A] bg-[#111]">
+          <th className="text-left px-4 py-3 font-medium text-[#555]">IP</th>
+          <th className="text-left px-4 py-3 font-medium text-[#555]">Evento</th>
+          <th className="text-left px-4 py-3 font-medium text-[#555]">Data e Hora</th>
+        </tr>
+      </thead>
+      <tbody>
+        {activityLog.map((log, index) => (
+          <tr key={index} className="border-b border-[#1A1A1A] last:border-0 hover:bg-[#111] transition-colors">
+            <td className="px-4 py-3 font-mono text-[#555]">{log.ip}</td>
+            <td className="px-4 py-3 text-white capitalize">{log.type}</td>
+            <td className="px-4 py-3 text-[#555]">{new Date(log.date).toLocaleString('pt-BR')}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
     </div>
   );
 }
