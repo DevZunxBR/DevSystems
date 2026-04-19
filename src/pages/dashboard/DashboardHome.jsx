@@ -23,15 +23,18 @@ export default function DashboardHome() {
   const loadData = async () => {
     try {
       const me = await base44.auth.me();
+      
+      // Usar Promise.all para reduzir requisições (3 requisições simultâneas)
       const [allOrders, wallets, pendingGifts] = await Promise.all([
-        base44.entities.Order.filter({ customer_email: me.email }, '-created_date'),
+        base44.entities.Order.filter({ customer_email: me.email }, '-created_date', 20), // Limite de 20
         base44.entities.Wallet.filter({ user_email: me.email }),
         supabase
           .from('gifts')
           .select('*')
           .eq('recipient_email', me.email)
           .eq('status', 'pending')
-          .order('created_at', { ascending: false }),
+          .order('created_at', { ascending: false })
+          .limit(10), // Limite de 10
       ]);
 
       setOrders(allOrders || []);
@@ -40,6 +43,7 @@ export default function DashboardHome() {
       if (wallets?.length > 0) {
         setWallet(wallets[0]);
       } else {
+        // Só cria carteira se não existir
         const createdWallet = await base44.entities.Wallet.create({
           user_email: me.email,
           balance_usd: 0,
@@ -56,6 +60,7 @@ export default function DashboardHome() {
   };
 
   const loadActivityLog = () => {
+    // Isso é localStorage, não faz requisição
     const stored = localStorage.getItem('activity_log');
     const log = stored ? JSON.parse(stored) : [];
     const lastEntry = log[0];
@@ -314,7 +319,7 @@ export default function DashboardHome() {
                 <th className="text-left px-4 py-3 font-medium text-[#555]">IP</th>
                 <th className="text-left px-4 py-3 font-medium text-[#555]">Evento</th>
                 <th className="text-left px-4 py-3 font-medium text-[#555]">Data e Hora</th>
-              </tr>
+              <tr>
             </thead>
             <tbody>
               {activityLog.map((log, index) => (

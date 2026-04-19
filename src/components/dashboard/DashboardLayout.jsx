@@ -16,8 +16,9 @@ export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
+    // Apenas UMA requisição para buscar o usuário
     base44.auth.me().then(setUser).catch(() => {});
-  }, []);
+  }, []); // Array vazio = executa UMA vez
 
   return (
     <div className="min-h-screen flex">
@@ -33,10 +34,10 @@ export default function DashboardLayout() {
           <div className="space-y-1">
             <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center mb-2">
               <span className="text-sm font-semibold text-foreground">
-                {user?.full_name?.[0] || 'U'}
+                {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
               </span>
             </div>
-            <h3 className="text-sm font-semibold text-foreground">{user?.full_name || 'User'}</h3>
+            <h3 className="text-sm font-semibold text-foreground">{user?.full_name || 'Usuário'}</h3>
             <p className="text-xs text-muted-foreground">{user?.email}</p>
           </div>
 
