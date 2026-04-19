@@ -1,7 +1,6 @@
-// src/pages/Home.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Store, ChevronRight } from 'lucide-react'; // ← Adicione ChevronRight aqui
+import { ArrowRight, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Importe suas imagens aqui
@@ -78,13 +77,8 @@ export default function Home() {
             <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold h-11 px-6 text-sm gap-2 rounded-xl">
               Explorar Assets <ArrowRight className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/seller/onboarding')} 
-              className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm gap-2 rounded-xl"
-            >
-              <Store className="h-4 w-4" />
-              Abrir Loja <ChevronRight className="h-4 w-4" />
+            <Button variant="outline" onClick={() => navigate('/store')} className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl">
+              Ver Categorias <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
           

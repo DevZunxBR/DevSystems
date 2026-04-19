@@ -28,11 +28,7 @@ import ProductForm from './pages/admin/ProductForm';
 import RefundRequests from './pages/admin/RefundRequests';
 import Register from './pages/Register';
 
-// IMPORTAÇÕES DE PAGAMENTOS (ADMIN)
-import ManagePayments from './pages/admin/ManagePayments';
-import PaySellers from './pages/admin/PaySellers';
-
-// Rota privada
+// Rota privada - redireciona para /register se não logado
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, isLoadingAuth } = useAuth();
   if (isLoadingAuth) return null;
@@ -52,6 +48,7 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
+      {/* Rotas públicas */}
       <Route path="/register" element={<Register />} />
       <Route path="/docs" element={<Documentation />} />
       <Route path="/terms" element={<Terms />} />
@@ -147,22 +144,6 @@ const AuthenticatedApp = () => {
             <PrivateRoute>
               <MaintenanceGuard>
                 <AllOrders />
-              </MaintenanceGuard>
-            </PrivateRoute>
-          } />
-
-          <Route path="/admin/payments" element={
-            <PrivateRoute>
-              <MaintenanceGuard>
-                <ManagePayments />
-              </MaintenanceGuard>
-            </PrivateRoute>
-          } />
-          
-          <Route path="/admin/pay-sellers" element={
-            <PrivateRoute>
-              <MaintenanceGuard>
-                <PaySellers />
               </MaintenanceGuard>
             </PrivateRoute>
           } />

@@ -1,13 +1,10 @@
-// src/pages/admin/AdminPanel.jsx
 import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag, Lock, DollarSign, Send } from 'lucide-react'; // ← Adicione DollarSign e Send aqui
+import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 
 const navItems = [
-  { icon: DollarSign, label: 'Confirmar Pagamentos', path: '/admin/payments' },
-  { icon: Send, label: 'Pagar Criadores', path: '/admin/pay-sellers' },
   { icon: ClipboardList, label: 'Pedidos Pendentes', path: '/admin' },
   { icon: Package, label: 'Todos Pedidos', path: '/admin/orders' },
   { icon: ClipboardList, label: 'Reembolsos', path: '/admin/refunds' },
@@ -70,7 +67,7 @@ export default function AdminPanel() {
     );
   }
 
-  // Tela de acesso negado (cadeado branco)
+  // Tela de acesso negado
   if (!isAdmin || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
@@ -113,7 +110,6 @@ export default function AdminPanel() {
             <h2 className="text-lg font-bold text-white">Admin Panel</h2>
           </div>
 
-          {/* Badge de admin */}
           <div className="bg-[#111] border border-[#1A1A1A] rounded-lg p-3">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-white" />
