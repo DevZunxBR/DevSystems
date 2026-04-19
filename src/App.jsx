@@ -32,17 +32,7 @@ import Register from './pages/Register';
 import ManagePayments from './pages/admin/ManagePayments';
 import PaySellers from './pages/admin/PaySellers';
 
-// IMPORTAÇÕES DO CRIADOR (SELLER)
-import SellerLayout from './components/layout/SellerLayout';
-import SellerDashboard from './pages/seller/SellerDashboard';
-import SellerOnboarding from './pages/seller/SellerOnboarding';
-import SellerProducts from './pages/seller/SellerProducts';
-import SellerProductForm from './pages/seller/SellerProductForm';
-import SellerProductEdit from './pages/seller/SellerProductEdit'; // ← IMPORTE AQUI
-import SellerOrders from './pages/seller/SellerOrders';
-import SellerAnalytics from './pages/seller/SellerAnalytics';
-
-// Rota privada - redireciona para /register se não logado
+// Rota privada
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, isLoadingAuth } = useAuth();
   if (isLoadingAuth) return null;
@@ -62,7 +52,6 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      {/* Rotas públicas */}
       <Route path="/register" element={<Register />} />
       <Route path="/docs" element={<Documentation />} />
       <Route path="/terms" element={<Terms />} />
@@ -103,7 +92,6 @@ const AuthenticatedApp = () => {
           </PrivateRoute>
         } />
 
-        {/* Rotas do Dashboard do Cliente */}
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={
             <PrivateRoute>
@@ -138,7 +126,6 @@ const AuthenticatedApp = () => {
           } />
         </Route>
 
-        {/* Rotas do Admin */}
         <Route element={<AdminPanel />}>
           <Route path="/admin/coupons" element={
             <PrivateRoute>
@@ -208,66 +195,6 @@ const AuthenticatedApp = () => {
             <PrivateRoute>
               <MaintenanceGuard>
                 <RefundRequests />
-              </MaintenanceGuard>
-            </PrivateRoute>
-          } />
-        </Route>
-
-        {/* Rotas do Criador/Seller */}
-        <Route path="/seller/onboarding" element={
-          <PrivateRoute>
-            <MaintenanceGuard>
-              <SellerOnboarding />
-            </MaintenanceGuard>
-          </PrivateRoute>
-        } />
-
-        <Route element={<SellerLayout />}>
-          <Route path="/seller/dashboard" element={
-            <PrivateRoute>
-              <MaintenanceGuard>
-                <SellerDashboard />
-              </MaintenanceGuard>
-            </PrivateRoute>
-          } />
-          
-          <Route path="/seller/products" element={
-            <PrivateRoute>
-              <MaintenanceGuard>
-                <SellerProducts />
-              </MaintenanceGuard>
-            </PrivateRoute>
-          } />
-          
-          <Route path="/seller/products/new" element={
-            <PrivateRoute>
-              <MaintenanceGuard>
-                <SellerProductForm />
-              </MaintenanceGuard>
-            </PrivateRoute>
-          } />
-
-          {/* ← ROTA DE EDIÇÃO - DENTRO DO SellerLayout */}
-          <Route path="/seller/products/edit/:id" element={
-            <PrivateRoute>
-              <MaintenanceGuard>
-                <SellerProductEdit />
-              </MaintenanceGuard>
-            </PrivateRoute>
-          } />
-          
-          <Route path="/seller/orders" element={
-            <PrivateRoute>
-              <MaintenanceGuard>
-                <SellerOrders />
-              </MaintenanceGuard>
-            </PrivateRoute>
-          } />
-          
-          <Route path="/seller/analytics" element={
-            <PrivateRoute>
-              <MaintenanceGuard>
-                <SellerAnalytics />
               </MaintenanceGuard>
             </PrivateRoute>
           } />
