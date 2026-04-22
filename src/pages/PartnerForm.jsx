@@ -1,4 +1,4 @@
-// src/pages/PartnerForm.jsx
+// src/pages/PartnerForm.jsx (VERSÃO CORRIGIDA COMPLETA)
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
@@ -165,7 +165,7 @@ export default function PartnerForm() {
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           
-          {/* PAGE 0 */}
+          {/* PAGE 0 - IDENTIDADE */}
           {currentPage === 0 && (
             <>
               <div>
@@ -197,7 +197,7 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PAGE 1 */}
+          {/* PAGE 1 - TRAJETÓRIA */}
           {currentPage === 1 && (
             <>
               <div>
@@ -223,7 +223,7 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PAGE 2 */}
+          {/* PAGE 2 - REDES */}
           {currentPage === 2 && (
             <>
               <div>
@@ -244,7 +244,7 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PAGE 3 */}
+          {/* PAGE 3 - STACK */}
           {currentPage === 3 && (
             <div className="space-y-6">
               <div>
@@ -274,7 +274,7 @@ export default function PartnerForm() {
             </div>
           )}
 
-          {/* PAGE 4 */}
+          {/* PAGE 4 - FINALIZAÇÃO (CORRIGIDA) */}
           {currentPage === 4 && (
             <div className="space-y-5">
               <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
@@ -283,7 +283,7 @@ export default function PartnerForm() {
                   { label: 'Nome', value: form.nome },
                   { label: 'Email', value: form.email },
                   { label: 'Discord', value: form.discord_nick },
-                  { label: 'Assets', value: form.tipo_asset },
+                  { label: 'Assets', value: form.tipo_asset || 'Não informado' },
                 ].filter(r => r.value).map(({ label, value }) => (
                   <div key={label} className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{label}</span>
