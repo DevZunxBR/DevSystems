@@ -61,13 +61,13 @@ export default function PartnerForm() {
     return () => clearInterval(interval);
   }, []);
 
-  // ✅ AGORA SÃO 5 PÁGINAS (0,1,2,3,4)
+  // ⚠️ VERIFIQUE: São 5 páginas (0,1,2,3,4)
   const pages = [
     { title: "Identidade", description: "Estabeleça sua presença criativa" },
     { title: "Trajetória", description: "Sua experiência profissional" },
     { title: "Redes", description: "Pontos de conexão social" },
     { title: "Stack", description: "Capacidades técnicas" },
-    { title: "Finalização", description: "Revise e envie sua candidatura" },  // ← PÁGINA 5
+    { title: "Finalização", description: "Revise e envie sua candidatura" },
   ];
 
   const handleChange = (e) => {
@@ -176,7 +176,7 @@ export default function PartnerForm() {
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           
-          {/* PÁGINA 0 - IDENTIDADE */}
+          {/* PÁGINA 0 */}
           {currentPage === 0 && (
             <>
               <div>
@@ -208,7 +208,7 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PÁGINA 1 - TRAJETÓRIA */}
+          {/* PÁGINA 1 */}
           {currentPage === 1 && (
             <>
               <div>
@@ -236,7 +236,7 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PÁGINA 2 - REDES */}
+          {/* PÁGINA 2 */}
           {currentPage === 2 && (
             <>
               <div>
@@ -257,7 +257,7 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PÁGINA 3 - STACK */}
+          {/* PÁGINA 3 */}
           {currentPage === 3 && (
             <div className="space-y-6">
               <div>
@@ -287,11 +287,11 @@ export default function PartnerForm() {
             </div>
           )}
 
-          {/* PÁGINA 4 - FINALIZAÇÃO (NOVA PÁGINA) */}
+          {/* PÁGINA 4 - FINALIZAÇÃO */}
           {currentPage === 4 && (
             <div className="space-y-5">
               <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
-                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo da Candidatura</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo</p>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Nome</span>
                   <span className="text-white">{form.nome || '-'}</span>
