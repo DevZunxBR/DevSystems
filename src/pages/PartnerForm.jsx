@@ -2,12 +2,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
-import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Send, ChevronRight, ChevronLeft, User, Mail, MessageCircle, Phone, Link2, Briefcase, Target, Instagram, Github, Linkedin, Languages, Code2, Globe, Clock, CheckCircle } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 
-// Importe suas imagens aqui (mesmas do register)
+// Importe suas imagens aqui
 import devRegisterBg1 from '@/assets/images/DevRegister.png';
 import devRegisterBg2 from '@/assets/images/DevRegister2.png';
 import devRegisterBg3 from '@/assets/images/DevRegister3.png';
@@ -39,7 +38,7 @@ export default function PartnerForm() {
     aceita_regras: ''
   });
 
-  // Slideshow state (igual ao register)
+  // Slideshow state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   
@@ -52,7 +51,6 @@ export default function PartnerForm() {
     { text: "Scripts profissionais e sistemas completos para produção imediata.", author: "— Dev Team" },
   ];
 
-  // Trocar imagem a cada 10 segundos
   useEffect(() => {
     const interval = setInterval(() => {
       setIsTransitioning(true);
@@ -75,21 +73,28 @@ export default function PartnerForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Se for campo de redes sociais, trata separadamente
+    if (name === 'instagram' || name === 'github' || name === 'linkedin') {
+      setForm(prev => ({
+        ...prev,
+        redes_sociais: { ...prev.redes_sociais, [name]: value }
+      }));
+    } else {
+      setForm(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const nextPage = () => {
+    // Validação apenas dos campos obrigatórios da primeira página
     if (currentPage === 0 && (!form.nome || !form.email || !form.discord_nick)) {
       toast.error('Preencha Nome, Email e Discord');
       return;
     }
-    if (currentPage === 4 && !form.aceita_regras) {
-      toast.error('Você precisa aceitar as regras');
-      return;
-    }
+    // Removeu a validação do aceita_regras
     setCurrentPage(prev => Math.min(prev + 1, pages.length - 1));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -102,8 +107,9 @@ export default function PartnerForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!form.aceita_regras) {
-      toast.error('Você precisa aceitar as regras');
+    // Removeu a validação do aceita_regras - agora só verifica se tem nome
+    if (!form.nome) {
+      toast.error('Preencha os dados corretamente');
       return;
     }
 
@@ -156,20 +162,19 @@ export default function PartnerForm() {
     }, 500);
   };
 
-  // Nome da página atual
   const currentPageTitle = pages[currentPage].title;
   const currentPageDescription = pages[currentPage].description;
 
   return (
     <div className="min-h-screen flex flex-col">
       
-      {/* Conteúdo principal - flex-1 para empurrar o footer para baixo */}
+      {/* Conteúdo principal */}
       <div className="flex-1 flex">
         
         {/* LEFT SIDE - FORMULÁRIO */}
         <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
           
-          {/* Logo clicável */}
+          {/* Logo */}
           <div 
             onClick={() => navigate('/')} 
             className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-8"
@@ -189,7 +194,7 @@ export default function PartnerForm() {
             <span className="text-white font-bold text-lg tracking-tight">DevAssets</span>
           </div>
 
-          {/* Header do formulário */}
+          {/* Header */}
           <div>
             <h1 className="text-3xl font-black text-white tracking-tight">Formulário de Inscrição</h1>
             <p className="text-sm text-muted-foreground mt-2">
@@ -210,7 +215,7 @@ export default function PartnerForm() {
             {currentPage === 0 && (
               <>
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'nome' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'nome' ? 'text-white' : 'text-muted-foreground'}`}>
                     Nome Completo
                   </label>
                   <input type="text" name="nome" value={form.nome} onChange={handleChange}
@@ -219,7 +224,7 @@ export default function PartnerForm() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'email' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'email' ? 'text-white' : 'text-muted-foreground'}`}>
                     E-mail
                   </label>
                   <input type="email" name="email" value={form.email} onChange={handleChange}
@@ -228,7 +233,7 @@ export default function PartnerForm() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'discord' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'discord' ? 'text-white' : 'text-muted-foreground'}`}>
                     Discord
                   </label>
                   <input type="text" name="discord_nick" value={form.discord_nick} onChange={handleChange}
@@ -238,7 +243,7 @@ export default function PartnerForm() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'telefone' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'telefone' ? 'text-white' : 'text-muted-foreground'}`}>
                     WhatsApp
                   </label>
                   <input type="tel" name="telefone" value={form.telefone} onChange={handleChange}
@@ -247,7 +252,7 @@ export default function PartnerForm() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'portfolio' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'portfolio' ? 'text-white' : 'text-muted-foreground'}`}>
                     Portfólio / GitHub
                   </label>
                   <input type="url" name="portfolio_url" value={form.portfolio_url} onChange={handleChange}
@@ -261,7 +266,7 @@ export default function PartnerForm() {
             {currentPage === 1 && (
               <>
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'experiencia' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'experiencia' ? 'text-white' : 'text-muted-foreground'}`}>
                     Experiência na área
                   </label>
                   <textarea name="experiencia" rows={5} value={form.experiencia} onChange={handleChange}
@@ -270,7 +275,7 @@ export default function PartnerForm() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'motivo' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'motivo' ? 'text-white' : 'text-muted-foreground'}`}>
                     Por que você quer ser um criador?
                   </label>
                   <textarea name="motivo" rows={5} value={form.motivo} onChange={handleChange}
@@ -279,7 +284,7 @@ export default function PartnerForm() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'plano' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'plano' ? 'text-white' : 'text-muted-foreground'}`}>
                     Plano de Contribuição
                   </label>
                   <textarea name="plano_contribuicao" rows={4} value={form.plano_contribuicao} onChange={handleChange}
@@ -289,7 +294,7 @@ export default function PartnerForm() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'entrou_discord' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'entrou_discord' ? 'text-white' : 'text-muted-foreground'}`}>
                     Já entrou no Discord da DevAssets?
                   </label>
                   <input type="text" name="entrou_discord" value={form.entrou_discord} onChange={handleChange}
@@ -304,32 +309,29 @@ export default function PartnerForm() {
             {currentPage === 2 && (
               <>
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'instagram' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'instagram' ? 'text-white' : 'text-muted-foreground'}`}>
                     Instagram
                   </label>
-                  <input type="text" value={form.redes_sociais.instagram}
-                    onChange={e => setForm({ ...form, redes_sociais: { ...form.redes_sociais, instagram: e.target.value } })}
-                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                  <input type="text" name="instagram" value={form.redes_sociais.instagram} onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
                     {...focusProps('instagram')} />
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'github' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'github' ? 'text-white' : 'text-muted-foreground'}`}>
                     GitHub
                   </label>
-                  <input type="text" value={form.redes_sociais.github}
-                    onChange={e => setForm({ ...form, redes_sociais: { ...form.redes_sociais, github: e.target.value } })}
-                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                  <input type="text" name="github" value={form.redes_sociais.github} onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
                     {...focusProps('github')} />
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'linkedin' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'linkedin' ? 'text-white' : 'text-muted-foreground'}`}>
                     LinkedIn
                   </label>
-                  <input type="text" value={form.redes_sociais.linkedin}
-                    onChange={e => setForm({ ...form, redes_sociais: { ...form.redes_sociais, linkedin: e.target.value } })}
-                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                  <input type="text" name="linkedin" value={form.redes_sociais.linkedin} onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
                     {...focusProps('linkedin')} />
                 </div>
               </>
@@ -339,7 +341,7 @@ export default function PartnerForm() {
             {currentPage === 3 && (
               <div className="space-y-6">
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'idiomas' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'idiomas' ? 'text-white' : 'text-muted-foreground'}`}>
                     Idiomas
                   </label>
                   <input type="text" name="idiomas" value={form.idiomas} onChange={handleChange}
@@ -349,7 +351,7 @@ export default function PartnerForm() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'tipo_asset' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'tipo_asset' ? 'text-white' : 'text-muted-foreground'}`}>
                     Tipos de Asset
                   </label>
                   <input type="text" name="tipo_asset" value={form.tipo_asset} onChange={handleChange}
@@ -359,7 +361,7 @@ export default function PartnerForm() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'plataformas' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'plataformas' ? 'text-white' : 'text-muted-foreground'}`}>
                     Plataformas
                   </label>
                   <input type="text" name="plataformas" value={form.plataformas} onChange={handleChange}
@@ -369,7 +371,7 @@ export default function PartnerForm() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'disponibilidade' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'disponibilidade' ? 'text-white' : 'text-muted-foreground'}`}>
                     Disponibilidade semanal
                   </label>
                   <input type="text" name="disponibilidade" value={form.disponibilidade} onChange={handleChange}
@@ -399,7 +401,7 @@ export default function PartnerForm() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'ja_vendeu' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'ja_vendeu' ? 'text-white' : 'text-muted-foreground'}`}>
                     Já vendeu assets antes?
                   </label>
                   <input type="text" name="ja_vendeu" value={form.ja_vendeu} onChange={handleChange}
@@ -409,7 +411,7 @@ export default function PartnerForm() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'disponibilidade_reunioes' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'disponibilidade_reunioes' ? 'text-white' : 'text-muted-foreground'}`}>
                     Disponibilidade para reuniões
                   </label>
                   <input type="text" name="disponibilidade_reunioes" value={form.disponibilidade_reunioes} onChange={handleChange}
@@ -419,8 +421,8 @@ export default function PartnerForm() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'aceita_regras' ? 'text-white' : 'text-muted-foreground'}`}>
-                    Li e concordo com as regras e termos *
+                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'aceita_regras' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Li e concordo com as regras e termos
                   </label>
                   <input type="text" name="aceita_regras" value={form.aceita_regras} onChange={handleChange}
                     placeholder="Ex: Sim, concordo / Li e aceito os termos"
