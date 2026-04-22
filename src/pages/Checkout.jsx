@@ -1,128 +1,246 @@
-// src/pages/PartnerForm.jsx
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/api/base44Client';
+// src/pages/Checkout.jsx - Corrigido
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { base44, supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { ArrowLeft, Send, ChevronRight, ChevronLeft, User, Mail, MessageCircle, Phone, Link2, Briefcase, Target, Instagram, Github, Linkedin, Languages, Code2, Globe, Clock, CheckCircle } from 'lucide-react';
-import logoImage from '@/assets/images/Logo.png';
+import { Tag, X, Wallet, Gift, AlertCircle } from 'lucide-react';
+import PixModal from '@/components/checkout/PixModal';
 
-export default function PartnerForm() {
+export default function Checkout() {
+  const [searchParams] = useSearchParams();
+  const isDirectPurchase = searchParams.get('direct') === 'true';
+  const [finalTotal, setFinalTotal] = useState(0);
+  const [items, setItems] = useState([]);
+  const [wallet, setWallet] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [showPix, setShowPix] = useState(false);
+  const [pixCode, setPixCode] = useState('');
+  const [currentOrder, setCurrentOrder] = useState(null);
+  const [billing, setBilling] = useState({ name: '', email: '', document: '' });
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [useWallet, setUseWallet] = useState(false);
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [logoLoadError, setLogoLoadError] = useState(false);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [form, setForm] = useState({
-    nome: '',
-    email: '',
-    discord_nick: '',
-    telefone: '',
-    portfolio_url: '',
-    experiencia: '',
-    motivo: '',
-    entrou_discord: false,
-    plano_contribuicao: '',
-    redes_sociais: { instagram: '', github: '', linkedin: '' },
-    disponibilidade: '',
-    idiomas: [],
-    tipo_asset: [],
-    plataformas: [],
-    ja_vendeu: false,
-    disponibilidade_reunioes: false,
-    aceita_regras: false
-  });
 
-  const pages = [
-    { title: "Informações Pessoais", description: "Dados básicos para contato" },
-    { title: "Experiência", description: "Conte-nos sobre sua trajetória" },
-    { title: "Redes Sociais", description: "Onde podemos te encontrar" },
-    { title: "Habilidades", description: "Tecnologias que você domina" },
-    { title: "Finalização", description: "Últimas informações" }
-  ];
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
-
-  const handleMultiSelect = (field, value) => {
-    setForm(prev => ({
-      ...prev,
-      [field]: prev[field].includes(value)
-        ? prev[field].filter(v => v !== value)
-        : [...prev[field], value]
-    }));
-  };
-
-  const nextPage = () => {
-    if (currentPage === 0 && (!form.nome || !form.email || !form.discord_nick)) {
-      toast.error('Preencha Nome, Email e Discord');
-      return;
+  useEffect(() => {
+    if (isDirectPurchase) {
+      loadDirectPurchase();
+    } else {
+      loadCart();
     }
-    if (currentPage === 4 && !form.aceita_regras) {
-      toast.error('Você precisa aceitar as regras');
-      return;
-    }
-    setCurrentPage(prev => Math.min(prev + 1, pages.length - 1));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [isDirectPurchase]);
 
-  const prevPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 0));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!form.aceita_regras) {
-      toast.error('Você precisa aceitar as regras');
-      return;
-    }
-
+  const loadDirectPurchase = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.from('creator_applications').insert({
-        nome: form.nome,
-        email: form.email,
-        discord_nick: form.discord_nick,
-        telefone: form.telefone,
-        portfolio_url: form.portfolio_url,
-        experiencia: form.experiencia,
-        motivo: form.motivo,
-        entrou_discord: form.entrou_discord,
-        plano_contribuicao: form.plano_contribuicao,
-        redes_sociais: form.redes_sociais,
-        disponibilidade: form.disponibilidade,
-        idiomas: form.idiomas,
-        tipo_asset: form.tipo_asset,
-        plataformas: form.plataformas,
-        ja_vendeu: form.ja_vendeu,
-        disponibilidade_reunioes: form.disponibilidade_reunioes,
-        aceita_regras: form.aceita_regras,
-        status: 'pending',
-        created_at: new Date().toISOString()
-      });
-
-      if (error) throw error;
-      toast.success('Inscrição enviada! Entraremos em contato em breve.');
-      navigate('/');
+      const me = await base44.auth.me();
+      const directProduct = sessionStorage.getItem('direct_purchase');
+      
+      if (!directProduct) {
+        toast.error('Nenhum produto encontrado');
+        navigate('/store');
+        return;
+      }
+      
+      const product = JSON.parse(directProduct);
+      setItems([{ ...product, id: 'direct_' + Date.now() }]);
+      setBilling(prev => ({ ...prev, name: me.full_name || '', email: me.email || '' }));
+      
+      const wallets = await base44.entities.Wallet.filter({ user_email: me.email });
+      setWallet(wallets[0] || null);
+      
+      sessionStorage.removeItem('direct_purchase');
     } catch (error) {
-      console.error(error);
-      toast.error('Erro ao enviar inscrição');
+      console.error('Erro ao carregar compra direta:', error);
+      navigate('/store');
     } finally {
       setLoading(false);
     }
   };
 
-  const idiomasList = ['Português', 'Inglês', 'Espanhol'];
-  const tipoAssetList = ['Scripts', 'Sistemas', 'UI Kits', 'Plugins', 'Templates'];
-  const plataformasList = ['Unity', 'Unreal Engine', 'React', 'Node.js', 'Python'];
+  const loadCart = async () => {
+    setLoading(true);
+    try {
+      const me = await base44.auth.me();
+      const [cartItems, wallets] = await Promise.all([
+        base44.entities.CartItem.filter({ user_email: me.email }),
+        base44.entities.Wallet.filter({ user_email: me.email }),
+      ]);
+      if (cartItems.length === 0) { navigate('/cart'); return; }
+      setItems(cartItems);
+      setWallet(wallets[0] || null);
+      setBilling(prev => ({ ...prev, name: me.full_name || '', email: me.email || '' }));
+    } catch {
+      navigate('/cart');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (loading && currentPage === 4) {
+  const subtotal = items.reduce((sum, item) => sum + (item.price_brl || 0), 0);
+  const symbol = 'R$';
+  const walletBalance = wallet?.balance_usd || 0;
+
+  let couponDiscount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.discount_percent) couponDiscount = subtotal * (appliedCoupon.discount_percent / 100);
+    else if (appliedCoupon.discount_fixed_usd) couponDiscount = appliedCoupon.discount_fixed_usd;
+  }
+
+  const afterCoupon = Math.max(0, subtotal - couponDiscount);
+  const walletDiscount = useWallet ? Math.min(walletBalance, afterCoupon) : 0;
+  const total = Math.max(0, afterCoupon - walletDiscount);
+
+  // Verificar se o total é zero (compra grátis)
+  const isZeroTotal = total === 0;
+
+  const applyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setCouponLoading(true);
+    try {
+      const coupons = await base44.entities.Coupon.filter({ code: couponInput.trim().toUpperCase(), active: true });
+      if (coupons.length === 0) { toast.error('Cupom inválido ou expirado'); return; }
+      const c = coupons[0];
+      if (c.expires_at && new Date(c.expires_at) < new Date()) { toast.error('Cupom expirado'); return; }
+      if (c.max_uses && c.uses_count >= c.max_uses) { toast.error('Cupom esgotado'); return; }
+      setAppliedCoupon(c);
+      toast.success(`Cupom aplicado! ${c.discount_percent ? c.discount_percent + '% de desconto' : symbol + Number(c.discount_fixed_usd || 0).toFixed(2) + ' de desconto'}`);
+      setCouponInput('');
+    } catch {
+      toast.error('Falha ao verificar cupom');
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  // Função para criar pedido
+  const createOrder = async (status, paymentMethod, pixCodeValue = null) => {
+    const me = await base44.auth.me();
+    const orderItems = items.map(item => ({
+      product_id: item.product_id,
+      product_title: item.product_title,
+      license_name: item.license_name,
+      price: item.price_brl || 0,
+      thumbnail: item.thumbnail,
+      file_url: item.file_url,
+      is_gift: item.is_gift || false,
+      gift_recipient_email: item.gift_recipient_email,
+      gift_message: item.gift_message,
+      gift_sender_name: item.gift_sender_name,
+    }));
+
+    const order = await base44.entities.Order.create({
+      customer_email: me.email,
+      customer_name: billing.name,
+      status: status,
+      payment_method: paymentMethod,
+      currency: 'BRL',
+      total_amount: total,
+      items: orderItems,
+      billing_name: billing.name,
+      billing_email: billing.email,
+      billing_document: billing.document,
+      pix_code: pixCodeValue || 'NO_PAYMENT',
+      download_token: `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`,
+      wallet_used: walletDiscount,
+      coupon_discount: couponDiscount,
+      subtotal_amount: subtotal,
+    });
+
+    if (appliedCoupon) {
+      await base44.entities.Coupon.update(appliedCoupon.id, { uses_count: (appliedCoupon.uses_count || 0) + 1 });
+    }
+
+    // Atualizar carteira se usou saldo
+    if (useWallet && walletDiscount > 0 && wallet) {
+      const newBalance = walletBalance - walletDiscount;
+      const tx = {
+        type: 'purchase',
+        amount: -walletDiscount,
+        description: `Compra: ${orderItems.map(i => i.product_title).join(', ')}`,
+        date: new Date().toISOString()
+      };
+      await base44.entities.Wallet.update(wallet.id, {
+        balance_usd: newBalance,
+        transactions: [...(wallet.transactions || []), tx],
+      });
+    }
+
+    // Limpar carrinho (se não for compra direta)
+    if (!isDirectPurchase) {
+      for (const item of items) {
+        await base44.entities.CartItem.delete(item.id);
+      }
+    }
+
+    return order;
+  };
+
+  // Handle para compras com valor zero (não abre PIX)
+  const handleZeroTotalOrder = async () => {
+    if (!billing.name || !billing.email) { 
+      toast.error('Preencha todos os campos'); 
+      return; 
+    }
+    
+    setSubmitting(true);
+    try {
+      // Usar 'pix' como payment_method (não usar 'free' para evitar erro 400)
+      await createOrder('pending', 'pix', 'FREE_ORDER');
+      
+      toast.success('Pedido realizado com sucesso! Aguarde a aprovação.');
+      navigate('/dashboard/orders');
+    } catch (error) {
+      console.error(error);
+      toast.error('Falha ao realizar pedido');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Handle para pagamento PIX
+  const handlePixPayment = async () => {
+    if (!billing.name || !billing.email) { 
+      toast.error('Preencha todos os campos'); 
+      return; 
+    }
+    
+    setSubmitting(true);
+    try {
+      const me = await base44.auth.me();
+      const pixGenerated = `00020126580014br.gov.bcb.pix0136${Date.now()}${Math.random().toString(36).slice(2, 8)}520400005303986540${total.toFixed(2)}5802BR`;
+
+      const order = await createOrder('pending', 'pix', pixGenerated);
+      
+      setCurrentOrder(order);
+      setPixCode(pixGenerated);
+      setFinalTotal(total);
+      setShowPix(true);
+    } catch (error) {
+      console.error(error);
+      toast.error('Falha ao realizar pedido');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (isZeroTotal) {
+      handleZeroTotalOrder();
+    } else {
+      handlePixPayment();
+    }
+  };
+
+  // Verificar se tem presente no carrinho
+  const hasGift = items.some(item => item.is_gift);
+
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-muted border-t-foreground rounded-full animate-spin" />
@@ -132,277 +250,176 @@ export default function PartnerForm() {
 
   return (
     <div className="min-h-screen max-w-5xl mx-auto px-4 py-8">
-      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors">
-        <ArrowLeft className="h-4 w-4" /> Voltar
-      </button>
+      <h1 className="text-3xl font-bold text-foreground tracking-tight mb-8">Checkout</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        {/* Formulário - lado esquerdo */}
-        <div className="lg:col-span-3">
-          <div className="bg-card border border-border rounded-xl p-6">
-            
-            {/* Cabeçalho com logo */}
-            <div className="text-center mb-8">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-secondary rounded-xl flex items-center justify-center overflow-hidden">
-                  {!logoLoadError ? (
-                    <img src={logoImage} alt="DevAssets" className="w-12 h-12 object-contain" onError={() => setLogoLoadError(true)} />
-                  ) : (
-                    <span className="text-foreground font-bold text-xl">DA</span>
-                  )}
-                </div>
-              </div>
-              <h1 className="text-2xl font-bold text-foreground">Formulário de Inscrição</h1>
-              <p className="text-sm text-muted-foreground mt-1">Torne-se um criador oficial da DevAssets</p>
-            </div>
-
-            {/* Progresso */}
-            <div className="mb-8">
-              <div className="flex justify-between text-xs text-muted-foreground mb-2">
-                <span>Etapa {currentPage + 1} de {pages.length}</span>
-                <span>{Math.round(((currentPage + 1) / pages.length) * 100)}%</span>
-              </div>
-              <div className="h-1 bg-secondary rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-foreground rounded-full transition-all duration-300"
-                  style={{ width: `${((currentPage + 1) / pages.length) * 100}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Título da página atual */}
-            <div className="mb-6">
-              <h2 className="text-lg font-bold text-foreground">{pages[currentPage].title}</h2>
-              <p className="text-xs text-muted-foreground mt-1">{pages[currentPage].description}</p>
-            </div>
-
-            {/* Formulário */}
-            <form onSubmit={handleSubmit} className="space-y-5">
-              
-              {/* PÁGINA 1 - INFORMAÇÕES PESSOAIS */}
-              {currentPage === 0 && (
-                <>
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo</label>
-                    <input type="text" name="nome" value={form.nome} onChange={handleChange}
-                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">E-mail</label>
-                    <input type="email" name="email" value={form.email} onChange={handleChange}
-                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Discord</label>
-                    <input type="text" name="discord_nick" value={form.discord_nick} onChange={handleChange}
-                      placeholder="usuário#0000"
-                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">WhatsApp</label>
-                    <input type="tel" name="telefone" value={form.telefone} onChange={handleChange}
-                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Portfólio / GitHub</label>
-                    <input type="url" name="portfolio_url" value={form.portfolio_url} onChange={handleChange}
-                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
-                  </div>
-                </>
-              )}
-
-              {/* PÁGINA 2 - EXPERIÊNCIA */}
-              {currentPage === 1 && (
-                <>
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Experiência na área</label>
-                    <textarea name="experiencia" rows={4} value={form.experiencia} onChange={handleChange}
-                      className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none" />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Por que você quer ser um criador?</label>
-                    <textarea name="motivo" rows={4} value={form.motivo} onChange={handleChange}
-                      className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none" />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Plano de Contribuição</label>
-                    <textarea name="plano_contribuicao" rows={3} value={form.plano_contribuicao} onChange={handleChange}
-                      placeholder="Quantos assets planeja criar por mês?"
-                      className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none" />
-                  </div>
-
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="entrou_discord" checked={form.entrou_discord} onChange={handleChange}
-                      className="rounded border-border" />
-                    <span className="text-xs text-muted-foreground">Já entrei no Discord da DevAssets</span>
-                  </label>
-                </>
-              )}
-
-              {/* PÁGINA 3 - REDES SOCIAIS */}
-              {currentPage === 2 && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Instagram</label>
-                    <input type="text" value={form.redes_sociais.instagram} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, instagram: e.target.value } })}
-                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">GitHub</label>
-                    <input type="text" value={form.redes_sociais.github} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, github: e.target.value } })}
-                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">LinkedIn</label>
-                    <input type="text" value={form.redes_sociais.linkedin} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, linkedin: e.target.value } })}
-                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground" />
-                  </div>
-                </div>
-              )}
-
-              {/* PÁGINA 4 - HABILIDADES */}
-              {currentPage === 3 && (
-                <div className="space-y-5">
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground block mb-2">Idiomas</label>
-                    <div className="flex flex-wrap gap-2">
-                      {idiomasList.map(idioma => (
-                        <button key={idioma} type="button" onClick={() => handleMultiSelect('idiomas', idioma)}
-                          className={`px-3 py-1.5 rounded-full text-xs transition-all ${
-                            form.idiomas.includes(idioma) 
-                              ? 'bg-foreground text-background' 
-                              : 'bg-secondary text-muted-foreground hover:text-foreground'
-                          }`}>
-                          {idioma}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground block mb-2">Tipos de Asset</label>
-                    <div className="flex flex-wrap gap-2">
-                      {tipoAssetList.map(tipo => (
-                        <button key={tipo} type="button" onClick={() => handleMultiSelect('tipo_asset', tipo)}
-                          className={`px-3 py-1.5 rounded-full text-xs transition-all ${
-                            form.tipo_asset.includes(tipo) 
-                              ? 'bg-foreground text-background' 
-                              : 'bg-secondary text-muted-foreground hover:text-foreground'
-                          }`}>
-                          {tipo}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground block mb-2">Plataformas</label>
-                    <div className="flex flex-wrap gap-2">
-                      {plataformasList.map(plataforma => (
-                        <button key={plataforma} type="button" onClick={() => handleMultiSelect('plataformas', plataforma)}
-                          className={`px-3 py-1.5 rounded-full text-xs transition-all ${
-                            form.plataformas.includes(plataforma) 
-                              ? 'bg-foreground text-background' 
-                              : 'bg-secondary text-muted-foreground hover:text-foreground'
-                          }`}>
-                          {plataforma}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Disponibilidade</label>
-                    <input type="text" name="disponibilidade" value={form.disponibilidade} onChange={handleChange}
-                      placeholder="Ex: 10-15 horas por semana"
-                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground" />
-                  </div>
-                </div>
-              )}
-
-              {/* PÁGINA 5 - FINALIZAÇÃO */}
-              {currentPage === 4 && (
-                <div className="space-y-4">
-                  <div className="p-3 bg-secondary border border-border rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CheckCircle className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-xs font-medium text-foreground">Resumo</span>
-                    </div>
-                    <div className="space-y-1 text-xs text-muted-foreground">
-                      <p>Email: {form.email || 'Não informado'}</p>
-                      <p>Discord: {form.discord_nick || 'Não informado'}</p>
-                      <p>Assets: {form.tipo_asset.join(', ') || 'Não informado'}</p>
-                    </div>
-                  </div>
-
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="ja_vendeu" checked={form.ja_vendeu} onChange={handleChange}
-                      className="rounded border-border" />
-                    <span className="text-xs text-muted-foreground">Já vendi assets antes</span>
-                  </label>
-
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="disponibilidade_reunioes" checked={form.disponibilidade_reunioes} onChange={handleChange}
-                      className="rounded border-border" />
-                    <span className="text-xs text-muted-foreground">Tenho disponibilidade para reuniões</span>
-                  </label>
-
-                  <label className="flex items-center gap-2 cursor-pointer p-3 bg-secondary border border-border rounded-lg">
-                    <input type="checkbox" name="aceita_regras" checked={form.aceita_regras} onChange={handleChange}
-                      className="rounded border-border" />
-                    <span className="text-xs text-foreground">Li e concordo com as regras</span>
-                  </label>
-                </div>
-              )}
-
-              {/* Botões */}
-              <div className="flex justify-between pt-4">
-                {currentPage > 0 && (
-                  <Button type="button" onClick={prevPage} variant="outline" className="border-border text-muted-foreground hover:text-foreground">
-                    <ChevronLeft className="h-4 w-4 mr-2" /> Anterior
-                  </Button>
-                )}
-                
-                {currentPage < pages.length - 1 ? (
-                  <Button type="button" onClick={nextPage} className={`bg-white text-black hover:bg-white/90 font-semibold ${currentPage === 0 ? 'ml-auto' : ''}`}>
-                    Próximo <ChevronRight className="h-4 w-4 ml-2" />
-                  </Button>
-                ) : (
-                  <Button type="submit" disabled={loading} className="bg-white text-black hover:bg-white/90 font-semibold ml-auto">
-                    {loading ? 'Enviando...' : <><Send className="h-4 w-4 mr-2" /> Enviar Inscrição</>}
-                  </Button>
-                )}
-              </div>
-            </form>
+      {/* Aviso de presente */}
+      {hasGift && (
+        <div className="mb-6 p-4 bg-pink-500/10 border border-pink-500/20 rounded-xl flex items-center gap-3">
+          <Gift className="h-5 w-5 text-pink-400" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-white">Presentes no carrinho!</p>
+            <p className="text-xs text-pink-400/80">Após a aprovação do pagamento, os presentes serão enviados automaticamente.</p>
           </div>
         </div>
+      )}
 
-        {/* Sidebar - lado direito (estilo resumo do checkout) */}
-        <div className="lg:col-span-2">
-          <div className="bg-card border border-border rounded-xl p-6 sticky top-24">
-            <h2 className="text-lg font-bold text-foreground mb-4">Sobre o programa</h2>
-            
-            <div className="space-y-4 text-sm text-muted-foreground">
-              <p>✓ Ganhe comissões sobre suas vendas</p>
-              <p>✓ Suporte prioritário da equipe</p>
-              <p>✓ Visibilidade na plataforma</p>
-              <p>✓ Recebimentos mensais</p>
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        {/* Billing */}
+        <div className="lg:col-span-3">
+          <form onSubmit={handleSubmit} className="bg-card border border-border rounded-xl p-6 space-y-5">
+            <h2 className="text-lg font-bold text-foreground">Dados de Cobrança</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo *</label>
+                <input type="text" value={billing.name} onChange={(e) => setBilling({ ...billing, name: e.target.value })}
+                  className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" required />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">E-mail *</label>
+                <input type="email" value={billing.email} onChange={(e) => setBilling({ ...billing, email: e.target.value })}
+                  className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" required />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">CPF / CNPJ (Opcional)</label>
+                <input type="text" value={billing.document} onChange={(e) => setBilling({ ...billing, document: e.target.value })}
+                  className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+              </div>
             </div>
 
-            <div className="border-t border-border pt-4 mt-4">
-              <p className="text-xs text-muted-foreground">
-                Após enviar, analisaremos suas informações e entraremos em contato pelo Discord/Email em até 5 dias úteis.
-              </p>
+            {/* Wallet */}
+            {walletBalance > 0 && (
+              <div className="p-3 bg-secondary border border-border rounded-lg space-y-2">
+                <div className="flex items-center gap-2 text-sm text-foreground">
+                  <Wallet className="h-4 w-4 text-muted-foreground" />
+                  <span>Saldo disponível: <strong>{symbol}{walletBalance.toFixed(2)}</strong></span>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={useWallet} onChange={e => setUseWallet(e.target.checked)} className="rounded border-border" />
+                  <span className="text-xs text-muted-foreground">Usar saldo como desconto</span>
+                </label>
+                {useWallet && walletDiscount > 0 && (
+                  <p className="text-xs text-green-500">
+                    ✓ {symbol}{walletDiscount.toFixed(2)} de saldo serão descontados
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Coupon */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground block">Cupom de Desconto</label>
+              {appliedCoupon ? (
+                <div className="flex items-center gap-2 px-3 py-2 bg-secondary border border-border rounded-lg">
+                  <Tag className="h-4 w-4 text-foreground" />
+                  <span className="text-sm text-foreground flex-1">{appliedCoupon.code}</span>
+                  <button type="button" onClick={() => setAppliedCoupon(null)} className="text-muted-foreground hover:text-destructive">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input type="text" placeholder="DESCONTO10" value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
+                    className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring font-mono" />
+                  <Button type="button" onClick={applyCoupon} disabled={couponLoading} variant="outline" className="border-border text-foreground text-xs">
+                    {couponLoading ? '...' : 'Aplicar'}
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Payment method */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">Método de Pagamento</h3>
+              <div className="flex items-center gap-3 p-3 bg-secondary rounded-lg border border-border">
+                <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+                  <span className="text-black font-black text-[10px]">PIX</span>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-foreground">PIX</div>
+                  <div className="text-xs text-muted-foreground">Pagamento instantâneo</div>
+                </div>
+              </div>
+            </div>
+
+            <Button type="submit" disabled={submitting} className="w-full bg-white text-black hover:bg-white/90 font-semibold h-12">
+              {submitting ? 'Processando...' : isZeroTotal ? 'Finalizar Pedido Com Saldo ' : `Pagar ${symbol}${total.toFixed(2)}`}
+            </Button>
+          </form>
+        </div>
+
+        {/* Summary - com aviso de compra gratuita no painel fixo */}
+        <div className="lg:col-span-2">
+          <div className="bg-card border border-border rounded-xl p-6 space-y-4 sticky top-24">
+            <h2 className="text-lg font-bold text-foreground">Resumo</h2>
+            
+            {/* Aviso de compra gratuita no painel fixo (sem cor verde) */}
+            {isZeroTotal && (
+              <div className="p-3 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 text-[#555] flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-xs text-white font-medium">Compra com valor total R$ 0,00</p>
+                  <p className="text-[10px] text-[#555] mt-0.5">Após finalizar, seu pedido será enviado para aprovação.</p>
+                </div>
+              </div>
+            )}
+            
+            <div className="space-y-3">
+              {items.map((item) => (
+                <div key={item.id} className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-secondary rounded-lg overflow-hidden flex-shrink-0">
+                    {item.thumbnail && <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground truncate">{item.product_title}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {item.is_gift ? (
+                        <span className="text-pink-400">🎁 Presente para {item.gift_recipient_email}</span>
+                      ) : (
+                        item.license_name
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-sm font-bold text-foreground">{symbol}{(item.price_brl || 0).toFixed(2)}</div>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-border pt-3 space-y-2 text-sm">
+              <div className="flex justify-between text-muted-foreground">
+                <span>Subtotal</span>
+                <span>{symbol}{subtotal.toFixed(2)}</span>
+              </div>
+              {appliedCoupon && couponDiscount > 0 && (
+                <div className="flex justify-between text-green-500">
+                  <span>Cupom ({appliedCoupon.code})</span>
+                  <span>- {symbol}{couponDiscount.toFixed(2)}</span>
+                </div>
+              )}
+              {useWallet && walletDiscount > 0 && (
+                <div className="flex justify-between text-green-500">
+                  <span>Saldo da carteira</span>
+                  <span>- {symbol}{walletDiscount.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold text-lg text-foreground pt-1 border-t border-border">
+                <span>Total</span>
+                <span>{symbol}{total.toFixed(2)}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {showPix && (
+        <PixModal
+          open={showPix}
+          onClose={() => { setShowPix(false); navigate('/dashboard/orders'); }}
+          pixCode={pixCode}
+          total={finalTotal}
+          currency="BRL"
+        />
+      )}
     </div>
   );
 }

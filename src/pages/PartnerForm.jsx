@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { ArrowLeft, Send, ChevronRight, ChevronLeft, User, Mail, MessageCircle, Phone, Link2, Briefcase, Target, Instagram, Github, Linkedin, Languages, Code2, Globe, Clock, Check } from 'lucide-react';
+import { ArrowLeft, Send, ChevronRight, ChevronLeft, User, Mail, MessageCircle, Phone, Link2, Briefcase, Target, Instagram, Github, Linkedin, Languages, Code2, Globe, Clock, CheckCircle } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 
 export default function PartnerForm() {
@@ -34,9 +34,9 @@ export default function PartnerForm() {
 
   const pages = [
     { title: "Informações Pessoais", description: "Dados básicos para contato" },
-    { title: "Experiência", description: "Sua trajetória profissional" },
-    { title: "Redes Sociais", description: "Onde te encontrar" },
-    { title: "Habilidades", description: "Tecnologias que domina" },
+    { title: "Experiência", description: "Conte-nos sobre sua trajetória" },
+    { title: "Redes Sociais", description: "Onde podemos te encontrar" },
+    { title: "Habilidades", description: "Tecnologias que você domina" },
     { title: "Finalização", description: "Últimas informações" }
   ];
 
@@ -122,94 +122,95 @@ export default function PartnerForm() {
   const tipoAssetList = ['Scripts', 'Sistemas', 'UI Kits', 'Plugins', 'Templates'];
   const plataformasList = ['Unity', 'Unreal Engine', 'React', 'Node.js', 'Python'];
 
+  if (loading && currentPage === 4) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-muted border-t-foreground rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-black">
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        
-        {/* Botão voltar */}
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-[#555] hover:text-white mb-8 transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Voltar
-        </button>
+    <div className="min-h-screen max-w-5xl mx-auto px-4 py-8">
+      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors">
+        <ArrowLeft className="h-4 w-4" /> Voltar
+      </button>
 
-        {/* Logo e cabeçalho */}
-        <div className="text-center mb-10">
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16">
-              {!logoLoadError ? (
-                <img src={logoImage} alt="DevAssets" className="w-full h-full object-contain" onError={() => setLogoLoadError(true)} />
-              ) : (
-                <span className="text-white font-bold text-2xl">DA</span>
-              )}
-            </div>
-          </div>
-          
-          <h1 className="text-2xl font-bold text-white">Formulário de Inscrição</h1>
-          <p className="text-sm text-[#555] mt-2">Preencha os dados para se tornar um criador oficial</p>
-          
-          {/* Progresso */}
-          <div className="max-w-xs mx-auto mt-6">
-            <div className="flex justify-between text-xs text-[#555] mb-2">
-              <span>Progresso</span>
-              <span>{currentPage + 1}/{pages.length}</span>
-            </div>
-            <div className="h-1 bg-[#1A1A1A] rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-white rounded-full transition-all duration-300"
-                style={{ width: `${((currentPage + 1) / pages.length) * 100}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Formulário */}
-        <form onSubmit={handleSubmit}>
-          <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        {/* Formulário - lado esquerdo */}
+        <div className="lg:col-span-3">
+          <div className="bg-card border border-border rounded-xl p-6">
             
-            {/* Título da página */}
-            <div className="px-6 py-4 border-b border-[#1A1A1A]">
-              <h2 className="text-lg font-semibold text-white">{pages[currentPage].title}</h2>
-              <p className="text-xs text-[#555] mt-1">{pages[currentPage].description}</p>
+            {/* Cabeçalho com logo */}
+            <div className="text-center mb-8">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-secondary rounded-xl flex items-center justify-center overflow-hidden">
+                  {!logoLoadError ? (
+                    <img src={logoImage} alt="DevAssets" className="w-12 h-12 object-contain" onError={() => setLogoLoadError(true)} />
+                  ) : (
+                    <span className="text-foreground font-bold text-xl">DA</span>
+                  )}
+                </div>
+              </div>
+              <h1 className="text-2xl font-bold text-foreground">Formulário de Inscrição</h1>
+              <p className="text-sm text-muted-foreground mt-1">Torne-se um criador oficial da DevAssets</p>
             </div>
 
-            {/* Conteúdo */}
-            <div className="p-6 space-y-5">
+            {/* Progresso */}
+            <div className="mb-8">
+              <div className="flex justify-between text-xs text-muted-foreground mb-2">
+                <span>Etapa {currentPage + 1} de {pages.length}</span>
+                <span>{Math.round(((currentPage + 1) / pages.length) * 100)}%</span>
+              </div>
+              <div className="h-1 bg-secondary rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-foreground rounded-full transition-all duration-300"
+                  style={{ width: `${((currentPage + 1) / pages.length) * 100}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Título da página atual */}
+            <div className="mb-6">
+              <h2 className="text-lg font-bold text-foreground">{pages[currentPage].title}</h2>
+              <p className="text-xs text-muted-foreground mt-1">{pages[currentPage].description}</p>
+            </div>
+
+            {/* Formulário */}
+            <form onSubmit={handleSubmit} className="space-y-5">
               
               {/* PÁGINA 1 - INFORMAÇÕES PESSOAIS */}
               {currentPage === 0 && (
                 <>
                   <div>
-                    <label className="text-sm font-medium text-white mb-1 block">Nome Completo</label>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo</label>
                     <input type="text" name="nome" value={form.nome} onChange={handleChange}
-                      placeholder="Seu nome completo"
-                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-white mb-1 block">Email</label>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">E-mail</label>
                     <input type="email" name="email" value={form.email} onChange={handleChange}
-                      placeholder="seu@email.com"
-                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-white mb-1 block">Discord</label>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Discord</label>
                     <input type="text" name="discord_nick" value={form.discord_nick} onChange={handleChange}
                       placeholder="usuário#0000"
-                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-white mb-1 block">WhatsApp</label>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">WhatsApp</label>
                     <input type="tel" name="telefone" value={form.telefone} onChange={handleChange}
-                      placeholder="(11) 99999-9999"
-                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-white mb-1 block">Portfólio / GitHub</label>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Portfólio / GitHub</label>
                     <input type="url" name="portfolio_url" value={form.portfolio_url} onChange={handleChange}
-                      placeholder="https://github.com/seuusuario"
-                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
                   </div>
                 </>
               )}
@@ -218,30 +219,28 @@ export default function PartnerForm() {
               {currentPage === 1 && (
                 <>
                   <div>
-                    <label className="text-sm font-medium text-white mb-1 block">Experiência na área</label>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Experiência na área</label>
                     <textarea name="experiencia" rows={4} value={form.experiencia} onChange={handleChange}
-                      placeholder="Conte sobre sua experiência..."
-                      className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white resize-none" />
+                      className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none" />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-white mb-1 block">Por que você quer ser um criador?</label>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Por que você quer ser um criador?</label>
                     <textarea name="motivo" rows={4} value={form.motivo} onChange={handleChange}
-                      placeholder="Conte sua motivação..."
-                      className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white resize-none" />
+                      className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none" />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-white mb-1 block">Plano de Contribuição</label>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Plano de Contribuição</label>
                     <textarea name="plano_contribuicao" rows={3} value={form.plano_contribuicao} onChange={handleChange}
-                      placeholder="Quantos assets por mês? Quais tipos?"
-                      className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white resize-none" />
+                      placeholder="Quantos assets planeja criar por mês?"
+                      className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none" />
                   </div>
 
-                  <label className="flex items-center gap-3 cursor-pointer">
+                  <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" name="entrou_discord" checked={form.entrou_discord} onChange={handleChange}
-                      className="w-4 h-4 rounded border-[#1A1A1A]" />
-                    <span className="text-sm text-[#555]">Já entrei no Discord da DevAssets</span>
+                      className="rounded border-border" />
+                    <span className="text-xs text-muted-foreground">Já entrei no Discord da DevAssets</span>
                   </label>
                 </>
               )}
@@ -250,22 +249,19 @@ export default function PartnerForm() {
               {currentPage === 2 && (
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-white mb-1 block">Instagram</label>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Instagram</label>
                     <input type="text" value={form.redes_sociais.instagram} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, instagram: e.target.value } })}
-                      placeholder="@usuario"
-                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white" />
+                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground" />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-white mb-1 block">GitHub</label>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">GitHub</label>
                     <input type="text" value={form.redes_sociais.github} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, github: e.target.value } })}
-                      placeholder="github.com/usuario"
-                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white" />
+                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground" />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-white mb-1 block">LinkedIn</label>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">LinkedIn</label>
                     <input type="text" value={form.redes_sociais.linkedin} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, linkedin: e.target.value } })}
-                      placeholder="linkedin.com/in/usuario"
-                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white" />
+                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground" />
                   </div>
                 </div>
               )}
@@ -274,11 +270,15 @@ export default function PartnerForm() {
               {currentPage === 3 && (
                 <div className="space-y-5">
                   <div>
-                    <label className="text-sm font-medium text-white mb-2 block">Idiomas</label>
+                    <label className="text-xs font-medium text-muted-foreground block mb-2">Idiomas</label>
                     <div className="flex flex-wrap gap-2">
                       {idiomasList.map(idioma => (
                         <button key={idioma} type="button" onClick={() => handleMultiSelect('idiomas', idioma)}
-                          className={`px-3 py-1.5 rounded-full text-sm transition-all ${form.idiomas.includes(idioma) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#555] hover:text-white'}`}>
+                          className={`px-3 py-1.5 rounded-full text-xs transition-all ${
+                            form.idiomas.includes(idioma) 
+                              ? 'bg-foreground text-background' 
+                              : 'bg-secondary text-muted-foreground hover:text-foreground'
+                          }`}>
                           {idioma}
                         </button>
                       ))}
@@ -286,11 +286,15 @@ export default function PartnerForm() {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-white mb-2 block">Tipos de Asset</label>
+                    <label className="text-xs font-medium text-muted-foreground block mb-2">Tipos de Asset</label>
                     <div className="flex flex-wrap gap-2">
                       {tipoAssetList.map(tipo => (
                         <button key={tipo} type="button" onClick={() => handleMultiSelect('tipo_asset', tipo)}
-                          className={`px-3 py-1.5 rounded-full text-sm transition-all ${form.tipo_asset.includes(tipo) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#555] hover:text-white'}`}>
+                          className={`px-3 py-1.5 rounded-full text-xs transition-all ${
+                            form.tipo_asset.includes(tipo) 
+                              ? 'bg-foreground text-background' 
+                              : 'bg-secondary text-muted-foreground hover:text-foreground'
+                          }`}>
                           {tipo}
                         </button>
                       ))}
@@ -298,11 +302,15 @@ export default function PartnerForm() {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-white mb-2 block">Plataformas</label>
+                    <label className="text-xs font-medium text-muted-foreground block mb-2">Plataformas</label>
                     <div className="flex flex-wrap gap-2">
                       {plataformasList.map(plataforma => (
                         <button key={plataforma} type="button" onClick={() => handleMultiSelect('plataformas', plataforma)}
-                          className={`px-3 py-1.5 rounded-full text-sm transition-all ${form.plataformas.includes(plataforma) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#555] hover:text-white'}`}>
+                          className={`px-3 py-1.5 rounded-full text-xs transition-all ${
+                            form.plataformas.includes(plataforma) 
+                              ? 'bg-foreground text-background' 
+                              : 'bg-secondary text-muted-foreground hover:text-foreground'
+                          }`}>
                           {plataforma}
                         </button>
                       ))}
@@ -310,10 +318,10 @@ export default function PartnerForm() {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-white mb-1 block">Disponibilidade</label>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Disponibilidade</label>
                     <input type="text" name="disponibilidade" value={form.disponibilidade} onChange={handleChange}
                       placeholder="Ex: 10-15 horas por semana"
-                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white" />
+                      className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground" />
                   </div>
                 </div>
               )}
@@ -321,49 +329,79 @@ export default function PartnerForm() {
               {/* PÁGINA 5 - FINALIZAÇÃO */}
               {currentPage === 4 && (
                 <div className="space-y-4">
-                  <label className="flex items-center gap-3 cursor-pointer">
+                  <div className="p-3 bg-secondary border border-border rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs font-medium text-foreground">Resumo</span>
+                    </div>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <p>Email: {form.email || 'Não informado'}</p>
+                      <p>Discord: {form.discord_nick || 'Não informado'}</p>
+                      <p>Assets: {form.tipo_asset.join(', ') || 'Não informado'}</p>
+                    </div>
+                  </div>
+
+                  <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" name="ja_vendeu" checked={form.ja_vendeu} onChange={handleChange}
-                      className="w-4 h-4 rounded border-[#1A1A1A]" />
-                    <span className="text-sm text-[#555]">Já vendi assets antes</span>
+                      className="rounded border-border" />
+                    <span className="text-xs text-muted-foreground">Já vendi assets antes</span>
                   </label>
-                  <label className="flex items-center gap-3 cursor-pointer">
+
+                  <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" name="disponibilidade_reunioes" checked={form.disponibilidade_reunioes} onChange={handleChange}
-                      className="w-4 h-4 rounded border-[#1A1A1A]" />
-                    <span className="text-sm text-[#555]">Tenho disponibilidade para reuniões</span>
+                      className="rounded border-border" />
+                    <span className="text-xs text-muted-foreground">Tenho disponibilidade para reuniões</span>
                   </label>
-                  <label className="flex items-center gap-3 cursor-pointer p-3 bg-black border border-white rounded-lg">
+
+                  <label className="flex items-center gap-2 cursor-pointer p-3 bg-secondary border border-border rounded-lg">
                     <input type="checkbox" name="aceita_regras" checked={form.aceita_regras} onChange={handleChange}
-                      className="w-4 h-4 rounded border-white" />
-                    <span className="text-sm text-white">Li e concordo com as regras</span>
+                      className="rounded border-border" />
+                    <span className="text-xs text-foreground">Li e concordo com as regras</span>
                   </label>
                 </div>
               )}
+
+              {/* Botões */}
+              <div className="flex justify-between pt-4">
+                {currentPage > 0 && (
+                  <Button type="button" onClick={prevPage} variant="outline" className="border-border text-muted-foreground hover:text-foreground">
+                    <ChevronLeft className="h-4 w-4 mr-2" /> Anterior
+                  </Button>
+                )}
+                
+                {currentPage < pages.length - 1 ? (
+                  <Button type="button" onClick={nextPage} className={`bg-white text-black hover:bg-white/90 font-semibold ${currentPage === 0 ? 'ml-auto' : ''}`}>
+                    Próximo <ChevronRight className="h-4 w-4 ml-2" />
+                  </Button>
+                ) : (
+                  <Button type="submit" disabled={loading} className="bg-white text-black hover:bg-white/90 font-semibold ml-auto">
+                    {loading ? 'Enviando...' : <><Send className="h-4 w-4 mr-2" /> Enviar Inscrição</>}
+                  </Button>
+                )}
+              </div>
+            </form>
+          </div>
+        </div>
+
+        {/* Sidebar - lado direito (estilo resumo do checkout) */}
+        <div className="lg:col-span-2">
+          <div className="bg-card border border-border rounded-xl p-6 sticky top-24">
+            <h2 className="text-lg font-bold text-foreground mb-4">Sobre o programa</h2>
+            
+            <div className="space-y-4 text-sm text-muted-foreground">
+              <p>✓ Ganhe comissões sobre suas vendas</p>
+              <p>✓ Suporte prioritário da equipe</p>
+              <p>✓ Visibilidade na plataforma</p>
+              <p>✓ Recebimentos mensais</p>
             </div>
 
-            {/* Botões */}
-            <div className="px-6 py-4 border-t border-[#1A1A1A] flex justify-between">
-              {currentPage > 0 && (
-                <Button type="button" onClick={prevPage} variant="outline" className="border-[#1A1A1A] text-[#555] hover:text-white hover:bg-[#1A1A1A]">
-                  <ChevronLeft className="h-4 w-4 mr-2" /> Anterior
-                </Button>
-              )}
-              
-              {currentPage < pages.length - 1 ? (
-                <Button type="button" onClick={nextPage} className={`bg-white text-black hover:bg-white/90 ${currentPage === 0 ? 'ml-auto' : ''}`}>
-                  Próximo <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
-              ) : (
-                <Button type="submit" disabled={loading} className="bg-white text-black hover:bg-white/90 ml-auto">
-                  {loading ? 'Enviando...' : <><Send className="h-4 w-4 mr-2" /> Enviar</>}
-                </Button>
-              )}
+            <div className="border-t border-border pt-4 mt-4">
+              <p className="text-xs text-muted-foreground">
+                Após enviar, analisaremos suas informações e entraremos em contato pelo Discord/Email em até 5 dias úteis.
+              </p>
             </div>
           </div>
-        </form>
-
-        <p className="text-xs text-[#555] text-center mt-6">
-          Ao enviar, você concorda com nossos termos
-        </p>
+        </div>
       </div>
     </div>
   );
