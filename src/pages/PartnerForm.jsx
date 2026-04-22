@@ -1,14 +1,10 @@
 // src/pages/PartnerForm.jsx
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { 
-  ArrowLeft, Send, ChevronRight, ChevronLeft, User, Mail, MessageCircle, 
-  Phone, Link2, Briefcase, Target, Instagram, Github, Linkedin, Languages, 
-  Code2, Globe, Clock, Check, Sparkles, Shield, Award, Star, TrendingUp
-} from 'lucide-react';
+import { ArrowLeft, Send, ChevronRight, ChevronLeft, User, Mail, MessageCircle, Phone, Link2, Briefcase, Target, Instagram, Github, Linkedin, Languages, Code2, Globe, Clock, Check } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 
 export default function PartnerForm() {
@@ -37,36 +33,11 @@ export default function PartnerForm() {
   });
 
   const pages = [
-    { 
-      title: "Informações Pessoais", 
-      description: "Como podemos te identificar",
-      icon: User,
-      gradient: "from-blue-500 to-cyan-400"
-    },
-    { 
-      title: "Experiência", 
-      description: "Sua trajetória profissional",
-      icon: Briefcase,
-      gradient: "from-purple-500 to-pink-400"
-    },
-    { 
-      title: "Redes Sociais", 
-      description: "Onde te encontrar online",
-      icon: Globe,
-      gradient: "from-orange-500 to-red-400"
-    },
-    { 
-      title: "Habilidades", 
-      description: "Tecnologias que você domina",
-      icon: Code2,
-      gradient: "from-green-500 to-emerald-400"
-    },
-    { 
-      title: "Finalização", 
-      description: "Últimas informações",
-      icon: Shield,
-      gradient: "from-indigo-500 to-purple-400"
-    }
+    { title: "Informações Pessoais", description: "Dados básicos para contato" },
+    { title: "Experiência", description: "Sua trajetória profissional" },
+    { title: "Redes Sociais", description: "Onde te encontrar" },
+    { title: "Habilidades", description: "Tecnologias que domina" },
+    { title: "Finalização", description: "Últimas informações" }
   ];
 
   const handleChange = (e) => {
@@ -151,358 +122,248 @@ export default function PartnerForm() {
   const tipoAssetList = ['Scripts', 'Sistemas', 'UI Kits', 'Plugins', 'Templates'];
   const plataformasList = ['Unity', 'Unreal Engine', 'React', 'Node.js', 'Python'];
 
-  const CurrentIcon = pages[currentPage].icon;
-
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-950 to-black">
-      {/* Decoração de fundo - efeito de brilho */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl" />
-      </div>
-
-      {/* Container principal - tela cheia */}
-      <div className="relative min-h-screen flex flex-col">
+    <div className="min-h-screen bg-black">
+      <div className="max-w-3xl mx-auto px-4 py-8">
         
-        {/* Header com botão voltar */}
-        <div className="sticky top-0 z-10 bg-black/80 backdrop-blur-xl border-b border-white/10">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <button 
-              onClick={() => navigate(-1)} 
-              className="group flex items-center gap-2 text-gray-400 hover:text-white transition-all duration-300 hover:translate-x-[-4px]"
-            >
-              <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> 
-              <span className="text-sm">Voltar</span>
-            </button>
+        {/* Botão voltar */}
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-[#555] hover:text-white mb-8 transition-colors">
+          <ArrowLeft className="h-4 w-4" /> Voltar
+        </button>
+
+        {/* Logo e cabeçalho */}
+        <div className="text-center mb-10">
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16">
+              {!logoLoadError ? (
+                <img src={logoImage} alt="DevAssets" className="w-full h-full object-contain" onError={() => setLogoLoadError(true)} />
+              ) : (
+                <span className="text-white font-bold text-2xl">DA</span>
+              )}
+            </div>
+          </div>
+          
+          <h1 className="text-2xl font-bold text-white">Formulário de Inscrição</h1>
+          <p className="text-sm text-[#555] mt-2">Preencha os dados para se tornar um criador oficial</p>
+          
+          {/* Progresso */}
+          <div className="max-w-xs mx-auto mt-6">
+            <div className="flex justify-between text-xs text-[#555] mb-2">
+              <span>Progresso</span>
+              <span>{currentPage + 1}/{pages.length}</span>
+            </div>
+            <div className="h-1 bg-[#1A1A1A] rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-white rounded-full transition-all duration-300"
+                style={{ width: `${((currentPage + 1) / pages.length) * 100}%` }}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Conteúdo principal centralizado */}
-        <div className="flex-1 flex items-center justify-center px-6 py-12">
-          <div className="w-full max-w-4xl">
+        {/* Formulário */}
+        <form onSubmit={handleSubmit}>
+          <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
             
-            {/* Logo e Header */}
-            <div className="text-center mb-12">
-              <div className="relative inline-block mb-8">
-                <div className="absolute inset-0 bg-white/20 rounded-2xl blur-2xl opacity-60 animate-pulse" />
-                <div className="relative w-24 h-24 flex items-center justify-center overflow-hidden bg-gradient-to-br from-white to-gray-200 rounded-2xl shadow-2xl">
-                  {!logoLoadError ? (
-                    <img src={logoImage} alt="DevAssets" className="w-16 h-16 object-contain" onError={() => setLogoLoadError(true)} />
-                  ) : (
-                    <span className="text-black font-black text-2xl">DA</span>
-                  )}
-                </div>
-              </div>
-              
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent mb-3">
-                Torne-se um Criador
-              </h1>
-              <p className="text-gray-400 max-w-md mx-auto">
-                Faça parte da maior plataforma de assets do Brasil
-              </p>
-              
-              {/* Progresso aprimorado */}
-              <div className="max-w-md mx-auto mt-8">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs text-gray-500">Progresso</span>
-                  <span className="text-sm font-medium text-white">{Math.round(((currentPage + 1) / pages.length) * 100)}%</span>
-                </div>
-                <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full bg-gradient-to-r ${pages[currentPage].gradient} rounded-full transition-all duration-500 ease-out`}
-                    style={{ width: `${((currentPage + 1) / pages.length) * 100}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Indicador de páginas */}
-              <div className="flex items-center justify-center gap-2 mt-8">
-                {pages.map((page, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => idx < currentPage && setCurrentPage(idx)}
-                    className={`transition-all duration-300 ${
-                      idx === currentPage 
-                        ? 'w-10 h-2 bg-white rounded-full' 
-                        : idx < currentPage 
-                          ? 'w-6 h-2 bg-white/40 rounded-full hover:bg-white/60' 
-                          : 'w-6 h-2 bg-white/10 rounded-full'
-                    }`}
-                  />
-                ))}
-              </div>
+            {/* Título da página */}
+            <div className="px-6 py-4 border-b border-[#1A1A1A]">
+              <h2 className="text-lg font-semibold text-white">{pages[currentPage].title}</h2>
+              <p className="text-xs text-[#555] mt-1">{pages[currentPage].description}</p>
             </div>
 
-            {/* Formulário */}
-            <form onSubmit={handleSubmit}>
-              <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 hover:shadow-white/5">
-                
-                {/* Cabeçalho da página */}
-                <div className="px-8 py-6 border-b border-white/10 bg-gradient-to-r from-white/5 to-transparent">
-                  <div className="flex items-center gap-4">
-                    <div className={`p-3 bg-gradient-to-r ${pages[currentPage].gradient} rounded-xl shadow-lg`}>
-                      <CurrentIcon className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-semibold text-white">{pages[currentPage].title}</h2>
-                      <p className="text-sm text-gray-400 mt-0.5">{pages[currentPage].description}</p>
-                    </div>
+            {/* Conteúdo */}
+            <div className="p-6 space-y-5">
+              
+              {/* PÁGINA 1 - INFORMAÇÕES PESSOAIS */}
+              {currentPage === 0 && (
+                <>
+                  <div>
+                    <label className="text-sm font-medium text-white mb-1 block">Nome Completo</label>
+                    <input type="text" name="nome" value={form.nome} onChange={handleChange}
+                      placeholder="Seu nome completo"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-white mb-1 block">Email</label>
+                    <input type="email" name="email" value={form.email} onChange={handleChange}
+                      placeholder="seu@email.com"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-white mb-1 block">Discord</label>
+                    <input type="text" name="discord_nick" value={form.discord_nick} onChange={handleChange}
+                      placeholder="usuário#0000"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-white mb-1 block">WhatsApp</label>
+                    <input type="tel" name="telefone" value={form.telefone} onChange={handleChange}
+                      placeholder="(11) 99999-9999"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-white mb-1 block">Portfólio / GitHub</label>
+                    <input type="url" name="portfolio_url" value={form.portfolio_url} onChange={handleChange}
+                      placeholder="https://github.com/seuusuario"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                  </div>
+                </>
+              )}
+
+              {/* PÁGINA 2 - EXPERIÊNCIA */}
+              {currentPage === 1 && (
+                <>
+                  <div>
+                    <label className="text-sm font-medium text-white mb-1 block">Experiência na área</label>
+                    <textarea name="experiencia" rows={4} value={form.experiencia} onChange={handleChange}
+                      placeholder="Conte sobre sua experiência..."
+                      className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white resize-none" />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-white mb-1 block">Por que você quer ser um criador?</label>
+                    <textarea name="motivo" rows={4} value={form.motivo} onChange={handleChange}
+                      placeholder="Conte sua motivação..."
+                      className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white resize-none" />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-white mb-1 block">Plano de Contribuição</label>
+                    <textarea name="plano_contribuicao" rows={3} value={form.plano_contribuicao} onChange={handleChange}
+                      placeholder="Quantos assets por mês? Quais tipos?"
+                      className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white resize-none" />
+                  </div>
+
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="entrou_discord" checked={form.entrou_discord} onChange={handleChange}
+                      className="w-4 h-4 rounded border-[#1A1A1A]" />
+                    <span className="text-sm text-[#555]">Já entrei no Discord da DevAssets</span>
+                  </label>
+                </>
+              )}
+
+              {/* PÁGINA 3 - REDES SOCIAIS */}
+              {currentPage === 2 && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-white mb-1 block">Instagram</label>
+                    <input type="text" value={form.redes_sociais.instagram} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, instagram: e.target.value } })}
+                      placeholder="@usuario"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-white mb-1 block">GitHub</label>
+                    <input type="text" value={form.redes_sociais.github} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, github: e.target.value } })}
+                      placeholder="github.com/usuario"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-white mb-1 block">LinkedIn</label>
+                    <input type="text" value={form.redes_sociais.linkedin} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, linkedin: e.target.value } })}
+                      placeholder="linkedin.com/in/usuario"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white" />
                   </div>
                 </div>
+              )}
 
-                {/* Conteúdo */}
-                <div className="p-8 space-y-6">
-                  
-                  {/* PÁGINA 0 - INFORMAÇÕES PESSOAIS */}
-                  {currentPage === 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="md:col-span-2">
-                        <div className="flex items-center gap-2 mb-2">
-                          <User className="h-4 w-4 text-gray-400" />
-                          <label className="text-sm font-medium text-white">Nome Completo</label>
-                        </div>
-                        <input type="text" name="nome" value={form.nome} onChange={handleChange}
-                          placeholder="Digite seu nome completo"
-                          className="w-full h-12 px-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/20 transition-all duration-300" />
-                      </div>
-
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Mail className="h-4 w-4 text-gray-400" />
-                          <label className="text-sm font-medium text-white">Email</label>
-                        </div>
-                        <input type="email" name="email" value={form.email} onChange={handleChange}
-                          placeholder="seu@email.com"
-                          className="w-full h-12 px-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/50 transition-all duration-300" />
-                      </div>
-
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <MessageCircle className="h-4 w-4 text-gray-400" />
-                          <label className="text-sm font-medium text-white">Discord</label>
-                        </div>
-                        <input type="text" name="discord_nick" value={form.discord_nick} onChange={handleChange}
-                          placeholder="usuário#0000"
-                          className="w-full h-12 px-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/50 transition-all duration-300" />
-                      </div>
-
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Phone className="h-4 w-4 text-gray-400" />
-                          <label className="text-sm font-medium text-white">WhatsApp</label>
-                        </div>
-                        <input type="tel" name="telefone" value={form.telefone} onChange={handleChange}
-                          placeholder="(11) 99999-9999"
-                          className="w-full h-12 px-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/50 transition-all duration-300" />
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Link2 className="h-4 w-4 text-gray-400" />
-                          <label className="text-sm font-medium text-white">Portfólio / GitHub</label>
-                        </div>
-                        <input type="url" name="portfolio_url" value={form.portfolio_url} onChange={handleChange}
-                          placeholder="https://github.com/seuusuario"
-                          className="w-full h-12 px-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/50 transition-all duration-300" />
-                      </div>
+              {/* PÁGINA 4 - HABILIDADES */}
+              {currentPage === 3 && (
+                <div className="space-y-5">
+                  <div>
+                    <label className="text-sm font-medium text-white mb-2 block">Idiomas</label>
+                    <div className="flex flex-wrap gap-2">
+                      {idiomasList.map(idioma => (
+                        <button key={idioma} type="button" onClick={() => handleMultiSelect('idiomas', idioma)}
+                          className={`px-3 py-1.5 rounded-full text-sm transition-all ${form.idiomas.includes(idioma) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#555] hover:text-white'}`}>
+                          {idioma}
+                        </button>
+                      ))}
                     </div>
-                  )}
+                  </div>
 
-                  {/* PÁGINA 1 - EXPERIÊNCIA */}
-                  {currentPage === 1 && (
-                    <div className="space-y-6">
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Briefcase className="h-4 w-4 text-gray-400" />
-                          <label className="text-sm font-medium text-white">Experiência na área</label>
-                        </div>
-                        <textarea name="experiencia" rows={4} value={form.experiencia} onChange={handleChange}
-                          placeholder="Conte sobre sua experiência com desenvolvimento, criação de assets, etc."
-                          className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/50 transition-all duration-300 resize-none" />
-                      </div>
-
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Target className="h-4 w-4 text-gray-400" />
-                          <label className="text-sm font-medium text-white">Por que você quer ser um criador?</label>
-                        </div>
-                        <textarea name="motivo" rows={4} value={form.motivo} onChange={handleChange}
-                          placeholder="Conte sua motivação para se juntar à DevAssets"
-                          className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/50 transition-all duration-300 resize-none" />
-                      </div>
-
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <TrendingUp className="h-4 w-4 text-gray-400" />
-                          <label className="text-sm font-medium text-white">Plano de Contribuição</label>
-                        </div>
-                        <textarea name="plano_contribuicao" rows={3} value={form.plano_contribuicao} onChange={handleChange}
-                          placeholder="Quantos assets planeja criar por mês? Quais tipos?"
-                          className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/50 transition-all duration-300 resize-none" />
-                      </div>
-
-                      <label className="flex items-center gap-3 cursor-pointer p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 group">
-                        <input type="checkbox" name="entrou_discord" checked={form.entrou_discord} onChange={handleChange}
-                          className="w-4 h-4 rounded border-white/30" />
-                        <span className="text-sm text-gray-400 group-hover:text-white transition-colors">✅ Já entrei no Discord da DevAssets</span>
-                      </label>
+                  <div>
+                    <label className="text-sm font-medium text-white mb-2 block">Tipos de Asset</label>
+                    <div className="flex flex-wrap gap-2">
+                      {tipoAssetList.map(tipo => (
+                        <button key={tipo} type="button" onClick={() => handleMultiSelect('tipo_asset', tipo)}
+                          className={`px-3 py-1.5 rounded-full text-sm transition-all ${form.tipo_asset.includes(tipo) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#555] hover:text-white'}`}>
+                          {tipo}
+                        </button>
+                      ))}
                     </div>
-                  )}
+                  </div>
 
-                  {/* PÁGINA 2 - REDES SOCIAIS */}
-                  {currentPage === 2 && (
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-xl hover:border-white/20 transition-all duration-300">
-                        <Instagram className="h-6 w-6 text-pink-400" />
-                        <input type="text" value={form.redes_sociais.instagram} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, instagram: e.target.value } })}
-                          placeholder="@seuinstagram"
-                          className="flex-1 h-11 px-3 bg-transparent rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none" />
-                      </div>
-                      <div className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-xl hover:border-white/20 transition-all duration-300">
-                        <Github className="h-6 w-6 text-gray-400" />
-                        <input type="text" value={form.redes_sociais.github} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, github: e.target.value } })}
-                          placeholder="github.com/usuario"
-                          className="flex-1 h-11 px-3 bg-transparent rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none" />
-                      </div>
-                      <div className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-xl hover:border-white/20 transition-all duration-300">
-                        <Linkedin className="h-6 w-6 text-blue-400" />
-                        <input type="text" value={form.redes_sociais.linkedin} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, linkedin: e.target.value } })}
-                          placeholder="linkedin.com/in/usuario"
-                          className="flex-1 h-11 px-3 bg-transparent rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none" />
-                      </div>
+                  <div>
+                    <label className="text-sm font-medium text-white mb-2 block">Plataformas</label>
+                    <div className="flex flex-wrap gap-2">
+                      {plataformasList.map(plataforma => (
+                        <button key={plataforma} type="button" onClick={() => handleMultiSelect('plataformas', plataforma)}
+                          className={`px-3 py-1.5 rounded-full text-sm transition-all ${form.plataformas.includes(plataforma) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#555] hover:text-white'}`}>
+                          {plataforma}
+                        </button>
+                      ))}
                     </div>
-                  )}
+                  </div>
 
-                  {/* PÁGINA 3 - HABILIDADES */}
-                  {currentPage === 3 && (
-                    <div className="space-y-6">
-                      <div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <Languages className="h-4 w-4 text-gray-400" />
-                          <label className="text-sm font-medium text-white">Idiomas</label>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {idiomasList.map(idioma => (
-                            <button key={idioma} type="button" onClick={() => handleMultiSelect('idiomas', idioma)}
-                              className={`px-4 py-2 rounded-xl text-sm transition-all duration-300 ${
-                                form.idiomas.includes(idioma) 
-                                  ? 'bg-white text-black shadow-lg scale-105' 
-                                  : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10'
-                              }`}>
-                              {idioma}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="text-sm font-medium text-white mb-3 block">Tipos de Asset</label>
-                        <div className="flex flex-wrap gap-2">
-                          {tipoAssetList.map(tipo => (
-                            <button key={tipo} type="button" onClick={() => handleMultiSelect('tipo_asset', tipo)}
-                              className={`px-4 py-2 rounded-xl text-sm transition-all duration-300 ${
-                                form.tipo_asset.includes(tipo) 
-                                  ? 'bg-white text-black shadow-lg scale-105' 
-                                  : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10'
-                              }`}>
-                              {tipo}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="text-sm font-medium text-white mb-3 block">Plataformas</label>
-                        <div className="flex flex-wrap gap-2">
-                          {plataformasList.map(plataforma => (
-                            <button key={plataforma} type="button" onClick={() => handleMultiSelect('plataformas', plataforma)}
-                              className={`px-4 py-2 rounded-xl text-sm transition-all duration-300 ${
-                                form.plataformas.includes(plataforma) 
-                                  ? 'bg-white text-black shadow-lg scale-105' 
-                                  : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10'
-                              }`}>
-                              {plataforma}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Clock className="h-4 w-4 text-gray-400" />
-                          <label className="text-sm font-medium text-white">Disponibilidade</label>
-                        </div>
-                        <input type="text" name="disponibilidade" value={form.disponibilidade} onChange={handleChange}
-                          placeholder="Ex: 10-15 horas por semana"
-                          className="w-full h-12 px-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/50 transition-all duration-300" />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* PÁGINA 4 - FINALIZAÇÃO */}
-                  {currentPage === 4 && (
-                    <div className="space-y-4">
-                      <div className="bg-gradient-to-r from-white/5 to-transparent p-5 rounded-xl border border-white/10">
-                        <div className="flex items-center gap-3 mb-4">
-                          <Shield className="h-5 w-5 text-emerald-400" />
-                          <span className="text-sm font-medium text-white">Resumo da sua inscrição</span>
-                        </div>
-                        <div className="space-y-2 text-sm text-gray-400">
-                          <p>📧 Email: <span className="text-white">{form.email || 'Não informado'}</span></p>
-                          <p>💬 Discord: <span className="text-white">{form.discord_nick || 'Não informado'}</span></p>
-                          <p>🎨 Tipo de Asset: <span className="text-white">{form.tipo_asset.join(', ') || 'Não informado'}</span></p>
-                        </div>
-                      </div>
-
-                      <label className="flex items-center gap-3 cursor-pointer p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 group">
-                        <input type="checkbox" name="ja_vendeu" checked={form.ja_vendeu} onChange={handleChange}
-                          className="w-4 h-4 rounded border-white/30" />
-                        <span className="text-sm text-gray-400 group-hover:text-white transition-colors">💰 Já vendi assets antes</span>
-                      </label>
-
-                      <label className="flex items-center gap-3 cursor-pointer p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 group">
-                        <input type="checkbox" name="disponibilidade_reunioes" checked={form.disponibilidade_reunioes} onChange={handleChange}
-                          className="w-4 h-4 rounded border-white/30" />
-                        <span className="text-sm text-gray-400 group-hover:text-white transition-colors">🎥 Tenho disponibilidade para reuniões</span>
-                      </label>
-
-                      <label className="flex items-center gap-3 cursor-pointer p-4 bg-gradient-to-r from-white/10 to-transparent border border-white/30 rounded-xl transition-all duration-300 hover:border-white/50">
-                        <input type="checkbox" name="aceita_regras" checked={form.aceita_regras} onChange={handleChange}
-                          className="w-4 h-4 rounded border-white" />
-                        <span className="text-sm text-white">✅ Li e concordo com as <a href="/terms" className="underline hover:text-gray-300" target="_blank">regras e termos</a></span>
-                      </label>
-                    </div>
-                  )}
+                  <div>
+                    <label className="text-sm font-medium text-white mb-1 block">Disponibilidade</label>
+                    <input type="text" name="disponibilidade" value={form.disponibilidade} onChange={handleChange}
+                      placeholder="Ex: 10-15 horas por semana"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white" />
+                  </div>
                 </div>
+              )}
 
-                {/* Botões de navegação */}
-                <div className="px-8 py-6 border-t border-white/10 bg-white/5 flex justify-between">
-                  {currentPage > 0 && (
-                    <Button type="button" onClick={prevPage} variant="outline" className="border-white/20 text-gray-300 hover:text-white hover:bg-white/10 gap-2 px-6 rounded-xl transition-all duration-300">
-                      <ChevronLeft className="h-4 w-4" /> Anterior
-                    </Button>
-                  )}
-                  
-                  {currentPage < pages.length - 1 ? (
-                    <Button type="button" onClick={nextPage} className={`bg-gradient-to-r from-white to-gray-200 text-black hover:from-white/90 hover:to-gray-300 font-semibold gap-2 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg ${currentPage === 0 ? 'ml-auto' : ''}`}>
-                      Próximo <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  ) : (
-                    <Button type="submit" disabled={loading} className="bg-gradient-to-r from-emerald-500 to-green-600 text-white hover:from-emerald-600 hover:to-green-700 font-semibold gap-2 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 ml-auto shadow-lg">
-                      {loading ? 'Enviando...' : <><Send className="h-4 w-4" /> Enviar Inscrição</>}
-                    </Button>
-                  )}
+              {/* PÁGINA 5 - FINALIZAÇÃO */}
+              {currentPage === 4 && (
+                <div className="space-y-4">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="ja_vendeu" checked={form.ja_vendeu} onChange={handleChange}
+                      className="w-4 h-4 rounded border-[#1A1A1A]" />
+                    <span className="text-sm text-[#555]">Já vendi assets antes</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="disponibilidade_reunioes" checked={form.disponibilidade_reunioes} onChange={handleChange}
+                      className="w-4 h-4 rounded border-[#1A1A1A]" />
+                    <span className="text-sm text-[#555]">Tenho disponibilidade para reuniões</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer p-3 bg-black border border-white rounded-lg">
+                    <input type="checkbox" name="aceita_regras" checked={form.aceita_regras} onChange={handleChange}
+                      className="w-4 h-4 rounded border-white" />
+                    <span className="text-sm text-white">Li e concordo com as regras</span>
+                  </label>
                 </div>
-              </div>
-            </form>
+              )}
+            </div>
 
-            {/* Footer */}
-            <p className="text-xs text-gray-500 text-center mt-8">
-              Ao enviar, você concorda com nossos termos de uso. Seus dados estão seguros.
-            </p>
+            {/* Botões */}
+            <div className="px-6 py-4 border-t border-[#1A1A1A] flex justify-between">
+              {currentPage > 0 && (
+                <Button type="button" onClick={prevPage} variant="outline" className="border-[#1A1A1A] text-[#555] hover:text-white hover:bg-[#1A1A1A]">
+                  <ChevronLeft className="h-4 w-4 mr-2" /> Anterior
+                </Button>
+              )}
+              
+              {currentPage < pages.length - 1 ? (
+                <Button type="button" onClick={nextPage} className={`bg-white text-black hover:bg-white/90 ${currentPage === 0 ? 'ml-auto' : ''}`}>
+                  Próximo <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
+              ) : (
+                <Button type="submit" disabled={loading} className="bg-white text-black hover:bg-white/90 ml-auto">
+                  {loading ? 'Enviando...' : <><Send className="h-4 w-4 mr-2" /> Enviar</>}
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
+        </form>
+
+        <p className="text-xs text-[#555] text-center mt-6">
+          Ao enviar, você concorda com nossos termos
+        </p>
       </div>
     </div>
   );
