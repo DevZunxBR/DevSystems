@@ -1,12 +1,12 @@
-// src/pages/PartnerForm.jsx (VERSÃO CORRIGIDA COMPLETA)
+// src/pages/PartnerForm.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { Send, ChevronRight, ChevronLeft, User, Mail, MessageCircle, Phone, Link2, Briefcase, Target, Instagram, Github, Linkedin, Languages, Code2, Globe, Clock, CheckCircle } from 'lucide-react';
+import { Send, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 
-// Importe suas imagens aqui
+// Importe suas imagens
 import devRegisterBg1 from '@/assets/images/DevRegister.png';
 import devRegisterBg2 from '@/assets/images/DevRegister2.png';
 import devRegisterBg3 from '@/assets/images/DevRegister3.png';
@@ -25,19 +25,19 @@ export default function PartnerForm() {
     portfolio_url: '',
     experiencia: '',
     motivo: '',
-    entrou_discord: false,
+    entrou_discord: '',
     plano_contribuicao: '',
     redes_sociais: { instagram: '', github: '', linkedin: '' },
     disponibilidade: '',
     idiomas: '',
     tipo_asset: '',
     plataformas: '',
-    ja_vendeu: false,
-    disponibilidade_reunioes: false,
-    aceita_regras: false
+    ja_vendeu: '',
+    disponibilidade_reunioes: '',
+    aceita_regras: ''
   });
 
-  // Slideshow state
+  // Slideshow
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   
@@ -58,9 +58,8 @@ export default function PartnerForm() {
         setIsTransitioning(false);
       }, 500);
     }, 10000);
-    
     return () => clearInterval(interval);
-  }, [images.length]);
+  }, []);
 
   const pages = [
     { title: "Identidade", description: "Estabeleça sua presença criativa" },
@@ -71,11 +70,15 @@ export default function PartnerForm() {
   ];
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    const { name, value } = e.target;
+    if (name === 'instagram' || name === 'github' || name === 'linkedin') {
+      setForm(prev => ({
+        ...prev,
+        redes_sociais: { ...prev.redes_sociais, [name]: value }
+      }));
+    } else {
+      setForm(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const nextPage = () => {
@@ -115,7 +118,6 @@ export default function PartnerForm() {
         status: 'pending',
         created_at: new Date().toISOString()
       });
-
       if (error) throw error;
       toast.success('Inscrição enviada! Entraremos em contato em breve.');
       navigate('/');
@@ -139,7 +141,7 @@ export default function PartnerForm() {
   return (
     <div className="min-h-screen flex">
       
-      {/* LEFT SIDE - FORMULÁRIO */}
+      {/* LADO ESQUERDO - FORMULÁRIO */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
         
         <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-8">
@@ -165,7 +167,7 @@ export default function PartnerForm() {
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           
-          {/* PAGE 0 - IDENTIDADE */}
+          {/* PÁGINA 0 */}
           {currentPage === 0 && (
             <>
               <div>
@@ -197,7 +199,7 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PAGE 1 - TRAJETÓRIA */}
+          {/* PÁGINA 1 */}
           {currentPage === 1 && (
             <>
               <div>
@@ -216,35 +218,37 @@ export default function PartnerForm() {
                   placeholder="Quantos assets planeja criar por mês?"
                   className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white resize-none" />
               </div>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="entrou_discord" checked={form.entrou_discord} onChange={handleChange} className="rounded border-border" />
-                <span className="text-xs text-muted-foreground">Já entrei no Discord da DevAssets</span>
-              </label>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Já entrou no Discord da DevAssets?</label>
+                <input type="text" name="entrou_discord" value={form.entrou_discord} onChange={handleChange}
+                  placeholder="Sim / Não"
+                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
+              </div>
             </>
           )}
 
-          {/* PAGE 2 - REDES */}
+          {/* PÁGINA 2 */}
           {currentPage === 2 && (
             <>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Instagram</label>
-                <input type="text" value={form.redes_sociais.instagram} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, instagram: e.target.value } })}
+                <input type="text" name="instagram" value={form.redes_sociais.instagram} onChange={handleChange}
                   className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">GitHub</label>
-                <input type="text" value={form.redes_sociais.github} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, github: e.target.value } })}
+                <input type="text" name="github" value={form.redes_sociais.github} onChange={handleChange}
                   className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">LinkedIn</label>
-                <input type="text" value={form.redes_sociais.linkedin} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, linkedin: e.target.value } })}
+                <input type="text" name="linkedin" value={form.redes_sociais.linkedin} onChange={handleChange}
                   className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
               </div>
             </>
           )}
 
-          {/* PAGE 3 - STACK */}
+          {/* PÁGINA 3 */}
           {currentPage === 3 && (
             <div className="space-y-6">
               <div>
@@ -274,42 +278,53 @@ export default function PartnerForm() {
             </div>
           )}
 
-          {/* PAGE 4 - FINALIZAÇÃO (CORRIGIDA) */}
+          {/* PÁGINA 4 */}
           {currentPage === 4 && (
             <div className="space-y-5">
               <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
                 <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo</p>
-                {[
-                  { label: 'Nome', value: form.nome },
-                  { label: 'Email', value: form.email },
-                  { label: 'Discord', value: form.discord_nick },
-                  { label: 'Assets', value: form.tipo_asset || 'Não informado' },
-                ].filter(r => r.value).map(({ label, value }) => (
-                  <div key={label} className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{label}</span>
-                    <span className="text-white">{value}</span>
-                  </div>
-                ))}
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Nome</span>
+                  <span className="text-white">{form.nome || '-'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Email</span>
+                  <span className="text-white">{form.email || '-'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Discord</span>
+                  <span className="text-white">{form.discord_nick || '-'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Assets</span>
+                  <span className="text-white">{form.tipo_asset || '-'}</span>
+                </div>
               </div>
 
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="ja_vendeu" checked={form.ja_vendeu} onChange={handleChange} className="rounded border-border" />
-                <span className="text-xs text-muted-foreground">Já vendi assets antes</span>
-              </label>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Já vendeu assets antes?</label>
+                <input type="text" name="ja_vendeu" value={form.ja_vendeu} onChange={handleChange}
+                  placeholder="Sim / Não"
+                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
+              </div>
 
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="disponibilidade_reunioes" checked={form.disponibilidade_reunioes} onChange={handleChange} className="rounded border-border" />
-                <span className="text-xs text-muted-foreground">Tenho disponibilidade para reuniões</span>
-              </label>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Disponibilidade para reuniões</label>
+                <input type="text" name="disponibilidade_reunioes" value={form.disponibilidade_reunioes} onChange={handleChange}
+                  placeholder="Sim / Não"
+                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
+              </div>
 
-              <label className="flex items-start gap-2 cursor-pointer pt-2">
-                <input type="checkbox" name="aceita_regras" checked={form.aceita_regras} onChange={handleChange} className="mt-0.5 rounded border-white" />
-                <span className="text-xs text-white">Li e concordo com as regras e termos</span>
-              </label>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Li e concordo com as regras</label>
+                <input type="text" name="aceita_regras" value={form.aceita_regras} onChange={handleChange}
+                  placeholder="Sim, concordo"
+                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
+              </div>
             </div>
           )}
 
-          {/* Navigation */}
+          {/* Botões */}
           <div className="flex items-center gap-3 pt-4">
             {currentPage > 0 && (
               <button type="button" onClick={prevPage} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white">
@@ -330,15 +345,12 @@ export default function PartnerForm() {
         </form>
       </div>
 
-      {/* RIGHT SIDE - IMAGE SLIDESHOW */}
+      {/* LADO DIREITO - SLIDESHOW */}
       <div className="hidden lg:block w-1/2 relative overflow-hidden">
-        <img
-          src={images[currentImageIndex]}
-          alt="Developer workspace"
+        <img src={images[currentImageIndex]} alt="Developer workspace"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
             isTransitioning ? 'opacity-0' : 'opacity-100'
-          }`}
-        />
+          }`} />
         <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
         <div className={`absolute inset-0 flex flex-col justify-end p-12 transition-opacity duration-500 ${
           isTransitioning ? 'opacity-0' : 'opacity-100'
