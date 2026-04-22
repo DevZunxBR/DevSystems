@@ -61,7 +61,7 @@ export default function PartnerForm() {
     return () => clearInterval(interval);
   }, []);
 
-  // ⚠️ VERIFIQUE: São 5 páginas (0,1,2,3,4)
+  // ✅ CORRIGIDO: 5 PÁGINAS (0,1,2,3,4)
   const pages = [
     { title: "Identidade", description: "Estabeleça sua presença criativa" },
     { title: "Trajetória", description: "Sua experiência profissional" },
@@ -176,7 +176,7 @@ export default function PartnerForm() {
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           
-          {/* PÁGINA 0 */}
+          {/* PÁGINA 0 - IDENTIDADE */}
           {currentPage === 0 && (
             <>
               <div>
@@ -208,7 +208,7 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PÁGINA 1 */}
+          {/* PÁGINA 1 - TRAJETÓRIA */}
           {currentPage === 1 && (
             <>
               <div>
@@ -236,7 +236,7 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PÁGINA 2 */}
+          {/* PÁGINA 2 - REDES */}
           {currentPage === 2 && (
             <>
               <div>
@@ -257,7 +257,7 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PÁGINA 3 */}
+          {/* PÁGINA 3 - STACK */}
           {currentPage === 3 && (
             <div className="space-y-6">
               <div>
@@ -291,7 +291,7 @@ export default function PartnerForm() {
           {currentPage === 4 && (
             <div className="space-y-5">
               <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
-                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo da Candidatura</p>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Nome</span>
                   <span className="text-white">{form.nome || '-'}</span>
@@ -333,7 +333,7 @@ export default function PartnerForm() {
             </div>
           )}
 
-          {/* Botões */}
+          {/* Botões de navegação */}
           <div className="flex items-center gap-3 pt-4">
             {currentPage > 0 && (
               <button type="button" onClick={prevPage} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white">
@@ -347,7 +347,7 @@ export default function PartnerForm() {
               </button>
             ) : (
               <button type="submit" disabled={loading} className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 disabled:opacity-50 flex items-center gap-2">
-                {loading ? 'Enviando...' : <><Send className="w-4 h-4" /> Enviar</>}
+                {loading ? 'Enviando...' : <><Send className="w-4 h-4" /> Enviar Inscrição</>}
               </button>
             )}
           </div>
@@ -356,25 +356,38 @@ export default function PartnerForm() {
 
       {/* LADO DIREITO - SLIDESHOW */}
       <div className="hidden lg:block w-1/2 relative overflow-hidden">
-        <img src={images[currentImageIndex]} alt="Developer workspace"
+        <img
+          src={images[currentImageIndex]}
+          alt="Developer workspace"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
             isTransitioning ? 'opacity-0' : 'opacity-100'
-          }`} />
+          }`}
+        />
+        
         <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
+        
         <div className={`absolute inset-0 flex flex-col justify-end p-12 transition-opacity duration-500 ${
           isTransitioning ? 'opacity-0' : 'opacity-100'
         }`}>
           <blockquote className="space-y-3">
-            <p className="text-lg font-semibold text-white leading-relaxed">"{quotes[currentImageIndex].text}"</p>
+            <p className="text-lg font-semibold text-white leading-relaxed">
+              "{quotes[currentImageIndex].text}"
+            </p>
             <footer className="text-sm text-muted-foreground">{quotes[currentImageIndex].author}</footer>
           </blockquote>
         </div>
+        
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
           {images.map((_, index) => (
-            <button key={index} onClick={() => goToImage(index)}
+            <button
+              key={index}
+              onClick={() => goToImage(index)}
               className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                currentImageIndex === index ? 'bg-white w-6' : 'bg-white/40 hover:bg-white/60'
-              }`} />
+                currentImageIndex === index 
+                  ? 'bg-white w-6' 
+                  : 'bg-white/40 hover:bg-white/60'
+              }`}
+            />
           ))}
         </div>
       </div>
