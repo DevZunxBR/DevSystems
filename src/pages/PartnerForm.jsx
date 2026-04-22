@@ -1,16 +1,17 @@
 // src/pages/PartnerForm.jsx
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // ← Corrigido (removeu a chave extra)
 import { supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { ArrowLeft, Send, Check, Globe, Github, Linkedin, Instagram, Code2, Languages, Clock, User, Mail, MessageCircle, Phone, Link2, Briefcase, Target } from 'lucide-react';
+import { ArrowLeft, Send, ChevronRight, ChevronLeft, User, Mail, MessageCircle, Phone, Link2, Briefcase, Target, Instagram, Github, Linkedin, Languages, Code2, Globe, Clock, Check } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 
 export default function PartnerForm() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [logoLoadError, setLogoLoadError] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
   const [form, setForm] = useState({
     nome: '',
     email: '',
@@ -31,6 +32,14 @@ export default function PartnerForm() {
     aceita_regras: false
   });
 
+  const pages = [
+    { title: "Informações Pessoais", description: "Dados básicos para contato" },
+    { title: "Experiência", description: "Conte-nos sobre sua trajetória" },
+    { title: "Redes Sociais", description: "Onde podemos te encontrar" },
+    { title: "Habilidades", description: "Tecnologias que você domina" },
+    { title: "Finalização", description: "Últimas informações" }
+  ];
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm(prev => ({
@@ -48,11 +57,27 @@ export default function PartnerForm() {
     }));
   };
 
+  const nextPage = () => {
+    if (currentPage === 0 && (!form.nome || !form.email || !form.discord_nick)) {
+      toast.error('Preencha Nome, Email e Discord');
+      return;
+    }
+    if (currentPage === 4 && !form.aceita_regras) {
+      toast.error('Você precisa aceitar as regras');
+      return;
+    }
+    setCurrentPage(prev => Math.min(prev + 1, pages.length - 1));
+  };
+
+  const prevPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 0));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!form.nome || !form.email || !form.discord_nick || !form.aceita_regras) {
-      toast.error('Preencha todos os campos obrigatórios');
+    if (!form.aceita_regras) {
+      toast.error('Você precisa aceitar as regras');
       return;
     }
 
@@ -105,274 +130,257 @@ export default function PartnerForm() {
 
         {/* Logo centralizada */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-16 h-16 rounded-xl flex items-center justify-center overflow-hidden bg-white">
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-16 h-16 flex items-center justify-center overflow-hidden bg-transparent">
               {!logoLoadError ? (
-                <img src={logoImage} alt="DevAssets" className="w-full h-full object-contain p-2" onError={() => setLogoLoadError(true)} />
+                <img src={logoImage} alt="DevAssets" className="w-full h-full object-contain" onError={() => setLogoLoadError(true)} />
               ) : (
-                <span className="text-black font-black text-xl">DA</span>
+                <span className="text-white font-black text-xl">DA</span>
               )}
             </div>
           </div>
           
-          <h1 className="text-3xl font-bold text-white">Formulário de Inscrição</h1>
-          <p className="text-sm text-[#555] mt-2 max-w-md mx-auto">
-            Preencha os dados abaixo para se tornar um criador oficial da DevAssets.
-            Analisaremos suas informações e entraremos em contato.
-          </p>
+          <h1 className="text-2xl font-bold text-white">Formulário de Inscrição</h1>
+          <p className="text-sm text-[#555] mt-2">Preencha os dados para se tornar um criador oficial</p>
+          
+          {/* Indicador de página */}
+          <div className="flex items-center justify-center gap-2 mt-6">
+            {pages.map((_, idx) => (
+              <div
+                key={idx}
+                className={`h-1 rounded-full transition-all duration-300 ${
+                  idx === currentPage ? 'w-8 bg-white' : 'w-4 bg-[#1A1A1A]'
+                }`}
+              />
+            ))}
+          </div>
+          <p className="text-xs text-[#555] mt-2">{currentPage + 1} de {pages.length}</p>
         </div>
 
-        {/* Formulário estilo documentação */}
-        <form onSubmit={handleSubmit} className="space-y-8">
-          
-          {/* ============================================ */}
-          {/* INFORMAÇÕES PESSOAIS */}
-          {/* ============================================ */}
-          <div className="border-b border-[#1A1A1A] pb-2 mb-2">
-            <h2 className="text-lg font-semibold text-white">Informações Pessoais</h2>
-            <p className="text-xs text-[#555]">Dados básicos para contato e identificação</p>
-          </div>
-
-          <div className="space-y-5">
-            {/* Nome */}
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <User className="h-4 w-4 text-[#555]" />
-                <label className="text-sm font-medium text-white">Nome Completo <span className="text-red-500">*</span></label>
-              </div>
-              <p className="text-xs text-[#555] mb-2">Como você gostaria de ser chamado em nossa plataforma</p>
-              <input type="text" name="nome" value={form.nome} onChange={handleChange}
-                placeholder="Ex: João Silva"
-                className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white transition-colors" />
+        {/* Formulário */}
+        <form onSubmit={handleSubmit}>
+          <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl overflow-hidden">
+            
+            {/* Cabeçalho da página */}
+            <div className="px-6 py-4 border-b border-[#1A1A1A] bg-black/30">
+              <h2 className="text-lg font-semibold text-white">{pages[currentPage].title}</h2>
+              <p className="text-xs text-[#555] mt-0.5">{pages[currentPage].description}</p>
             </div>
 
-            {/* Email */}
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Mail className="h-4 w-4 text-[#555]" />
-                <label className="text-sm font-medium text-white">Email <span className="text-red-500">*</span></label>
-              </div>
-              <p className="text-xs text-[#555] mb-2">Usaremos este email para contato e notificações</p>
-              <input type="email" name="email" value={form.email} onChange={handleChange}
-                placeholder="Ex: joao@exemplo.com"
-                className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white transition-colors" />
+            {/* Conteúdo */}
+            <div className="p-6 space-y-5">
+              
+              {/* PÁGINA 0 - INFORMAÇÕES PESSOAIS */}
+              {currentPage === 0 && (
+                <>
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <User className="h-4 w-4 text-[#555]" />
+                      <label className="text-sm font-medium text-white">Nome Completo</label>
+                    </div>
+                    <input type="text" name="nome" value={form.nome} onChange={handleChange}
+                      placeholder="Seu nome completo"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Mail className="h-4 w-4 text-[#555]" />
+                      <label className="text-sm font-medium text-white">Email</label>
+                    </div>
+                    <input type="email" name="email" value={form.email} onChange={handleChange}
+                      placeholder="seu@email.com"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <MessageCircle className="h-4 w-4 text-[#555]" />
+                      <label className="text-sm font-medium text-white">Discord</label>
+                    </div>
+                    <input type="text" name="discord_nick" value={form.discord_nick} onChange={handleChange}
+                      placeholder="usuário#0000"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Phone className="h-4 w-4 text-[#555]" />
+                      <label className="text-sm font-medium text-white">WhatsApp</label>
+                    </div>
+                    <input type="tel" name="telefone" value={form.telefone} onChange={handleChange}
+                      placeholder="(11) 99999-9999"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Link2 className="h-4 w-4 text-[#555]" />
+                      <label className="text-sm font-medium text-white">Portfólio / GitHub</label>
+                    </div>
+                    <input type="url" name="portfolio_url" value={form.portfolio_url} onChange={handleChange}
+                      placeholder="https://github.com/seuusuario"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white" />
+                  </div>
+                </>
+              )}
+
+              {/* PÁGINA 1 - EXPERIÊNCIA */}
+              {currentPage === 1 && (
+                <>
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Briefcase className="h-4 w-4 text-[#555]" />
+                      <label className="text-sm font-medium text-white">Experiência na área</label>
+                    </div>
+                    <textarea name="experiencia" rows={4} value={form.experiencia} onChange={handleChange}
+                      placeholder="Conte sobre sua experiência com desenvolvimento, criação de assets, etc."
+                      className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white resize-none" />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Target className="h-4 w-4 text-[#555]" />
+                      <label className="text-sm font-medium text-white">Por que você quer ser um criador?</label>
+                    </div>
+                    <textarea name="motivo" rows={4} value={form.motivo} onChange={handleChange}
+                      placeholder="Conte sua motivação para se juntar à DevAssets"
+                      className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white resize-none" />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Target className="h-4 w-4 text-[#555]" />
+                      <label className="text-sm font-medium text-white">Plano de Contribuição</label>
+                    </div>
+                    <textarea name="plano_contribuicao" rows={3} value={form.plano_contribuicao} onChange={handleChange}
+                      placeholder="Quantos assets planeja criar por mês? Quais tipos?"
+                      className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white resize-none" />
+                  </div>
+
+                  <label className="flex items-center gap-3 cursor-pointer p-3 bg-black border border-[#1A1A1A] rounded-lg">
+                    <input type="checkbox" name="entrou_discord" checked={form.entrou_discord} onChange={handleChange}
+                      className="w-4 h-4 rounded border-[#1A1A1A]" />
+                    <span className="text-sm text-[#555]">Já entrei no Discord da DevAssets</span>
+                  </label>
+                </>
+              )}
+
+              {/* PÁGINA 2 - REDES SOCIAIS */}
+              {currentPage === 2 && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Instagram className="h-5 w-5 text-[#555]" />
+                    <input type="text" value={form.redes_sociais.instagram} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, instagram: e.target.value } })}
+                      placeholder="Instagram: @usuario"
+                      className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Github className="h-5 w-5 text-[#555]" />
+                    <input type="text" value={form.redes_sociais.github} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, github: e.target.value } })}
+                      placeholder="GitHub: usuario"
+                      className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Linkedin className="h-5 w-5 text-[#555]" />
+                    <input type="text" value={form.redes_sociais.linkedin} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, linkedin: e.target.value } })}
+                      placeholder="LinkedIn: /in/usuario"
+                      className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm" />
+                  </div>
+                </div>
+              )}
+
+              {/* PÁGINA 3 - HABILIDADES */}
+              {currentPage === 3 && (
+                <div className="space-y-5">
+                  <div>
+                    <label className="text-sm font-medium text-white mb-2 block">Idiomas</label>
+                    <div className="flex flex-wrap gap-2">
+                      {idiomasList.map(idioma => (
+                        <button key={idioma} type="button" onClick={() => handleMultiSelect('idiomas', idioma)}
+                          className={`px-4 py-1.5 rounded-full text-sm transition-all ${form.idiomas.includes(idioma) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#555] hover:text-white'}`}>
+                          {idioma}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-white mb-2 block">Tipos de Asset</label>
+                    <div className="flex flex-wrap gap-2">
+                      {tipoAssetList.map(tipo => (
+                        <button key={tipo} type="button" onClick={() => handleMultiSelect('tipo_asset', tipo)}
+                          className={`px-4 py-1.5 rounded-full text-sm transition-all ${form.tipo_asset.includes(tipo) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#555] hover:text-white'}`}>
+                          {tipo}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-white mb-2 block">Plataformas</label>
+                    <div className="flex flex-wrap gap-2">
+                      {plataformasList.map(plataforma => (
+                        <button key={plataforma} type="button" onClick={() => handleMultiSelect('plataformas', plataforma)}
+                          className={`px-4 py-1.5 rounded-full text-sm transition-all ${form.plataformas.includes(plataforma) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#555] hover:text-white'}`}>
+                          {plataforma}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock className="h-4 w-4 text-[#555]" />
+                      <label className="text-sm font-medium text-white">Disponibilidade</label>
+                    </div>
+                    <input type="text" name="disponibilidade" value={form.disponibilidade} onChange={handleChange}
+                      placeholder="Ex: 10-15 horas por semana"
+                      className="w-full h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm" />
+                  </div>
+                </div>
+              )}
+
+              {/* PÁGINA 4 - FINALIZAÇÃO */}
+              {currentPage === 4 && (
+                <div className="space-y-4">
+                  <label className="flex items-center gap-3 cursor-pointer p-3 bg-black border border-[#1A1A1A] rounded-lg">
+                    <input type="checkbox" name="ja_vendeu" checked={form.ja_vendeu} onChange={handleChange}
+                      className="w-4 h-4 rounded border-[#1A1A1A]" />
+                    <span className="text-sm text-[#555]">Já vendi assets antes</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer p-3 bg-black border border-[#1A1A1A] rounded-lg">
+                    <input type="checkbox" name="disponibilidade_reunioes" checked={form.disponibilidade_reunioes} onChange={handleChange}
+                      className="w-4 h-4 rounded border-[#1A1A1A]" />
+                    <span className="text-sm text-[#555]">Tenho disponibilidade para reuniões</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer p-3 bg-black border border-white rounded-lg">
+                    <input type="checkbox" name="aceita_regras" checked={form.aceita_regras} onChange={handleChange}
+                      className="w-4 h-4 rounded border-white" />
+                    <span className="text-sm text-white">Li e concordo com as regras</span>
+                  </label>
+                </div>
+              )}
             </div>
 
-            {/* Discord */}
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <MessageCircle className="h-4 w-4 text-[#555]" />
-                <label className="text-sm font-medium text-white">Discord <span className="text-red-500">*</span></label>
-              </div>
-              <p className="text-xs text-[#555] mb-2">Seu nick completo com os 4 números</p>
-              <input type="text" name="discord_nick" value={form.discord_nick} onChange={handleChange}
-                placeholder="Ex: joao#1234"
-                className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white transition-colors" />
+            {/* Botões de navegação */}
+            <div className="px-6 py-4 border-t border-[#1A1A1A] flex justify-between">
+              {currentPage > 0 && (
+                <Button type="button" onClick={prevPage} variant="outline" className="border-[#1A1A1A] text-[#555] hover:text-white hover:bg-[#1A1A1A] gap-2">
+                  <ChevronLeft className="h-4 w-4" /> Anterior
+                </Button>
+              )}
+              
+              {currentPage < pages.length - 1 ? (
+                <Button type="button" onClick={nextPage} className={`bg-white text-black hover:bg-white/90 font-semibold gap-2 ${currentPage === 0 ? 'ml-auto' : ''}`}>
+                  Próximo <ChevronRight className="h-4 w-4" />
+                </Button>
+              ) : (
+                <Button type="submit" disabled={loading} className="bg-white text-black hover:bg-white/90 font-semibold gap-2 ml-auto">
+                  {loading ? 'Enviando...' : <><Send className="h-4 w-4" /> Enviar Inscrição</>}
+                </Button>
+              )}
             </div>
-
-            {/* Telefone */}
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Phone className="h-4 w-4 text-[#555]" />
-                <label className="text-sm font-medium text-white">WhatsApp</label>
-              </div>
-              <p className="text-xs text-[#555] mb-2">Opcional, mas recomendado para contato rápido</p>
-              <input type="tel" name="telefone" value={form.telefone} onChange={handleChange}
-                placeholder="Ex: (11) 99999-9999"
-                className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white transition-colors" />
-            </div>
-
-            {/* Portfólio */}
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Link2 className="h-4 w-4 text-[#555]" />
-                <label className="text-sm font-medium text-white">Portfólio / GitHub</label>
-              </div>
-              <p className="text-xs text-[#555] mb-2">Link para seus trabalhos ou perfil do GitHub</p>
-              <input type="url" name="portfolio_url" value={form.portfolio_url} onChange={handleChange}
-                placeholder="Ex: https://github.com/joao"
-                className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white transition-colors" />
-            </div>
-          </div>
-
-          {/* ============================================ */}
-          {/* EXPERIÊNCIA E MOTIVAÇÃO */}
-          {/* ============================================ */}
-          <div className="border-b border-[#1A1A1A] pb-2 mb-2 mt-8">
-            <h2 className="text-lg font-semibold text-white">Experiência e Motivação</h2>
-            <p className="text-xs text-[#555]">Conte-nos mais sobre sua trajetória</p>
-          </div>
-
-          <div className="space-y-5">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Briefcase className="h-4 w-4 text-[#555]" />
-                <label className="text-sm font-medium text-white">Experiência na área</label>
-              </div>
-              <p className="text-xs text-[#555] mb-2">Descreva sua experiência com desenvolvimento e criação de assets</p>
-              <textarea name="experiencia" rows={3} value={form.experiencia} onChange={handleChange}
-                placeholder="Ex: Trabalho com Unity há 3 anos, já criei 10 assets..."
-                className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white transition-colors resize-none" />
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Target className="h-4 w-4 text-[#555]" />
-                <label className="text-sm font-medium text-white">Por que você quer ser um criador?</label>
-              </div>
-              <p className="text-xs text-[#555] mb-2">Conte sua motivação para se juntar à DevAssets</p>
-              <textarea name="motivo" rows={3} value={form.motivo} onChange={handleChange}
-                placeholder="Ex: Quero compartilhar meus assets e ganhar comissão..."
-                className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white transition-colors resize-none" />
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Target className="h-4 w-4 text-[#555]" />
-                <label className="text-sm font-medium text-white">Plano de Contribuição</label>
-              </div>
-              <p className="text-xs text-[#555] mb-2">Quantos assets planeja criar por mês? Quais tipos?</p>
-              <textarea name="plano_contribuicao" rows={2} value={form.plano_contribuicao} onChange={handleChange}
-                placeholder="Ex: Planejo criar 2-3 assets por mês, focando em sistemas de RPG..."
-                className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white placeholder:text-[#555] focus:outline-none focus:border-white transition-colors resize-none" />
-            </div>
-
-            <label className="flex items-center gap-3 cursor-pointer p-3 bg-black border border-[#1A1A1A] rounded-lg">
-              <input type="checkbox" name="entrou_discord" checked={form.entrou_discord} onChange={handleChange}
-                className="w-4 h-4 rounded border-[#1A1A1A]" />
-              <span className="text-sm text-[#555]">✅ Já entrei no Discord da DevAssets</span>
-            </label>
-          </div>
-
-          {/* ============================================ */}
-          {/* REDES SOCIAIS */}
-          {/* ============================================ */}
-          <div className="border-b border-[#1A1A1A] pb-2 mb-2 mt-8">
-            <h2 className="text-lg font-semibold text-white">Redes Sociais</h2>
-            <p className="text-xs text-[#555]">Onde podemos te encontrar profissionalmente</p>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Instagram className="h-5 w-5 text-[#555] flex-shrink-0" />
-              <input type="text" value={form.redes_sociais.instagram} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, instagram: e.target.value } })}
-                placeholder="Instagram: @usuario"
-                className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm" />
-            </div>
-            <div className="flex items-center gap-3">
-              <Github className="h-5 w-5 text-[#555] flex-shrink-0" />
-              <input type="text" value={form.redes_sociais.github} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, github: e.target.value } })}
-                placeholder="GitHub: usuario"
-                className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm" />
-            </div>
-            <div className="flex items-center gap-3">
-              <Linkedin className="h-5 w-5 text-[#555] flex-shrink-0" />
-              <input type="text" value={form.redes_sociais.linkedin} onChange={(e) => setForm({ ...form, redes_sociais: { ...form.redes_sociais, linkedin: e.target.value } })}
-                placeholder="LinkedIn: /in/usuario"
-                className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm" />
-            </div>
-          </div>
-
-          {/* ============================================ */}
-          {/* HABILIDADES TÉCNICAS */}
-          {/* ============================================ */}
-          <div className="border-b border-[#1A1A1A] pb-2 mb-2 mt-8">
-            <h2 className="text-lg font-semibold text-white">Habilidades Técnicas</h2>
-            <p className="text-xs text-[#555]">Quais tecnologias e ferramentas você domina</p>
-          </div>
-
-          <div className="space-y-5">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Languages className="h-4 w-4 text-[#555]" />
-                <label className="text-sm font-medium text-white">Idiomas</label>
-              </div>
-              <p className="text-xs text-[#555] mb-2">Selecione os idiomas que você domina</p>
-              <div className="flex flex-wrap gap-2">
-                {idiomasList.map(idioma => (
-                  <button key={idioma} type="button" onClick={() => handleMultiSelect('idiomas', idioma)}
-                    className={`px-4 py-1.5 rounded-full text-sm transition-all ${form.idiomas.includes(idioma) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#555] hover:text-white'}`}>
-                    {idioma}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Code2 className="h-4 w-4 text-[#555]" />
-                <label className="text-sm font-medium text-white">Tipos de Asset</label>
-              </div>
-              <p className="text-xs text-[#555] mb-2">Que tipo de conteúdo você cria ou planeja criar</p>
-              <div className="flex flex-wrap gap-2">
-                {tipoAssetList.map(tipo => (
-                  <button key={tipo} type="button" onClick={() => handleMultiSelect('tipo_asset', tipo)}
-                    className={`px-4 py-1.5 rounded-full text-sm transition-all ${form.tipo_asset.includes(tipo) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#555] hover:text-white'}`}>
-                    {tipo}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Globe className="h-4 w-4 text-[#555]" />
-                <label className="text-sm font-medium text-white">Plataformas</label>
-              </div>
-              <p className="text-xs text-[#555] mb-2">Quais plataformas e engines você conhece</p>
-              <div className="flex flex-wrap gap-2">
-                {plataformasList.map(plataforma => (
-                  <button key={plataforma} type="button" onClick={() => handleMultiSelect('plataformas', plataforma)}
-                    className={`px-4 py-1.5 rounded-full text-sm transition-all ${form.plataformas.includes(plataforma) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#555] hover:text-white'}`}>
-                    {plataforma}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Clock className="h-4 w-4 text-[#555]" />
-                <label className="text-sm font-medium text-white">Disponibilidade</label>
-              </div>
-              <p className="text-xs text-[#555] mb-2">Quantas horas por semana você pode dedicar</p>
-              <input type="text" name="disponibilidade" value={form.disponibilidade} onChange={handleChange}
-                placeholder="Ex: 10-15 horas por semana"
-                className="w-full h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm" />
-            </div>
-          </div>
-
-          {/* ============================================ */}
-          {/* FINALIZAÇÃO */}
-          {/* ============================================ */}
-          <div className="border-b border-[#1A1A1A] pb-2 mb-2 mt-8">
-            <h2 className="text-lg font-semibold text-white">Finalização</h2>
-            <p className="text-xs text-[#555]">Últimas informações antes de enviar</p>
-          </div>
-
-          <div className="space-y-4">
-            <label className="flex items-center gap-3 cursor-pointer p-3 bg-black border border-[#1A1A1A] rounded-lg">
-              <input type="checkbox" name="ja_vendeu" checked={form.ja_vendeu} onChange={handleChange} className="w-4 h-4 rounded border-[#1A1A1A]" />
-              <span className="text-sm text-[#555]">✅ Já vendi assets antes (em outras plataformas)</span>
-            </label>
-            <label className="flex items-center gap-3 cursor-pointer p-3 bg-black border border-[#1A1A1A] rounded-lg">
-              <input type="checkbox" name="disponibilidade_reunioes" checked={form.disponibilidade_reunioes} onChange={handleChange} className="w-4 h-4 rounded border-[#1A1A1A]" />
-              <span className="text-sm text-[#555]">✅ Tenho disponibilidade para reuniões online</span>
-            </label>
-            <label className="flex items-center gap-3 cursor-pointer p-3 bg-black border border-white rounded-lg">
-              <input type="checkbox" name="aceita_regras" checked={form.aceita_regras} onChange={handleChange} className="w-4 h-4 rounded border-white" />
-              <span className="text-sm text-white">✅ Li e concordo com as <a href="/terms" className="underline" target="_blank">regras e termos</a> <span className="text-red-500">*</span></span>
-            </label>
-          </div>
-
-          {/* Botão Enviar */}
-          <div className="pt-4">
-            <Button type="submit" disabled={loading} className="w-full bg-white text-black hover:bg-white/90 font-bold h-12 text-base">
-              {loading ? 'Enviando...' : <><Send className="h-4 w-4 mr-2" /> Enviar Inscrição</>}
-            </Button>
-            <p className="text-xs text-[#555] text-center mt-4">
-              Após enviar, analisaremos suas informações e entraremos em contato pelo Discord/Email em até 5 dias úteis.
-            </p>
           </div>
         </form>
       </div>
