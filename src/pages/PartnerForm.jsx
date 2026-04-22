@@ -169,344 +169,355 @@ export default function PartnerForm() {
     }, 500);
   };
 
+  // Nome da página atual (sem o indicador de etapas)
+  const currentPageTitle = pages[currentPage].title;
+  const currentPageDescription = pages[currentPage].description;
+
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col">
       
-      {/* LEFT SIDE - FORMULÁRIO (igual ao register) */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 space-y-8 bg-black">
+      {/* Conteúdo principal - flex-1 para empurrar o footer para baixo */}
+      <div className="flex-1 flex">
         
-        {/* Logo clicável */}
-        <div 
-          onClick={() => navigate('/')} 
-          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-        >
-          <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden">
-            {!logoLoadError ? (
-              <img
-                src={logoImage}
-                alt="Logo"
-                className="w-full h-full object-contain"
-                onError={() => setLogoLoadError(true)}
-              />
-            ) : (
-              <span className="text-white font-black text-sm">DA</span>
-            )}
+        {/* LEFT SIDE - FORMULÁRIO */}
+        <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
+          
+          {/* Logo clicável */}
+          <div 
+            onClick={() => navigate('/')} 
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-8"
+          >
+            <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden">
+              {!logoLoadError ? (
+                <img
+                  src={logoImage}
+                  alt="Logo"
+                  className="w-full h-full object-contain"
+                  onError={() => setLogoLoadError(true)}
+                />
+              ) : (
+                <span className="text-white font-black text-sm">DA</span>
+              )}
+            </div>
+            <span className="text-white font-bold text-lg tracking-tight">DevAssets</span>
           </div>
-          <span className="text-white font-bold text-lg tracking-tight">DevAssets</span>
+
+          {/* Header do formulário */}
+          <div>
+            <h1 className="text-3xl font-black text-white tracking-tight">Formulário de Inscrição</h1>
+            <p className="text-sm text-muted-foreground mt-2">
+              Torne-se um criador oficial da DevAssets
+            </p>
+          </div>
+
+          {/* Título da página atual (sem o step indicator) */}
+          <div className="mt-6">
+            <h2 className="text-xl font-bold text-white">{currentPageTitle}</h2>
+            <p className="text-xs text-muted-foreground mt-1">{currentPageDescription}</p>
+          </div>
+
+          {/* Formulário */}
+          <form onSubmit={handleSubmit} className="space-y-5 mt-6">
+            
+            {/* PAGE 0 - IDENTIDADE */}
+            {currentPage === 0 && (
+              <>
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'nome' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Nome Completo
+                  </label>
+                  <input type="text" name="nome" value={form.nome} onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('nome')} />
+                </div>
+
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'email' ? 'text-white' : 'text-muted-foreground'}`}>
+                    E-mail
+                  </label>
+                  <input type="email" name="email" value={form.email} onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('email')} />
+                </div>
+
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'discord' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Discord
+                  </label>
+                  <input type="text" name="discord_nick" value={form.discord_nick} onChange={handleChange}
+                    placeholder="usuário#0000"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('discord')} />
+                </div>
+
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'telefone' ? 'text-white' : 'text-muted-foreground'}`}>
+                    WhatsApp
+                  </label>
+                  <input type="tel" name="telefone" value={form.telefone} onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('telefone')} />
+                </div>
+
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'portfolio' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Portfólio / GitHub
+                  </label>
+                  <input type="url" name="portfolio_url" value={form.portfolio_url} onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('portfolio')} />
+                </div>
+              </>
+            )}
+
+            {/* PAGE 1 - TRAJETÓRIA */}
+            {currentPage === 1 && (
+              <>
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'experiencia' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Experiência na área
+                  </label>
+                  <textarea name="experiencia" rows={5} value={form.experiencia} onChange={handleChange}
+                    className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all resize-none"
+                    {...focusProps('experiencia')} />
+                </div>
+
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'motivo' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Por que você quer ser um criador?
+                  </label>
+                  <textarea name="motivo" rows={5} value={form.motivo} onChange={handleChange}
+                    className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all resize-none"
+                    {...focusProps('motivo')} />
+                </div>
+
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'plano' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Plano de Contribuição
+                  </label>
+                  <textarea name="plano_contribuicao" rows={4} value={form.plano_contribuicao} onChange={handleChange}
+                    placeholder="Quantos assets planeja criar por mês?"
+                    className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all resize-none"
+                    {...focusProps('plano')} />
+                </div>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="entrou_discord" checked={form.entrou_discord} onChange={handleChange}
+                    className="rounded border-border" />
+                  <span className="text-xs text-muted-foreground">Já entrei no Discord da DevAssets</span>
+                </label>
+              </>
+            )}
+
+            {/* PAGE 2 - REDES */}
+            {currentPage === 2 && (
+              <>
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'instagram' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Instagram
+                  </label>
+                  <input type="text" value={form.redes_sociais.instagram}
+                    onChange={e => setForm({ ...form, redes_sociais: { ...form.redes_sociais, instagram: e.target.value } })}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('instagram')} />
+                </div>
+
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'github' ? 'text-white' : 'text-muted-foreground'}`}>
+                    GitHub
+                  </label>
+                  <input type="text" value={form.redes_sociais.github}
+                    onChange={e => setForm({ ...form, redes_sociais: { ...form.redes_sociais, github: e.target.value } })}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('github')} />
+                </div>
+
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'linkedin' ? 'text-white' : 'text-muted-foreground'}`}>
+                    LinkedIn
+                  </label>
+                  <input type="text" value={form.redes_sociais.linkedin}
+                    onChange={e => setForm({ ...form, redes_sociais: { ...form.redes_sociais, linkedin: e.target.value } })}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('linkedin')} />
+                </div>
+              </>
+            )}
+
+            {/* PAGE 3 - STACK */}
+            {currentPage === 3 && (
+              <div className="space-y-6">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-2 block">Idiomas</label>
+                  <div className="flex flex-wrap gap-2">
+                    {idiomasList.map(idioma => (
+                      <button key={idioma} type="button" onClick={() => handleMultiSelect('idiomas', idioma)}
+                        className={`px-3 py-1.5 rounded-full text-xs transition-all ${
+                          form.idiomas.includes(idioma) 
+                            ? 'bg-white text-black' 
+                            : 'bg-secondary text-muted-foreground hover:text-white'
+                        }`}>
+                        {idioma}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-2 block">Tipos de Asset</label>
+                  <div className="flex flex-wrap gap-2">
+                    {tipoAssetList.map(tipo => (
+                      <button key={tipo} type="button" onClick={() => handleMultiSelect('tipo_asset', tipo)}
+                        className={`px-3 py-1.5 rounded-full text-xs transition-all ${
+                          form.tipo_asset.includes(tipo) 
+                            ? 'bg-white text-black' 
+                            : 'bg-secondary text-muted-foreground hover:text-white'
+                        }`}>
+                        {tipo}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-2 block">Plataformas</label>
+                  <div className="flex flex-wrap gap-2">
+                    {plataformasList.map(plataforma => (
+                      <button key={plataforma} type="button" onClick={() => handleMultiSelect('plataformas', plataforma)}
+                        className={`px-3 py-1.5 rounded-full text-xs transition-all ${
+                          form.plataformas.includes(plataforma) 
+                            ? 'bg-white text-black' 
+                            : 'bg-secondary text-muted-foreground hover:text-white'
+                        }`}>
+                        {plataforma}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'disponibilidade' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Disponibilidade semanal
+                  </label>
+                  <input type="text" name="disponibilidade" value={form.disponibilidade} onChange={handleChange}
+                    placeholder="Ex: 10–15 horas por semana"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('disponibilidade')} />
+                </div>
+              </div>
+            )}
+
+            {/* PAGE 4 - FINALIZAÇÃO */}
+            {currentPage === 4 && (
+              <div className="space-y-5">
+                <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
+                  <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo</p>
+                  {[
+                    { label: 'Nome', value: form.nome },
+                    { label: 'Email', value: form.email },
+                    { label: 'Discord', value: form.discord_nick },
+                    { label: 'Assets', value: form.tipo_asset.join(', ') },
+                  ].filter(r => r.value).map(({ label, value }) => (
+                    <div key={label} className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{label}</span>
+                      <span className="text-white">{value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="ja_vendeu" checked={form.ja_vendeu} onChange={handleChange}
+                    className="rounded border-border" />
+                  <span className="text-xs text-muted-foreground">Já vendi assets antes</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="disponibilidade_reunioes" checked={form.disponibilidade_reunioes} onChange={handleChange}
+                    className="rounded border-border" />
+                  <span className="text-xs text-muted-foreground">Tenho disponibilidade para reuniões</span>
+                </label>
+
+                <label className="flex items-start gap-2 cursor-pointer pt-2">
+                  <input type="checkbox" name="aceita_regras" checked={form.aceita_regras} onChange={handleChange}
+                    className="mt-0.5 rounded border-white" />
+                  <span className="text-xs text-white">
+                    Li e concordo com as <a href="/terms" className="underline hover:text-gray-300" target="_blank">regras e termos</a>
+                  </span>
+                </label>
+              </div>
+            )}
+
+            {/* Navigation buttons */}
+            <div className="flex items-center gap-3 pt-4">
+              {currentPage > 0 && (
+                <button type="button" onClick={prevPage}
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white transition-colors">
+                  <ChevronLeft className="w-4 h-4" /> Voltar
+                </button>
+              )}
+              <div className="flex-1" />
+              {currentPage < pages.length - 1 ? (
+                <button type="button" onClick={nextPage}
+                  className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 transition-colors flex items-center gap-2">
+                  Continuar <ChevronRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button type="submit" disabled={loading}
+                  className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 disabled:opacity-50 transition-colors flex items-center gap-2">
+                  {loading ? 'Enviando...' : <><Send className="w-4 h-4" /> Enviar</>}
+                </button>
+              )}
+            </div>
+          </form>
         </div>
 
-        {/* Header do formulário */}
-        <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Formulário de Inscrição</h1>
-          <p className="text-sm text-muted-foreground mt-2">
-            Torne-se um criador oficial da DevAssets
+        {/* RIGHT SIDE - IMAGE SLIDESHOW */}
+        <div className="hidden lg:block w-1/2 relative overflow-hidden">
+          <img
+            src={images[currentImageIndex]}
+            alt="Developer workspace"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+              isTransitioning ? 'opacity-0' : 'opacity-100'
+            }`}
+          />
+          
+          <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
+          
+          <div className={`absolute inset-0 flex flex-col justify-end p-12 transition-opacity duration-500 ${
+            isTransitioning ? 'opacity-0' : 'opacity-100'
+          }`}>
+            <blockquote className="space-y-3">
+              <p className="text-lg font-semibold text-white leading-relaxed">
+                "{quotes[currentImageIndex].text}"
+              </p>
+              <footer className="text-sm text-muted-foreground">{quotes[currentImageIndex].author}</footer>
+            </blockquote>
+          </div>
+          
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            {images.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToImage(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  currentImageIndex === index 
+                    ? 'bg-white w-6' 
+                    : 'bg-white/40 hover:bg-white/60'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* FOOTER */}
+      <footer className="bg-black border-t border-border py-4">
+        <div className="max-w-7xl mx-auto px-8 md:px-16 lg:px-24">
+          <p className="text-xs text-muted-foreground text-center">
+            © {new Date().getFullYear()} DevAssets. Todos os direitos reservados.
           </p>
         </div>
-
-        {/* Step indicator */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {pages.map((p, i) => (
-            <span key={i} className="flex items-center gap-2">
-              <span className={`text-sm ${i === currentPage ? 'text-white font-semibold' : 'text-muted-foreground'}`}>
-                {p.title}
-              </span>
-              {i < pages.length - 1 && <span className="text-muted-foreground">/</span>}
-            </span>
-          ))}
-        </div>
-
-        {/* Formulário */}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          
-          {/* PAGE 0 - IDENTIDADE */}
-          {currentPage === 0 && (
-            <>
-              <div>
-                <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'nome' ? 'text-white' : 'text-muted-foreground'}`}>
-                  Nome Completo
-                </label>
-                <input type="text" name="nome" value={form.nome} onChange={handleChange}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                  {...focusProps('nome')} />
-              </div>
-
-              <div>
-                <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'email' ? 'text-white' : 'text-muted-foreground'}`}>
-                  E-mail
-                </label>
-                <input type="email" name="email" value={form.email} onChange={handleChange}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                  {...focusProps('email')} />
-              </div>
-
-              <div>
-                <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'discord' ? 'text-white' : 'text-muted-foreground'}`}>
-                  Discord
-                </label>
-                <input type="text" name="discord_nick" value={form.discord_nick} onChange={handleChange}
-                  placeholder="usuário#0000"
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                  {...focusProps('discord')} />
-              </div>
-
-              <div>
-                <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'telefone' ? 'text-white' : 'text-muted-foreground'}`}>
-                  WhatsApp
-                </label>
-                <input type="tel" name="telefone" value={form.telefone} onChange={handleChange}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                  {...focusProps('telefone')} />
-              </div>
-
-              <div>
-                <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'portfolio' ? 'text-white' : 'text-muted-foreground'}`}>
-                  Portfólio / GitHub
-                </label>
-                <input type="url" name="portfolio_url" value={form.portfolio_url} onChange={handleChange}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                  {...focusProps('portfolio')} />
-              </div>
-            </>
-          )}
-
-          {/* PAGE 1 - TRAJETÓRIA */}
-          {currentPage === 1 && (
-            <>
-              <div>
-                <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'experiencia' ? 'text-white' : 'text-muted-foreground'}`}>
-                  Experiência na área
-                </label>
-                <textarea name="experiencia" rows={5} value={form.experiencia} onChange={handleChange}
-                  className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all resize-none"
-                  {...focusProps('experiencia')} />
-              </div>
-
-              <div>
-                <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'motivo' ? 'text-white' : 'text-muted-foreground'}`}>
-                  Por que você quer ser um criador?
-                </label>
-                <textarea name="motivo" rows={5} value={form.motivo} onChange={handleChange}
-                  className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all resize-none"
-                  {...focusProps('motivo')} />
-              </div>
-
-              <div>
-                <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'plano' ? 'text-white' : 'text-muted-foreground'}`}>
-                  Plano de Contribuição
-                </label>
-                <textarea name="plano_contribuicao" rows={4} value={form.plano_contribuicao} onChange={handleChange}
-                  placeholder="Quantos assets planeja criar por mês?"
-                  className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all resize-none"
-                  {...focusProps('plano')} />
-              </div>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="entrou_discord" checked={form.entrou_discord} onChange={handleChange}
-                  className="rounded border-border" />
-                <span className="text-xs text-muted-foreground">Já entrei no Discord da DevAssets</span>
-              </label>
-            </>
-          )}
-
-          {/* PAGE 2 - REDES */}
-          {currentPage === 2 && (
-            <>
-              <div>
-                <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'instagram' ? 'text-white' : 'text-muted-foreground'}`}>
-                  Instagram
-                </label>
-                <input type="text" value={form.redes_sociais.instagram}
-                  onChange={e => setForm({ ...form, redes_sociais: { ...form.redes_sociais, instagram: e.target.value } })}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                  {...focusProps('instagram')} />
-              </div>
-
-              <div>
-                <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'github' ? 'text-white' : 'text-muted-foreground'}`}>
-                  GitHub
-                </label>
-                <input type="text" value={form.redes_sociais.github}
-                  onChange={e => setForm({ ...form, redes_sociais: { ...form.redes_sociais, github: e.target.value } })}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                  {...focusProps('github')} />
-              </div>
-
-              <div>
-                <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'linkedin' ? 'text-white' : 'text-muted-foreground'}`}>
-                  LinkedIn
-                </label>
-                <input type="text" value={form.redes_sociais.linkedin}
-                  onChange={e => setForm({ ...form, redes_sociais: { ...form.redes_sociais, linkedin: e.target.value } })}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                  {...focusProps('linkedin')} />
-              </div>
-            </>
-          )}
-
-          {/* PAGE 3 - STACK */}
-          {currentPage === 3 && (
-            <div className="space-y-6">
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-2 block">Idiomas</label>
-                <div className="flex flex-wrap gap-2">
-                  {idiomasList.map(idioma => (
-                    <button key={idioma} type="button" onClick={() => handleMultiSelect('idiomas', idioma)}
-                      className={`px-3 py-1.5 rounded-full text-xs transition-all ${
-                        form.idiomas.includes(idioma) 
-                          ? 'bg-white text-black' 
-                          : 'bg-secondary text-muted-foreground hover:text-white'
-                      }`}>
-                      {idioma}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-2 block">Tipos de Asset</label>
-                <div className="flex flex-wrap gap-2">
-                  {tipoAssetList.map(tipo => (
-                    <button key={tipo} type="button" onClick={() => handleMultiSelect('tipo_asset', tipo)}
-                      className={`px-3 py-1.5 rounded-full text-xs transition-all ${
-                        form.tipo_asset.includes(tipo) 
-                          ? 'bg-white text-black' 
-                          : 'bg-secondary text-muted-foreground hover:text-white'
-                      }`}>
-                      {tipo}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-2 block">Plataformas</label>
-                <div className="flex flex-wrap gap-2">
-                  {plataformasList.map(plataforma => (
-                    <button key={plataforma} type="button" onClick={() => handleMultiSelect('plataformas', plataforma)}
-                      className={`px-3 py-1.5 rounded-full text-xs transition-all ${
-                        form.plataformas.includes(plataforma) 
-                          ? 'bg-white text-black' 
-                          : 'bg-secondary text-muted-foreground hover:text-white'
-                      }`}>
-                      {plataforma}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'disponibilidade' ? 'text-white' : 'text-muted-foreground'}`}>
-                  Disponibilidade semanal
-                </label>
-                <input type="text" name="disponibilidade" value={form.disponibilidade} onChange={handleChange}
-                  placeholder="Ex: 10–15 horas por semana"
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                  {...focusProps('disponibilidade')} />
-              </div>
-            </div>
-          )}
-
-          {/* PAGE 4 - FINALIZAÇÃO */}
-          {currentPage === 4 && (
-            <div className="space-y-5">
-              <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
-                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo</p>
-                {[
-                  { label: 'Nome', value: form.nome },
-                  { label: 'Email', value: form.email },
-                  { label: 'Discord', value: form.discord_nick },
-                  { label: 'Assets', value: form.tipo_asset.join(', ') },
-                ].filter(r => r.value).map(({ label, value }) => (
-                  <div key={label} className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{label}</span>
-                    <span className="text-white">{value}</span>
-                  </div>
-                ))}
-              </div>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="ja_vendeu" checked={form.ja_vendeu} onChange={handleChange}
-                  className="rounded border-border" />
-                <span className="text-xs text-muted-foreground">Já vendi assets antes</span>
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="disponibilidade_reunioes" checked={form.disponibilidade_reunioes} onChange={handleChange}
-                  className="rounded border-border" />
-                <span className="text-xs text-muted-foreground">Tenho disponibilidade para reuniões</span>
-              </label>
-
-              <label className="flex items-start gap-2 cursor-pointer pt-2">
-                <input type="checkbox" name="aceita_regras" checked={form.aceita_regras} onChange={handleChange}
-                  className="mt-0.5 rounded border-white" />
-                <span className="text-xs text-white">
-                  Li e concordo com as <a href="/terms" className="underline hover:text-gray-300" target="_blank">regras e termos</a>
-                </span>
-              </label>
-            </div>
-          )}
-
-          {/* Navigation buttons */}
-          <div className="flex items-center gap-3 pt-4">
-            {currentPage > 0 && (
-              <button type="button" onClick={prevPage}
-                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white transition-colors">
-                <ChevronLeft className="w-4 h-4" /> Voltar
-              </button>
-            )}
-            <div className="flex-1" />
-            {currentPage < pages.length - 1 ? (
-              <button type="button" onClick={nextPage}
-                className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 transition-colors flex items-center gap-2">
-                Continuar <ChevronRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <button type="submit" disabled={loading}
-                className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 disabled:opacity-50 transition-colors flex items-center gap-2">
-                {loading ? 'Enviando...' : <><Send className="w-4 h-4" /> Enviar</>}
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
-
-      {/* RIGHT SIDE - IMAGE SLIDESHOW (igual ao register) */}
-      <div className="hidden lg:block w-1/2 relative overflow-hidden">
-        <img
-          src={images[currentImageIndex]}
-          alt="Developer workspace"
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-            isTransitioning ? 'opacity-0' : 'opacity-100'
-          }`}
-        />
-        
-        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
-        
-        <div className={`absolute inset-0 flex flex-col justify-end p-12 transition-opacity duration-500 ${
-          isTransitioning ? 'opacity-0' : 'opacity-100'
-        }`}>
-          <blockquote className="space-y-3">
-            <p className="text-lg font-semibold text-white leading-relaxed">
-              "{quotes[currentImageIndex].text}"
-            </p>
-            <footer className="text-sm text-muted-foreground">{quotes[currentImageIndex].author}</footer>
-          </blockquote>
-        </div>
-        
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-          {images.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToImage(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                currentImageIndex === index 
-                  ? 'bg-white w-6' 
-                  : 'bg-white/40 hover:bg-white/60'
-              }`}
-            />
-          ))}
-        </div>
-      </div>
+      </footer>
     </div>
   );
 }
