@@ -1,4 +1,4 @@
-// src/pages/PartnerForm.jsx (VERSÃO CORRIGIDA)
+// src/pages/PartnerForm.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
@@ -61,12 +61,13 @@ export default function PartnerForm() {
     return () => clearInterval(interval);
   }, []);
 
+  // ⚠️ VERIFIQUE: SÃO 5 PÁGINAS ⚠️
   const pages = [
     { title: "Identidade", description: "Estabeleça sua presença criativa" },
     { title: "Trajetória", description: "Sua experiência profissional" },
     { title: "Redes", description: "Pontos de conexão social" },
     { title: "Stack", description: "Capacidades técnicas" },
-    { title: "Finalização", description: "Últimas informações" },
+    { title: "Finalização", description: "Últimas informações" },  // ← NÃO ESQUEÇA ESTA!
   ];
 
   const handleChange = (e) => {
