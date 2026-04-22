@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { ArrowLeft, Send, ChevronRight, ChevronLeft, User, Mail, MessageCircle, Phone, Link2, Briefcase, Target, Instagram, Github, Linkedin, Languages, Code2, Globe, Clock, CheckCircle } from 'lucide-react';
+import { Send, ChevronRight, ChevronLeft, User, Mail, MessageCircle, Phone, Link2, Briefcase, Target, Instagram, Github, Linkedin, Languages, Code2, Globe, Clock, CheckCircle, MessageSquare, Home } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 
 export default function PartnerForm() {
@@ -122,21 +122,10 @@ export default function PartnerForm() {
   const tipoAssetList = ['Scripts', 'Sistemas', 'UI Kits', 'Plugins', 'Templates'];
   const plataformasList = ['Unity', 'Unreal Engine', 'React', 'Node.js', 'Python'];
 
-  if (loading && currentPage === 4) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-muted border-t-foreground rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen max-w-5xl mx-auto px-4 py-8">
-      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors">
-        <ArrowLeft className="h-4 w-4" /> Voltar
-      </button>
-
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        
         {/* Formulário - lado esquerdo */}
         <div className="lg:col-span-3">
           <div className="bg-card border border-border rounded-xl p-6">
@@ -361,7 +350,7 @@ export default function PartnerForm() {
                 </div>
               )}
 
-              {/* Botões */}
+              {/* Botões de navegação */}
               <div className="flex justify-between pt-4">
                 {currentPage > 0 && (
                   <Button type="button" onClick={prevPage} variant="outline" className="border-border text-muted-foreground hover:text-foreground">
@@ -383,22 +372,41 @@ export default function PartnerForm() {
           </div>
         </div>
 
-        {/* Sidebar - lado direito (estilo resumo do checkout) */}
+        {/* Sidebar - lado direito (fixa) */}
         <div className="lg:col-span-2">
           <div className="bg-card border border-border rounded-xl p-6 sticky top-24">
             <h2 className="text-lg font-bold text-foreground mb-4">Sobre o programa</h2>
             
-            <div className="space-y-4 text-sm text-muted-foreground">
+            <div className="space-y-3 text-sm text-muted-foreground">
               <p>✓ Ganhe comissões sobre suas vendas</p>
               <p>✓ Suporte prioritário da equipe</p>
               <p>✓ Visibilidade na plataforma</p>
               <p>✓ Recebimentos mensais</p>
+              <p>✓ Divulgação dos seus assets</p>
             </div>
 
-            <div className="border-t border-border pt-4 mt-4">
+            <div className="border-t border-border pt-4 mt-4 mb-6">
               <p className="text-xs text-muted-foreground">
                 Após enviar, analisaremos suas informações e entraremos em contato pelo Discord/Email em até 5 dias úteis.
               </p>
+            </div>
+
+            {/* Botões da sidebar */}
+            <div className="space-y-3">
+              <Button 
+                onClick={() => window.open('https://discord.gg/devassets', '_blank')}
+                className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-semibold gap-2"
+              >
+                <MessageSquare className="h-4 w-4" /> Entrar no Discord
+              </Button>
+              
+              <Button 
+                onClick={() => navigate('/')}
+                variant="outline"
+                className="w-full border-border text-muted-foreground hover:text-foreground gap-2"
+              >
+                <Home className="h-4 w-4" /> Voltar ao início
+              </Button>
             </div>
           </div>
         </div>
