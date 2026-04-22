@@ -2,12 +2,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, ExternalLink, CheckCircle2, XCircle, Clock } from 'lucide-react';
 
 export default function ManageCreators() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     loadApplications();
@@ -19,7 +20,6 @@ export default function ManageCreators() {
         .from('creator_applications')
         .select('*')
         .order('created_at', { ascending: false });
-
       if (error) throw error;
       setApplications(data || []);
     } catch (error) {
@@ -36,171 +36,267 @@ export default function ManageCreators() {
         .from('creator_applications')
         .update({ status })
         .eq('id', id);
-
       if (error) throw error;
-      
-      setApplications(prev => prev.map(app => 
-        app.id === id ? { ...app, status } : app
-      ));
-      
-      toast.success(`Status atualizado para ${status === 'approved' ? 'Aprovado' : 'Recusado'}`);
+      setApplications(prev => prev.map(app => (app.id === id ? { ...app, status } : app)));
+      toast.success(status === 'approved' ? 'Criador aprovado!' : 'Inscrição recusada.');
     } catch (error) {
       console.error(error);
       toast.error('Erro ao atualizar status');
     }
   };
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'pending': return <span className="px-2 py-1 text-xs rounded bg-yellow-500/20 text-yellow-500">Pendente</span>;
-      case 'approved': return <span className="px-2 py-1 text-xs rounded bg-green-500/20 text-green-500">Aprovado</span>;
-      case 'rejected': return <span className="px-2 py-1 text-xs rounded bg-red-500/20 text-red-500">Recusado</span>;
-      default: return null;
-    }
+  const counts = {
+    all:      applications.length,
+    pending:  applications.filter(a => a.status === 'pending').length,
+    approved: applications.filter(a => a.status === 'approved').length,
+    rejected: applications.filter(a => a.status === 'rejected').length,
+  };
+
+  const filtered = filter === 'all' ? applications : applications.filter(a => a.status === filter);
+
+  const statusConfig = {
+    pending:  { label: 'Pendente',  color: '#F5A623', bg: 'rgba(245,166,35,0.1)',  Icon: Clock },
+    approved: { label: 'Aprovado',  color: '#4ADE80', bg: 'rgba(74,222,128,0.1)',  Icon: CheckCircle2 },
+    rejected: { label: 'Recusado',  color: '#F87171', bg: 'rgba(248,113,113,0.1)', Icon: XCircle },
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center py-20">
-        <div className="w-8 h-8 border-2 border-[#1A1A1A] border-t-white rounded-full animate-spin" />
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
+        <div style={{ width: 28, height: 28, border: '2px solid #1a1a1a', borderTop: '2px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Inscrições de Criadores</h1>
-        <p className="text-sm text-[#555] mt-1">{applications.length} inscrição(ões) recebida(s)</p>
+    <div style={{ fontFamily: "'DM Sans', sans-serif", color: '#fff', maxWidth: 860, margin: '0 auto', padding: '32px 16px' }}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+      {/* Header */}
+      <div style={{ marginBottom: 28 }}>
+        <p style={{ margin: '0 0 4px', fontSize: 10, letterSpacing: '0.2em', color: '#3a3a3a', textTransform: 'uppercase' }}>Admin · DevAssets</p>
+        <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700, letterSpacing: '-0.03em' }}>Inscrições de Criadores</h1>
       </div>
 
-      {applications.length === 0 ? (
-        <div className="text-center py-16 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl">
-          <p className="text-[#555]">Nenhuma inscrição recebida ainda.</p>
-        </div>
+      {/* Stat tabs */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 24 }}>
+        {[
+          { key: 'all',      label: 'Total',     color: '#666' },
+          { key: 'pending',  label: 'Pendentes',  color: '#F5A623' },
+          { key: 'approved', label: 'Aprovados',  color: '#4ADE80' },
+          { key: 'rejected', label: 'Recusados',  color: '#F87171' },
+        ].map(s => (
+          <button
+            key={s.key}
+            type="button"
+            onClick={() => setFilter(s.key)}
+            style={{
+              background: filter === s.key ? '#0e0e0e' : 'transparent',
+              border: `1px solid ${filter === s.key ? '#222' : '#111'}`,
+              borderRadius: 10,
+              padding: '12px 14px',
+              cursor: 'pointer',
+              textAlign: 'left',
+              transition: 'border-color 0.15s',
+            }}
+          >
+            <p style={{ margin: 0, fontSize: 20, fontWeight: 700, color: s.color, fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>{counts[s.key]}</p>
+            <p style={{ margin: '4px 0 0', fontSize: 10, color: '#444', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.label}</p>
+          </button>
+        ))}
+      </div>
+
+      {/* List */}
+      {filtered.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: '#2a2a2a', fontSize: 13 }}>Nenhuma inscrição encontrada.</div>
       ) : (
-        <div className="space-y-4">
-          {applications.map((app) => (
-            <div key={app.id} className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
-              <div className="p-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <h3 className="text-lg font-semibold text-white">{app.nome}</h3>
-                      {getStatusBadge(app.status)}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {filtered.map(app => {
+            const cfg = statusConfig[app.status] || statusConfig.pending;
+            const { Icon } = cfg;
+            const isOpen = expandedId === app.id;
+
+            return (
+              <div
+                key={app.id}
+                style={{ background: '#070707', border: '1px solid #131313', borderRadius: 12, overflow: 'hidden', transition: 'border-color 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = '#1e1e1e'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = '#131313'}
+              >
+                {/* Main row */}
+                <div style={{ display: 'flex', alignItems: 'center', padding: '14px 18px', gap: 14 }}>
+
+                  {/* Avatar */}
+                  <div style={{
+                    width: 38, height: 38, borderRadius: 9,
+                    background: '#0f0f0f', border: '1px solid #1a1a1a',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 14, fontWeight: 600, flexShrink: 0
+                  }}>
+                    {app.nome?.[0]?.toUpperCase() || '?'}
+                  </div>
+
+                  {/* Name + email */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontWeight: 600, fontSize: 14 }}>{app.nome}</span>
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 3,
+                        padding: '2px 7px', borderRadius: 20,
+                        fontSize: 10, fontWeight: 500,
+                        background: cfg.bg, color: cfg.color,
+                        letterSpacing: '0.05em'
+                      }}>
+                        <Icon size={9} />
+                        {cfg.label}
+                      </span>
                     </div>
-                    <p className="text-sm text-[#555] mt-1">{app.email} • Discord: {app.discord_nick}</p>
-                    <p className="text-xs text-[#555] mt-1">
-                      Enviado em: {new Date(app.created_at).toLocaleDateString('pt-BR')}
+                    <p style={{ margin: '2px 0 0', fontSize: 11, color: '#3a3a3a', fontFamily: "'DM Mono', monospace" }}>
+                      {app.email}<span style={{ margin: '0 5px', color: '#1e1e1e' }}>·</span>{app.discord_nick}
                     </p>
                   </div>
-                  
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setExpandedId(expandedId === app.id ? null : app.id)}
-                      className="flex items-center gap-1 px-3 py-1.5 text-xs bg-[#1A1A1A] text-white rounded-lg hover:bg-[#222]"
-                    >
-                      {expandedId === app.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                      Detalhes
-                    </button>
-                    
+
+                  {/* Actions */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                     {app.status === 'pending' && (
                       <>
-                        <button
+                        <IconBtn
                           onClick={() => updateStatus(app.id, 'approved')}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700"
-                        >
-                          <Check className="h-3 w-3" /> Aprovar
-                        </button>
-                        <button
+                          title="Aprovar"
+                          bg="rgba(74,222,128,0.07)"
+                          border="rgba(74,222,128,0.12)"
+                          hoverBg="rgba(74,222,128,0.18)"
+                          hoverBorder="rgba(74,222,128,0.35)"
+                          icon={<CheckCircle2 size={13} color="#4ADE80" />}
+                        />
+                        <IconBtn
                           onClick={() => updateStatus(app.id, 'rejected')}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700"
-                        >
-                          <X className="h-3 w-3" /> Recusar
-                        </button>
+                          title="Recusar"
+                          bg="rgba(248,113,113,0.07)"
+                          border="rgba(248,113,113,0.12)"
+                          hoverBg="rgba(248,113,113,0.18)"
+                          hoverBorder="rgba(248,113,113,0.35)"
+                          icon={<XCircle size={13} color="#F87171" />}
+                        />
                       </>
                     )}
+                    <IconBtn
+                      onClick={() => setExpandedId(isOpen ? null : app.id)}
+                      title="Detalhes"
+                      bg="#0d0d0d"
+                      border="#1a1a1a"
+                      hoverBg="#161616"
+                      hoverBorder="#222"
+                      icon={isOpen ? <ChevronUp size={13} color="#555" /> : <ChevronDown size={13} color="#555" />}
+                    />
                   </div>
                 </div>
 
-                {expandedId === app.id && (
-                  <div className="mt-4 pt-4 border-t border-[#1A1A1A] space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-xs text-[#555]">Telefone</p>
-                        <p className="text-sm text-white">{app.telefone || '-'}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-[#555]">Portfólio</p>
-                        {app.portfolio_url ? (
-                          <a href={app.portfolio_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:underline">
-                            {app.portfolio_url}
-                          </a>
-                        ) : <p className="text-sm text-white">-</p>}
-                      </div>
-                      <div className="col-span-2">
-                        <p className="text-xs text-[#555]">Experiência</p>
-                        <p className="text-sm text-white">{app.experiencia || '-'}</p>
-                      </div>
-                      <div className="col-span-2">
-                        <p className="text-xs text-[#555]">Motivo</p>
-                        <p className="text-sm text-white">{app.motivo || '-'}</p>
-                      </div>
-                      <div className="col-span-2">
-                        <p className="text-xs text-[#555]">Plano de Contribuição</p>
-                        <p className="text-sm text-white">{app.plano_contribuicao || '-'}</p>
-                      </div>
-                      <div className="col-span-2">
-                        <p className="text-xs text-[#555]">Disponibilidade</p>
-                        <p className="text-sm text-white">{app.disponibilidade || '-'}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-[#555]">Idiomas</p>
-                        <p className="text-sm text-white">{app.idiomas || '-'}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-[#555]">Tipos de Asset</p>
-                        <p className="text-sm text-white">{app.tipo_asset || '-'}</p>
-                      </div>
-                      <div className="col-span-2">
-                        <p className="text-xs text-[#555]">Plataformas</p>
-                        <p className="text-sm text-white">{app.plataformas || '-'}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-[#555]">Redes Sociais</p>
-                        <div className="text-sm text-white space-y-1">
-                          {app.redes_sociais?.instagram && <p>📷 Instagram: {app.redes_sociais.instagram}</p>}
-                          {app.redes_sociais?.github && <p>💻 GitHub: {app.redes_sociais.github}</p>}
-                          {app.redes_sociais?.linkedin && <p>🔗 LinkedIn: {app.redes_sociais.linkedin}</p>}
-                          {!app.redes_sociais?.instagram && !app.redes_sociais?.github && !app.redes_sociais?.linkedin && <p>-</p>}
+                {/* Expanded */}
+                {isOpen && (
+                  <div style={{ borderTop: '1px solid #0e0e0e', padding: '18px 18px 18px 70px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '14px 22px' }}>
+                      <Field label="WhatsApp"             value={app.telefone} />
+                      <Field label="Portfólio"            value={app.portfolio_url} link={app.portfolio_url} />
+                      <Field label="Idiomas"              value={app.idiomas} />
+                      <Field label="Tipos de Asset"       value={app.tipo_asset} />
+                      <Field label="Plataformas"          value={app.plataformas} />
+                      <Field label="Disponibilidade"      value={app.disponibilidade} />
+                      <Field label="Entrou no Discord"    value={app.entrou_discord} />
+                      <Field label="Já vendeu assets"     value={app.ja_vendeu} />
+                      <Field label="Disponível p/ reuniões" value={app.disponibilidade_reunioes} />
+                      <Field label="Aceita as regras"     value={app.aceita_regras} />
+
+                      {(app.redes_sociais?.instagram || app.redes_sociais?.github || app.redes_sociais?.linkedin) && (
+                        <div>
+                          <Label>Redes Sociais</Label>
+                          {app.redes_sociais?.instagram && <p style={rowStyle}>📷 {app.redes_sociais.instagram}</p>}
+                          {app.redes_sociais?.github    && <p style={rowStyle}>💻 {app.redes_sociais.github}</p>}
+                          {app.redes_sociais?.linkedin  && <p style={rowStyle}>🔗 {app.redes_sociais.linkedin}</p>}
                         </div>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-[#555]">Entrou no Discord:</span>
-                          <span className="text-sm text-white">{app.entrou_discord || '-'}</span>
+                      )}
+
+                      {app.experiencia && (
+                        <div style={{ gridColumn: '1/-1' }}>
+                          <Label>Experiência</Label>
+                          <p style={{ margin: 0, fontSize: 13, color: '#999', lineHeight: 1.65 }}>{app.experiencia}</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-[#555]">Já vendeu assets:</span>
-                          <span className="text-sm text-white">{app.ja_vendeu || '-'}</span>
+                      )}
+                      {app.motivo && (
+                        <div style={{ gridColumn: '1/-1' }}>
+                          <Label>Por que quer ser criador</Label>
+                          <p style={{ margin: 0, fontSize: 13, color: '#999', lineHeight: 1.65 }}>{app.motivo}</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-[#555]">Disponível para reuniões:</span>
-                          <span className="text-sm text-white">{app.disponibilidade_reunioes || '-'}</span>
+                      )}
+                      {app.plano_contribuicao && (
+                        <div style={{ gridColumn: '1/-1' }}>
+                          <Label>Plano de Contribuição</Label>
+                          <p style={{ margin: 0, fontSize: 13, color: '#999', lineHeight: 1.65 }}>{app.plano_contribuicao}</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-[#555]">Aceita as regras:</span>
-                          <span className="text-sm text-white">{app.aceita_regras || '-'}</span>
-                        </div>
+                      )}
+
+                      <div style={{ gridColumn: '1/-1', marginTop: 6 }}>
+                        <p style={{ margin: 0, fontSize: 10, color: '#222', fontFamily: "'DM Mono', monospace" }}>
+                          Enviado em {new Date(app.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                        </p>
                       </div>
                     </div>
                   </div>
                 )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
+  );
+}
+
+/* ── helpers ── */
+
+const rowStyle = { margin: '2px 0 0', fontSize: 13, color: '#bbb' };
+
+function Label({ children }) {
+  return <p style={{ margin: '0 0 3px', fontSize: 10, color: '#3a3a3a', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{children}</p>;
+}
+
+function Field({ label, value, link }) {
+  if (!value) return null;
+  return (
+    <div>
+      <Label>{label}</Label>
+      {link ? (
+        <a href={link} target="_blank" rel="noopener noreferrer"
+          style={{ fontSize: 13, color: '#5c8fff', display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}>
+          {value.replace(/^https?:\/\//, '').slice(0, 28)}{value.length > 28 ? '…' : ''}
+          <ExternalLink size={10} />
+        </a>
+      ) : (
+        <p style={{ margin: 0, fontSize: 13, color: '#bbb' }}>{value}</p>
+      )}
+    </div>
+  );
+}
+
+function IconBtn({ onClick, title, bg, border, hoverBg, hoverBorder, icon }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        width: 30, height: 30, borderRadius: 7,
+        background: hovered ? hoverBg : bg,
+        border: `1px solid ${hovered ? hoverBorder : border}`,
+        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'all 0.15s',
+      }}
+    >
+      {icon}
+    </button>
   );
 }
