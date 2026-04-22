@@ -1,4 +1,4 @@
-// src/pages/PartnerForm.jsx
+// src/pages/PartnerForm.jsx (VERSÃO CORRIGIDA)
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
@@ -82,15 +82,23 @@ export default function PartnerForm() {
   };
 
   const nextPage = () => {
+    // Só valida a primeira página
     if (currentPage === 0 && (!form.nome || !form.email || !form.discord_nick)) {
       toast.error('Preencha Nome, Email e Discord');
       return;
     }
-    setCurrentPage(prev => Math.min(prev + 1, pages.length - 1));
+    // Avança para a próxima página se não for a última
+    if (currentPage < pages.length - 1) {
+      setCurrentPage(currentPage + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const prevPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 0));
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -167,7 +175,7 @@ export default function PartnerForm() {
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           
-          {/* PÁGINA 0 */}
+          {/* PÁGINA 0 - IDENTIDADE */}
           {currentPage === 0 && (
             <>
               <div>
@@ -199,7 +207,7 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PÁGINA 1 */}
+          {/* PÁGINA 1 - TRAJETÓRIA */}
           {currentPage === 1 && (
             <>
               <div>
@@ -227,7 +235,7 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PÁGINA 2 */}
+          {/* PÁGINA 2 - REDES */}
           {currentPage === 2 && (
             <>
               <div>
@@ -248,7 +256,7 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PÁGINA 3 */}
+          {/* PÁGINA 3 - STACK */}
           {currentPage === 3 && (
             <div className="space-y-6">
               <div>
@@ -278,7 +286,7 @@ export default function PartnerForm() {
             </div>
           )}
 
-          {/* PÁGINA 4 */}
+          {/* PÁGINA 4 - FINALIZAÇÃO */}
           {currentPage === 4 && (
             <div className="space-y-5">
               <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
