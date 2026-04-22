@@ -2,13 +2,14 @@
 import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag, Lock } from 'lucide-react';
+import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag, Lock, Users, FileText } from 'lucide-react'; // Adicione Users e FileText
 import { toast } from 'sonner';
 
 const navItems = [
   { icon: ClipboardList, label: 'Pedidos Pendentes', path: '/admin' },
   { icon: Package, label: 'Todos Pedidos', path: '/admin/orders' },
   { icon: ClipboardList, label: 'Reembolsos', path: '/admin/refunds' },
+  { icon: Users, label: 'Inscrições de Criadores', path: '/admin/creators' }, // NOVO
   { icon: Plus, label: 'Novo Produto', path: '/admin/products/new' },
   { icon: Package, label: 'Produtos', path: '/admin/products' },
   { icon: Tag, label: 'Cupons', path: '/admin/coupons' },
@@ -68,7 +69,7 @@ export default function AdminPanel() {
     );
   }
 
-  // Tela de acesso negado (cadeado branco)
+  // Tela de acesso negado
   if (!isAdmin || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
@@ -111,7 +112,6 @@ export default function AdminPanel() {
             <h2 className="text-lg font-bold text-white">Admin Panel</h2>
           </div>
 
-          {/* Badge de admin */}
           <div className="bg-[#111] border border-[#1A1A1A] rounded-lg p-3">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-white" />

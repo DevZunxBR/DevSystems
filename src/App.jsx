@@ -28,6 +28,10 @@ import ProductForm from './pages/admin/ProductForm';
 import RefundRequests from './pages/admin/RefundRequests';
 import Register from './pages/Register';
 
+// NOVAS IMPORTAÇÕES DO FORMULÁRIO
+import PartnerForm from './pages/PartnerForm';
+import ManageCreators from './pages/admin/ManageCreators';
+
 // Rota privada - redireciona para /register se não logado
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, isLoadingAuth } = useAuth();
@@ -53,6 +57,9 @@ const AuthenticatedApp = () => {
       <Route path="/docs" element={<Documentation />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
+      
+      {/* Rota pública do formulário - não precisa estar logado */}
+      <Route path="/become-creator" element={<PartnerForm />} />
 
       <Route element={<AppLayout />}>
         <Route path="/" element={<Home />} />
@@ -144,6 +151,15 @@ const AuthenticatedApp = () => {
             <PrivateRoute>
               <MaintenanceGuard>
                 <AllOrders />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          {/* NOVA ROTA DO ADMIN - INSCRIÇÕES DE CRIADORES */}
+          <Route path="/admin/creators" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <ManageCreators />
               </MaintenanceGuard>
             </PrivateRoute>
           } />
