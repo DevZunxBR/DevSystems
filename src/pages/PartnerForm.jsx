@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Send, ChevronRight, ChevronLeft, User, Mail, MessageCircle, Phone, Link2, Briefcase, Target, Instagram, Github, Linkedin, Languages, Code2, Globe, Clock, CheckCircle } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 
-// Importe suas imagens aqui
+// Importe suas imagens aqui (mesmas do register)
 import devRegisterBg1 from '@/assets/images/DevRegister.png';
 import devRegisterBg2 from '@/assets/images/DevRegister2.png';
 import devRegisterBg3 from '@/assets/images/DevRegister3.png';
@@ -26,16 +26,16 @@ export default function PartnerForm() {
     portfolio_url: '',
     experiencia: '',
     motivo: '',
-    entrou_discord: '',
+    entrou_discord: false,
     plano_contribuicao: '',
     redes_sociais: { instagram: '', github: '', linkedin: '' },
     disponibilidade: '',
     idiomas: '',
     tipo_asset: '',
     plataformas: '',
-    ja_vendeu: '',
-    disponibilidade_reunioes: '',
-    aceita_regras: ''
+    ja_vendeu: false,
+    disponibilidade_reunioes: false,
+    aceita_regras: false
   });
 
   // Slideshow state
@@ -51,6 +51,7 @@ export default function PartnerForm() {
     { text: "Scripts profissionais e sistemas completos para produção imediata.", author: "— Dev Team" },
   ];
 
+  // Trocar imagem a cada 10 segundos
   useEffect(() => {
     const interval = setInterval(() => {
       setIsTransitioning(true);
@@ -72,29 +73,25 @@ export default function PartnerForm() {
   ];
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    
-    // Se for campo de redes sociais, trata separadamente
-    if (name === 'instagram' || name === 'github' || name === 'linkedin') {
-      setForm(prev => ({
-        ...prev,
-        redes_sociais: { ...prev.redes_sociais, [name]: value }
-      }));
-    } else {
-      setForm(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
+    const { name, value, type, checked } = e.target;
+    setForm(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleSocialChange = (platform, value) => {
+    setForm(prev => ({
+      ...prev,
+      redes_sociais: { ...prev.redes_sociais, [platform]: value }
+    }));
   };
 
   const nextPage = () => {
-    // Validação apenas dos campos obrigatórios da primeira página
     if (currentPage === 0 && (!form.nome || !form.email || !form.discord_nick)) {
       toast.error('Preencha Nome, Email e Discord');
       return;
     }
-    // Removeu a validação do aceita_regras
     setCurrentPage(prev => Math.min(prev + 1, pages.length - 1));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -106,12 +103,6 @@ export default function PartnerForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Removeu a validação do aceita_regras - agora só verifica se tem nome
-    if (!form.nome) {
-      toast.error('Preencha os dados corretamente');
-      return;
-    }
 
     setLoading(true);
     try {
@@ -174,7 +165,7 @@ export default function PartnerForm() {
         {/* LEFT SIDE - FORMULÁRIO */}
         <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
           
-          {/* Logo */}
+          {/* Logo clicável */}
           <div 
             onClick={() => navigate('/')} 
             className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-8"
@@ -194,7 +185,7 @@ export default function PartnerForm() {
             <span className="text-white font-bold text-lg tracking-tight">DevAssets</span>
           </div>
 
-          {/* Header */}
+          {/* Header do formulário */}
           <div>
             <h1 className="text-3xl font-black text-white tracking-tight">Formulário de Inscrição</h1>
             <p className="text-sm text-muted-foreground mt-2">
@@ -215,49 +206,74 @@ export default function PartnerForm() {
             {currentPage === 0 && (
               <>
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'nome' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'nome' ? 'text-white' : 'text-muted-foreground'}`}>
                     Nome Completo
                   </label>
-                  <input type="text" name="nome" value={form.nome} onChange={handleChange}
+                  <input 
+                    type="text" 
+                    name="nome" 
+                    value={form.nome} 
+                    onChange={handleChange}
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('nome')} />
+                    {...focusProps('nome')} 
+                  />
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'email' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'email' ? 'text-white' : 'text-muted-foreground'}`}>
                     E-mail
                   </label>
-                  <input type="email" name="email" value={form.email} onChange={handleChange}
+                  <input 
+                    type="email" 
+                    name="email" 
+                    value={form.email} 
+                    onChange={handleChange}
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('email')} />
+                    {...focusProps('email')} 
+                  />
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'discord' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'discord' ? 'text-white' : 'text-muted-foreground'}`}>
                     Discord
                   </label>
-                  <input type="text" name="discord_nick" value={form.discord_nick} onChange={handleChange}
+                  <input 
+                    type="text" 
+                    name="discord_nick" 
+                    value={form.discord_nick} 
+                    onChange={handleChange}
                     placeholder="usuário#0000"
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('discord')} />
+                    {...focusProps('discord')} 
+                  />
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'telefone' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'telefone' ? 'text-white' : 'text-muted-foreground'}`}>
                     WhatsApp
                   </label>
-                  <input type="tel" name="telefone" value={form.telefone} onChange={handleChange}
+                  <input 
+                    type="tel" 
+                    name="telefone" 
+                    value={form.telefone} 
+                    onChange={handleChange}
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('telefone')} />
+                    {...focusProps('telefone')} 
+                  />
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'portfolio' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'portfolio' ? 'text-white' : 'text-muted-foreground'}`}>
                     Portfólio / GitHub
                   </label>
-                  <input type="url" name="portfolio_url" value={form.portfolio_url} onChange={handleChange}
+                  <input 
+                    type="url" 
+                    name="portfolio_url" 
+                    value={form.portfolio_url} 
+                    onChange={handleChange}
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('portfolio')} />
+                    {...focusProps('portfolio')} 
+                  />
                 </div>
               </>
             )}
@@ -266,42 +282,58 @@ export default function PartnerForm() {
             {currentPage === 1 && (
               <>
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'experiencia' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'experiencia' ? 'text-white' : 'text-muted-foreground'}`}>
                     Experiência na área
                   </label>
-                  <textarea name="experiencia" rows={5} value={form.experiencia} onChange={handleChange}
+                  <textarea 
+                    name="experiencia" 
+                    rows={5} 
+                    value={form.experiencia} 
+                    onChange={handleChange}
                     className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all resize-none"
-                    {...focusProps('experiencia')} />
+                    {...focusProps('experiencia')} 
+                  />
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'motivo' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'motivo' ? 'text-white' : 'text-muted-foreground'}`}>
                     Por que você quer ser um criador?
                   </label>
-                  <textarea name="motivo" rows={5} value={form.motivo} onChange={handleChange}
+                  <textarea 
+                    name="motivo" 
+                    rows={5} 
+                    value={form.motivo} 
+                    onChange={handleChange}
                     className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all resize-none"
-                    {...focusProps('motivo')} />
+                    {...focusProps('motivo')} 
+                  />
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'plano' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'plano' ? 'text-white' : 'text-muted-foreground'}`}>
                     Plano de Contribuição
                   </label>
-                  <textarea name="plano_contribuicao" rows={4} value={form.plano_contribuicao} onChange={handleChange}
+                  <textarea 
+                    name="plano_contribuicao" 
+                    rows={4} 
+                    value={form.plano_contribuicao} 
+                    onChange={handleChange}
                     placeholder="Quantos assets planeja criar por mês?"
                     className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all resize-none"
-                    {...focusProps('plano')} />
+                    {...focusProps('plano')} 
+                  />
                 </div>
 
-                <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'entrou_discord' ? 'text-white' : 'text-muted-foreground'}`}>
-                    Já entrou no Discord da DevAssets?
-                  </label>
-                  <input type="text" name="entrou_discord" value={form.entrou_discord} onChange={handleChange}
-                    placeholder="Ex: Sim, já entrei / Não, ainda não"
-                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('entrou_discord')} />
-                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    name="entrou_discord" 
+                    checked={form.entrou_discord} 
+                    onChange={handleChange}
+                    className="rounded border-border" 
+                  />
+                  <span className="text-xs text-muted-foreground">Já entrei no Discord da DevAssets</span>
+                </label>
               </>
             )}
 
@@ -309,30 +341,42 @@ export default function PartnerForm() {
             {currentPage === 2 && (
               <>
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'instagram' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'instagram' ? 'text-white' : 'text-muted-foreground'}`}>
                     Instagram
                   </label>
-                  <input type="text" name="instagram" value={form.redes_sociais.instagram} onChange={handleChange}
+                  <input 
+                    type="text" 
+                    value={form.redes_sociais.instagram} 
+                    onChange={(e) => handleSocialChange('instagram', e.target.value)}
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('instagram')} />
+                    {...focusProps('instagram')} 
+                  />
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'github' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'github' ? 'text-white' : 'text-muted-foreground'}`}>
                     GitHub
                   </label>
-                  <input type="text" name="github" value={form.redes_sociais.github} onChange={handleChange}
+                  <input 
+                    type="text" 
+                    value={form.redes_sociais.github} 
+                    onChange={(e) => handleSocialChange('github', e.target.value)}
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('github')} />
+                    {...focusProps('github')} 
+                  />
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'linkedin' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'linkedin' ? 'text-white' : 'text-muted-foreground'}`}>
                     LinkedIn
                   </label>
-                  <input type="text" name="linkedin" value={form.redes_sociais.linkedin} onChange={handleChange}
+                  <input 
+                    type="text" 
+                    value={form.redes_sociais.linkedin} 
+                    onChange={(e) => handleSocialChange('linkedin', e.target.value)}
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('linkedin')} />
+                    {...focusProps('linkedin')} 
+                  />
                 </div>
               </>
             )}
@@ -341,43 +385,63 @@ export default function PartnerForm() {
             {currentPage === 3 && (
               <div className="space-y-6">
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'idiomas' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'idiomas' ? 'text-white' : 'text-muted-foreground'}`}>
                     Idiomas
                   </label>
-                  <input type="text" name="idiomas" value={form.idiomas} onChange={handleChange}
+                  <input 
+                    type="text" 
+                    name="idiomas" 
+                    value={form.idiomas} 
+                    onChange={handleChange}
                     placeholder="Ex: Português, Inglês, Espanhol"
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('idiomas')} />
+                    {...focusProps('idiomas')} 
+                  />
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'tipo_asset' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'tipo_asset' ? 'text-white' : 'text-muted-foreground'}`}>
                     Tipos de Asset
                   </label>
-                  <input type="text" name="tipo_asset" value={form.tipo_asset} onChange={handleChange}
+                  <input 
+                    type="text" 
+                    name="tipo_asset" 
+                    value={form.tipo_asset} 
+                    onChange={handleChange}
                     placeholder="Ex: Scripts, Sistemas, UI Kits, Plugins, Templates"
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('tipo_asset')} />
+                    {...focusProps('tipo_asset')} 
+                  />
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'plataformas' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'plataformas' ? 'text-white' : 'text-muted-foreground'}`}>
                     Plataformas
                   </label>
-                  <input type="text" name="plataformas" value={form.plataformas} onChange={handleChange}
+                  <input 
+                    type="text" 
+                    name="plataformas" 
+                    value={form.plataformas} 
+                    onChange={handleChange}
                     placeholder="Ex: Unity, Unreal Engine, React, Node.js, Python"
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('plataformas')} />
+                    {...focusProps('plataformas')} 
+                  />
                 </div>
 
                 <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'disponibilidade' ? 'text-white' : 'text-muted-foreground'}`}>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'disponibilidade' ? 'text-white' : 'text-muted-foreground'}`}>
                     Disponibilidade semanal
                   </label>
-                  <input type="text" name="disponibilidade" value={form.disponibilidade} onChange={handleChange}
+                  <input 
+                    type="text" 
+                    name="disponibilidade" 
+                    value={form.disponibilidade} 
+                    onChange={handleChange}
                     placeholder="Ex: 10–15 horas por semana"
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('disponibilidade')} />
+                    {...focusProps('disponibilidade')} 
+                  />
                 </div>
               </div>
             )}
@@ -400,55 +464,69 @@ export default function PartnerForm() {
                   ))}
                 </div>
 
-                <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'ja_vendeu' ? 'text-white' : 'text-muted-foreground'}`}>
-                    Já vendeu assets antes?
-                  </label>
-                  <input type="text" name="ja_vendeu" value={form.ja_vendeu} onChange={handleChange}
-                    placeholder="Ex: Sim, já vendi / Não, é minha primeira vez"
-                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('ja_vendeu')} />
-                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    name="ja_vendeu" 
+                    checked={form.ja_vendeu} 
+                    onChange={handleChange}
+                    className="rounded border-border" 
+                  />
+                  <span className="text-xs text-muted-foreground">Já vendi assets antes</span>
+                </label>
 
-                <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'disponibilidade_reunioes' ? 'text-white' : 'text-muted-foreground'}`}>
-                    Disponibilidade para reuniões
-                  </label>
-                  <input type="text" name="disponibilidade_reunioes" value={form.disponibilidade_reunioes} onChange={handleChange}
-                    placeholder="Ex: Sim, tenho disponibilidade / Apenas em horários específicos"
-                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('disponibilidade_reunioes')} />
-                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    name="disponibilidade_reunioes" 
+                    checked={form.disponibilidade_reunioes} 
+                    onChange={handleChange}
+                    className="rounded border-border" 
+                  />
+                  <span className="text-xs text-muted-foreground">Tenho disponibilidade para reuniões</span>
+                </label>
 
-                <div>
-                  <label className={`text-xs font-medium mb-1 block ${focusedField === 'aceita_regras' ? 'text-white' : 'text-muted-foreground'}`}>
-                    Li e concordo com as regras e termos
-                  </label>
-                  <input type="text" name="aceita_regras" value={form.aceita_regras} onChange={handleChange}
-                    placeholder="Ex: Sim, concordo / Li e aceito os termos"
-                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
-                    {...focusProps('aceita_regras')} />
-                </div>
+                <label className="flex items-start gap-2 cursor-pointer pt-2">
+                  <input 
+                    type="checkbox" 
+                    name="aceita_regras" 
+                    checked={form.aceita_regras} 
+                    onChange={handleChange}
+                    className="mt-0.5 rounded border-white" 
+                  />
+                  <span className="text-xs text-white">
+                    Li e concordo com as <a href="/terms" className="underline hover:text-gray-300" target="_blank">regras e termos</a>
+                  </span>
+                </label>
               </div>
             )}
 
             {/* Navigation buttons */}
             <div className="flex items-center gap-3 pt-4">
               {currentPage > 0 && (
-                <button type="button" onClick={prevPage}
-                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white transition-colors">
+                <button 
+                  type="button" 
+                  onClick={prevPage}
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white transition-colors"
+                >
                   <ChevronLeft className="w-4 h-4" /> Voltar
                 </button>
               )}
               <div className="flex-1" />
               {currentPage < pages.length - 1 ? (
-                <button type="button" onClick={nextPage}
-                  className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 transition-colors flex items-center gap-2">
+                <button 
+                  type="button" 
+                  onClick={nextPage}
+                  className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 transition-colors flex items-center gap-2"
+                >
                   Continuar <ChevronRight className="w-4 h-4" />
                 </button>
               ) : (
-                <button type="submit" disabled={loading}
-                  className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 disabled:opacity-50 transition-colors flex items-center gap-2">
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 disabled:opacity-50 transition-colors flex items-center gap-2"
+                >
                   {loading ? 'Enviando...' : <><Send className="w-4 h-4" /> Enviar</>}
                 </button>
               )}
