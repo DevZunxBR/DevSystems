@@ -27,16 +27,16 @@ export default function PartnerForm() {
     portfolio_url: '',
     experiencia: '',
     motivo: '',
-    entrou_discord: false,
+    entrou_discord: '',
     plano_contribuicao: '',
     redes_sociais: { instagram: '', github: '', linkedin: '' },
     disponibilidade: '',
     idiomas: '',
     tipo_asset: '',
     plataformas: '',
-    ja_vendeu: false,
-    disponibilidade_reunioes: false,
-    aceita_regras: false
+    ja_vendeu: '',
+    disponibilidade_reunioes: '',
+    aceita_regras: ''
   });
 
   // Slideshow state (igual ao register)
@@ -74,10 +74,10 @@ export default function PartnerForm() {
   ];
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setForm(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value
     }));
   };
 
@@ -288,11 +288,15 @@ export default function PartnerForm() {
                     {...focusProps('plano')} />
                 </div>
 
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" name="entrou_discord" checked={form.entrou_discord} onChange={handleChange}
-                    className="rounded border-border" />
-                  <span className="text-xs text-muted-foreground">Já entrei no Discord da DevAssets</span>
-                </label>
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'entrou_discord' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Já entrou no Discord da DevAssets?
+                  </label>
+                  <input type="text" name="entrou_discord" value={form.entrou_discord} onChange={handleChange}
+                    placeholder="Ex: Sim, já entrei / Não, ainda não"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('entrou_discord')} />
+                </div>
               </>
             )}
 
@@ -331,7 +335,7 @@ export default function PartnerForm() {
               </>
             )}
 
-            {/* PAGE 3 - STACK (sem os pills, agora são inputs normais) */}
+            {/* PAGE 3 - STACK */}
             {currentPage === 3 && (
               <div className="space-y-6">
                 <div>
@@ -394,25 +398,35 @@ export default function PartnerForm() {
                   ))}
                 </div>
 
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" name="ja_vendeu" checked={form.ja_vendeu} onChange={handleChange}
-                    className="rounded border-border" />
-                  <span className="text-xs text-muted-foreground">Já vendi assets antes</span>
-                </label>
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'ja_vendeu' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Já vendeu assets antes?
+                  </label>
+                  <input type="text" name="ja_vendeu" value={form.ja_vendeu} onChange={handleChange}
+                    placeholder="Ex: Sim, já vendi / Não, é minha primeira vez"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('ja_vendeu')} />
+                </div>
 
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" name="disponibilidade_reunioes" checked={form.disponibilidade_reunioes} onChange={handleChange}
-                    className="rounded border-border" />
-                  <span className="text-xs text-muted-foreground">Tenho disponibilidade para reuniões</span>
-                </label>
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'disponibilidade_reunioes' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Disponibilidade para reuniões
+                  </label>
+                  <input type="text" name="disponibilidade_reunioes" value={form.disponibilidade_reunioes} onChange={handleChange}
+                    placeholder="Ex: Sim, tenho disponibilidade / Apenas em horários específicos"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('disponibilidade_reunioes')} />
+                </div>
 
-                <label className="flex items-start gap-2 cursor-pointer pt-2">
-                  <input type="checkbox" name="aceita_regras" checked={form.aceita_regras} onChange={handleChange}
-                    className="mt-0.5 rounded border-white" />
-                  <span className="text-xs text-white">
-                    Li e concordo com as <a href="/terms" className="underline hover:text-gray-300" target="_blank">regras e termos</a>
-                  </span>
-                </label>
+                <div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'aceita_regras' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Li e concordo com as regras e termos *
+                  </label>
+                  <input type="text" name="aceita_regras" value={form.aceita_regras} onChange={handleChange}
+                    placeholder="Ex: Sim, concordo / Li e aceito os termos"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('aceita_regras')} />
+                </div>
               </div>
             )}
 
