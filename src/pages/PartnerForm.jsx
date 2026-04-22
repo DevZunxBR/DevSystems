@@ -31,9 +31,9 @@ export default function PartnerForm() {
     plano_contribuicao: '',
     redes_sociais: { instagram: '', github: '', linkedin: '' },
     disponibilidade: '',
-    idiomas: [],
-    tipo_asset: [],
-    plataformas: [],
+    idiomas: '',
+    tipo_asset: '',
+    plataformas: '',
     ja_vendeu: false,
     disponibilidade_reunioes: false,
     aceita_regras: false
@@ -78,15 +78,6 @@ export default function PartnerForm() {
     setForm(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
-    }));
-  };
-
-  const handleMultiSelect = (field, value) => {
-    setForm(prev => ({
-      ...prev,
-      [field]: prev[field].includes(value)
-        ? prev[field].filter(v => v !== value)
-        : [...prev[field], value]
     }));
   };
 
@@ -151,10 +142,6 @@ export default function PartnerForm() {
     }
   };
 
-  const idiomasList = ['Português', 'Inglês', 'Espanhol'];
-  const tipoAssetList = ['Scripts', 'Sistemas', 'UI Kits', 'Plugins', 'Templates'];
-  const plataformasList = ['Unity', 'Unreal Engine', 'React', 'Node.js', 'Python'];
-
   const focusProps = (name) => ({
     onFocus: () => setFocusedField(name),
     onBlur: () => setFocusedField(null),
@@ -169,7 +156,7 @@ export default function PartnerForm() {
     }, 500);
   };
 
-  // Nome da página atual (sem o indicador de etapas)
+  // Nome da página atual
   const currentPageTitle = pages[currentPage].title;
   const currentPageDescription = pages[currentPage].description;
 
@@ -210,7 +197,7 @@ export default function PartnerForm() {
             </p>
           </div>
 
-          {/* Título da página atual (sem o step indicator) */}
+          {/* Título da página atual */}
           <div className="mt-6">
             <h2 className="text-xl font-bold text-white">{currentPageTitle}</h2>
             <p className="text-xs text-muted-foreground mt-1">{currentPageDescription}</p>
@@ -344,55 +331,37 @@ export default function PartnerForm() {
               </>
             )}
 
-            {/* PAGE 3 - STACK */}
+            {/* PAGE 3 - STACK (sem os pills, agora são inputs normais) */}
             {currentPage === 3 && (
               <div className="space-y-6">
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-2 block">Idiomas</label>
-                  <div className="flex flex-wrap gap-2">
-                    {idiomasList.map(idioma => (
-                      <button key={idioma} type="button" onClick={() => handleMultiSelect('idiomas', idioma)}
-                        className={`px-3 py-1.5 rounded-full text-xs transition-all ${
-                          form.idiomas.includes(idioma) 
-                            ? 'bg-white text-black' 
-                            : 'bg-secondary text-muted-foreground hover:text-white'
-                        }`}>
-                        {idioma}
-                      </button>
-                    ))}
-                  </div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'idiomas' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Idiomas
+                  </label>
+                  <input type="text" name="idiomas" value={form.idiomas} onChange={handleChange}
+                    placeholder="Ex: Português, Inglês, Espanhol"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('idiomas')} />
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-2 block">Tipos de Asset</label>
-                  <div className="flex flex-wrap gap-2">
-                    {tipoAssetList.map(tipo => (
-                      <button key={tipo} type="button" onClick={() => handleMultiSelect('tipo_asset', tipo)}
-                        className={`px-3 py-1.5 rounded-full text-xs transition-all ${
-                          form.tipo_asset.includes(tipo) 
-                            ? 'bg-white text-black' 
-                            : 'bg-secondary text-muted-foreground hover:text-white'
-                        }`}>
-                        {tipo}
-                      </button>
-                    ))}
-                  </div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'tipo_asset' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Tipos de Asset
+                  </label>
+                  <input type="text" name="tipo_asset" value={form.tipo_asset} onChange={handleChange}
+                    placeholder="Ex: Scripts, Sistemas, UI Kits, Plugins, Templates"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('tipo_asset')} />
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-2 block">Plataformas</label>
-                  <div className="flex flex-wrap gap-2">
-                    {plataformasList.map(plataforma => (
-                      <button key={plataforma} type="button" onClick={() => handleMultiSelect('plataformas', plataforma)}
-                        className={`px-3 py-1.5 rounded-full text-xs transition-all ${
-                          form.plataformas.includes(plataforma) 
-                            ? 'bg-white text-black' 
-                            : 'bg-secondary text-muted-foreground hover:text-white'
-                        }`}>
-                        {plataforma}
-                      </button>
-                    ))}
-                  </div>
+                  <label className={`text-xs font-medium mb-1 block transition-colors duration-200 ${focusedField === 'plataformas' ? 'text-white' : 'text-muted-foreground'}`}>
+                    Plataformas
+                  </label>
+                  <input type="text" name="plataformas" value={form.plataformas} onChange={handleChange}
+                    placeholder="Ex: Unity, Unreal Engine, React, Node.js, Python"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white transition-all"
+                    {...focusProps('plataformas')} />
                 </div>
 
                 <div>
@@ -416,7 +385,7 @@ export default function PartnerForm() {
                     { label: 'Nome', value: form.nome },
                     { label: 'Email', value: form.email },
                     { label: 'Discord', value: form.discord_nick },
-                    { label: 'Assets', value: form.tipo_asset.join(', ') },
+                    { label: 'Assets', value: form.tipo_asset },
                   ].filter(r => r.value).map(({ label, value }) => (
                     <div key={label} className="flex justify-between text-sm">
                       <span className="text-muted-foreground">{label}</span>
