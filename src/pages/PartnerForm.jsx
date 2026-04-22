@@ -61,13 +61,13 @@ export default function PartnerForm() {
     return () => clearInterval(interval);
   }, []);
 
-  // ⚠️ VERIFIQUE: SÃO 5 PÁGINAS ⚠️
+  // ✅ AGORA SÃO 5 PÁGINAS (0,1,2,3,4)
   const pages = [
     { title: "Identidade", description: "Estabeleça sua presença criativa" },
     { title: "Trajetória", description: "Sua experiência profissional" },
     { title: "Redes", description: "Pontos de conexão social" },
     { title: "Stack", description: "Capacidades técnicas" },
-    { title: "Finalização", description: "Últimas informações" },  // ← NÃO ESQUEÇA ESTA!
+    { title: "Finalização", description: "Revise e envie sua candidatura" },  // ← PÁGINA 5
   ];
 
   const handleChange = (e) => {
@@ -88,7 +88,7 @@ export default function PartnerForm() {
       toast.error('Preencha Nome, Email e Discord');
       return;
     }
-    // Avança para a próxima página se não for a última
+    // Avança se não for a última página
     if (currentPage < pages.length - 1) {
       setCurrentPage(currentPage + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -287,11 +287,11 @@ export default function PartnerForm() {
             </div>
           )}
 
-          {/* PÁGINA 4 - FINALIZAÇÃO */}
+          {/* PÁGINA 4 - FINALIZAÇÃO (NOVA PÁGINA) */}
           {currentPage === 4 && (
             <div className="space-y-5">
               <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
-                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo da Candidatura</p>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Nome</span>
                   <span className="text-white">{form.nome || '-'}</span>
