@@ -6,7 +6,6 @@ import { toast } from 'sonner';
 import { Send, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 
-// Importe suas imagens
 import devRegisterBg1 from '@/assets/images/DevRegister.png';
 import devRegisterBg2 from '@/assets/images/DevRegister2.png';
 import devRegisterBg3 from '@/assets/images/DevRegister3.png';
@@ -37,12 +36,11 @@ export default function PartnerForm() {
     aceita_regras: ''
   });
 
-  // Slideshow
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  
+
   const images = [devRegisterBg1, devRegisterBg2, devRegisterBg3, devRegisterBg4];
-  
+
   const quotes = [
     { text: "A plataforma com os melhores assets e sistemas do mercado. Qualidade impecável.", author: "— Dev Community" },
     { text: "Encontre tudo que você precisa para seus projetos em um só lugar.", author: "— Dev Systems" },
@@ -61,7 +59,7 @@ export default function PartnerForm() {
     return () => clearInterval(interval);
   }, []);
 
-  // ✅ CORRIGIDO: 5 PÁGINAS (0,1,2,3,4)
+  // 5 PÁGINAS (0,1,2,3,4)
   const pages = [
     { title: "Identidade", description: "Estabeleça sua presença criativa" },
     { title: "Trajetória", description: "Sua experiência profissional" },
@@ -69,6 +67,8 @@ export default function PartnerForm() {
     { title: "Stack", description: "Capacidades técnicas" },
     { title: "Finalização", description: "Revise e envie sua candidatura" },
   ];
+
+  const LAST_PAGE = pages.length - 1; // 4
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -82,20 +82,22 @@ export default function PartnerForm() {
     }
   };
 
-  const nextPage = () => {
-    // Só valida a primeira página
+  // ✅ FIX: recebe o evento e chama preventDefault para nunca submeter o form
+  const nextPage = (e) => {
+    e.preventDefault();
     if (currentPage === 0 && (!form.nome || !form.email || !form.discord_nick)) {
       toast.error('Preencha Nome, Email e Discord');
       return;
     }
-    // Avança se não for a última página
-    if (currentPage < pages.length - 1) {
+    if (currentPage < LAST_PAGE) {
       setCurrentPage(currentPage + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  const prevPage = () => {
+  // ✅ FIX: recebe o evento e chama preventDefault
+  const prevPage = (e) => {
+    e.preventDefault();
     if (currentPage > 0) {
       setCurrentPage(currentPage - 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -104,6 +106,8 @@ export default function PartnerForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Garante que só submete se estiver na última página
+    if (currentPage !== LAST_PAGE) return;
     setLoading(true);
     try {
       const { error } = await supabase.from('creator_applications').insert({
@@ -149,10 +153,10 @@ export default function PartnerForm() {
 
   return (
     <div className="min-h-screen flex">
-      
+
       {/* LADO ESQUERDO - FORMULÁRIO */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
-        
+
         <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-8">
           <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden">
             {!logoLoadError ? (
@@ -174,8 +178,10 @@ export default function PartnerForm() {
           <p className="text-xs text-muted-foreground mt-1">{pages[currentPage].description}</p>
         </div>
 
+        {/* ✅ FIX: onSubmit só executa handleSubmit — os botões Voltar/Continuar
+            têm type="button" explícito, então nunca disparam o submit */}
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
-          
+
           {/* PÁGINA 0 - IDENTIDADE */}
           {currentPage === 0 && (
             <>
@@ -336,16 +342,19 @@ export default function PartnerForm() {
           {/* Botões de navegação */}
           <div className="flex items-center gap-3 pt-4">
             {currentPage > 0 && (
+              // ✅ type="button" explícito — nunca dispara submit
               <button type="button" onClick={prevPage} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white">
                 <ChevronLeft className="w-4 h-4" /> Voltar
               </button>
             )}
             <div className="flex-1" />
-            {currentPage < pages.length - 1 ? (
+            {currentPage < LAST_PAGE ? (
+              // ✅ type="button" explícito — nunca dispara submit
               <button type="button" onClick={nextPage} className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 flex items-center gap-2">
                 Continuar <ChevronRight className="w-4 h-4" />
               </button>
             ) : (
+              // ✅ type="submit" — único botão que pode disparar o form
               <button type="submit" disabled={loading} className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 disabled:opacity-50 flex items-center gap-2">
                 {loading ? 'Enviando...' : <><Send className="w-4 h-4" /> Enviar Inscrição</>}
               </button>
@@ -363,9 +372,9 @@ export default function PartnerForm() {
             isTransitioning ? 'opacity-0' : 'opacity-100'
           }`}
         />
-        
+
         <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
-        
+
         <div className={`absolute inset-0 flex flex-col justify-end p-12 transition-opacity duration-500 ${
           isTransitioning ? 'opacity-0' : 'opacity-100'
         }`}>
@@ -376,15 +385,16 @@ export default function PartnerForm() {
             <footer className="text-sm text-muted-foreground">{quotes[currentImageIndex].author}</footer>
           </blockquote>
         </div>
-        
+
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
           {images.map((_, index) => (
             <button
               key={index}
+              type="button"
               onClick={() => goToImage(index)}
               className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                currentImageIndex === index 
-                  ? 'bg-white w-6' 
+                currentImageIndex === index
+                  ? 'bg-white w-6'
                   : 'bg-white/40 hover:bg-white/60'
               }`}
             />
