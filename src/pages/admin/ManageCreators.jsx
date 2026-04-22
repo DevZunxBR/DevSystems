@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { Eye, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, X, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function ManageCreators() {
   const [applications, setApplications] = useState([]);
@@ -156,15 +156,15 @@ export default function ManageCreators() {
                       </div>
                       <div>
                         <p className="text-xs text-[#555]">Idiomas</p>
-                        <p className="text-sm text-white">{app.idiomas?.join(', ') || '-'}</p>
+                        <p className="text-sm text-white">{app.idiomas || '-'}</p>
                       </div>
                       <div>
                         <p className="text-xs text-[#555]">Tipos de Asset</p>
-                        <p className="text-sm text-white">{app.tipo_asset?.join(', ') || '-'}</p>
+                        <p className="text-sm text-white">{app.tipo_asset || '-'}</p>
                       </div>
                       <div className="col-span-2">
                         <p className="text-xs text-[#555]">Plataformas</p>
-                        <p className="text-sm text-white">{app.plataformas?.join(', ') || '-'}</p>
+                        <p className="text-sm text-white">{app.plataformas || '-'}</p>
                       </div>
                       <div>
                         <p className="text-xs text-[#555]">Redes Sociais</p>
@@ -178,19 +178,19 @@ export default function ManageCreators() {
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-[#555]">Entrou no Discord:</span>
-                          <span className="text-sm text-white">{app.entrou_discord ? '✅ Sim' : '❌ Não'}</span>
+                          <span className="text-sm text-white">{app.entrou_discord || '-'}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-[#555]">Já vendeu assets:</span>
-                          <span className="text-sm text-white">{app.ja_vendeu ? '✅ Sim' : '❌ Não'}</span>
+                          <span className="text-sm text-white">{app.ja_vendeu || '-'}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-[#555]">Disponível para reuniões:</span>
-                          <span className="text-sm text-white">{app.disponibilidade_reunioes ? '✅ Sim' : '❌ Não'}</span>
+                          <span className="text-sm text-white">{app.disponibilidade_reunioes || '-'}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-[#555]">Aceita as regras:</span>
-                          <span className="text-sm text-white">{app.aceita_regras ? '✅ Sim' : '❌ Não'}</span>
+                          <span className="text-sm text-white">{app.aceita_regras || '-'}</span>
                         </div>
                       </div>
                     </div>
