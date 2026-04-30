@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { Send, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Send, ChevronRight, ChevronLeft, Sparkles, Users, TrendingUp, Shield, Gift } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 
 import devRegisterBg1 from '@/assets/images/DevRegister.png';
@@ -59,8 +59,9 @@ export default function PartnerForm() {
     return () => clearInterval(interval);
   }, []);
 
-  // 5 PÁGINAS (0,1,2,3,4)
+  // 6 PÁGINAS (0 a 5)
   const pages = [
+    { title: "Bem-vindo", description: "Programa de Criadores DevAssets" },
     { title: "Identidade", description: "Estabeleça sua presença criativa" },
     { title: "Trajetória", description: "Sua experiência profissional" },
     { title: "Redes", description: "Pontos de conexão social" },
@@ -68,7 +69,7 @@ export default function PartnerForm() {
     { title: "Finalização", description: "Revise e envie sua candidatura" },
   ];
 
-  const LAST_PAGE = pages.length - 1; // 4
+  const LAST_PAGE = pages.length - 1; // 5
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -82,20 +83,21 @@ export default function PartnerForm() {
     }
   };
 
-  // ✅ FIX: recebe o evento e chama preventDefault para nunca submeter o form
   const nextPage = (e) => {
     e.preventDefault();
-    if (currentPage === 0 && (!form.nome || !form.email || !form.discord_nick)) {
+    
+    // Validação da página de Identidade (página 1)
+    if (currentPage === 1 && (!form.nome || !form.email || !form.discord_nick)) {
       toast.error('Preencha Nome, Email e Discord');
       return;
     }
+    
     if (currentPage < LAST_PAGE) {
       setCurrentPage(currentPage + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  // ✅ FIX: recebe o evento e chama preventDefault
   const prevPage = (e) => {
     e.preventDefault();
     if (currentPage > 0) {
@@ -106,7 +108,6 @@ export default function PartnerForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Garante que só submete se estiver na última página
     if (currentPage !== LAST_PAGE) return;
     setLoading(true);
     try {
@@ -178,12 +179,64 @@ export default function PartnerForm() {
           <p className="text-xs text-muted-foreground mt-1">{pages[currentPage].description}</p>
         </div>
 
-        {/* ✅ FIX: onSubmit só executa handleSubmit — os botões Voltar/Continuar
-            têm type="button" explícito, então nunca disparam o submit */}
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
 
-          {/* PÁGINA 0 - IDENTIDADE */}
+          {/* PÁGINA 0 - BOAS-VINDAS (DESCRIÇÃO) */}
           {currentPage === 0 && (
+            <div className="space-y-6">
+              <div className="bg-secondary/30 border border-border rounded-xl p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <Sparkles className="h-6 w-6 text-white" />
+                  <h3 className="text-lg font-semibold text-white">Sobre o Programa</h3>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  O Programa de Criadores DevAssets foi criado para desenvolvedores talentosos que desejam 
+                  monetizar seus assets e sistemas. Ao se tornar um criador oficial, você terá acesso a:
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">✓ Comissão de até 70% por venda</li>
+                  <li className="flex items-center gap-2">✓ Visibilidade na plataforma</li>
+                  <li className="flex items-center gap-2">✓ Suporte prioritário</li>
+                  <li className="flex items-center gap-2">✓ Pagamentos mensais</li>
+                </ul>
+              </div>
+
+              <div className="bg-secondary/30 border border-border rounded-xl p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <Shield className="h-6 w-6 text-white" />
+                  <h3 className="text-lg font-semibold text-white">Requisitos</h3>
+                </div>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">• Ter experiência em desenvolvimento</li>
+                  <li className="flex items-center gap-2">• Criar assets originais e de qualidade</li>
+                  <li className="flex items-center gap-2">• Estar disponível para comunicação</li>
+                  <li className="flex items-center gap-2">• Seguir as diretrizes da plataforma</li>
+                </ul>
+              </div>
+
+              <div className="bg-secondary/30 border border-border rounded-xl p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <Gift className="h-6 w-6 text-white" />
+                  <h3 className="text-lg font-semibold text-white">Benefícios</h3>
+                </div>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">💰 Ganhe comissões sobre suas vendas</li>
+                  <li className="flex items-center gap-2">📈 Acompanhe suas métricas em tempo real</li>
+                  <li className="flex items-center gap-2">🏆 Selos de reconhecimento</li>
+                  <li className="flex items-center gap-2">🎓 Certificação oficial</li>
+                </ul>
+              </div>
+
+              <div className="bg-white/5 border border-white/20 rounded-xl p-4">
+                <p className="text-xs text-center text-muted-foreground">
+                  O processo leva cerca de 5 minutos. Suas informações serão analisadas pela nossa equipe.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* PÁGINA 1 - IDENTIDADE */}
+          {currentPage === 1 && (
             <>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo</label>
@@ -214,8 +267,8 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PÁGINA 1 - TRAJETÓRIA */}
-          {currentPage === 1 && (
+          {/* PÁGINA 2 - TRAJETÓRIA */}
+          {currentPage === 2 && (
             <>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Experiência na área</label>
@@ -242,8 +295,8 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PÁGINA 2 - REDES */}
-          {currentPage === 2 && (
+          {/* PÁGINA 3 - REDES */}
+          {currentPage === 3 && (
             <>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Instagram</label>
@@ -263,8 +316,8 @@ export default function PartnerForm() {
             </>
           )}
 
-          {/* PÁGINA 3 - STACK */}
-          {currentPage === 3 && (
+          {/* PÁGINA 4 - STACK */}
+          {currentPage === 4 && (
             <div className="space-y-6">
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Idiomas</label>
@@ -293,8 +346,8 @@ export default function PartnerForm() {
             </div>
           )}
 
-          {/* PÁGINA 4 - FINALIZAÇÃO */}
-          {currentPage === 4 && (
+          {/* PÁGINA 5 - FINALIZAÇÃO */}
+          {currentPage === 5 && (
             <div className="space-y-5">
               <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
                 <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo da Candidatura</p>
@@ -342,19 +395,16 @@ export default function PartnerForm() {
           {/* Botões de navegação */}
           <div className="flex items-center gap-3 pt-4">
             {currentPage > 0 && (
-              // ✅ type="button" explícito — nunca dispara submit
               <button type="button" onClick={prevPage} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white">
                 <ChevronLeft className="w-4 h-4" /> Voltar
               </button>
             )}
             <div className="flex-1" />
             {currentPage < LAST_PAGE ? (
-              // ✅ type="button" explícito — nunca dispara submit
               <button type="button" onClick={nextPage} className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 flex items-center gap-2">
                 Continuar <ChevronRight className="w-4 h-4" />
               </button>
             ) : (
-              // ✅ type="submit" — único botão que pode disparar o form
               <button type="submit" disabled={loading} className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 disabled:opacity-50 flex items-center gap-2">
                 {loading ? 'Enviando...' : <><Send className="w-4 h-4" /> Enviar Inscrição</>}
               </button>
