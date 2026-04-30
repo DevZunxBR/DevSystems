@@ -4,7 +4,7 @@ import { Search, ShoppingCart, Menu, X, Wallet } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import NotificationBell from '@/components/notifications/NotificationBell';
+// NotificationBell removido
 import logoImage from '@/assets/images/Logo.png';
 
 export default function Header() {
@@ -106,7 +106,7 @@ export default function Header() {
             </button>
           )}
 
-          {user && <NotificationBell userEmail={user.email} />}
+          {/* NotificationBell removido */}
 
           <Link to="/cart" className="relative p-2 text-[#666] hover:text-white transition-colors">
             <ShoppingCart className="h-5 w-5" />
@@ -139,9 +139,9 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-<Button onClick={() => navigate('/register')} variant="outline" size="sm" className="border-[#1A1A1A] text-white hover:bg-[#0A0A0A] text-xs h-8">
-  Login
-</Button>
+            <Button onClick={() => navigate('/register')} variant="outline" size="sm" className="border-[#1A1A1A] text-white hover:bg-[#0A0A0A] text-xs h-8">
+              Login
+            </Button>
           )}
 
           <Button variant="ghost" size="icon" className="md:hidden h-8 w-8 text-[#666] hover:text-white" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
