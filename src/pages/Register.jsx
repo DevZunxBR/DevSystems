@@ -37,7 +37,7 @@ export default function Register() {
   const quotes = [
     { text: "A plataforma com os melhores assets e sistemas do mercado. Qualidade impecável.", author: "— Dev Community" },
     { text: "Encontre tudo que você precisa para seus projetos em um só lugar.", author: "— Dev Systems" },
-    { text: "Mais de 500 desenvolvedores já confiam na nossa plataforma.", author: "— Comunidade Dev" },
+    { text: "Seja Parte da Comunidade Dev No nosso Discord Oficial!", author: "— Discord Dev" },
     { text: "Scripts profissionais e sistemas completos para produção imediata.", author: "— Dev Team" },
   ];
 
