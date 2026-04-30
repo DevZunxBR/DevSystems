@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { Send, ChevronRight, ChevronLeft, Sparkles, Users, TrendingUp, Shield, Gift } from 'lucide-react';
+import { Send, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 
 import devRegisterBg1 from '@/assets/images/DevRegister.png';
@@ -69,7 +69,7 @@ export default function PartnerForm() {
     { title: "Finalização", description: "Revise e envie sua candidatura" },
   ];
 
-  const LAST_PAGE = pages.length - 1; // 5
+  const LAST_PAGE = pages.length - 1;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -86,7 +86,6 @@ export default function PartnerForm() {
   const nextPage = (e) => {
     e.preventDefault();
     
-    // Validação da página de Identidade (página 1)
     if (currentPage === 1 && (!form.nome || !form.email || !form.discord_nick)) {
       toast.error('Preencha Nome, Email e Discord');
       return;
@@ -181,54 +180,24 @@ export default function PartnerForm() {
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
 
-          {/* PÁGINA 0 - BOAS-VINDAS (DESCRIÇÃO) */}
+          {/* PÁGINA 0 - BOAS-VINDAS (APENAS TEXTO, SEM CARDS) */}
           {currentPage === 0 && (
-            <div className="space-y-6">
-              <div className="bg-secondary/30 border border-border rounded-xl p-6 space-y-4">
-                <div className="flex items-center gap-3">
-                  <Sparkles className="h-6 w-6 text-white" />
-                  <h3 className="text-lg font-semibold text-white">Sobre o Programa</h3>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  O Programa de Criadores DevAssets foi criado para desenvolvedores talentosos que desejam 
-                  monetizar seus assets e sistemas. Ao se tornar um criador oficial, você terá acesso a:
-                </p>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2">✓ Comissão de até 70% por venda</li>
-                  <li className="flex items-center gap-2">✓ Visibilidade na plataforma</li>
-                  <li className="flex items-center gap-2">✓ Suporte prioritário</li>
-                  <li className="flex items-center gap-2">✓ Pagamentos mensais</li>
-                </ul>
-              </div>
-
-              <div className="bg-secondary/30 border border-border rounded-xl p-6 space-y-4">
-                <div className="flex items-center gap-3">
-                  <Shield className="h-6 w-6 text-white" />
-                  <h3 className="text-lg font-semibold text-white">Requisitos</h3>
-                </div>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2">• Ter experiência em desenvolvimento</li>
-                  <li className="flex items-center gap-2">• Criar assets originais e de qualidade</li>
-                  <li className="flex items-center gap-2">• Estar disponível para comunicação</li>
-                  <li className="flex items-center gap-2">• Seguir as diretrizes da plataforma</li>
-                </ul>
-              </div>
-
-              <div className="bg-secondary/30 border border-border rounded-xl p-6 space-y-4">
-                <div className="flex items-center gap-3">
-                  <Gift className="h-6 w-6 text-white" />
-                  <h3 className="text-lg font-semibold text-white">Benefícios</h3>
-                </div>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2">💰 Ganhe comissões sobre suas vendas</li>
-                  <li className="flex items-center gap-2">📈 Acompanhe suas métricas em tempo real</li>
-                  <li className="flex items-center gap-2">🏆 Selos de reconhecimento</li>
-                  <li className="flex items-center gap-2">🎓 Certificação oficial</li>
-                </ul>
-              </div>
-
-              <div className="bg-white/5 border border-white/20 rounded-xl p-4">
-                <p className="text-xs text-center text-muted-foreground">
+            <div className="space-y-4 text-muted-foreground">
+              <p className="text-sm leading-relaxed">
+                O Programa de Criadores DevAssets foi criado para desenvolvedores talentosos que desejam 
+                monetizar seus assets e sistemas.
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Comissão de até 70%</span> por venda
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Visibilidade</span> na plataforma
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Suporte prioritário</span> e pagamentos mensais
+              </p>
+              <div className="pt-4">
+                <p className="text-xs text-center text-muted-foreground border-t border-border pt-4">
                   O processo leva cerca de 5 minutos. Suas informações serão analisadas pela nossa equipe.
                 </p>
               </div>
