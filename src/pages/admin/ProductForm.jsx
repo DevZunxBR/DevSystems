@@ -43,7 +43,14 @@ export default function ProductForm() {
   const loadProduct = async () => {
     try {
       const p = await base44.entities.Product.get(id);
-      if (p) setForm(prev => ({ ...prev, ...p }));
+      if (p) {
+        // Validar data ao carregar
+        const loadedForm = { ...p };
+        if (loadedForm.discount_expires_at && isNaN(new Date(loadedForm.discount_expires_at).getTime())) {
+          loadedForm.discount_expires_at = '';
+        }
+        setForm(prev => ({ ...prev, ...loadedForm }));
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -80,11 +87,47 @@ export default function ProductForm() {
     }
   };
 
+  // 🔧 Função segura para lidar com a mudança da data
+  const handleDateChange = (value) => {
+    if (!value) {
+      setForm(prev => ({ ...prev, discount_expires_at: '' }));
+      return;
+    }
+    try {
+      const date = new Date(value);
+      if (!isNaN(date.getTime())) {
+        setForm(prev => ({ ...prev, discount_expires_at: date.toISOString() }));
+      } else {
+        setForm(prev => ({ ...prev, discount_expires_at: '' }));
+      }
+    } catch {
+      setForm(prev => ({ ...prev, discount_expires_at: '' }));
+    }
+  };
+
+  // 🔧 Função segura para formatar data para o input datetime-local
+  const getFormattedDate = (dateString) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      return date.toISOString().slice(0, 16);
+    } catch {
+      return '';
+    }
+  };
+
   const handleSave = async () => {
     if (!form.title) { toast.error('Título é obrigatório'); return; }
     setSaving(true);
     try {
       const { id: _, created_at, updated_at, ...saveData } = form;
+      
+      // 🔧 CORREÇÃO: Validar a data de expiração
+      if (saveData.discount_expires_at === '' || (saveData.discount_expires_at && isNaN(new Date(saveData.discount_expires_at).getTime()))) {
+        saveData.discount_expires_at = null;
+      }
+      
       if (isEdit) {
         await base44.entities.Product.update(id, saveData);
         toast.success('Produto atualizado!');
@@ -194,9 +237,12 @@ export default function ProductForm() {
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Promoção Expira em</label>
-              <input type="datetime-local" value={form.discount_expires_at ? form.discount_expires_at.slice(0,16) : ''}
-                onChange={(e) => setForm(p => ({ ...p, discount_expires_at: e.target.value ? new Date(e.target.value).toISOString() : '' }))}
-                className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+              <input 
+                type="datetime-local" 
+                value={getFormattedDate(form.discount_expires_at)}
+                onChange={(e) => handleDateChange(e.target.value)}
+                className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" 
+              />
             </div>
           </div>
 

@@ -17,26 +17,43 @@ export default function ManageProducts() {
   const loadProducts = async () => {
     try {
       const all = await base44.entities.Product.list('-created_date', 50);
-      setProducts(all);
+      // Garantir que produtos com data inválida não quebrem
+      setProducts(all.map(p => ({
+        ...p,
+        discount_expires_at: p.discount_expires_at && !isNaN(new Date(p.discount_expires_at).getTime()) 
+          ? p.discount_expires_at 
+          : null
+      })));
     } catch (e) {
       console.error(e);
+      toast.error('Erro ao carregar produtos');
     } finally {
       setLoading(false);
     }
   };
 
   const toggleStatus = async (product) => {
-    const newStatus = product.status === 'active' ? 'draft' : 'active';
-    await base44.entities.Product.update(product.id, { status: newStatus });
-    setProducts(products.map(p => p.id === product.id ? { ...p, status: newStatus } : p));
-    toast.success(`Product ${newStatus === 'active' ? 'published' : 'hidden'}`);
+    try {
+      const newStatus = product.status === 'active' ? 'draft' : 'active';
+      await base44.entities.Product.update(product.id, { status: newStatus });
+      setProducts(products.map(p => p.id === product.id ? { ...p, status: newStatus } : p));
+      toast.success(`Produto ${newStatus === 'active' ? 'publicado' : 'ocultado'}`);
+    } catch (e) {
+      console.error(e);
+      toast.error('Erro ao alterar status');
+    }
   };
 
   const deleteProduct = async (id) => {
-    if (!confirm('Delete this product?')) return;
-    await base44.entities.Product.delete(id);
-    setProducts(products.filter(p => p.id !== id));
-    toast.success('Product deleted');
+    if (!confirm('Tem certeza que deseja deletar este produto?')) return;
+    try {
+      await base44.entities.Product.delete(id);
+      setProducts(products.filter(p => p.id !== id));
+      toast.success('Produto deletado');
+    } catch (e) {
+      console.error(e);
+      toast.error('Erro ao deletar produto');
+    }
   };
 
   if (loading) {
@@ -51,11 +68,11 @@ export default function ManageProducts() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Products</h1>
-          <p className="text-sm text-muted-foreground mt-1">{products.length} products</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Produtos</h1>
+          <p className="text-sm text-muted-foreground mt-1">{products.length} produto(s)</p>
         </div>
         <Button onClick={() => navigate('/admin/products/new')} className="bg-white text-black hover:bg-white/90 font-semibold gap-2">
-          <Plus className="h-4 w-4" /> Add Product
+          <Plus className="h-4 w-4" /> Adicionar Produto
         </Button>
       </div>
 
@@ -67,10 +84,10 @@ export default function ManageProducts() {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
-              <p className="text-xs text-muted-foreground">{product.category} • ${product.price_usd?.toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground">{product.category} • R$ {product.price_brl?.toFixed(2)}</p>
             </div>
             <span className={`text-xs px-2 py-1 rounded ${product.status === 'active' ? 'bg-white text-black' : 'bg-secondary text-muted-foreground'}`}>
-              {product.status}
+              {product.status === 'active' ? 'Ativo' : 'Rascunho'}
             </span>
             <div className="flex items-center gap-1">
               <Button variant="ghost" size="icon" onClick={() => toggleStatus(product)} className="text-muted-foreground hover:text-foreground">
