@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
-import { MapPin, Globe, Instagram, Github, Linkedin, Twitter, Package, Star, ShoppingBag, Edit, Plus, Settings } from 'lucide-react';
+import { MapPin, Globe, Instagram, Github, Linkedin, Twitter, Package, Star, ShoppingBag, Edit, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function CreatorStore() {
@@ -35,7 +35,6 @@ export default function CreatorStore() {
 
       setProfile(profileData);
 
-      // Buscar produtos (agora sem necessidade de aprovação)
       const { data: productsData } = await supabase
         .from('products')
         .select('*')
@@ -105,7 +104,7 @@ export default function CreatorStore() {
 
       toast.success('Produto atualizado!');
       setEditingProduct(null);
-      loadData(); // Recarregar os dados
+      loadData();
     } catch (error) {
       console.error(error);
       toast.error('Erro ao atualizar produto');
@@ -150,18 +149,10 @@ export default function CreatorStore() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Banner */}
-      <div className="h-48 bg-gradient-to-r from-purple-900/30 to-blue-900/30 relative">
+      {/* Banner - Removido o botão de configuração daqui */}
+      <div className="h-48 bg-gradient-to-r from-purple-900/30 to-blue-900/30">
         {profile.banner_url && (
           <img src={profile.banner_url} alt="Banner" className="w-full h-full object-cover" />
-        )}
-        {isOwner && (
-          <Link
-            to={`/creator/${id}/edit`}
-            className="absolute top-4 right-4 p-2 bg-black/50 rounded-lg hover:bg-black/70 transition-colors"
-          >
-            <Settings className="h-5 w-5 text-white" />
-          </Link>
         )}
       </div>
 
@@ -188,11 +179,6 @@ export default function CreatorStore() {
                   <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                   <span className="text-sm text-white">{profile.store_rating}</span>
                 </div>
-              )}
-              {isOwner && (
-                <Link to={`/creator/${id}/new`} className="ml-4 flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-semibold rounded-lg hover:bg-white/90">
-                  <Plus className="h-4 w-4" /> Publicar Asset
-                </Link>
               )}
             </div>
             {profile.bio && <p className="text-sm text-[#555] mt-2 max-w-xl">{profile.bio}</p>}
@@ -235,16 +221,23 @@ export default function CreatorStore() {
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="flex gap-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">{profile.total_products || products.length}</div>
-              <div className="text-xs text-[#555]">Assets</div>
+          {/* Stats e Botão Publicar Asset - Lado direito */}
+          <div className="flex flex-col items-end gap-3">
+            <div className="flex gap-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">{profile.total_products || products.length}</div>
+                <div className="text-xs text-[#555]">Assets</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">{profile.total_sales || 0}</div>
+                <div className="text-xs text-[#555]">Vendas</div>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">{profile.total_sales || 0}</div>
-              <div className="text-xs text-[#555]">Vendas</div>
-            </div>
+            {isOwner && (
+              <Link to={`/creator/${id}/new`} className="flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-semibold rounded-lg hover:bg-white/90">
+                <Plus className="h-4 w-4" /> Publicar Asset
+              </Link>
+            )}
           </div>
         </div>
 
@@ -268,25 +261,23 @@ export default function CreatorStore() {
                   key={product.id}
                   className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden hover:border-[#333] transition-all relative group"
                 >
-                  {/* Botão de editar (engrenagem) */}
+                  {/* Botões de editar e deletar (engrenagem) - aparece no hover sobre o card */}
                   {isOwner && (
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => handleEditProduct(product)}
-                          className="p-1.5 bg-black/70 rounded-lg hover:bg-white/20 transition-colors"
-                          title="Editar asset"
-                        >
-                          <Edit className="h-4 w-4 text-white" />
-                        </button>
-                        <button
-                          onClick={() => deleteProduct(product.id)}
-                          className="p-1.5 bg-black/70 rounded-lg hover:bg-red-500/70 transition-colors"
-                          title="Deletar asset"
-                        >
-                          <Trash2 className="h-4 w-4 text-white" />
-                        </button>
-                      </div>
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex gap-1">
+                      <button
+                        onClick={() => handleEditProduct(product)}
+                        className="p-1.5 bg-black/70 rounded-lg hover:bg-white/20 transition-colors"
+                        title="Editar asset"
+                      >
+                        <Edit className="h-4 w-4 text-white" />
+                      </button>
+                      <button
+                        onClick={() => deleteProduct(product.id)}
+                        className="p-1.5 bg-black/70 rounded-lg hover:bg-red-500/70 transition-colors"
+                        title="Deletar asset"
+                      >
+                        <Trash2 className="h-4 w-4 text-white" />
+                      </button>
                     </div>
                   )}
                   
@@ -388,6 +379,3 @@ export default function CreatorStore() {
     </div>
   );
 }
-
-// Adicionar import do Trash2 no topo
-import { Trash2 } from 'lucide-react';

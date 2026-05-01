@@ -2,57 +2,33 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { Check, X, Eye, Clock, FileArchive, Image, Tag, DollarSign, User, Calendar, ChevronDown, ChevronUp, Download } from 'lucide-react';
+import { Eye, Clock, FileArchive, Image, Tag, DollarSign, User, Calendar, ChevronDown, ChevronUp, Download, CheckCircle } from 'lucide-react';
 
 export default function ApproveProducts() {
-  const [pendingProducts, setPendingProducts] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
-    loadPendingProducts();
+    loadProducts();
   }, []);
 
-  const loadPendingProducts = async () => {
+  const loadProducts = async () => {
     try {
+      // Buscar TODOS os produtos dos criadores (apenas para visualização)
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .eq('approval_status', 'pending')
-        .order('submitted_at', { ascending: false });
+        .not('creator_id', 'is', null) // apenas produtos de criadores
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPendingProducts(data || []);
+      setProducts(data || []);
     } catch (error) {
       console.error(error);
       toast.error('Erro ao carregar produtos');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const updateApproval = async (product, status, rejectionReason = null) => {
-    try {
-      const updates = {
-        approval_status: status,
-        approved_at: status === 'approved' ? new Date().toISOString() : null,
-        status: status === 'approved' ? 'active' : 'draft'
-      };
-      if (rejectionReason) updates.rejection_reason = rejectionReason;
-
-      const { error } = await supabase
-        .from('products')
-        .update(updates)
-        .eq('id', product.id);
-
-      if (error) throw error;
-
-      toast.success(`Produto ${status === 'approved' ? 'aprovado' : 'recusado'}`);
-      loadPendingProducts();
-      setExpandedId(null);
-    } catch (error) {
-      console.error(error);
-      toast.error('Erro ao atualizar status');
     }
   };
 
@@ -66,19 +42,24 @@ export default function ApproveProducts() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Aprovar Assets</h1>
-        <p className="text-sm text-[#555] mt-1">{pendingProducts.length} asset(s) aguardando aprovação</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Assets dos Criadores</h1>
+          <p className="text-sm text-[#555] mt-1">{products.length} asset(s) publicados por criadores</p>
+        </div>
+        <div className="px-3 py-1.5 bg-green-500/20 text-green-500 text-xs rounded-full flex items-center gap-1">
+          <CheckCircle className="h-3 w-3" /> Publicação direta (sem aprovação)
+        </div>
       </div>
 
-      {pendingProducts.length === 0 ? (
+      {products.length === 0 ? (
         <div className="text-center py-16 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl">
           <Clock className="h-12 w-12 text-[#555] mx-auto mb-3" />
-          <p className="text-[#555]">Nenhum asset aguardando aprovação.</p>
+          <p className="text-[#555]">Nenhum asset publicado por criadores ainda.</p>
         </div>
       ) : (
         <div className="space-y-4">
-          {pendingProducts.map((product) => (
+          {products.map((product) => (
             <div key={product.id} className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
               {/* Cabeçalho do card */}
               <div className="p-4">
@@ -103,7 +84,7 @@ export default function ApproveProducts() {
                         </p>
                         <p className="text-xs text-[#555] flex items-center gap-2 mt-1">
                           <Calendar className="h-3 w-3" />
-                          Enviado em: {new Date(product.submitted_at).toLocaleDateString('pt-BR')} às {new Date(product.submitted_at).toLocaleTimeString('pt-BR')}
+                          Publicado em: {new Date(product.created_at).toLocaleDateString('pt-BR')}
                         </p>
                       </div>
                     </div>
@@ -116,22 +97,10 @@ export default function ApproveProducts() {
                       {expandedId === product.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                       {expandedId === product.id ? 'Ocultar' : 'Ver Detalhes'}
                     </button>
-                    <button
-                      onClick={() => updateApproval(product, 'approved')}
-                      className="flex items-center gap-1 px-3 py-1.5 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700"
-                    >
-                      <Check className="h-3 w-3" /> Aprovar
-                    </button>
-                    <button
-                      onClick={() => updateApproval(product, 'rejected')}
-                      className="flex items-center gap-1 px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700"
-                    >
-                      <X className="h-3 w-3" /> Recusar
-                    </button>
                   </div>
                 </div>
 
-                {/* Detalhes expandidos - TUDO QUE O CRIADOR ENVIOU */}
+                {/* Detalhes expandidos - Tudo que o criador enviou */}
                 {expandedId === product.id && (
                   <div className="mt-4 pt-4 border-t border-[#1A1A1A] space-y-5">
                     
@@ -150,8 +119,8 @@ export default function ApproveProducts() {
                           <p className="text-white font-semibold">R$ {product.price_brl?.toFixed(2) || '0,00'}</p>
                         </div>
                         <div>
-                          <span className="text-[#555] block text-xs">Status no site</span>
-                          <p className="text-white">{product.status === 'active' ? 'Ativo' : 'Rascunho'}</p>
+                          <span className="text-[#555] block text-xs">Status</span>
+                          <p className="text-green-400">Publicado</p>
                         </div>
                       </div>
                     </div>
@@ -175,48 +144,32 @@ export default function ApproveProducts() {
                     </div>
 
                     <div>
-                      <h4 className="text-xs font-semibold text-white uppercase tracking-wider mb-2">Descrição Completa (Markdown)</h4>
+                      <h4 className="text-xs font-semibold text-white uppercase tracking-wider mb-2">Descrição Completa</h4>
                       <div className="bg-black p-3 rounded-lg max-h-64 overflow-y-auto">
                         <pre className="text-sm text-[#888] whitespace-pre-wrap font-mono">{product.long_description || 'Nenhuma descrição fornecida'}</pre>
                       </div>
                     </div>
 
-                    {/* Imagens - Thumbnail e Galeria */}
+                    {/* Imagens */}
                     <div>
                       <h4 className="text-xs font-semibold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
                         <Image className="h-3 w-3" /> Imagens
                       </h4>
                       
-                      {/* Thumbnail */}
                       {product.thumbnail && (
                         <div className="mb-3">
                           <p className="text-xs text-[#555] mb-1">Thumbnail (principal)</p>
-                          <img 
-                            src={product.thumbnail} 
-                            alt="Thumbnail" 
-                            className="w-32 h-32 rounded-lg object-cover border border-[#1A1A1A]"
-                          />
+                          <img src={product.thumbnail} alt="Thumbnail" className="w-32 h-32 rounded-lg object-cover border border-[#1A1A1A]" />
                         </div>
                       )}
 
-                      {/* Galeria de imagens */}
                       {product.images?.length > 0 && (
                         <div>
                           <p className="text-xs text-[#555] mb-2">Galeria de imagens ({product.images.length})</p>
                           <div className="flex flex-wrap gap-2">
                             {product.images.map((img, idx) => (
-                              <a 
-                                key={idx} 
-                                href={img} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="block"
-                              >
-                                <img 
-                                  src={img} 
-                                  alt={`Imagem ${idx + 1}`} 
-                                  className="w-24 h-24 rounded-lg object-cover border border-[#1A1A1A] hover:border-white transition-colors"
-                                />
+                              <a key={idx} href={img} target="_blank" rel="noopener noreferrer" className="block">
+                                <img src={img} alt={`Imagem ${idx + 1}`} className="w-24 h-24 rounded-lg object-cover border border-[#1A1A1A] hover:border-white transition-colors" />
                               </a>
                             ))}
                           </div>
@@ -231,12 +184,7 @@ export default function ApproveProducts() {
                       </h4>
                       {product.file_url ? (
                         <div className="bg-black p-3 rounded-lg">
-                          <a 
-                            href={product.file_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-blue-400 hover:text-blue-300 text-sm"
-                          >
+                          <a href={product.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-400 hover:text-blue-300 text-sm">
                             <Download className="h-4 w-4" />
                             Baixar arquivo ({product.file_size || 'tamanho não informado'})
                           </a>
@@ -281,25 +229,11 @@ export default function ApproveProducts() {
                       </div>
                     )}
 
-                    {/* Ações com motivo de rejeição */}
-                    <div className="pt-4 border-t border-[#1A1A1A]">
-                      <p className="text-xs text-[#555] mb-3">Se recusar, você pode adicionar um motivo:</p>
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => updateApproval(product, 'approved')}
-                          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
-                        >
-                          <Check className="h-4 w-4" /> Aprovar Asset
-                        </button>
-                        <button
-                          onClick={() => {
-                            const reason = prompt('Motivo da recusa (opcional):');
-                            updateApproval(product, 'rejected', reason || null);
-                          }}
-                          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm"
-                        >
-                          <X className="h-4 w-4" /> Recusar Asset
-                        </button>
+                    {/* Informação de aprovação automática */}
+                    <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <span className="text-xs text-green-400">Este asset foi publicado automaticamente, sem necessidade de aprovação.</span>
                       </div>
                     </div>
 
