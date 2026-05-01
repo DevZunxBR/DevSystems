@@ -3,7 +3,7 @@ import { Clock, Mail } from 'lucide-react';
 
 export default function Maintenance() {
   // Email de contato
-  const contactEmail = 'devzunxbr@gmail.com';
+  const contactEmail = 'devassetsbr@gmail.com';
   
   // Link para abrir diretamente o Gmail Web
   const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${contactEmail}&su=Site%20em%20Manutenção%20-%20Contato&body=Olá,%20estou%20com%20um%20problema...`;
