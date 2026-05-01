@@ -37,10 +37,16 @@ export default function PartnerForm() {
 
   // Comentários que vão passar em loop
   const quotes = [
-    { text: "A plataforma com os melhores assets e sistemas do mercado. Qualidade impecável.", author: "— Dev Community" },
-    { text: "Encontre tudo que você precisa para seus projetos em um só lugar.", author: "— Dev Systems" },
-    { text: "Mais de 500 desenvolvedores já confiam na nossa plataforma.", author: "— Comunidade Dev" },
-    { text: "Scripts profissionais e sistemas completos para produção imediata.", author: "— Dev Team" },
+    { text: "A cada Produto Vendido Você Recebe O Pagamento em até 10 horas após a confirmação da venda.", author: "— Dev Community" },
+    { text: "Visibilidade na plataforma e suporte prioritário para seus projetos.", author: "— Dev Systems" },
+    { text: "Atendimento prioritário para criadores e suporte na publicação dos seus assets.", author: "— Comunidade Dev" },
+    { text: "Transforme sua criatividade em oportunidades de negócios.", author: "— Dev Team" },
+    { text: "Junte-se a uma comunidade de criadores e desenvolvedores apaixonados.", author: "— Dev Team" },
+    { text: "Ganhe reconhecimento e cresça profissionalmente.", author: "— Dev Team" },
+    { text: "Todo Criador tem a oportunidade de se destacar.", author: "— Dev Team" },
+    { text: "Os criadores Do DevAssets Ganhan 87% do valor de cada venda E o restante é destinado à plataforma.", author: "— Dev Team" },
+    { text: "Você define a licença de uso para cada asset: Pessoal, Comercial Padrão, Comercial Estendida, Revenda OEM ou Distribuição. O controle é seu.", author: "— Dev Team" },
+    { text: "Cada Produto Seu Recebera uma Licença Gratuita Particular Sua Para Proteção Dos seus Assets.", author: "— Dev Team" },
   ];
 
   // Loop dos comentários a cada 5 segundos
