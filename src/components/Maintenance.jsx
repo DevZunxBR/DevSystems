@@ -14,17 +14,17 @@ export default function Maintenance() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="text-center max-w-md space-y-6">
-        {/* Logo do site */}
-        <div className="w-20 h-20 bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl flex items-center justify-center mx-auto overflow-hidden">
+        {/* Logo gigante - sem card */}
+        <div className="flex justify-center">
           {!logoLoadError ? (
             <img
               src={logoImage}
               alt="DevAssets"
-              className="w-full h-full object-cover p-2"
+              className="w-40 h-40 object-contain"
               onError={() => setLogoLoadError(true)}
             />
           ) : (
-            <span className="text-white font-black text-xl">DA</span>
+            <span className="text-white font-black text-6xl">DA</span>
           )}
         </div>
         
@@ -43,7 +43,7 @@ export default function Maintenance() {
           <span>Previsão: algumas horas</span>
         </div>
         
-        {/* Contato - Apenas Gmail */}
+        {/* Contato */}
         <div className="pt-4 border-t border-[#1A1A1A] space-y-3">
           <p className="text-xs text-[#555]">
             Precisa de ajuda? Entre em contato:
