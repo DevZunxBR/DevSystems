@@ -1,10 +1,10 @@
-// src/pages/creator/CreatorNewProduct.jsx
+// src/pages/Creator/CreatorNewProduct.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { ArrowLeft, Upload, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Upload, Loader2 } from 'lucide-react';
 
 const CATEGORIES = ['Scripts', 'Systems', 'UI Kits', 'Plugins', 'Templates', 'Assets', 'Tools'];
 
@@ -64,9 +64,8 @@ export default function CreatorNewProduct() {
         return;
       }
 
-      // Verificar se é o dono do perfil
       if (profileData.user_id !== user.id) {
-        toast.error('Você não tem permissão para publicar assets nesta loja');
+        toast.error('Você não tem permissão');
         navigate(`/creator/${id}`);
         return;
       }
@@ -74,7 +73,6 @@ export default function CreatorNewProduct() {
       setProfile(profileData);
     } catch (error) {
       console.error(error);
-      toast.error('Erro ao carregar perfil');
       navigate('/');
     }
   };
@@ -114,22 +112,25 @@ export default function CreatorNewProduct() {
 
     setLoading(true);
     try {
+      // SEM APROVAÇÃO - direto para ativo
       const { error } = await supabase.from('products').insert({
         ...form,
         creator_id: profile.id,
         creator_name: profile.display_name,
         creator_avatar: profile.avatar_url,
-        approval_status: 'pending',
-        status: 'draft',
-        submitted_at: new Date().toISOString()
+        approval_status: 'approved', // Já aprovado automaticamente
+        status: 'active', // Já ativo
+        submitted_at: new Date().toISOString(),
+        approved_at: new Date().toISOString()
       });
 
       if (error) throw error;
-      toast.success('Asset enviado para aprovação!');
+      
+      toast.success('Asset publicado com sucesso!');
       navigate(`/creator/${profile.id}`);
     } catch (error) {
       console.error(error);
-      toast.error('Erro ao enviar asset');
+      toast.error('Erro ao publicar asset');
     } finally {
       setLoading(false);
     }
@@ -143,16 +144,6 @@ export default function CreatorNewProduct() {
 
       <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
         <h1 className="text-2xl font-bold text-white mb-6">Publicar Novo Asset</h1>
-
-        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 mb-6">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 text-yellow-500" />
-            <span className="text-sm font-medium text-yellow-500">Seu asset será enviado para análise</span>
-          </div>
-          <p className="text-xs text-yellow-500/70 mt-1">
-            Após aprovação, ele aparecerá na loja. Você receberá 87% de comissão.
-          </p>
-        </div>
 
         <div className="space-y-5">
           <input
@@ -263,7 +254,7 @@ export default function CreatorNewProduct() {
             disabled={loading}
             className="w-full bg-white text-black hover:bg-white/90 font-semibold h-12 mt-4"
           >
-            {loading ? 'Enviando...' : 'Enviar para Aprovação'}
+            {loading ? 'Publicando...' : 'Publicar Asset'}
           </Button>
         </div>
       </div>

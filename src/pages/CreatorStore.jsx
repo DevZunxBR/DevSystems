@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
-import { MapPin, Globe, Instagram, Github, Linkedin, Twitter, Package, Star, ShoppingBag, Edit, Plus } from 'lucide-react';
+import { MapPin, Globe, Instagram, Github, Linkedin, Twitter, Package, Star, ShoppingBag, Edit, Plus, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function CreatorStore() {
@@ -12,6 +12,8 @@ export default function CreatorStore() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOwner, setIsOwner] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [editForm, setEditForm] = useState({});
 
   useEffect(() => {
     loadData();
@@ -33,11 +35,11 @@ export default function CreatorStore() {
 
       setProfile(profileData);
 
+      // Buscar produtos (agora sem necessidade de aprovação)
       const { data: productsData } = await supabase
         .from('products')
         .select('*')
         .eq('creator_id', id)
-        .eq('approval_status', 'approved')
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 
@@ -58,6 +60,73 @@ export default function CreatorStore() {
       toast.error('Erro ao carregar perfil');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEditProduct = (product) => {
+    setEditingProduct(product.id);
+    setEditForm({
+      title: product.title,
+      description: product.description,
+      long_description: product.long_description,
+      price_brl: product.price_brl,
+      category: product.category,
+      tags: product.tags || [],
+      thumbnail: product.thumbnail,
+      file_url: product.file_url,
+      file_size: product.file_size,
+      supported_versions: product.supported_versions
+    });
+  };
+
+  const saveEditProduct = async () => {
+    if (!editForm.title || !editForm.price_brl) {
+      toast.error('Preencha título e preço');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({
+          title: editForm.title,
+          description: editForm.description,
+          long_description: editForm.long_description,
+          price_brl: editForm.price_brl,
+          category: editForm.category,
+          tags: editForm.tags,
+          thumbnail: editForm.thumbnail,
+          file_size: editForm.file_size,
+          supported_versions: editForm.supported_versions
+        })
+        .eq('id', editingProduct);
+
+      if (error) throw error;
+
+      toast.success('Produto atualizado!');
+      setEditingProduct(null);
+      loadData(); // Recarregar os dados
+    } catch (error) {
+      console.error(error);
+      toast.error('Erro ao atualizar produto');
+    }
+  };
+
+  const deleteProduct = async (productId) => {
+    if (!confirm('Tem certeza que deseja deletar este asset?')) return;
+    
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+
+      if (error) throw error;
+      toast.success('Produto deletado');
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error('Erro ao deletar produto');
     }
   };
 
@@ -86,6 +155,14 @@ export default function CreatorStore() {
         {profile.banner_url && (
           <img src={profile.banner_url} alt="Banner" className="w-full h-full object-cover" />
         )}
+        {isOwner && (
+          <Link
+            to={`/creator/${id}/edit`}
+            className="absolute top-4 right-4 p-2 bg-black/50 rounded-lg hover:bg-black/70 transition-colors"
+          >
+            <Settings className="h-5 w-5 text-white" />
+          </Link>
+        )}
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
@@ -113,8 +190,8 @@ export default function CreatorStore() {
                 </div>
               )}
               {isOwner && (
-                <Link to={`/creator/${id}/new`} className="ml-4 flex items-center gap-1 px-3 py-1.5 bg-white text-black text-xs rounded-lg">
-                  <Plus className="h-3 w-3" /> Publicar Asset
+                <Link to={`/creator/${id}/new`} className="ml-4 flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-semibold rounded-lg hover:bg-white/90">
+                  <Plus className="h-4 w-4" /> Publicar Asset
                 </Link>
               )}
             </div>
@@ -189,14 +266,37 @@ export default function CreatorStore() {
               {products.map((product) => (
                 <div
                   key={product.id}
-                  onClick={() => navigate(`/product/${product.id}`)}
-                  className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden cursor-pointer hover:border-[#333] transition-all"
+                  className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden hover:border-[#333] transition-all relative group"
                 >
-                  <img src={product.thumbnail} alt={product.title} className="w-full h-40 object-cover" />
-                  <div className="p-3">
-                    <h3 className="text-sm font-semibold text-white truncate">{product.title}</h3>
-                    <p className="text-xs text-[#555] mt-1">{product.category}</p>
-                    <div className="text-lg font-bold text-white mt-2">R$ {product.price_brl?.toFixed(2)}</div>
+                  {/* Botão de editar (engrenagem) */}
+                  {isOwner && (
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => handleEditProduct(product)}
+                          className="p-1.5 bg-black/70 rounded-lg hover:bg-white/20 transition-colors"
+                          title="Editar asset"
+                        >
+                          <Edit className="h-4 w-4 text-white" />
+                        </button>
+                        <button
+                          onClick={() => deleteProduct(product.id)}
+                          className="p-1.5 bg-black/70 rounded-lg hover:bg-red-500/70 transition-colors"
+                          title="Deletar asset"
+                        >
+                          <Trash2 className="h-4 w-4 text-white" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div onClick={() => navigate(`/product/${product.id}`)} className="cursor-pointer">
+                    <img src={product.thumbnail} alt={product.title} className="w-full h-40 object-cover" />
+                    <div className="p-3">
+                      <h3 className="text-sm font-semibold text-white truncate">{product.title}</h3>
+                      <p className="text-xs text-[#555] mt-1">{product.category}</p>
+                      <div className="text-lg font-bold text-white mt-2">R$ {product.price_brl?.toFixed(2)}</div>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -204,6 +304,90 @@ export default function CreatorStore() {
           )}
         </div>
       </div>
+
+      {/* Modal de edição */}
+      {editingProduct && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-white mb-4">Editar Asset</h3>
+              
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Título"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                  className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                />
+                
+                <textarea
+                  rows={3}
+                  placeholder="Descrição curta"
+                  value={editForm.description}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white resize-none"
+                />
+                
+                <textarea
+                  rows={5}
+                  placeholder="Descrição completa (Markdown)"
+                  value={editForm.long_description}
+                  onChange={(e) => setEditForm({ ...editForm, long_description: e.target.value })}
+                  className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white font-mono text-sm resize-none"
+                />
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-[#555] block mb-1">Preço (BRL)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editForm.price_brl}
+                      onChange={(e) => setEditForm({ ...editForm, price_brl: parseFloat(e.target.value) || 0 })}
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-[#555] block mb-1">Categoria</label>
+                    <select
+                      value={editForm.category}
+                      onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                    >
+                      <option>Scripts</option>
+                      <option>Systems</option>
+                      <option>UI Kits</option>
+                      <option>Plugins</option>
+                      <option>Templates</option>
+                      <option>Assets</option>
+                      <option>Tools</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={saveEditProduct}
+                    className="flex-1 py-2 bg-white text-black rounded-lg font-semibold hover:bg-white/90"
+                  >
+                    Salvar Alterações
+                  </button>
+                  <button
+                    onClick={() => setEditingProduct(null)}
+                    className="flex-1 py-2 bg-[#1A1A1A] text-white rounded-lg hover:bg-[#2A2A2A]"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+// Adicionar import do Trash2 no topo
+import { Trash2 } from 'lucide-react';
