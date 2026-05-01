@@ -162,100 +162,110 @@ export default function CreatorStore() {
       <Header />
       
       <div className="flex-1">
-        {/* Banner */}
-        <div className="h-48 bg-gradient-to-r from-purple-900/30 to-blue-900/30">
-          {profile.banner_url && (
-            <img src={profile.banner_url} alt="Banner" className="w-full h-full object-cover" />
+        {/* Banner - corrigido */}
+        <div className="relative h-48 w-full overflow-hidden bg-gradient-to-r from-purple-900/30 to-blue-900/30">
+          {profile.banner_url ? (
+            <img 
+              src={profile.banner_url} 
+              alt="Banner" 
+              className="w-full h-full object-cover object-center"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-r from-purple-900/20 to-blue-900/20" />
           )}
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          {/* Profile Header */}
-          <div className="flex flex-col md:flex-row gap-6 -mt-16 mb-8">
-            <div className="relative">
-              <div className="w-32 h-32 rounded-full border-4 border-black overflow-hidden bg-[#0A0A0A]">
-                {profile.avatar_url ? (
-                  <img src={profile.avatar_url} alt={profile.display_name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Package className="h-12 w-12 text-[#555]" />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-3xl font-bold text-white">{profile.display_name}</h1>
-                {profile.store_rating > 0 && (
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                    <span className="text-sm text-white">{profile.store_rating}</span>
-                  </div>
-                )}
-              </div>
-              {profile.bio && <p className="text-sm text-[#555] mt-2 max-w-xl">{profile.bio}</p>}
-              
-              <div className="flex flex-wrap gap-4 mt-3">
-                {profile.location && (
-                  <div className="flex items-center gap-1 text-xs text-[#555]">
-                    <MapPin className="h-3 w-3" /> {profile.location}
-                  </div>
-                )}
-                {profile.website && (
-                  <a href={profile.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-[#555] hover:text-white">
-                    <Globe className="h-3 w-3" /> Website
-                  </a>
-                )}
-              </div>
-
-              {/* Social Links */}
-              <div className="flex gap-3 mt-3">
-                {profile.social_links?.instagram && (
-                  <a href={profile.social_links.instagram} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-pink-400">
-                    <Instagram className="h-4 w-4" />
-                  </a>
-                )}
-                {profile.social_links?.github && (
-                  <a href={profile.social_links.github} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-white">
-                    <Github className="h-4 w-4" />
-                  </a>
-                )}
-                {profile.social_links?.linkedin && (
-                  <a href={profile.social_links.linkedin} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-blue-400">
-                    <Linkedin className="h-4 w-4" />
-                  </a>
-                )}
-                {profile.social_links?.twitter && (
-                  <a href={profile.social_links.twitter} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-blue-400">
-                    <Twitter className="h-4 w-4" />
-                  </a>
-                )}
-              </div>
-            </div>
-
-            {/* Stats e Botão Publicar Asset - Lado direito */}
-            <div className="flex flex-col items-end gap-3">
-              <div className="flex gap-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{profile.total_products || products.length}</div>
-                  <div className="text-xs text-[#555]">Assets</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{profile.total_sales || 0}</div>
-                  <div className="text-xs text-[#555]">Vendas</div>
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Profile Header - avatar sobreposto ao banner */}
+          <div className="relative -mt-16 mb-8">
+            <div className="flex flex-col md:flex-row gap-6 items-start">
+              {/* Avatar */}
+              <div className="relative">
+                <div className="w-32 h-32 rounded-full border-4 border-black overflow-hidden bg-[#0A0A0A] shadow-xl">
+                  {profile.avatar_url ? (
+                    <img src={profile.avatar_url} alt={profile.display_name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Package className="h-12 w-12 text-[#555]" />
+                    </div>
+                  )}
                 </div>
               </div>
-              {isOwner && (
-                <Link to={`/creator/${id}/new`} className="flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-semibold rounded-lg hover:bg-white/90">
-                  <Plus className="h-4 w-4" /> Publicar Asset
-                </Link>
-              )}
+
+              {/* Info da loja */}
+              <div className="flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-3xl font-bold text-white">{profile.display_name}</h1>
+                  {profile.store_rating > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                      <span className="text-sm text-white">{profile.store_rating}</span>
+                    </div>
+                  )}
+                </div>
+                {profile.bio && <p className="text-sm text-[#555] mt-2 max-w-xl">{profile.bio}</p>}
+                
+                <div className="flex flex-wrap gap-4 mt-3">
+                  {profile.location && (
+                    <div className="flex items-center gap-1 text-xs text-[#555]">
+                      <MapPin className="h-3 w-3" /> {profile.location}
+                    </div>
+                  )}
+                  {profile.website && (
+                    <a href={profile.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-[#555] hover:text-white transition-colors">
+                      <Globe className="h-3 w-3" /> Website
+                    </a>
+                  )}
+                </div>
+
+                {/* Social Links */}
+                <div className="flex gap-3 mt-3">
+                  {profile.social_links?.instagram && (
+                    <a href={profile.social_links.instagram} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-pink-400 transition-colors">
+                      <Instagram className="h-4 w-4" />
+                    </a>
+                  )}
+                  {profile.social_links?.github && (
+                    <a href={profile.social_links.github} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-white transition-colors">
+                      <Github className="h-4 w-4" />
+                    </a>
+                  )}
+                  {profile.social_links?.linkedin && (
+                    <a href={profile.social_links.linkedin} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-blue-400 transition-colors">
+                      <Linkedin className="h-4 w-4" />
+                    </a>
+                  )}
+                  {profile.social_links?.twitter && (
+                    <a href={profile.social_links.twitter} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-blue-400 transition-colors">
+                      <Twitter className="h-4 w-4" />
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Stats e Botão Publicar Asset */}
+              <div className="flex flex-col items-end gap-3">
+                <div className="flex gap-6">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white">{profile.total_products || products.length}</div>
+                    <div className="text-xs text-[#555]">Assets</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white">{profile.total_sales || 0}</div>
+                    <div className="text-xs text-[#555]">Vendas</div>
+                  </div>
+                </div>
+                {isOwner && (
+                  <Link to={`/creator/${id}/new`} className="flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-semibold rounded-lg hover:bg-white/90 transition-colors">
+                    <Plus className="h-4 w-4" /> Publicar Asset
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
 
           {/* Products Grid */}
-          <div className="mt-8">
+          <div className="mt-8 pb-12">
             <h2 className="text-xl font-bold text-white mb-4">Assets da Loja</h2>
             {products.length === 0 ? (
               <div className="text-center py-12 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl">
@@ -274,7 +284,6 @@ export default function CreatorStore() {
                     key={product.id}
                     className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden hover:border-[#333] transition-all relative group"
                   >
-                    {/* Botões de editar e deletar */}
                     {isOwner && (
                       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex gap-1">
                         <button
