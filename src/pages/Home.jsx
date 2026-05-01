@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Store } from 'lucide-react'; // Troquei ChevronRight por Store
+import { ArrowRight } from 'lucide-react'; // Removeu Store e ChevronRight
 import { Button } from '@/components/ui/button';
 
 // Importe suas imagens aqui
@@ -81,10 +81,9 @@ export default function Home() {
             <Button 
               variant="outline" 
               onClick={() => navigate('/become-creator')} 
-              className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm gap-2 rounded-xl"
+              className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl"
             >
-              <Store className="h-4 w-4" />
-              Seja um Criador
+              Crie uma Loja
             </Button>
           </div>
           
