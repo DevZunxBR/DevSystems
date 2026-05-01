@@ -268,24 +268,20 @@ export default function CreatorSetup() {
           {currentPage === 0 && (
             <div className="space-y-4 text-muted-foreground">
               <p className="text-sm leading-relaxed">
-                O Programa de Criadores DevAssets foi criado para desenvolvedores talentosos que desejam 
-                monetizar seus assets e sistemas através da sua própria loja.
+                Tenha sua própria loja de assets dentro da DevAssets e comece a vender seus Assets 
               </p>
               <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">✓ Ganhe 87% de comissão</span> sobre cada venda realizada.
+                <span className="text-white font-medium">Loja personalizada</span> com identidade visual única para destacar seus assets.
               </p>
               <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">✓ Destaque seus assets</span> com visibilidade garantida na plataforma.
+                <span className="text-white font-medium">Visibilidade garantida</span> na plataforma.
               </p>
               <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">✓ Suporte prioritário e dedicado</span> para criadores em todas as etapas.
-              </p>
-              <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">✓ Todo criador DevAssets</span> tem a oportunidade de construir sua própria marca e se destacar no mercado.
+                <span className="text-white font-medium">Gestão completa dos seus produtos</span> adicione, edite ou remova assets quando quiser.
               </p>
               <div className="pt-4">
                 <p className="text-xs text-center text-muted-foreground border-t border-border pt-4">
-                  O processo leva cerca de 5 minutos. Suas informações serão usadas para criar sua loja.
+                  Apos Criar Sua Loja, Você Pode Publicar Seus Assets E Começar A Vender Imediatamente. Aproveite a plataforma para impulsionar seus projetos e alcançar uma audiência global de desenvolvedores.
                 </p>
               </div>
             </div>
