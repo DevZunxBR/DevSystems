@@ -1,5 +1,5 @@
 // src/pages/PartnerForm.jsx
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
@@ -7,9 +7,6 @@ import { Send, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 
 import devRegisterBg1 from '@/assets/images/DevParceiro.png';
-import devRegisterBg2 from '@/assets/images/DevRegister2.png';
-import devRegisterBg3 from '@/assets/images/DevRegister3.png';
-import devRegisterBg4 from '@/assets/images/DevRegister4.png';
 
 export default function PartnerForm() {
   const navigate = useNavigate();
@@ -35,29 +32,6 @@ export default function PartnerForm() {
     disponibilidade_reunioes: '',
     aceita_regras: ''
   });
-
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
-  const images = [devRegisterBg1, devRegisterBg2, devRegisterBg3, devRegisterBg4];
-
-  const quotes = [
-    { text: "A plataforma com os melhores assets e sistemas do mercado. Qualidade impecável.", author: "— Dev Community" },
-    { text: "Encontre tudo que você precisa para seus projetos em um só lugar.", author: "— Dev Systems" },
-    { text: "Mais de 500 desenvolvedores já confiam na nossa plataforma.", author: "— Comunidade Dev" },
-    { text: "Scripts profissionais e sistemas completos para produção imediata.", author: "— Dev Team" },
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setCurrentImageIndex((prev) => (prev + 1) % images.length);
-        setIsTransitioning(false);
-      }, 500);
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
 
   // 6 PÁGINAS (0 a 5)
   const pages = [
@@ -142,15 +116,6 @@ export default function PartnerForm() {
     }
   };
 
-  const goToImage = (index) => {
-    if (index === currentImageIndex) return;
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentImageIndex(index);
-      setIsTransitioning(false);
-    }, 500);
-  };
-
   return (
     <div className="min-h-screen flex">
 
@@ -180,7 +145,7 @@ export default function PartnerForm() {
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
 
-          {/* PÁGINA 0 - BOAS-VINDAS (APENAS TEXTO, SEM CARDS) */}
+          {/* PÁGINA 0 - BOAS-VINDAS */}
           {currentPage === 0 && (
             <div className="space-y-4 text-muted-foreground">
               <p className="text-sm leading-relaxed">
@@ -382,43 +347,14 @@ export default function PartnerForm() {
         </form>
       </div>
 
-      {/* LADO DIREITO - SLIDESHOW */}
-      <div className="hidden lg:block w-1/2 relative overflow-hidden">
+      {/* LADO DIREITO - IMAGEM FIXA (SEM SLIDESHOW) */}
+      <div className="hidden lg:block w-1/2 relative overflow-hidden bg-black">
         <img
-          src={images[currentImageIndex]}
+          src={devRegisterBg1}
           alt="Developer workspace"
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-            isTransitioning ? 'opacity-0' : 'opacity-100'
-          }`}
+          className="w-full h-full object-cover"
         />
-
         <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
-
-        <div className={`absolute inset-0 flex flex-col justify-end p-12 transition-opacity duration-500 ${
-          isTransitioning ? 'opacity-0' : 'opacity-100'
-        }`}>
-          <blockquote className="space-y-3">
-            <p className="text-lg font-semibold text-white leading-relaxed">
-              "{quotes[currentImageIndex].text}"
-            </p>
-            <footer className="text-sm text-muted-foreground">{quotes[currentImageIndex].author}</footer>
-          </blockquote>
-        </div>
-
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-          {images.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => goToImage(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                currentImageIndex === index
-                  ? 'bg-white w-6'
-                  : 'bg-white/40 hover:bg-white/60'
-              }`}
-            />
-          ))}
-        </div>
       </div>
     </div>
   );
