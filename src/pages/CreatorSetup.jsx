@@ -53,10 +53,7 @@ export default function CreatorSetup() {
 
   // Comentários em loop
   const quotes = [
-    { text: "Ao criar sua loja na DevAssets, você ganha 87% do valor de cada venda. Apenas 13% são destinados à manutenção e evolução da plataforma.", author: "— DevAssets Creators" },
-    { text: "Como criador, você recebe o pagamento de cada produto vendido em até 10 horas após a confirmação da venda.", author: "— DevAssets Creators" },
-    { text: "Cada asset seu recebe uma licença gratuita e exclusiva para proteger seus direitos autorais e seu trabalho.", author: "— DevAssets Creators" },
-    { text: "Seus assets ganham visibilidade na plataforma, com suporte prioritário para impulsionar seus projetos.", author: "— DevAssets Creators" },
+    { text: "Sua loja e seus assets ganham visibilidade na plataforma, com suporte prioritário para impulsionar seus projetos.", author: "— DevAssets Creators" },
     { text: "Você ganha atendimento prioritário e suporte dedicado desde a publicação até a gestão dos seus assets.", author: "— DevAssets Creators" },
     { text: "Todo criador DevAssets tem a oportunidade de se destacar e construir sua própria marca no mercado.", author: "— DevAssets Creators" },
   ];
