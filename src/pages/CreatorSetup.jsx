@@ -5,7 +5,7 @@ import { supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Upload, Loader2, Lock, Shield, ArrowLeft, Instagram, Github, Linkedin, ChevronRight, ChevronLeft } from 'lucide-react';
-import logoImage from '@/assets/images/Logo.png';
+import logoImage from '@/assets/images/DevRegister.png';
 import devRegisterBg1 from '@/assets/images/DevParceiro.png';
 
 const uploadImage = async (file, folder = 'creators') => {
