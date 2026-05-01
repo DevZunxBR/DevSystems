@@ -4,7 +4,6 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag, Lock, Users } from 'lucide-react';
 import { toast } from 'sonner';
-import logoImage from '@/assets/images/Logo.jpg';
 
 const navItems = [
   { icon: ClipboardList, label: 'Pedidos Pendentes', path: '/admin' },
@@ -22,7 +21,6 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [logoLoadError, setLogoLoadError] = useState(false);
 
   useEffect(() => {
     checkAdminAccess();
@@ -107,19 +105,10 @@ export default function AdminPanel() {
 
       <aside className={`fixed lg:sticky top-0 left-0 h-screen w-64 bg-[#0A0A0A] border-r border-[#1A1A1A] z-40 transition-transform lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 space-y-6">
-          {/* Logo - sem fundo branco, apenas a imagem */}
+          {/* Apenas o título, sem logo */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 flex items-center justify-center overflow-hidden bg-transparent">
-              {!logoLoadError ? (
-                <img
-                  src={logoImage}
-                  alt="DevAssets"
-                  className="w-full h-full object-contain"
-                  onError={() => setLogoLoadError(true)}
-                />
-              ) : (
-                <span className="text-white font-black text-sm">DA</span>
-              )}
+            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+              <span className="text-black font-black text-sm">A</span>
             </div>
             <h2 className="text-lg font-bold text-white">Admin Panel</h2>
           </div>
