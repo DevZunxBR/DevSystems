@@ -2,13 +2,14 @@
 import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag, Lock, Users } from 'lucide-react';
+import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag, Lock, Users, CheckCircle, FileCheck } from 'lucide-react';
 import { toast } from 'sonner';
 
 const navItems = [
   { icon: ClipboardList, label: 'Pedidos Pendentes', path: '/admin' },
   { icon: Package, label: 'Todos Pedidos', path: '/admin/orders' },
   { icon: ClipboardList, label: 'Reembolsos', path: '/admin/refunds' },
+  { icon: FileCheck, label: 'Aprovar Assets', path: '/admin/approve' }, // NOVO ITEM
   { icon: Users, label: 'Inscrições de Criadores', path: '/admin/creators' },
   { icon: Plus, label: 'Novo Produto', path: '/admin/products/new' },
   { icon: Package, label: 'Produtos', path: '/admin/products' },
