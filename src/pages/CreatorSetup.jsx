@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Upload, Loader2, Lock, Shield, ArrowLeft, Instagram, Github, Linkedin, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Upload, Loader2, Lock, Shield, Instagram, Github, Linkedin, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 import devRegisterBg1 from '@/assets/images/DevParceiro.png';
+import AppLayout from '@/components/layout/AppLayout';
 
 const uploadImage = async (file, folder = 'creators') => {
   const ext = file.name.split('.').pop();
@@ -19,7 +20,7 @@ const uploadImage = async (file, folder = 'creators') => {
   return urlData.publicUrl;
 };
 
-export default function CreatorSetup() {
+function CreatorSetupContent() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState({});
@@ -40,7 +41,6 @@ export default function CreatorSetup() {
     social_links: { instagram: '', github: '', linkedin: '', twitter: '' }
   });
 
-  // Páginas do formulário (5 páginas)
   const pages = [
     { title: "Como funciona", description: "O que você precisa para criar sua loja" },
     { title: "Identidade da Loja", description: "Nome e descrição da sua loja" },
@@ -51,7 +51,6 @@ export default function CreatorSetup() {
 
   const LAST_PAGE = pages.length - 1;
 
-  // Comentários em loop
   const quotes = [
     { text: "Sua loja e seus assets ganham visibilidade na plataforma, com suporte prioritário para impulsionar seus projetos.", author: "— DevAssets Creators" },
     { text: "Você ganha atendimento prioritário e suporte dedicado desde a publicação até a gestão dos seus assets.", author: "— DevAssets Creators" },
@@ -203,18 +202,15 @@ export default function CreatorSetup() {
 
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-2 border-[#1A1A1A] border-t-white rounded-full animate-spin mx-auto" />
-          <p className="text-sm text-[#555]">Verificando credenciais...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-[#1A1A1A] border-t-white rounded-full animate-spin mx-auto" />
       </div>
     );
   }
 
   if (!hasRole || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-6 max-w-md mx-auto px-4">
           <div className="w-20 h-20 bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl flex items-center justify-center mx-auto">
             <Lock className="h-10 w-10 text-white" />
@@ -233,10 +229,10 @@ export default function CreatorSetup() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="flex">
 
       {/* LADO ESQUERDO - FORMULÁRIO */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12">
 
         <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-8">
           <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden">
@@ -278,7 +274,7 @@ export default function CreatorSetup() {
               </p>
               <div className="pt-4">
                 <p className="text-xs text-center text-muted-foreground border-t border-border pt-4">
-                  Apos Criar Sua Loja, Você Pode Publicar Seus Assets E Começar A Vender Imediatamente. Aproveite a plataforma para impulsionar seus projetos e alcançar uma audiência global de desenvolvedores.
+                  Após Criar Sua Loja, Você Pode Publicar Seus Assets E Começar A Vender Imediatamente.
                 </p>
               </div>
             </div>
@@ -476,7 +472,6 @@ export default function CreatorSetup() {
         />
         <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
         
-        {/* Comentários em loop com fade */}
         <div className="absolute inset-0 flex flex-col justify-end p-12">
           <div className={`transition-opacity duration-500 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
             <blockquote className="space-y-3">
@@ -490,5 +485,13 @@ export default function CreatorSetup() {
       </div>
       
     </div>
+  );
+}
+
+export default function CreatorSetup() {
+  return (
+    <AppLayout>
+      <CreatorSetupContent />
+    </AppLayout>
   );
 }
