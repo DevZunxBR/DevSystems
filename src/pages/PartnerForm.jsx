@@ -1,5 +1,5 @@
 // src/pages/PartnerForm.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
@@ -13,6 +13,8 @@ export default function PartnerForm() {
   const [loading, setLoading] = useState(false);
   const [logoLoadError, setLogoLoadError] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+  const [quoteIndex, setQuoteIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [form, setForm] = useState({
     nome: '',
     email: '',
@@ -33,6 +35,27 @@ export default function PartnerForm() {
     aceita_regras: ''
   });
 
+  // Comentários que vão passar em loop
+  const quotes = [
+    { text: "A plataforma com os melhores assets e sistemas do mercado. Qualidade impecável.", author: "— Dev Community" },
+    { text: "Encontre tudo que você precisa para seus projetos em um só lugar.", author: "— Dev Systems" },
+    { text: "Mais de 500 desenvolvedores já confiam na nossa plataforma.", author: "— Comunidade Dev" },
+    { text: "Scripts profissionais e sistemas completos para produção imediata.", author: "— Dev Team" },
+  ];
+
+  // Loop dos comentários a cada 5 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setQuoteIndex((prev) => (prev + 1) % quotes.length);
+        setIsTransitioning(false);
+      }, 500);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   // 6 PÁGINAS (0 a 5)
   const pages = [
     { title: "Bem-vindo", description: "Programa de Criadores DevAssets" },
@@ -44,12 +67,6 @@ export default function PartnerForm() {
   ];
 
   const LAST_PAGE = pages.length - 1;
-
-  // Comentário fixo para a imagem
-  const quote = {
-    text: "A plataforma com os melhores assets e sistemas do mercado. Qualidade impecável.",
-    author: "— Dev Community"
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -353,7 +370,7 @@ export default function PartnerForm() {
         </form>
       </div>
 
-      {/* LADO DIREITO - IMAGEM FIXA COM COMENTÁRIO */}
+      {/* LADO DIREITO - 1 IMAGEM FIXA + COMENTÁRIOS EM LOOP */}
       <div className="hidden lg:block w-1/2 relative overflow-hidden bg-black">
         <img
           src={devRegisterBg1}
@@ -362,14 +379,16 @@ export default function PartnerForm() {
         />
         <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
         
-        {/* Comentário fixo */}
+        {/* Comentários em loop com fade */}
         <div className="absolute inset-0 flex flex-col justify-end p-12">
-          <blockquote className="space-y-3">
-            <p className="text-lg font-semibold text-white leading-relaxed">
-              "{quote.text}"
-            </p>
-            <footer className="text-sm text-muted-foreground">{quote.author}</footer>
-          </blockquote>
+          <div className={`transition-opacity duration-500 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+            <blockquote className="space-y-3">
+              <p className="text-lg font-semibold text-white leading-relaxed">
+                "{quotes[quoteIndex].text}"
+              </p>
+              <footer className="text-sm text-muted-foreground">{quotes[quoteIndex].author}</footer>
+            </blockquote>
+          </div>
         </div>
       </div>
     </div>
