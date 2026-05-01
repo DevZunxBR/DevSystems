@@ -28,9 +28,15 @@ import ProductForm from './pages/admin/ProductForm';
 import RefundRequests from './pages/admin/RefundRequests';
 import Register from './pages/Register';
 
-// NOVAS IMPORTAÇÕES DO FORMULÁRIO
+// IMPORTAÇÕES DO FORMULÁRIO DE CRIADORES
 import PartnerForm from './pages/PartnerForm';
 import ManageCreators from './pages/admin/ManageCreators';
+
+// IMPORTAÇÕES DO SISTEMA DE CRIADORES
+import CreatorStore from './pages/CreatorStore';
+import CreatorSetup from './pages/CreatorSetup';
+import CreatorNewProduct from './pages/creator/CreatorNewProduct';
+import ApproveProducts from './pages/admin/ApproveProducts';
 
 // Rota privada - redireciona para /register se não logado
 const PrivateRoute = ({ children }) => {
@@ -58,8 +64,15 @@ const AuthenticatedApp = () => {
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
       
-      {/* Rota pública do formulário - não precisa estar logado */}
+      {/* Rota pública do formulário de inscrição de criadores */}
       <Route path="/become-creator" element={<PartnerForm />} />
+
+      {/* Rotas públicas do sistema de criadores */}
+      <Route path="/creator/:id" element={<CreatorStore />} />
+
+      {/* Rotas protegidas do sistema de criadores */}
+      <Route path="/creator/setup" element={<PrivateRoute><CreatorSetup /></PrivateRoute>} />
+      <Route path="/creator/:id/new" element={<PrivateRoute><CreatorNewProduct /></PrivateRoute>} />
 
       <Route element={<AppLayout />}>
         <Route path="/" element={<Home />} />
@@ -155,7 +168,16 @@ const AuthenticatedApp = () => {
             </PrivateRoute>
           } />
           
-          {/* NOVA ROTA DO ADMIN - INSCRIÇÕES DE CRIADORES */}
+          {/* Rota para aprovar assets dos criadores */}
+          <Route path="/admin/approve" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <ApproveProducts />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+          
+          {/* Rota para gerenciar inscrições de criadores */}
           <Route path="/admin/creators" element={
             <PrivateRoute>
               <MaintenanceGuard>

@@ -1,6 +1,6 @@
-﻿// src/pages/ProductDetail.jsx - Apenas cards da galeria, descrição e reviews removidos (sidebar mantida)
+﻿// src/pages/ProductDetail.jsx
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import {
   ShoppingCart,
   Zap,
@@ -12,6 +12,7 @@ import {
   Settings,
   Lock,
   Clock,
+  Store,
 } from 'lucide-react';
 import { useCountdown } from '@/hooks/useCountdown';
 import FavoriteButton from '@/components/products/FavoriteButton';
@@ -235,7 +236,7 @@ export default function ProductDetail() {
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center space-y-3">
           <p className="text-[#555]">{loadError}</p>
-          <Button variant="outline" onClick={loadProduct} className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white">
+          <Button variant="outline" onClick={loadProduct} className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A1A] hover:text-white">
             Tentar novamente
           </Button>
         </div>
@@ -262,7 +263,7 @@ export default function ProductDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-10">
         {/* Coluna da esquerda - Galeria e descrição */}
         <div className="lg:col-span-7 space-y-6">
-          {/* Galeria de imagens - SEM CARD CINZA */}
+          {/* Galeria de imagens */}
           <div className="space-y-3">
             <div className="relative aspect-video bg-[#050505] border border-[#1A1A1A] rounded-xl overflow-hidden">
               {images.length > 0 ? (
@@ -309,7 +310,7 @@ export default function ProductDetail() {
             )}
           </div>
 
-          {/* Descrição - SEM CARD CINZA */}
+          {/* Descrição */}
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-white">Descrição</h2>
             <div className="prose prose-sm prose-invert max-w-none text-[#888]">
@@ -317,13 +318,13 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* Reviews - SEM CARD CINZA */}
+          {/* Reviews */}
           <div className="border-t border-[#1A1A1A] pt-6">
             <ReviewSection productId={product.id} />
           </div>
         </div>
 
-        {/* Coluna da direita - Card da sidebar mantido intacto */}
+        {/* Coluna da direita - Card da sidebar */}
         <div className="lg:col-span-3">
           <div className="sticky top-24 space-y-4">
             <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-6 space-y-5">
@@ -366,6 +367,39 @@ export default function ProductDetail() {
               )}
 
               {hasDiscount && !currentLicense && <DiscountCountdown expiresAt={product.discount_expires_at} />}
+
+              {/* Link para a loja do criador */}
+              {product.creator_id && product.creator_name && (
+                <div className="pt-2">
+                  <div className="flex items-center gap-3 p-3 bg-[#1A1A1A]/30 rounded-xl">
+                    <Link to={`/creator/${product.creator_id}`}>
+                      <div className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center overflow-hidden">
+                        {product.creator_avatar ? (
+                          <img src={product.creator_avatar} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-white font-bold text-sm">
+                            {product.creator_name?.[0]?.toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+                    <div className="flex-1">
+                      <p className="text-xs text-[#555]">Criado por</p>
+                      <Link to={`/creator/${product.creator_id}`} className="text-sm font-medium text-white hover:underline">
+                        {product.creator_name}
+                      </Link>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate(`/creator/${product.creator_id}`)}
+                      className="border-[#1A1A1A] text-xs gap-1"
+                    >
+                      <Store className="h-3 w-3" /> Ver Loja
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-2">
                 {isClosed ? (
