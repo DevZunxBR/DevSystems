@@ -1,12 +1,9 @@
 // src/components/Maintenance.jsx
 import { Clock, Mail } from 'lucide-react';
-import logoImage from '@/assets/images/Logo.png';
-import { useState } from 'react';
 
 export default function Maintenance() {
   // Email de contato
   const contactEmail = 'devzunxbr@gmail.com';
-  const [logoLoadError, setLogoLoadError] = useState(false);
   
   // Link para abrir diretamente o Gmail Web
   const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${contactEmail}&su=Site%20em%20Manutenção%20-%20Contato&body=Olá,%20estou%20com%20um%20problema...`;
@@ -14,22 +11,8 @@ export default function Maintenance() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="text-center max-w-md space-y-6">
-        {/* Logo gigante - sem card */}
-        <div className="flex justify-center">
-          {!logoLoadError ? (
-            <img
-              src={logoImage}
-              alt="DevAssets"
-              className="w-20 h-20 object-contain"
-              onError={() => setLogoLoadError(true)}
-            />
-          ) : (
-            <span className="text-white font-black text-6xl">DA</span>
-          )}
-        </div>
-        
         {/* Título */}
-        <h1 className="text-3xl font-black text-white">Site em Manutenção</h1>
+        <h1 className="text-4xl font-black text-white">Site em Manutenção</h1>
         
         {/* Descrição */}
         <p className="text-sm text-[#555] leading-relaxed">
