@@ -176,13 +176,13 @@ export default function PartnerForm() {
                 monetizar seus assets e sistemas.
               </p>
               <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">✓ Comissão de até 70%</span> por venda
+                <span className="text-white font-medium">Comissão de até 70%</span> por venda
               </p>
               <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">✓ Visibilidade</span> na plataforma
+                <span className="text-white font-medium">Visibilidade</span> na plataforma
               </p>
               <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">✓ Suporte prioritário</span> e pagamentos mensais
+                <span className="text-white font-medium">Suporte prioritário</span> e pagamentos mensais
               </p>
               <div className="pt-4">
                 <p className="text-xs text-center text-muted-foreground border-t border-border pt-4">
