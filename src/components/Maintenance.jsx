@@ -20,7 +20,7 @@ export default function Maintenance() {
             <img
               src={logoImage}
               alt="DevAssets"
-              className="w-40 h-40 object-contain"
+              className="w-20 h-20 object-contain"
               onError={() => setLogoLoadError(true)}
             />
           ) : (
