@@ -178,16 +178,16 @@ export default function PartnerForm() {
                 monetizar seus assets e sistemas.
               </p>
               <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">Comissão de até 87%</span> por venda
+                <span className="text-white font-medium">Ganhe 87% de comissão</span> sobre cada venda realizada.
               </p>
               <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">Visibilidade</span> na plataforma
+                <span className="text-white font-medium">Destaque seus assets</span> com visibilidade garantida na plataforma.
               </p>
               <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">Suporte prioritário</span> e atendimento dedicado
+                <span className="text-white font-medium">Suporte prioritário e dedicado</span> para criadores em todas as etapas.
               </p>
               <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">Todo criador</span> tem a oportunidade de se destacar
+                <span className="text-white font-medium">Todo criador DevAssets</span> tem a oportunidade de construir sua própria marca e se destacar no mercado.
               </p>
               <div className="pt-4">
                 <p className="text-xs text-center text-muted-foreground border-t border-border pt-4">
