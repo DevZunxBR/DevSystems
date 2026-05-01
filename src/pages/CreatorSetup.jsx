@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Upload, Loader2, Lock, Shield, ArrowLeft, MapPin, Globe, Instagram, Github, Linkedin, Twitter, Sparkles, Eye } from 'lucide-react';
+import { Upload, Loader2, Lock, Shield, ArrowLeft, Instagram, Github, Linkedin } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 
 const uploadImage = async (file, folder = 'creators') => {
@@ -185,7 +185,7 @@ export default function CreatorSetup() {
   return (
     <div className="min-h-screen flex">
 
-      {/* LADO ESQUERDO - FORMULÁRIO (estilo PartnerForm) */}
+      {/* LADO ESQUERDO - FORMULÁRIO */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
 
         <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-8">
@@ -340,79 +340,9 @@ export default function CreatorSetup() {
         </form>
       </div>
 
-      {/* LADO DIREITO - PRÉVIA DA LOJA (estilo PartnerForm) */}
-      <div className="hidden lg:block w-1/2 relative overflow-hidden bg-black">
-        {/* Banner Preview */}
-        <div className="absolute inset-0">
-          {form.banner_url ? (
-            <img src={form.banner_url} alt="Preview Banner" className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-purple-900/30 to-blue-900/30" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
-        </div>
-
-        {/* Preview Content */}
-        <div className="absolute inset-0 flex flex-col justify-end p-12">
-          <div className="space-y-4">
-            {/* Avatar Preview */}
-            <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full border-4 border-black overflow-hidden bg-[#0A0A0A]">
-                {form.avatar_url ? (
-                  <img src={form.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-2xl text-[#555]">?</div>
-                )}
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-white">{form.display_name || 'Nome da Loja'}</h3>
-                {form.location && (
-                  <div className="flex items-center gap-1 text-xs text-[#555] mt-1">
-                    <MapPin className="h-3 w-3" /> {form.location}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Bio Preview */}
-            {form.bio && (
-              <p className="text-sm text-[#888] leading-relaxed max-w-md">{form.bio}</p>
-            )}
-
-            {/* Website Preview */}
-            {form.website && (
-              <a href="#" className="flex items-center gap-1 text-xs text-[#555] hover:text-white">
-                <Globe className="h-3 w-3" /> {form.website}
-              </a>
-            )}
-
-            {/* Social Links Preview */}
-            <div className="flex gap-3">
-              {form.social_links.instagram && <Instagram className="h-4 w-4 text-pink-500" />}
-              {form.social_links.github && <Github className="h-4 w-4 text-white" />}
-              {form.social_links.linkedin && <Linkedin className="h-4 w-4 text-blue-500" />}
-            </div>
-
-            {/* Stats Preview */}
-            <div className="flex gap-6 pt-4 border-t border-[#1A1A1A]">
-              <div className="text-center">
-                <div className="text-xl font-bold text-white">0</div>
-                <div className="text-[10px] text-[#555]">Assets</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xl font-bold text-white">0</div>
-                <div className="text-[10px] text-[#555]">Vendas</div>
-              </div>
-            </div>
-
-            {/* Badge de Criador */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-full">
-              <Shield className="h-3 w-3 text-white" />
-              <span className="text-[10px] text-white">Criador DevAssets</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* LADO DIREITO - APENAS FUNDO PRETO (SEM NADA) */}
+      <div className="hidden lg:block w-1/2 bg-black" />
+      
     </div>
   );
 }
