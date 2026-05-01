@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Upload, Loader2, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Upload, Loader2, Lock, Shield, ArrowLeft } from 'lucide-react';
 
 const uploadImage = async (file, folder = 'creators') => {
   const ext = file.name.split('.').pop();
@@ -22,6 +22,8 @@ export default function CreatorSetup() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState({});
   const [checking, setChecking] = useState(true);
+  const [hasRole, setHasRole] = useState(false);
+  const [user, setUser] = useState(null);
   const [form, setForm] = useState({
     display_name: '',
     bio: '',
@@ -37,10 +39,26 @@ export default function CreatorSetup() {
   }, []);
 
   const checkCreatorAccess = async () => {
+    setChecking(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate('/register');
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      
+      if (!currentUser) {
+        setHasRole(false);
+        setUser(null);
+        setChecking(false);
+        return;
+      }
+
+      setUser(currentUser);
+
+      // Verificar se tem o cargo OficialContentCreator
+      const userRole = currentUser.user_metadata?.role || currentUser.raw_app_meta_data?.role;
+      const hasCreatorRole = userRole === 'OficialContentCreator';
+
+      if (!hasCreatorRole) {
+        setHasRole(false);
+        setChecking(false);
         return;
       }
 
@@ -48,7 +66,7 @@ export default function CreatorSetup() {
       const { data: existingProfile } = await supabase
         .from('creator_profiles')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('user_id', currentUser.id)
         .single();
 
       if (existingProfile) {
@@ -56,9 +74,12 @@ export default function CreatorSetup() {
         return;
       }
 
-      setChecking(false);
+      setHasRole(true);
     } catch (error) {
-      console.error(error);
+      console.error('Erro ao verificar acesso:', error);
+      setHasRole(false);
+      setUser(null);
+    } finally {
       setChecking(false);
     }
   };
@@ -87,13 +108,13 @@ export default function CreatorSetup() {
 
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
 
       const { data, error } = await supabase
         .from('creator_profiles')
         .insert({
-          user_id: user.id,
-          email: user.email,
+          user_id: currentUser.id,
+          email: currentUser.email,
           display_name: form.display_name,
           bio: form.bio,
           avatar_url: form.avatar_url,
@@ -118,14 +139,47 @@ export default function CreatorSetup() {
     }
   };
 
+  // Tela de loading
   if (checking) {
     return (
-      <div className="flex justify-center py-20">
-        <div className="w-8 h-8 border-2 border-[#1A1A1A] border-t-white rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 border-2 border-[#1A1A1A] border-t-white rounded-full animate-spin mx-auto" />
+          <p className="text-sm text-[#555]">Verificando credenciais...</p>
+        </div>
       </div>
     );
   }
 
+  // Tela de acesso negado (igual ao AdminPanel)
+  if (!hasRole || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-center space-y-6 max-w-md mx-auto px-4">
+          <div className="w-20 h-20 bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl flex items-center justify-center mx-auto">
+            <Lock className="h-10 w-10 text-white" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-black text-white">Acesso Restrito</h1>
+            <p className="text-sm text-[#555]">
+              Você não tem permissão para acessar esta área.
+            </p>
+            <p className="text-xs text-[#444]">
+              Apenas criadores com o cargo <span className="text-white">OficialContentCreator</span> podem criar uma loja.
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/')}
+            className="mt-4 px-6 py-2.5 bg-white text-black rounded-lg text-sm font-semibold hover:bg-white/90 transition-colors"
+          >
+            Voltar para a loja
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Tela de criação da loja
   return (
     <div className="max-w-2xl mx-auto py-12 px-4">
       <button onClick={() => navigate('/')} className="flex items-center gap-2 text-[#555] hover:text-white mb-6">
@@ -134,8 +188,16 @@ export default function CreatorSetup() {
 
       <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
         <div className="text-center mb-6">
+          <div className="flex justify-center mb-3">
+            <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
+              <Shield className="h-6 w-6 text-white" />
+            </div>
+          </div>
           <h1 className="text-2xl font-bold text-white">Criar Loja de Criador</h1>
           <p className="text-sm text-[#555] mt-2">Configure sua loja para começar a vender seus assets</p>
+          <div className="mt-2 inline-block px-3 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
+            Verificado • Cargo OficialContentCreator
+          </div>
         </div>
 
         <div className="space-y-5">
