@@ -6,9 +6,9 @@ import { toast } from 'sonner';
 import { Send, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 import devRegisterBg1 from '@/assets/images/DevParceiro.png';
-// REMOVA: import AppLayout from '@/components/layout/AppLayout';
+import Header from '@/components/layout/Header'; // Adicione
+import Footer from '@/components/layout/Footer'; // Adicione
 
-// Renomeie o componente principal (sem AppLayout)
 export default function PartnerForm() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -143,261 +143,264 @@ export default function PartnerForm() {
   };
 
   return (
-    <div className="min-h-screen flex">
-
-      {/* LADO ESQUERDO - FORMULÁRIO */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
-
-        <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-8">
-          <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden">
-            {!logoLoadError ? (
-              <img src={logoImage} alt="Logo" className="w-full h-full object-contain" onError={() => setLogoLoadError(true)} />
-            ) : (
-              <span className="text-white font-black text-sm">DA</span>
-            )}
-          </div>
-          <span className="text-white font-bold text-lg tracking-tight">DevAssets</span>
-        </div>
-
-        <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Formulário de Inscrição</h1>
-          <p className="text-sm text-muted-foreground mt-2">Torne-se um criador oficial da DevAssets</p>
-        </div>
-
-        <div className="mt-6">
-          <h2 className="text-xl font-bold text-white">{pages[currentPage].title}</h2>
-          <p className="text-xs text-muted-foreground mt-1">{pages[currentPage].description}</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-5 mt-6">
-
-          {/* PÁGINA 0 - BOAS-VINDAS */}
-          {currentPage === 0 && (
-            <div className="space-y-4 text-muted-foreground">
-              <p className="text-sm leading-relaxed">
-                O Programa de Criadores DevAssets foi criado para desenvolvedores talentosos que desejam 
-                monetizar seus assets e sistemas.
-              </p>
-              <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">Ganhe 87% de comissão</span> sobre cada venda realizada.
-              </p>
-              <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">Destaque seus assets</span> com visibilidade garantida na plataforma.
-              </p>
-              <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">Suporte prioritário e dedicado</span> para criadores em todas as etapas.
-              </p>
-              <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">Todo criador DevAssets</span> tem a oportunidade de construir sua própria marca e se destacar no mercado.
-              </p>
-              <div className="pt-4">
-                <p className="text-xs text-center text-muted-foreground border-t border-border pt-4">
-                  Atenção E Obrigatorio Entrar No Servidor do Discord O processo leva cerca de 5 minutos. Suas informações serão analisadas pela nossa equipe.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* PÁGINA 1 - IDENTIDADE */}
-          {currentPage === 1 && (
-            <>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo</label>
-                <input type="text" name="nome" value={form.nome} onChange={handleChange}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">E-mail</label>
-                <input type="email" name="email" value={form.email} onChange={handleChange}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Discord</label>
-                <input type="text" name="discord_nick" value={form.discord_nick} onChange={handleChange}
-                  placeholder="usuário#0000"
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">WhatsApp</label>
-                <input type="tel" name="telefone" value={form.telefone} onChange={handleChange}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Portfólio / GitHub</label>
-                <input type="url" name="portfolio_url" value={form.portfolio_url} onChange={handleChange}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
-              </div>
-            </>
-          )}
-
-          {/* PÁGINA 2 - TRAJETÓRIA */}
-          {currentPage === 2 && (
-            <>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Experiência na área</label>
-                <textarea name="experiencia" rows={5} value={form.experiencia} onChange={handleChange}
-                  className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white resize-none" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Por que quer ser um criador?</label>
-                <textarea name="motivo" rows={5} value={form.motivo} onChange={handleChange}
-                  className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white resize-none" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Plano de Contribuição</label>
-                <textarea name="plano_contribuicao" rows={4} value={form.plano_contribuicao} onChange={handleChange}
-                  placeholder="Quantos assets planeja criar por mês?"
-                  className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white resize-none" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Já entrou no Discord da DevAssets?</label>
-                <input type="text" name="entrou_discord" value={form.entrou_discord} onChange={handleChange}
-                  placeholder="Sim / Não"
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
-              </div>
-            </>
-          )}
-
-          {/* PÁGINA 3 - REDES */}
-          {currentPage === 3 && (
-            <>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Instagram</label>
-                <input type="text" name="instagram" value={form.redes_sociais.instagram} onChange={handleChange}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">GitHub</label>
-                <input type="text" name="github" value={form.redes_sociais.github} onChange={handleChange}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">LinkedIn</label>
-                <input type="text" name="linkedin" value={form.redes_sociais.linkedin} onChange={handleChange}
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
-              </div>
-            </>
-          )}
-
-          {/* PÁGINA 4 - STACK */}
-          {currentPage === 4 && (
-            <div className="space-y-6">
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Idiomas</label>
-                <input type="text" name="idiomas" value={form.idiomas} onChange={handleChange}
-                  placeholder="Ex: Português, Inglês, Espanhol"
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Tipos de Asset</label>
-                <input type="text" name="tipo_asset" value={form.tipo_asset} onChange={handleChange}
-                  placeholder="Ex: Scripts, Sistemas, UI Kits"
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Plataformas</label>
-                <input type="text" name="plataformas" value={form.plataformas} onChange={handleChange}
-                  placeholder="Ex: Unity, React, Node.js"
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Disponibilidade</label>
-                <input type="text" name="disponibilidade" value={form.disponibilidade} onChange={handleChange}
-                  placeholder="Ex: 10-15 horas por semana"
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
-              </div>
-            </div>
-          )}
-
-          {/* PÁGINA 5 - FINALIZAÇÃO */}
-          {currentPage === 5 && (
-            <div className="space-y-5">
-              <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
-                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo da Candidatura</p>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Nome</span>
-                  <span className="text-white">{form.nome || '-'}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Email</span>
-                  <span className="text-white">{form.email || '-'}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Discord</span>
-                  <span className="text-white">{form.discord_nick || '-'}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Assets</span>
-                  <span className="text-white">{form.tipo_asset || '-'}</span>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Já vendeu assets antes?</label>
-                <input type="text" name="ja_vendeu" value={form.ja_vendeu} onChange={handleChange}
-                  placeholder="Sim / Não"
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Disponibilidade para reuniões</label>
-                <input type="text" name="disponibilidade_reunioes" value={form.disponibilidade_reunioes} onChange={handleChange}
-                  placeholder="Sim / Não"
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Li e concordo com as regras</label>
-                <input type="text" name="aceita_regras" value={form.aceita_regras} onChange={handleChange}
-                  placeholder="Sim, concordo"
-                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
-              </div>
-            </div>
-          )}
-
-          {/* Botões de navegação */}
-          <div className="flex items-center gap-3 pt-4">
-            {currentPage > 0 && (
-              <button type="button" onClick={prevPage} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white">
-                <ChevronLeft className="w-4 h-4" /> Voltar
-              </button>
-            )}
-            <div className="flex-1" />
-            {currentPage < LAST_PAGE ? (
-              <button type="button" onClick={nextPage} className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 flex items-center gap-2">
-                Continuar <ChevronRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <button type="submit" disabled={loading} className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 disabled:opacity-50 flex items-center gap-2">
-                {loading ? 'Enviando...' : <><Send className="w-4 h-4" /> Enviar Inscrição</>}
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
-
-      {/* LADO DIREITO - 1 IMAGEM FIXA + COMENTÁRIOS EM LOOP */}
-      <div className="hidden lg:block w-1/2 relative overflow-hidden bg-black">
-        <img
-          src={devRegisterBg1}
-          alt="Developer workspace"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
-        
-        {/* Comentários em loop com fade */}
-        <div className="absolute inset-0 flex flex-col justify-end p-12">
-          <div className={`transition-opacity duration-500 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-            <blockquote className="space-y-3">
-              <p className="text-lg font-semibold text-white leading-relaxed">
-                "{quotes[quoteIndex].text}"
-              </p>
-              <footer className="text-sm text-muted-foreground">{quotes[quoteIndex].author}</footer>
-            </blockquote>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <Header />
       
+      <div className="flex-1 flex">
+        {/* LADO ESQUERDO - FORMULÁRIO */}
+        <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
+
+          <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-8">
+            <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden">
+              {!logoLoadError ? (
+                <img src={logoImage} alt="Logo" className="w-full h-full object-contain" onError={() => setLogoLoadError(true)} />
+              ) : (
+                <span className="text-white font-black text-sm">DA</span>
+              )}
+            </div>
+            <span className="text-white font-bold text-lg tracking-tight">DevAssets</span>
+          </div>
+
+          <div>
+            <h1 className="text-3xl font-black text-white tracking-tight">Formulário de Inscrição</h1>
+            <p className="text-sm text-muted-foreground mt-2">Torne-se um criador oficial da DevAssets</p>
+          </div>
+
+          <div className="mt-6">
+            <h2 className="text-xl font-bold text-white">{pages[currentPage].title}</h2>
+            <p className="text-xs text-muted-foreground mt-1">{pages[currentPage].description}</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5 mt-6">
+            {/* PÁGINA 0 - BOAS-VINDAS */}
+            {currentPage === 0 && (
+              <div className="space-y-4 text-muted-foreground">
+                <p className="text-sm leading-relaxed">
+                  O Programa de Criadores DevAssets foi criado para desenvolvedores talentosos que desejam 
+                  monetizar seus assets e sistemas.
+                </p>
+                <p className="text-sm leading-relaxed">
+                  <span className="text-white font-medium">Ganhe 87% de comissão</span> sobre cada venda realizada.
+                </p>
+                <p className="text-sm leading-relaxed">
+                  <span className="text-white font-medium">Destaque seus assets</span> com visibilidade garantida na plataforma.
+                </p>
+                <p className="text-sm leading-relaxed">
+                  <span className="text-white font-medium">Suporte prioritário e dedicado</span> para criadores em todas as etapas.
+                </p>
+                <p className="text-sm leading-relaxed">
+                  <span className="text-white font-medium">Todo criador DevAssets</span> tem a oportunidade de construir sua própria marca e se destacar no mercado.
+                </p>
+                <div className="pt-4">
+                  <p className="text-xs text-center text-muted-foreground border-t border-border pt-4">
+                    Atenção E Obrigatorio Entrar No Servidor do Discord O processo leva cerca de 5 minutos. Suas informações serão analisadas pela nossa equipe.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* PÁGINA 1 - IDENTIDADE */}
+            {currentPage === 1 && (
+              <>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome Completo</label>
+                  <input type="text" name="nome" value={form.nome} onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">E-mail</label>
+                  <input type="email" name="email" value={form.email} onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Discord</label>
+                  <input type="text" name="discord_nick" value={form.discord_nick} onChange={handleChange}
+                    placeholder="usuário#0000"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">WhatsApp</label>
+                  <input type="tel" name="telefone" value={form.telefone} onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Portfólio / GitHub</label>
+                  <input type="url" name="portfolio_url" value={form.portfolio_url} onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
+                </div>
+              </>
+            )}
+
+            {/* PÁGINA 2 - TRAJETÓRIA */}
+            {currentPage === 2 && (
+              <>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Experiência na área</label>
+                  <textarea name="experiencia" rows={5} value={form.experiencia} onChange={handleChange}
+                    className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white resize-none" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Por que quer ser um criador?</label>
+                  <textarea name="motivo" rows={5} value={form.motivo} onChange={handleChange}
+                    className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white resize-none" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Plano de Contribuição</label>
+                  <textarea name="plano_contribuicao" rows={4} value={form.plano_contribuicao} onChange={handleChange}
+                    placeholder="Quantos assets planeja criar por mês?"
+                    className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white resize-none" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Já entrou no Discord da DevAssets?</label>
+                  <input type="text" name="entrou_discord" value={form.entrou_discord} onChange={handleChange}
+                    placeholder="Sim / Não"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
+                </div>
+              </>
+            )}
+
+            {/* PÁGINA 3 - REDES */}
+            {currentPage === 3 && (
+              <>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Instagram</label>
+                  <input type="text" name="instagram" value={form.redes_sociais.instagram} onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">GitHub</label>
+                  <input type="text" name="github" value={form.redes_sociais.github} onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">LinkedIn</label>
+                  <input type="text" name="linkedin" value={form.redes_sociais.linkedin} onChange={handleChange}
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
+                </div>
+              </>
+            )}
+
+            {/* PÁGINA 4 - STACK */}
+            {currentPage === 4 && (
+              <div className="space-y-6">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Idiomas</label>
+                  <input type="text" name="idiomas" value={form.idiomas} onChange={handleChange}
+                    placeholder="Ex: Português, Inglês, Espanhol"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Tipos de Asset</label>
+                  <input type="text" name="tipo_asset" value={form.tipo_asset} onChange={handleChange}
+                    placeholder="Ex: Scripts, Sistemas, UI Kits"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Plataformas</label>
+                  <input type="text" name="plataformas" value={form.plataformas} onChange={handleChange}
+                    placeholder="Ex: Unity, React, Node.js"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Disponibilidade</label>
+                  <input type="text" name="disponibilidade" value={form.disponibilidade} onChange={handleChange}
+                    placeholder="Ex: 10-15 horas por semana"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
+                </div>
+              </div>
+            )}
+
+            {/* PÁGINA 5 - FINALIZAÇÃO */}
+            {currentPage === 5 && (
+              <div className="space-y-5">
+                <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
+                  <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo da Candidatura</p>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Nome</span>
+                    <span className="text-white">{form.nome || '-'}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Email</span>
+                    <span className="text-white">{form.email || '-'}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Discord</span>
+                    <span className="text-white">{form.discord_nick || '-'}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Assets</span>
+                    <span className="text-white">{form.tipo_asset || '-'}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Já vendeu assets antes?</label>
+                  <input type="text" name="ja_vendeu" value={form.ja_vendeu} onChange={handleChange}
+                    placeholder="Sim / Não"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Disponibilidade para reuniões</label>
+                  <input type="text" name="disponibilidade_reunioes" value={form.disponibilidade_reunioes} onChange={handleChange}
+                    placeholder="Sim / Não"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Li e concordo com as regras</label>
+                  <input type="text" name="aceita_regras" value={form.aceita_regras} onChange={handleChange}
+                    placeholder="Sim, concordo"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground" />
+                </div>
+              </div>
+            )}
+
+            {/* Botões de navegação */}
+            <div className="flex items-center gap-3 pt-4">
+              {currentPage > 0 && (
+                <button type="button" onClick={prevPage} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white">
+                  <ChevronLeft className="w-4 h-4" /> Voltar
+                </button>
+              )}
+              <div className="flex-1" />
+              {currentPage < LAST_PAGE ? (
+                <button type="button" onClick={nextPage} className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 flex items-center gap-2">
+                  Continuar <ChevronRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button type="submit" disabled={loading} className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 disabled:opacity-50 flex items-center gap-2">
+                  {loading ? 'Enviando...' : <><Send className="w-4 h-4" /> Enviar Inscrição</>}
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+
+        {/* LADO DIREITO - 1 IMAGEM FIXA + COMENTÁRIOS EM LOOP */}
+        <div className="hidden lg:block w-1/2 relative overflow-hidden bg-black">
+          <img
+            src={devRegisterBg1}
+            alt="Developer workspace"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
+          
+          {/* Comentários em loop com fade */}
+          <div className="absolute inset-0 flex flex-col justify-end p-12">
+            <div className={`transition-opacity duration-500 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+              <blockquote className="space-y-3">
+                <p className="text-lg font-semibold text-white leading-relaxed">
+                  "{quotes[quoteIndex].text}"
+                </p>
+                <footer className="text-sm text-muted-foreground">{quotes[quoteIndex].author}</footer>
+              </blockquote>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Footer />
     </div>
   );
 }
