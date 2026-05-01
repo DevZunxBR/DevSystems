@@ -70,10 +70,6 @@ const AuthenticatedApp = () => {
       {/* Rotas públicas do sistema de criadores */}
       <Route path="/creator/:id" element={<CreatorStore />} />
 
-      {/* Rotas protegidas do sistema de criadores */}
-      <Route path="/creator/setup" element={<PrivateRoute><CreatorSetup /></PrivateRoute>} />
-      <Route path="/creator/:id/new" element={<PrivateRoute><CreatorNewProduct /></PrivateRoute>} />
-
       <Route element={<AppLayout />}>
         <Route path="/" element={<Home />} />
 
@@ -105,6 +101,23 @@ const AuthenticatedApp = () => {
           <PrivateRoute>
             <MaintenanceGuard>
               <Checkout />
+            </MaintenanceGuard>
+          </PrivateRoute>
+        } />
+
+        {/* Rotas protegidas do sistema de criadores (agora dentro do AppLayout) */}
+        <Route path="/creator/setup" element={
+          <PrivateRoute>
+            <MaintenanceGuard>
+              <CreatorSetup />
+            </MaintenanceGuard>
+          </PrivateRoute>
+        } />
+        
+        <Route path="/creator/:id/new" element={
+          <PrivateRoute>
+            <MaintenanceGuard>
+              <CreatorNewProduct />
             </MaintenanceGuard>
           </PrivateRoute>
         } />
