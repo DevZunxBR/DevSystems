@@ -1,8 +1,8 @@
 // src/pages/CreatorStore.jsx
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
-import { MapPin, Globe, Instagram, Github, Linkedin, Twitter, Package, Star, ShoppingBag, Settings, Edit, Eye, EyeOff } from 'lucide-react';
+import { MapPin, Globe, Instagram, Github, Linkedin, Twitter, Package, Star, ShoppingBag, Edit, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function CreatorStore() {
@@ -12,8 +12,6 @@ export default function CreatorStore() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOwner, setIsOwner] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({});
 
   useEffect(() => {
     loadData();
@@ -21,7 +19,6 @@ export default function CreatorStore() {
 
   const loadData = async () => {
     try {
-      // Buscar perfil do criador
       const { data: profileData } = await supabase
         .from('creator_profiles')
         .select('*')
@@ -36,7 +33,6 @@ export default function CreatorStore() {
 
       setProfile(profileData);
 
-      // Buscar produtos aprovados do criador
       const { data: productsData } = await supabase
         .from('products')
         .select('*')
@@ -47,7 +43,6 @@ export default function CreatorStore() {
 
       setProducts(productsData || []);
 
-      // Verificar se é o dono do perfil
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: userProfile } = await supabase
@@ -66,23 +61,6 @@ export default function CreatorStore() {
     }
   };
 
-  const saveProfile = async () => {
-    try {
-      const { error } = await supabase
-        .from('creator_profiles')
-        .update(editForm)
-        .eq('id', profile.id);
-
-      if (error) throw error;
-      setProfile(editForm);
-      setIsEditing(false);
-      toast.success('Perfil atualizado!');
-    } catch (error) {
-      console.error(error);
-      toast.error('Erro ao salvar');
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -91,12 +69,12 @@ export default function CreatorStore() {
     );
   }
 
-  if (!profile || profile.status !== 'active') {
+  if (!profile) {
     return (
       <div className="text-center py-20">
         <Package className="h-16 w-16 text-[#555] mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-white mb-2">Loja não disponível</h2>
-        <p className="text-sm text-[#555]">Este perfil de criador não está ativo no momento.</p>
+        <h2 className="text-xl font-bold text-white mb-2">Loja não encontrada</h2>
+        <p className="text-sm text-[#555]">Esta loja não existe ou foi removida.</p>
       </div>
     );
   }
@@ -107,17 +85,6 @@ export default function CreatorStore() {
       <div className="h-48 bg-gradient-to-r from-purple-900/30 to-blue-900/30 relative">
         {profile.banner_url && (
           <img src={profile.banner_url} alt="Banner" className="w-full h-full object-cover" />
-        )}
-        {isOwner && !isEditing && (
-          <button
-            onClick={() => {
-              setEditForm(profile);
-              setIsEditing(true);
-            }}
-            className="absolute top-4 right-4 p-2 bg-black/50 rounded-lg hover:bg-black/70 transition-colors"
-          >
-            <Edit className="h-4 w-4 text-white" />
-          </button>
         )}
       </div>
 
@@ -134,104 +101,61 @@ export default function CreatorStore() {
                 </div>
               )}
             </div>
-            {isOwner && !isEditing && (
-              <button className="absolute bottom-0 right-0 p-1.5 bg-[#1A1A1A] rounded-full hover:bg-[#2A2A2A]">
-                <Edit className="h-3 w-3 text-white" />
-              </button>
-            )}
           </div>
 
           <div className="flex-1">
-            {isEditing ? (
-              <div className="space-y-3">
-                <input
-                  type="text"
-                  value={editForm.display_name || ''}
-                  onChange={(e) => setEditForm({ ...editForm, display_name: e.target.value })}
-                  placeholder="Nome da Loja"
-                  className="text-2xl font-bold bg-black border border-[#1A1A1A] rounded-lg px-3 py-1 text-white w-full"
-                />
-                <textarea
-                  value={editForm.bio || ''}
-                  onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
-                  placeholder="Descrição da loja"
-                  rows={3}
-                  className="w-full bg-black border border-[#1A1A1A] rounded-lg px-3 py-2 text-white text-sm"
-                />
-                <input
-                  type="text"
-                  value={editForm.location || ''}
-                  onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                  placeholder="Localização"
-                  className="w-full bg-black border border-[#1A1A1A] rounded-lg px-3 py-2 text-white text-sm"
-                />
-                <input
-                  type="url"
-                  value={editForm.website || ''}
-                  onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
-                  placeholder="Website"
-                  className="w-full bg-black border border-[#1A1A1A] rounded-lg px-3 py-2 text-white text-sm"
-                />
-                <div className="flex gap-2">
-                  <button onClick={saveProfile} className="px-4 py-2 bg-white text-black rounded-lg text-sm font-semibold">
-                    Salvar
-                  </button>
-                  <button onClick={() => setIsEditing(false)} className="px-4 py-2 bg-[#1A1A1A] text-white rounded-lg text-sm">
-                    Cancelar
-                  </button>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-3xl font-bold text-white">{profile.display_name}</h1>
+              {profile.store_rating > 0 && (
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                  <span className="text-sm text-white">{profile.store_rating}</span>
                 </div>
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-3xl font-bold text-white">{profile.display_name || 'Criador DevAssets'}</h1>
-                  {profile.store_rating > 0 && (
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                      <span className="text-sm text-white">{profile.store_rating}</span>
-                    </div>
-                  )}
+              )}
+              {isOwner && (
+                <Link to={`/creator/${id}/new`} className="ml-4 flex items-center gap-1 px-3 py-1.5 bg-white text-black text-xs rounded-lg">
+                  <Plus className="h-3 w-3" /> Publicar Asset
+                </Link>
+              )}
+            </div>
+            {profile.bio && <p className="text-sm text-[#555] mt-2 max-w-xl">{profile.bio}</p>}
+            
+            <div className="flex flex-wrap gap-4 mt-3">
+              {profile.location && (
+                <div className="flex items-center gap-1 text-xs text-[#555]">
+                  <MapPin className="h-3 w-3" /> {profile.location}
                 </div>
-                {profile.bio && <p className="text-sm text-[#555] mt-2 max-w-xl">{profile.bio}</p>}
-                
-                <div className="flex flex-wrap gap-4 mt-3">
-                  {profile.location && (
-                    <div className="flex items-center gap-1 text-xs text-[#555]">
-                      <MapPin className="h-3 w-3" /> {profile.location}
-                    </div>
-                  )}
-                  {profile.website && (
-                    <a href={profile.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-[#555] hover:text-white">
-                      <Globe className="h-3 w-3" /> Website
-                    </a>
-                  )}
-                </div>
+              )}
+              {profile.website && (
+                <a href={profile.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-[#555] hover:text-white">
+                  <Globe className="h-3 w-3" /> Website
+                </a>
+              )}
+            </div>
 
-                {/* Social Links */}
-                <div className="flex gap-3 mt-3">
-                  {profile.social_links?.instagram && (
-                    <a href={profile.social_links.instagram} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-pink-400">
-                      <Instagram className="h-4 w-4" />
-                    </a>
-                  )}
-                  {profile.social_links?.github && (
-                    <a href={profile.social_links.github} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-white">
-                      <Github className="h-4 w-4" />
-                    </a>
-                  )}
-                  {profile.social_links?.linkedin && (
-                    <a href={profile.social_links.linkedin} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-blue-400">
-                      <Linkedin className="h-4 w-4" />
-                    </a>
-                  )}
-                  {profile.social_links?.twitter && (
-                    <a href={profile.social_links.twitter} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-blue-400">
-                      <Twitter className="h-4 w-4" />
-                    </a>
-                  )}
-                </div>
-              </>
-            )}
+            {/* Social Links */}
+            <div className="flex gap-3 mt-3">
+              {profile.social_links?.instagram && (
+                <a href={profile.social_links.instagram} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-pink-400">
+                  <Instagram className="h-4 w-4" />
+                </a>
+              )}
+              {profile.social_links?.github && (
+                <a href={profile.social_links.github} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-white">
+                  <Github className="h-4 w-4" />
+                </a>
+              )}
+              {profile.social_links?.linkedin && (
+                <a href={profile.social_links.linkedin} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-blue-400">
+                  <Linkedin className="h-4 w-4" />
+                </a>
+              )}
+              {profile.social_links?.twitter && (
+                <a href={profile.social_links.twitter} target="_blank" rel="noopener noreferrer" className="text-[#555] hover:text-blue-400">
+                  <Twitter className="h-4 w-4" />
+                </a>
+              )}
+            </div>
           </div>
 
           {/* Stats */}
@@ -254,6 +178,11 @@ export default function CreatorStore() {
             <div className="text-center py-12 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl">
               <ShoppingBag className="h-12 w-12 text-[#555] mx-auto mb-3" />
               <p className="text-sm text-[#555]">Nenhum asset publicado ainda.</p>
+              {isOwner && (
+                <Link to={`/creator/${id}/new`} className="mt-3 inline-block text-sm text-white hover:underline">
+                  Publicar meu primeiro asset →
+                </Link>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

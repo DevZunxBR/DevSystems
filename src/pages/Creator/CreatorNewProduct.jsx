@@ -1,6 +1,6 @@
 // src/pages/creator/CreatorNewProduct.jsx
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ const uploadFile = async (file, folder = 'products') => {
 };
 
 export default function CreatorNewProduct() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState({});
@@ -41,7 +42,7 @@ export default function CreatorNewProduct() {
 
   useEffect(() => {
     loadCreatorProfile();
-  }, []);
+  }, [id]);
 
   const loadCreatorProfile = async () => {
     try {
@@ -54,18 +55,26 @@ export default function CreatorNewProduct() {
       const { data: profileData } = await supabase
         .from('creator_profiles')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('id', id)
         .single();
 
       if (!profileData) {
-        toast.error('Complete seu perfil de criador primeiro');
-        navigate('/creator/setup');
+        toast.error('Perfil de criador não encontrado');
+        navigate('/');
+        return;
+      }
+
+      // Verificar se é o dono do perfil
+      if (profileData.user_id !== user.id) {
+        toast.error('Você não tem permissão para publicar assets nesta loja');
+        navigate(`/creator/${id}`);
         return;
       }
 
       setProfile(profileData);
     } catch (error) {
       console.error(error);
+      toast.error('Erro ao carregar perfil');
       navigate('/');
     }
   };
@@ -77,7 +86,11 @@ export default function CreatorNewProduct() {
     setUploading(prev => ({ ...prev, [field]: true }));
     try {
       const url = await uploadFile(file, field === 'file_url' ? 'files' : 'thumbnails');
-      setForm(prev => ({ ...prev, [field]: url }));
+      if (field === 'images') {
+        setForm(prev => ({ ...prev, images: [...(prev.images || []), url] }));
+      } else {
+        setForm(prev => ({ ...prev, [field]: url }));
+      }
       toast.success('Upload concluído!');
     } catch (error) {
       toast.error('Erro no upload');

@@ -31,14 +31,13 @@ export default function ApproveProducts() {
     }
   };
 
-  const updateApproval = async (product, status, rejectionReason = null) => {
+  const updateApproval = async (product, status) => {
     try {
       const updates = {
         approval_status: status,
         approved_at: status === 'approved' ? new Date().toISOString() : null,
         status: status === 'approved' ? 'active' : 'draft'
       };
-      if (rejectionReason) updates.rejection_reason = rejectionReason;
 
       const { error } = await supabase
         .from('products')
