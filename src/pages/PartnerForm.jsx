@@ -45,6 +45,12 @@ export default function PartnerForm() {
 
   const LAST_PAGE = pages.length - 1;
 
+  // Comentário fixo para a imagem
+  const quote = {
+    text: "A plataforma com os melhores assets e sistemas do mercado. Qualidade impecável.",
+    author: "— Dev Community"
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'instagram' || name === 'github' || name === 'linkedin') {
@@ -347,7 +353,7 @@ export default function PartnerForm() {
         </form>
       </div>
 
-      {/* LADO DIREITO - IMAGEM FIXA (SEM SLIDESHOW) */}
+      {/* LADO DIREITO - IMAGEM FIXA COM COMENTÁRIO */}
       <div className="hidden lg:block w-1/2 relative overflow-hidden bg-black">
         <img
           src={devRegisterBg1}
@@ -355,6 +361,16 @@ export default function PartnerForm() {
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
+        
+        {/* Comentário fixo */}
+        <div className="absolute inset-0 flex flex-col justify-end p-12">
+          <blockquote className="space-y-3">
+            <p className="text-lg font-semibold text-white leading-relaxed">
+              "{quote.text}"
+            </p>
+            <footer className="text-sm text-muted-foreground">{quote.author}</footer>
+          </blockquote>
+        </div>
       </div>
     </div>
   );
