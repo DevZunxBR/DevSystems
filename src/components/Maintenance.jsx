@@ -1,9 +1,12 @@
 // src/components/Maintenance.jsx
-import { Wrench, Clock, Mail } from 'lucide-react';
+import { Clock, Mail } from 'lucide-react';
+import logoImage from '@/assets/images/Logo.png';
+import { useState } from 'react';
 
 export default function Maintenance() {
   // Email de contato
   const contactEmail = 'devzunxbr@gmail.com';
+  const [logoLoadError, setLogoLoadError] = useState(false);
   
   // Link para abrir diretamente o Gmail Web
   const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${contactEmail}&su=Site%20em%20Manutenção%20-%20Contato&body=Olá,%20estou%20com%20um%20problema...`;
@@ -11,9 +14,18 @@ export default function Maintenance() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="text-center max-w-md space-y-6">
-        {/* Ícone */}
-        <div className="w-20 h-20 bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl flex items-center justify-center mx-auto">
-          <Wrench className="h-10 w-10 text-white" />
+        {/* Logo do site */}
+        <div className="w-20 h-20 bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl flex items-center justify-center mx-auto overflow-hidden">
+          {!logoLoadError ? (
+            <img
+              src={logoImage}
+              alt="DevAssets"
+              className="w-full h-full object-cover p-2"
+              onError={() => setLogoLoadError(true)}
+            />
+          ) : (
+            <span className="text-white font-black text-xl">DA</span>
+          )}
         </div>
         
         {/* Título */}
