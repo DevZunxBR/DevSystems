@@ -52,7 +52,7 @@ export default function CreatorSetup() {
 
       setUser(currentUser);
 
-      // 🔧 VERIFICAR O CARGO NA TABELA user_profiles (não no auth.users)
+      // Verificar o cargo na tabela user_profiles
       const { data: profile, error } = await supabase
         .from('user_profiles')
         .select('role')
@@ -66,7 +66,7 @@ export default function CreatorSetup() {
         return;
       }
 
-      // Verificar se o role é 'creator' ou 'admin' (admin também pode criar loja?)
+      // Verificar se o role é 'creator' ou 'admin'
       const hasCreatorRole = profile?.role === 'creator' || profile?.role === 'admin';
 
       if (!hasCreatorRole) {
@@ -178,7 +178,7 @@ export default function CreatorSetup() {
               Você não tem permissão para acessar esta área.
             </p>
             <p className="text-xs text-[#444]">
-              Apenas criadores com o cargo <span className="text-white">creator</span> podem criar uma loja.
+              Apenas criadores autorizados podem criar uma loja.
             </p>
           </div>
           <button
@@ -208,9 +208,6 @@ export default function CreatorSetup() {
           </div>
           <h1 className="text-2xl font-bold text-white">Criar Loja de Criador</h1>
           <p className="text-sm text-[#555] mt-2">Configure sua loja para começar a vender seus assets</p>
-          <div className="mt-2 inline-block px-3 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
-            Verificado • Cargo: {user?.email}
-          </div>
         </div>
 
         <div className="space-y-5">
