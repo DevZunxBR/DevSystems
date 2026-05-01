@@ -5,10 +5,10 @@ import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { Send, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
-
 import devRegisterBg1 from '@/assets/images/DevParceiro.png';
+import AppLayout from '@/components/layout/AppLayout';
 
-export default function PartnerForm() {
+function PartnerFormContent() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [logoLoadError, setLogoLoadError] = useState(false);
@@ -142,7 +142,7 @@ export default function PartnerForm() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="flex">
 
       {/* LADO ESQUERDO - FORMULÁRIO */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
@@ -191,7 +191,7 @@ export default function PartnerForm() {
               </p>
               <div className="pt-4">
                 <p className="text-xs text-center text-muted-foreground border-t border-border pt-4">
-                  O processo leva cerca de 5 minutos. Suas informações serão analisadas pela nossa equipe.
+                  Atenção E Obrigatorio Entrar No Servidor do Discord O processo leva cerca de 5 minutos. Suas informações serão analisadas pela nossa equipe.
                 </p>
               </div>
             </div>
@@ -396,6 +396,15 @@ export default function PartnerForm() {
           </div>
         </div>
       </div>
+      
     </div>
+  );
+}
+
+export default function PartnerForm() {
+  return (
+    <AppLayout>
+      <PartnerFormContent />
+    </AppLayout>
   );
 }
