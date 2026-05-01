@@ -40,8 +40,9 @@ export default function CreatorSetup() {
     social_links: { instagram: '', github: '', linkedin: '', twitter: '' }
   });
 
-  // Páginas do formulário (4 páginas - sem página de boas-vindas)
+  // Páginas do formulário (5 páginas)
   const pages = [
+    { title: "Bem-vindo", description: "Programa de Criadores DevAssets" },
     { title: "Identidade da Loja", description: "Nome e descrição da sua loja" },
     { title: "Mídia", description: "Avatar e banner da loja" },
     { title: "Contato", description: "Localização e redes sociais" },
@@ -237,7 +238,7 @@ export default function CreatorSetup() {
   return (
     <div className="min-h-screen flex">
 
-      {/* LADO ESQUERDO - FORMULÁRIO */}
+      {/* LADO ESQUERDO - FORMULÁRIO COM PÁGINAS */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
 
         <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-8">
@@ -263,8 +264,35 @@ export default function CreatorSetup() {
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           
-          {/* PÁGINA 0 - IDENTIDADE DA LOJA */}
+          {/* PÁGINA 0 - BEM-VINDO */}
           {currentPage === 0 && (
+            <div className="space-y-4 text-muted-foreground">
+              <p className="text-sm leading-relaxed">
+                O Programa de Criadores DevAssets foi criado para desenvolvedores talentosos que desejam 
+                monetizar seus assets e sistemas.
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Ganhe 87% de comissão</span> sobre cada venda realizada.
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Destaque seus assets</span> com visibilidade garantida na plataforma.
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Suporte prioritário e dedicado</span> para criadores em todas as etapas.
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Todo criador DevAssets</span> tem a oportunidade de construir sua própria marca.
+              </p>
+              <div className="pt-4">
+                <p className="text-xs text-center text-muted-foreground border-t border-border pt-4">
+                  O processo leva cerca de 5 minutos. Suas informações serão usadas para criar sua loja.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* PÁGINA 1 - IDENTIDADE DA LOJA */}
+          {currentPage === 1 && (
             <>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome da Loja *</label>
@@ -289,8 +317,8 @@ export default function CreatorSetup() {
             </>
           )}
 
-          {/* PÁGINA 1 - MÍDIA */}
-          {currentPage === 1 && (
+          {/* PÁGINA 2 - MÍDIA */}
+          {currentPage === 2 && (
             <>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Avatar da Loja</label>
@@ -327,8 +355,8 @@ export default function CreatorSetup() {
             </>
           )}
 
-          {/* PÁGINA 2 - CONTATO */}
-          {currentPage === 2 && (
+          {/* PÁGINA 3 - CONTATO */}
+          {currentPage === 3 && (
             <>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Localização</label>
@@ -386,8 +414,8 @@ export default function CreatorSetup() {
             </>
           )}
 
-          {/* PÁGINA 3 - FINALIZAÇÃO */}
-          {currentPage === 3 && (
+          {/* PÁGINA 4 - FINALIZAÇÃO */}
+          {currentPage === 4 && (
             <div className="space-y-4">
               <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
                 <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo da Loja</p>
