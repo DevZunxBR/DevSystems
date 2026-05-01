@@ -53,7 +53,7 @@ export default function PartnerForm() {
         setQuoteIndex((prev) => (prev + 1) % quotes.length);
         setIsTransitioning(false);
       }, 500);
-    }, 5000);
+    }, 10000);
     
     return () => clearInterval(interval);
   }, []);
@@ -178,13 +178,16 @@ export default function PartnerForm() {
                 monetizar seus assets e sistemas.
               </p>
               <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">Comissão de até 70%</span> por venda
+                <span className="text-white font-medium">Comissão de até 87%</span> por venda
               </p>
               <p className="text-sm leading-relaxed">
                 <span className="text-white font-medium">Visibilidade</span> na plataforma
               </p>
               <p className="text-sm leading-relaxed">
-                <span className="text-white font-medium">Suporte prioritário</span> e pagamentos mensais
+                <span className="text-white font-medium">Suporte prioritário</span> e atendimento dedicado
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">Todo criador</span> tem a oportunidade de se destacar
               </p>
               <div className="pt-4">
                 <p className="text-xs text-center text-muted-foreground border-t border-border pt-4">
