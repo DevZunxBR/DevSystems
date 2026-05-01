@@ -5,6 +5,7 @@ import { supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Upload, Loader2, Lock, Shield, ArrowLeft, MapPin, Globe, Instagram, Github, Linkedin, Twitter, Sparkles, Eye } from 'lucide-react';
+import logoImage from '@/assets/images/Logo.png';
 
 const uploadImage = async (file, folder = 'creators') => {
   const ext = file.name.split('.').pop();
@@ -24,7 +25,7 @@ export default function CreatorSetup() {
   const [checking, setChecking] = useState(true);
   const [hasRole, setHasRole] = useState(false);
   const [user, setUser] = useState(null);
-  const [previewMode, setPreviewMode] = useState(false);
+  const [logoLoadError, setLogoLoadError] = useState(false);
   const [form, setForm] = useState({
     display_name: '',
     bio: '',
@@ -182,246 +183,232 @@ export default function CreatorSetup() {
   }
 
   return (
-    <div className="min-h-screen bg-black py-12 px-4">
-      <div className="max-w-6xl mx-auto">
-        <button onClick={() => navigate('/')} className="flex items-center gap-2 text-[#555] hover:text-white mb-6 transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Voltar
-        </button>
+    <div className="min-h-screen flex">
 
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-white to-gray-400 rounded-2xl flex items-center justify-center shadow-xl">
-              <Sparkles className="h-8 w-8 text-black" />
-            </div>
+      {/* LADO ESQUERDO - FORMULÁRIO (estilo PartnerForm) */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
+
+        <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-8">
+          <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden">
+            {!logoLoadError ? (
+              <img src={logoImage} alt="Logo" className="w-full h-full object-contain" onError={() => setLogoLoadError(true)} />
+            ) : (
+              <span className="text-white font-black text-sm">DA</span>
+            )}
           </div>
-          <h1 className="text-3xl font-bold text-white">Criar Loja de Criador</h1>
-          <p className="text-sm text-[#555] mt-2">Configure sua loja e comece a vender seus assets</p>
+          <span className="text-white font-bold text-lg tracking-tight">DevAssets</span>
         </div>
 
-        {/* Preview Button */}
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={() => setPreviewMode(!previewMode)}
-            className="flex items-center gap-2 px-4 py-2 bg-[#1A1A1A] text-[#555] rounded-lg hover:text-white transition-colors text-sm"
-          >
-            <Eye className="h-4 w-4" />
-            {previewMode ? 'Editar Perfil' : 'Visualizar Perfil'}
-          </button>
+        <div>
+          <h1 className="text-3xl font-black text-white tracking-tight">Criar Loja de Criador</h1>
+          <p className="text-sm text-muted-foreground mt-2">Configure sua loja e comece a vender seus assets</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="mt-6">
+          <h2 className="text-xl font-bold text-white">Informações da Loja</h2>
+          <p className="text-xs text-muted-foreground mt-1">Preencha os dados abaixo para criar sua loja</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           
-          {/* Coluna da Esquerda - Formulário */}
-          <div className={`space-y-6 transition-all duration-300 ${previewMode ? 'opacity-50 pointer-events-none' : ''}`}>
-            <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6 space-y-5">
-              
-              {/* Banner Upload */}
-              <div>
-                <label className="text-xs font-medium text-[#555] mb-1 block">Banner da Loja</label>
-                <div className="relative h-32 bg-gradient-to-r from-purple-900/20 to-blue-900/20 rounded-xl overflow-hidden border border-[#1A1A1A]">
-                  {form.banner_url && <img src={form.banner_url} alt="Banner" className="w-full h-full object-cover" />}
-                  <label className="absolute inset-0 flex items-center justify-center bg-black/50 cursor-pointer hover:bg-black/70 transition-colors">
-                    <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'banner_url')} className="hidden" />
-                    <div className="flex items-center gap-2 px-4 py-2 bg-black/80 rounded-lg text-sm text-white">
-                      {uploading.banner_url ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                      {uploading.banner_url ? 'Enviando...' : 'Upload Banner'}
-                    </div>
-                  </label>
+          {/* Banner */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Banner da Loja</label>
+            <div className="relative h-28 bg-gradient-to-r from-purple-900/20 to-blue-900/20 rounded-lg overflow-hidden border border-border">
+              {form.banner_url && <img src={form.banner_url} alt="Banner" className="w-full h-full object-cover" />}
+              <label className="absolute inset-0 flex items-center justify-center bg-black/50 cursor-pointer hover:bg-black/70 transition-colors">
+                <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'banner_url')} className="hidden" />
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-black/80 rounded-lg text-xs text-white">
+                  {uploading.banner_url ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                  {uploading.banner_url ? 'Enviando...' : 'Upload Banner'}
                 </div>
-              </div>
-
-              {/* Avatar Upload */}
-              <div>
-                <label className="text-xs font-medium text-[#555] mb-1 block">Avatar da Loja</label>
-                <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-full bg-[#1A1A1A] overflow-hidden border-2 border-[#333]">
-                    {form.avatar_url ? (
-                      <img src={form.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#555]">?</div>
-                    )}
-                  </div>
-                  <label className="cursor-pointer">
-                    <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'avatar_url')} className="hidden" />
-                    <div className="flex items-center gap-2 px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-sm text-[#555] hover:text-white transition-colors">
-                      {uploading.avatar_url ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                      {uploading.avatar_url ? 'Enviando...' : 'Upload Avatar'}
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              {/* Nome da Loja */}
-              <div>
-                <label className="text-xs font-medium text-[#555] mb-1 block">Nome da Loja *</label>
-                <input
-                  type="text"
-                  value={form.display_name}
-                  onChange={(e) => setForm({ ...form, display_name: e.target.value })}
-                  placeholder="Ex: DevCreative Studio"
-                  className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white focus:outline-none focus:border-white transition-colors"
-                />
-              </div>
-
-              {/* Bio */}
-              <div>
-                <label className="text-xs font-medium text-[#555] mb-1 block">Descrição da Loja</label>
-                <textarea
-                  rows={3}
-                  value={form.bio}
-                  onChange={(e) => setForm({ ...form, bio: e.target.value })}
-                  placeholder="Fale sobre sua especialidade, sua experiência..."
-                  className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white resize-none focus:outline-none focus:border-white transition-colors"
-                />
-              </div>
-
-              {/* Localização */}
-              <div>
-                <label className="text-xs font-medium text-[#555] mb-1 block">Localização</label>
-                <input
-                  type="text"
-                  value={form.location}
-                  onChange={(e) => setForm({ ...form, location: e.target.value })}
-                  placeholder="Ex: São Paulo, Brasil"
-                  className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
-                />
-              </div>
-
-              {/* Website */}
-              <div>
-                <label className="text-xs font-medium text-[#555] mb-1 block">Website</label>
-                <input
-                  type="url"
-                  value={form.website}
-                  onChange={(e) => setForm({ ...form, website: e.target.value })}
-                  placeholder="https://seusite.com"
-                  className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
-                />
-              </div>
-
-              {/* Redes Sociais */}
-              <div className="space-y-3">
-                <label className="text-xs font-medium text-[#555] block">Redes Sociais</label>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Instagram className="h-4 w-4 text-pink-500" />
-                    <input
-                      type="text"
-                      value={form.social_links.instagram}
-                      onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, instagram: e.target.value } })}
-                      placeholder="@usuario"
-                      className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Github className="h-4 w-4 text-white" />
-                    <input
-                      type="text"
-                      value={form.social_links.github}
-                      onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, github: e.target.value } })}
-                      placeholder="github.com/usuario"
-                      className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Linkedin className="h-4 w-4 text-blue-500" />
-                    <input
-                      type="text"
-                      value={form.social_links.linkedin}
-                      onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, linkedin: e.target.value } })}
-                      placeholder="linkedin.com/in/usuario"
-                      className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <Button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="w-full bg-white text-black hover:bg-white/90 font-semibold h-12 mt-4"
-              >
-                {loading ? 'Criando...' : 'Criar Loja'}
-              </Button>
+              </label>
             </div>
           </div>
 
-          {/* Coluna da Direita - Prévia do Perfil */}
-          <div className={`transition-all duration-300 ${!previewMode ? 'opacity-50' : ''}`}>
-            <div className="sticky top-8">
-              <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl overflow-hidden">
-                <div className="p-4 border-b border-[#1A1A1A] bg-black/50">
-                  <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                    <Eye className="h-4 w-4" />
-                    Prévia da Loja
-                  </h3>
-                  <p className="text-xs text-[#555]">Veja como sua loja vai aparecer para os clientes</p>
-                </div>
-
-                <div className="p-4">
-                  {/* Banner Preview */}
-                  <div className="h-32 bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-xl overflow-hidden mb-4">
-                    {form.banner_url && <img src={form.banner_url} alt="Banner" className="w-full h-full object-cover" />}
-                  </div>
-
-                  {/* Avatar Preview */}
-                  <div className="flex items-center gap-4 -mt-10 mb-4">
-                    <div className="w-20 h-20 rounded-full border-4 border-black overflow-hidden bg-[#1A1A1A]">
-                      {form.avatar_url ? (
-                        <img src={form.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[#555]">?</div>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-lg font-bold text-white">{form.display_name || 'Nome da Loja'}</h4>
-                      {form.location && (
-                        <div className="flex items-center gap-1 text-xs text-[#555] mt-1">
-                          <MapPin className="h-3 w-3" /> {form.location}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Bio Preview */}
-                  {form.bio && (
-                    <div className="mb-4">
-                      <p className="text-sm text-[#555]">{form.bio}</p>
-                    </div>
-                  )}
-
-                  {/* Website Preview */}
-                  {form.website && (
-                    <div className="mb-3">
-                      <a href="#" className="flex items-center gap-1 text-xs text-[#555] hover:text-white">
-                        <Globe className="h-3 w-3" /> {form.website}
-                      </a>
-                    </div>
-                  )}
-
-                  {/* Social Links Preview */}
-                  {(form.social_links.instagram || form.social_links.github || form.social_links.linkedin) && (
-                    <div className="flex gap-3 pt-2 border-t border-[#1A1A1A]">
-                      {form.social_links.instagram && <Instagram className="h-4 w-4 text-pink-500" />}
-                      {form.social_links.github && <Github className="h-4 w-4 text-white" />}
-                      {form.social_links.linkedin && <Linkedin className="h-4 w-4 text-blue-500" />}
-                    </div>
-                  )}
-
-                  {/* Placeholder para stats */}
-                  <div className="flex gap-4 mt-4 pt-3 border-t border-[#1A1A1A]">
-                    <div className="text-center">
-                      <div className="text-xl font-bold text-white">0</div>
-                      <div className="text-[10px] text-[#555]">Assets</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xl font-bold text-white">0</div>
-                      <div className="text-[10px] text-[#555]">Vendas</div>
-                    </div>
-                  </div>
-                </div>
+          {/* Avatar */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Avatar da Loja</label>
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 rounded-full bg-secondary overflow-hidden border border-border">
+                {form.avatar_url ? (
+                  <img src={form.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">?</div>
+                )}
               </div>
+              <label className="cursor-pointer">
+                <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'avatar_url')} className="hidden" />
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary border border-border rounded-lg text-xs text-muted-foreground hover:text-white transition-colors">
+                  {uploading.avatar_url ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                  {uploading.avatar_url ? 'Enviando...' : 'Upload Avatar'}
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* Nome da Loja */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome da Loja *</label>
+            <input
+              type="text"
+              value={form.display_name}
+              onChange={(e) => setForm({ ...form, display_name: e.target.value })}
+              placeholder="Ex: DevCreative Studio"
+              className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white"
+            />
+          </div>
+
+          {/* Bio */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Descrição da Loja</label>
+            <textarea
+              rows={3}
+              value={form.bio}
+              onChange={(e) => setForm({ ...form, bio: e.target.value })}
+              placeholder="Fale sobre sua especialidade, sua experiência..."
+              className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white resize-none"
+            />
+          </div>
+
+          {/* Localização */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Localização</label>
+            <input
+              type="text"
+              value={form.location}
+              onChange={(e) => setForm({ ...form, location: e.target.value })}
+              placeholder="Ex: São Paulo, Brasil"
+              className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white"
+            />
+          </div>
+
+          {/* Website */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Website</label>
+            <input
+              type="url"
+              value={form.website}
+              onChange={(e) => setForm({ ...form, website: e.target.value })}
+              placeholder="https://seusite.com"
+              className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white"
+            />
+          </div>
+
+          {/* Redes Sociais */}
+          <div className="space-y-3">
+            <label className="text-xs font-medium text-muted-foreground block">Redes Sociais</label>
+            <div className="flex items-center gap-2">
+              <Instagram className="h-4 w-4 text-pink-500 flex-shrink-0" />
+              <input
+                type="text"
+                value={form.social_links.instagram}
+                onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, instagram: e.target.value } })}
+                placeholder="@usuario"
+                className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Github className="h-4 w-4 text-white flex-shrink-0" />
+              <input
+                type="text"
+                value={form.social_links.github}
+                onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, github: e.target.value } })}
+                placeholder="github.com/usuario"
+                className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Linkedin className="h-4 w-4 text-blue-500 flex-shrink-0" />
+              <input
+                type="text"
+                value={form.social_links.linkedin}
+                onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, linkedin: e.target.value } })}
+                placeholder="linkedin.com/in/usuario"
+                className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground"
+              />
+            </div>
+          </div>
+
+          <Button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="w-full bg-white text-black hover:bg-white/90 font-semibold h-11 mt-4"
+          >
+            {loading ? 'Criando...' : 'Criar Loja'}
+          </Button>
+        </form>
+      </div>
+
+      {/* LADO DIREITO - PRÉVIA DA LOJA (estilo PartnerForm) */}
+      <div className="hidden lg:block w-1/2 relative overflow-hidden bg-black">
+        {/* Banner Preview */}
+        <div className="absolute inset-0">
+          {form.banner_url ? (
+            <img src={form.banner_url} alt="Preview Banner" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-purple-900/30 to-blue-900/30" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
+        </div>
+
+        {/* Preview Content */}
+        <div className="absolute inset-0 flex flex-col justify-end p-12">
+          <div className="space-y-4">
+            {/* Avatar Preview */}
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 rounded-full border-4 border-black overflow-hidden bg-[#0A0A0A]">
+                {form.avatar_url ? (
+                  <img src={form.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-2xl text-[#555]">?</div>
+                )}
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-white">{form.display_name || 'Nome da Loja'}</h3>
+                {form.location && (
+                  <div className="flex items-center gap-1 text-xs text-[#555] mt-1">
+                    <MapPin className="h-3 w-3" /> {form.location}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Bio Preview */}
+            {form.bio && (
+              <p className="text-sm text-[#888] leading-relaxed max-w-md">{form.bio}</p>
+            )}
+
+            {/* Website Preview */}
+            {form.website && (
+              <a href="#" className="flex items-center gap-1 text-xs text-[#555] hover:text-white">
+                <Globe className="h-3 w-3" /> {form.website}
+              </a>
+            )}
+
+            {/* Social Links Preview */}
+            <div className="flex gap-3">
+              {form.social_links.instagram && <Instagram className="h-4 w-4 text-pink-500" />}
+              {form.social_links.github && <Github className="h-4 w-4 text-white" />}
+              {form.social_links.linkedin && <Linkedin className="h-4 w-4 text-blue-500" />}
+            </div>
+
+            {/* Stats Preview */}
+            <div className="flex gap-6 pt-4 border-t border-[#1A1A1A]">
+              <div className="text-center">
+                <div className="text-xl font-bold text-white">0</div>
+                <div className="text-[10px] text-[#555]">Assets</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-white">0</div>
+                <div className="text-[10px] text-[#555]">Vendas</div>
+              </div>
+            </div>
+
+            {/* Badge de Criador */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-full">
+              <Shield className="h-3 w-3 text-white" />
+              <span className="text-[10px] text-white">Criador DevAssets</span>
             </div>
           </div>
         </div>
