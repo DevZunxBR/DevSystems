@@ -52,9 +52,22 @@ export default function CreatorSetup() {
 
       setUser(currentUser);
 
-      // Verificar se tem o cargo OficialContentCreator
-      const userRole = currentUser.user_metadata?.role || currentUser.raw_app_meta_data?.role;
-      const hasCreatorRole = userRole === 'creator';
+      // 🔧 VERIFICAR O CARGO NA TABELA user_profiles (não no auth.users)
+      const { data: profile, error } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('email', currentUser.email)
+        .single();
+
+      if (error) {
+        console.error('Erro ao buscar perfil:', error);
+        setHasRole(false);
+        setChecking(false);
+        return;
+      }
+
+      // Verificar se o role é 'creator' ou 'admin' (admin também pode criar loja?)
+      const hasCreatorRole = profile?.role === 'creator' || profile?.role === 'admin';
 
       if (!hasCreatorRole) {
         setHasRole(false);
@@ -62,7 +75,7 @@ export default function CreatorSetup() {
         return;
       }
 
-      // Verificar se já tem perfil
+      // Verificar se já tem perfil de criador
       const { data: existingProfile } = await supabase
         .from('creator_profiles')
         .select('id')
@@ -151,7 +164,7 @@ export default function CreatorSetup() {
     );
   }
 
-  // Tela de acesso negado (igual ao AdminPanel)
+  // Tela de acesso negado
   if (!hasRole || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
@@ -165,7 +178,7 @@ export default function CreatorSetup() {
               Você não tem permissão para acessar esta área.
             </p>
             <p className="text-xs text-[#444]">
-              Apenas criadores com o cargo <span className="text-white">OficialContentCreator</span> podem criar uma loja.
+              Apenas criadores com o cargo <span className="text-white">creator</span> podem criar uma loja.
             </p>
           </div>
           <button
@@ -196,7 +209,7 @@ export default function CreatorSetup() {
           <h1 className="text-2xl font-bold text-white">Criar Loja de Criador</h1>
           <p className="text-sm text-[#555] mt-2">Configure sua loja para começar a vender seus assets</p>
           <div className="mt-2 inline-block px-3 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
-            Verificado • Cargo OficialContentCreator
+            Verificado • Cargo: {user?.email}
           </div>
         </div>
 
