@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Send, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 
-import devRegisterBg1 from '@/assets/images/DevRegister.png';
+import devRegisterBg1 from '@/assets/images/DevParceiro.jpg';
 import devRegisterBg2 from '@/assets/images/DevRegister2.png';
 import devRegisterBg3 from '@/assets/images/DevRegister3.png';
 import devRegisterBg4 from '@/assets/images/DevRegister4.png';
