@@ -37,16 +37,12 @@ export default function PartnerForm() {
 
   // Comentários que vão passar em loop
   const quotes = [
-    { text: "A cada Produto Vendido Você Recebe O Pagamento em até 10 horas após a confirmação da venda.", author: "— Dev Community" },
-    { text: "Visibilidade na plataforma e suporte prioritário para seus projetos.", author: "— Dev Systems" },
-    { text: "Atendimento prioritário para criadores e suporte na publicação dos seus assets.", author: "— Comunidade Dev" },
-    { text: "Transforme sua criatividade em oportunidades de negócios.", author: "— Dev Team" },
-    { text: "Junte-se a uma comunidade de criadores e desenvolvedores apaixonados.", author: "— Dev Team" },
-    { text: "Ganhe reconhecimento e cresça profissionalmente.", author: "— Dev Team" },
-    { text: "Todo Criador tem a oportunidade de se destacar.", author: "— Dev Team" },
-    { text: "Os criadores Do DevAssets Ganhan 87% do valor de cada venda E o restante é destinado à plataforma.", author: "— Dev Team" },
-    { text: "Você define a licença de uso para cada asset: Pessoal, Comercial Padrão, Comercial Estendida, Revenda OEM ou Distribuição. O controle é seu.", author: "— Dev Team" },
-    { text: "Cada Produto Seu Recebera uma Licença Gratuita Particular Sua Para Proteção Dos seus Assets.", author: "— Dev Team" },
+    { text: "Ao se tornar um Criador DevAssets, você ganha 87% do valor de cada venda. Apenas 13% são destinados à manutenção e evolução da plataforma.", author: "— DevAssets Creators" },
+    { text: "Como parceiro, você recebe o pagamento de cada produto vendido em até 10 horas após a confirmação da venda.", author: "— DevAssets Creators" },
+    { text: "Ao se tornar criador, cada asset seu recebe uma licença gratuita e exclusiva para proteger seus direitos autorais e seu trabalho.", author: "— DevAssets Creators" },
+    { text: "Seus assets ganham visibilidade na plataforma, com suporte prioritário para impulsionar seus projetos e sua marca.", author: "— DevAssets Creators" },
+    { text: "Você ganha atendimento prioritário e suporte dedicado desde a publicação até a gestão dos seus assets.", author: "— DevAssets Creators" },
+    { text: "Todo criador DevAssets ganha a oportunidade de se destacar e construir sua própria marca no mercado.", author: "— DevAssets Creators" },
   ];
 
   // Loop dos comentários a cada 5 segundos
