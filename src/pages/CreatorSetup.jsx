@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import { Upload, Loader2, Lock, Shield, Instagram, Github, Linkedin, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 import devRegisterBg1 from '@/assets/images/DevParceiro.png';
-import AppLayout from '@/components/layout/AppLayout';
 
 const uploadImage = async (file, folder = 'creators') => {
   const ext = file.name.split('.').pop();
@@ -20,7 +19,7 @@ const uploadImage = async (file, folder = 'creators') => {
   return urlData.publicUrl;
 };
 
-function CreatorSetupContent() {
+export default function CreatorSetup() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState({});
@@ -202,7 +201,7 @@ function CreatorSetupContent() {
 
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="w-10 h-10 border-2 border-[#1A1A1A] border-t-white rounded-full animate-spin mx-auto" />
       </div>
     );
@@ -210,7 +209,7 @@ function CreatorSetupContent() {
 
   if (!hasRole || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center space-y-6 max-w-md mx-auto px-4">
           <div className="w-20 h-20 bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl flex items-center justify-center mx-auto">
             <Lock className="h-10 w-10 text-white" />
@@ -230,9 +229,8 @@ function CreatorSetupContent() {
 
   return (
     <div className="flex">
-
       {/* LADO ESQUERDO - FORMULÁRIO */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
 
         <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-8">
           <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden">
@@ -257,7 +255,7 @@ function CreatorSetupContent() {
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           
-          {/* PÁGINA 0 - SEM CARDS, APENAS TEXTO SIMPLES */}
+          {/* PÁGINA 0 */}
           {currentPage === 0 && (
             <div className="space-y-4 text-muted-foreground">
               <p className="text-sm leading-relaxed">
@@ -485,13 +483,5 @@ function CreatorSetupContent() {
       </div>
       
     </div>
-  );
-}
-
-export default function CreatorSetup() {
-  return (
-    <AppLayout>
-      <CreatorSetupContent />
-    </AppLayout>
   );
 }
