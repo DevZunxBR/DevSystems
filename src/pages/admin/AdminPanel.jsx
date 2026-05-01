@@ -105,13 +105,8 @@ export default function AdminPanel() {
 
       <aside className={`fixed lg:sticky top-0 left-0 h-screen w-64 bg-[#0A0A0A] border-r border-[#1A1A1A] z-40 transition-transform lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 space-y-6">
-          {/* Apenas o título, sem logo */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-              <span className="text-black font-black text-sm">A</span>
-            </div>
-            <h2 className="text-lg font-bold text-white">Admin Panel</h2>
-          </div>
+          {/* Apenas o texto, sem o quadrado com A */}
+          <h2 className="text-lg font-bold text-white">Admin Panel</h2>
 
           {/* Badge de admin */}
           <div className="bg-[#111] border border-[#1A1A1A] rounded-lg p-3">
