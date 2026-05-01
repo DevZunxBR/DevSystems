@@ -6,9 +6,10 @@ import { toast } from 'sonner';
 import { Send, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 import devRegisterBg1 from '@/assets/images/DevParceiro.png';
-import AppLayout from '@/components/layout/AppLayout';
+// REMOVA: import AppLayout from '@/components/layout/AppLayout';
 
-function PartnerFormContent() {
+// Renomeie o componente principal (sem AppLayout)
+export default function PartnerForm() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [logoLoadError, setLogoLoadError] = useState(false);
@@ -142,7 +143,7 @@ function PartnerFormContent() {
   };
 
   return (
-    <div className="flex">
+    <div className="min-h-screen flex">
 
       {/* LADO ESQUERDO - FORMULÁRIO */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
@@ -398,13 +399,5 @@ function PartnerFormContent() {
       </div>
       
     </div>
-  );
-}
-
-export default function PartnerForm() {
-  return (
-    <AppLayout>
-      <PartnerFormContent />
-    </AppLayout>
   );
 }
