@@ -51,7 +51,7 @@ export default function CreatorSetup() {
 
   const LAST_PAGE = pages.length - 1;
 
-  // Comentários em loop (benefícios de ser criador)
+  // Comentários em loop
   const quotes = [
     { text: "Ao criar sua loja na DevAssets, você ganha 87% do valor de cada venda. Apenas 13% são destinados à manutenção e evolução da plataforma.", author: "— DevAssets Creators" },
     { text: "Como criador, você recebe o pagamento de cada produto vendido em até 10 horas após a confirmação da venda.", author: "— DevAssets Creators" },
@@ -264,7 +264,7 @@ export default function CreatorSetup() {
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           
-          {/* PÁGINA 0 - BEM-VINDO (EXATAMENTE IGUAL AO PARTNERFORM) */}
+          {/* PÁGINA 0 - BEM-VINDO (SEM CARDS, APENAS TEXTO IGUAL PARTNERFORM) */}
           {currentPage === 0 && (
             <div className="space-y-4 text-muted-foreground">
               <p className="text-sm leading-relaxed">
