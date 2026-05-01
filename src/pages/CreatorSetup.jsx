@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Upload, Loader2, Lock, Shield, ArrowLeft, Instagram, Github, Linkedin } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
+import devRegisterBg1 from '@/assets/images/DevParceiro.png';
 
 const uploadImage = async (file, folder = 'creators') => {
   const ext = file.name.split('.').pop();
@@ -26,6 +27,8 @@ export default function CreatorSetup() {
   const [hasRole, setHasRole] = useState(false);
   const [user, setUser] = useState(null);
   const [logoLoadError, setLogoLoadError] = useState(false);
+  const [quoteIndex, setQuoteIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [form, setForm] = useState({
     display_name: '',
     bio: '',
@@ -35,6 +38,29 @@ export default function CreatorSetup() {
     website: '',
     social_links: { instagram: '', github: '', linkedin: '', twitter: '' }
   });
+
+  // Comentários que vão passar em loop (benefícios de ser criador)
+  const quotes = [
+    { text: "Ao criar sua loja na DevAssets, você ganha 87% do valor de cada venda. Apenas 13% são destinados à manutenção e evolução da plataforma.", author: "— DevAssets Creators" },
+    { text: "Como criador, você recebe o pagamento de cada produto vendido em até 10 horas após a confirmação da venda.", author: "— DevAssets Creators" },
+    { text: "Cada asset seu recebe uma licença gratuita e exclusiva para proteger seus direitos autorais e seu trabalho.", author: "— DevAssets Creators" },
+    { text: "Seus assets ganham visibilidade na plataforma, com suporte prioritário para impulsionar seus projetos.", author: "— DevAssets Creators" },
+    { text: "Você ganha atendimento prioritário e suporte dedicado desde a publicação até a gestão dos seus assets.", author: "— DevAssets Creators" },
+    { text: "Todo criador DevAssets tem a oportunidade de se destacar e construir sua própria marca no mercado.", author: "— DevAssets Creators" },
+  ];
+
+  // Loop dos comentários a cada 10 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setQuoteIndex((prev) => (prev + 1) % quotes.length);
+        setIsTransitioning(false);
+      }, 500);
+    }, 10000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     checkCreatorAccess();
@@ -340,8 +366,27 @@ export default function CreatorSetup() {
         </form>
       </div>
 
-      {/* LADO DIREITO - APENAS FUNDO PRETO (SEM NADA) */}
-      <div className="hidden lg:block w-1/2 bg-black" />
+      {/* LADO DIREITO - IMAGEM FIXA + COMENTÁRIOS EM LOOP (IGUAL PARTNERFORM) */}
+      <div className="hidden lg:block w-1/2 relative overflow-hidden bg-black">
+        <img
+          src={devRegisterBg1}
+          alt="Developer workspace"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
+        
+        {/* Comentários em loop com fade */}
+        <div className="absolute inset-0 flex flex-col justify-end p-12">
+          <div className={`transition-opacity duration-500 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+            <blockquote className="space-y-3">
+              <p className="text-lg font-semibold text-white leading-relaxed">
+                "{quotes[quoteIndex].text}"
+              </p>
+              <footer className="text-sm text-muted-foreground">{quotes[quoteIndex].author}</footer>
+            </blockquote>
+          </div>
+        </div>
+      </div>
       
     </div>
   );
