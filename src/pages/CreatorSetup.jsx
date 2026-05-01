@@ -337,7 +337,7 @@ export default function CreatorSetup() {
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Banner da Loja</label>
-                <div className="relative h-28 bg-gradient-to-r from-purple-900/20 to-blue-900/20 rounded-lg overflow-hidden border border-border">
+                <div className="relative h-28 bg-neutral-800 rounded-lg overflow-hidden border border-border">
                   {form.banner_url && <img src={form.banner_url} alt="Banner" className="w-full h-full object-cover" />}
                   <label className="absolute inset-0 flex items-center justify-center bg-black/50 cursor-pointer hover:bg-black/70 transition-colors">
                     <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'banner_url')} className="hidden" />
