@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Upload, Loader2, Lock, Shield, ArrowLeft, Instagram, Github, Linkedin, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
-import devRegisterBg1 from '@/assets/images/';
+import devRegisterBg1 from '@/assets/images/DevParceiro.png';
 
 const uploadImage = async (file, folder = 'creators') => {
   const ext = file.name.split('.').pop();
