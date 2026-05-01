@@ -145,6 +145,23 @@ export default function CreatorSetup() {
 
   const nextPage = (e) => {
     e.preventDefault();
+    
+    // VALIDAÇÕES POR PÁGINA
+    if (currentPage === 1 && !form.display_name) {
+      toast.error('Nome da loja é obrigatório');
+      return;
+    }
+    
+    if (currentPage === 2 && (!form.avatar_url || !form.banner_url)) {
+      toast.error('Avatar e Banner da loja são obrigatórios');
+      return;
+    }
+    
+    if (currentPage === 3 && (!form.location || !form.website)) {
+      toast.error('Localização e Website são obrigatórios');
+      return;
+    }
+    
     if (currentPage < LAST_PAGE) {
       setCurrentPage(currentPage + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -255,7 +272,7 @@ export default function CreatorSetup() {
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           
-          {/* PÁGINA 0 */}
+          {/* PÁGINA 0 - COMO FUNCIONA (SEM VALIDAÇÃO) */}
           {currentPage === 0 && (
             <div className="space-y-4 text-muted-foreground">
               <p className="text-sm leading-relaxed">
@@ -278,7 +295,7 @@ export default function CreatorSetup() {
             </div>
           )}
 
-          {/* PÁGINA 1 - IDENTIDADE DA LOJA */}
+          {/* PÁGINA 1 - IDENTIDADE DA LOJA (Nome Obrigatório) */}
           {currentPage === 1 && (
             <>
               <div>
@@ -304,11 +321,11 @@ export default function CreatorSetup() {
             </>
           )}
 
-          {/* PÁGINA 2 - MÍDIA */}
+          {/* PÁGINA 2 - MÍDIA (Avatar e Banner Obrigatórios) */}
           {currentPage === 2 && (
             <>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Avatar da Loja</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Avatar da Loja *</label>
                 <div className="flex items-center gap-3">
                   <div className="w-14 h-14 rounded-full bg-secondary overflow-hidden border border-border">
                     {form.avatar_url ? (
@@ -327,7 +344,7 @@ export default function CreatorSetup() {
                 </div>
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Banner da Loja</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Banner da Loja *</label>
                 <div className="relative h-28 bg-neutral-800 rounded-lg overflow-hidden border border-border">
                   {form.banner_url && <img src={form.banner_url} alt="Banner" className="w-full h-full object-cover" />}
                   <label className="absolute inset-0 flex items-center justify-center bg-black/50 cursor-pointer hover:bg-black/70 transition-colors">
@@ -342,11 +359,11 @@ export default function CreatorSetup() {
             </>
           )}
 
-          {/* PÁGINA 3 - CONTATO */}
+          {/* PÁGINA 3 - CONTATO (Localização e Website Obrigatórios - Redes Sociais Opcionais) */}
           {currentPage === 3 && (
             <>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Localização</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Localização *</label>
                 <input
                   type="text"
                   value={form.location}
@@ -356,7 +373,7 @@ export default function CreatorSetup() {
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Website</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Website *</label>
                 <input
                   type="url"
                   value={form.website}
@@ -366,7 +383,7 @@ export default function CreatorSetup() {
                 />
               </div>
               <div className="space-y-3">
-                <label className="text-xs font-medium text-muted-foreground block">Redes Sociais</label>
+                <label className="text-xs font-medium text-muted-foreground block">Redes Sociais (Opcionais)</label>
                 <div className="flex items-center gap-2">
                   <Instagram className="h-4 w-4 text-pink-500 flex-shrink-0" />
                   <input
