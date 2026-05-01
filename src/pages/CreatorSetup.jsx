@@ -54,7 +54,7 @@ export default function CreatorSetup() {
 
       // Verificar se tem o cargo OficialContentCreator
       const userRole = currentUser.user_metadata?.role || currentUser.raw_app_meta_data?.role;
-      const hasCreatorRole = userRole === 'OficialContentCreator';
+      const hasCreatorRole = userRole === 'creator';
 
       if (!hasCreatorRole) {
         setHasRole(false);
