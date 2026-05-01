@@ -32,10 +32,10 @@ import Register from './pages/Register';
 import PartnerForm from './pages/PartnerForm';
 import ManageCreators from './pages/admin/ManageCreators';
 
-// IMPORTAÇÕES DO SISTEMA DE CRIADORES
+// IMPORTAÇÕES DO SISTEMA DE CRIADORES (COM PASTA Creator com C maiúsculo)
 import CreatorStore from './pages/CreatorStore';
 import CreatorSetup from './pages/CreatorSetup';
-import CreatorNewProduct from './pages/creator/CreatorNewProduct';
+import CreatorNewProduct from './pages/Creator/CreatorNewProduct';
 import ApproveProducts from './pages/admin/ApproveProducts';
 
 // Rota privada - redireciona para /register se não logado
