@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Upload, Loader2, Lock, Shield, ArrowLeft, Instagram, Github, Linkedin } from 'lucide-react';
+import { Upload, Loader2, Lock, Shield, ArrowLeft, Instagram, Github, Linkedin, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 import devRegisterBg1 from '@/assets/images/DevParceiro.png';
 
@@ -27,6 +27,7 @@ export default function CreatorSetup() {
   const [hasRole, setHasRole] = useState(false);
   const [user, setUser] = useState(null);
   const [logoLoadError, setLogoLoadError] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [form, setForm] = useState({
@@ -39,7 +40,18 @@ export default function CreatorSetup() {
     social_links: { instagram: '', github: '', linkedin: '', twitter: '' }
   });
 
-  // Comentários que vão passar em loop (benefícios de ser criador)
+  // Páginas do formulário (5 páginas)
+  const pages = [
+    { title: "Bem-vindo", description: "Programa de Criadores DevAssets" },
+    { title: "Identidade da Loja", description: "Nome e descrição da sua loja" },
+    { title: "Mídia", description: "Avatar e banner da loja" },
+    { title: "Contato", description: "Localização e redes sociais" },
+    { title: "Finalização", description: "Revise e crie sua loja" },
+  ];
+
+  const LAST_PAGE = pages.length - 1;
+
+  // Comentários em loop
   const quotes = [
     { text: "Ao criar sua loja na DevAssets, você ganha 87% do valor de cada venda. Apenas 13% são destinados à manutenção e evolução da plataforma.", author: "— DevAssets Creators" },
     { text: "Como criador, você recebe o pagamento de cada produto vendido em até 10 horas após a confirmação da venda.", author: "— DevAssets Creators" },
@@ -49,7 +61,6 @@ export default function CreatorSetup() {
     { text: "Todo criador DevAssets tem a oportunidade de se destacar e construir sua própria marca no mercado.", author: "— DevAssets Creators" },
   ];
 
-  // Loop dos comentários a cada 10 segundos
   useEffect(() => {
     const interval = setInterval(() => {
       setIsTransitioning(true);
@@ -58,7 +69,6 @@ export default function CreatorSetup() {
         setIsTransitioning(false);
       }, 500);
     }, 10000);
-    
     return () => clearInterval(interval);
   }, []);
 
@@ -138,7 +148,24 @@ export default function CreatorSetup() {
     }
   };
 
-  const handleSubmit = async () => {
+  const nextPage = (e) => {
+    e.preventDefault();
+    if (currentPage < LAST_PAGE) {
+      setCurrentPage(currentPage + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const prevPage = (e) => {
+    e.preventDefault();
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (!form.display_name) {
       toast.error('Nome da loja é obrigatório');
       return;
@@ -211,7 +238,7 @@ export default function CreatorSetup() {
   return (
     <div className="min-h-screen flex">
 
-      {/* LADO ESQUERDO - FORMULÁRIO */}
+      {/* LADO ESQUERDO - FORMULÁRIO COM PÁGINAS */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 bg-black">
 
         <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-8">
@@ -231,142 +258,211 @@ export default function CreatorSetup() {
         </div>
 
         <div className="mt-6">
-          <h2 className="text-xl font-bold text-white">Informações da Loja</h2>
-          <p className="text-xs text-muted-foreground mt-1">Preencha os dados abaixo para criar sua loja</p>
+          <h2 className="text-xl font-bold text-white">{pages[currentPage].title}</h2>
+          <p className="text-xs text-muted-foreground mt-1">{pages[currentPage].description}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           
-          {/* Banner */}
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1 block">Banner da Loja</label>
-            <div className="relative h-28 bg-gradient-to-r from-purple-900/20 to-blue-900/20 rounded-lg overflow-hidden border border-border">
-              {form.banner_url && <img src={form.banner_url} alt="Banner" className="w-full h-full object-cover" />}
-              <label className="absolute inset-0 flex items-center justify-center bg-black/50 cursor-pointer hover:bg-black/70 transition-colors">
-                <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'banner_url')} className="hidden" />
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-black/80 rounded-lg text-xs text-white">
-                  {uploading.banner_url ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
-                  {uploading.banner_url ? 'Enviando...' : 'Upload Banner'}
-                </div>
-              </label>
-            </div>
-          </div>
-
-          {/* Avatar */}
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1 block">Avatar da Loja</label>
-            <div className="flex items-center gap-3">
-              <div className="w-14 h-14 rounded-full bg-secondary overflow-hidden border border-border">
-                {form.avatar_url ? (
-                  <img src={form.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">?</div>
-                )}
+          {/* PÁGINA 0 - BEM-VINDO */}
+          {currentPage === 0 && (
+            <div className="space-y-4 text-muted-foreground">
+              <p className="text-sm leading-relaxed">
+                O Programa de Criadores DevAssets foi criado para desenvolvedores talentosos que desejam 
+                monetizar seus assets e sistemas.
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Ganhe 87% de comissão</span> sobre cada venda realizada.
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Destaque seus assets</span> com visibilidade garantida na plataforma.
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Suporte prioritário e dedicado</span> para criadores em todas as etapas.
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Todo criador DevAssets</span> tem a oportunidade de construir sua própria marca.
+              </p>
+              <div className="pt-4">
+                <p className="text-xs text-center text-muted-foreground border-t border-border pt-4">
+                  O processo leva cerca de 5 minutos. Suas informações serão usadas para criar sua loja.
+                </p>
               </div>
-              <label className="cursor-pointer">
-                <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'avatar_url')} className="hidden" />
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary border border-border rounded-lg text-xs text-muted-foreground hover:text-white transition-colors">
-                  {uploading.avatar_url ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
-                  {uploading.avatar_url ? 'Enviando...' : 'Upload Avatar'}
+            </div>
+          )}
+
+          {/* PÁGINA 1 - IDENTIDADE DA LOJA */}
+          {currentPage === 1 && (
+            <>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome da Loja *</label>
+                <input
+                  type="text"
+                  value={form.display_name}
+                  onChange={(e) => setForm({ ...form, display_name: e.target.value })}
+                  placeholder="Ex: DevCreative Studio"
+                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Descrição da Loja</label>
+                <textarea
+                  rows={4}
+                  value={form.bio}
+                  onChange={(e) => setForm({ ...form, bio: e.target.value })}
+                  placeholder="Fale sobre sua especialidade, sua experiência..."
+                  className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white resize-none"
+                />
+              </div>
+            </>
+          )}
+
+          {/* PÁGINA 2 - MÍDIA */}
+          {currentPage === 2 && (
+            <>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Avatar da Loja</label>
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-full bg-secondary overflow-hidden border border-border">
+                    {form.avatar_url ? (
+                      <img src={form.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">?</div>
+                    )}
+                  </div>
+                  <label className="cursor-pointer">
+                    <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'avatar_url')} className="hidden" />
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary border border-border rounded-lg text-xs text-muted-foreground hover:text-white transition-colors">
+                      {uploading.avatar_url ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                      {uploading.avatar_url ? 'Enviando...' : 'Upload Avatar'}
+                    </div>
+                  </label>
                 </div>
-              </label>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Banner da Loja</label>
+                <div className="relative h-28 bg-gradient-to-r from-purple-900/20 to-blue-900/20 rounded-lg overflow-hidden border border-border">
+                  {form.banner_url && <img src={form.banner_url} alt="Banner" className="w-full h-full object-cover" />}
+                  <label className="absolute inset-0 flex items-center justify-center bg-black/50 cursor-pointer hover:bg-black/70 transition-colors">
+                    <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'banner_url')} className="hidden" />
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-black/80 rounded-lg text-xs text-white">
+                      {uploading.banner_url ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                      {uploading.banner_url ? 'Enviando...' : 'Upload Banner'}
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* PÁGINA 3 - CONTATO */}
+          {currentPage === 3 && (
+            <>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Localização</label>
+                <input
+                  type="text"
+                  value={form.location}
+                  onChange={(e) => setForm({ ...form, location: e.target.value })}
+                  placeholder="Ex: São Paulo, Brasil"
+                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Website</label>
+                <input
+                  type="url"
+                  value={form.website}
+                  onChange={(e) => setForm({ ...form, website: e.target.value })}
+                  placeholder="https://seusite.com"
+                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white"
+                />
+              </div>
+              <div className="space-y-3">
+                <label className="text-xs font-medium text-muted-foreground block">Redes Sociais</label>
+                <div className="flex items-center gap-2">
+                  <Instagram className="h-4 w-4 text-pink-500 flex-shrink-0" />
+                  <input
+                    type="text"
+                    value={form.social_links.instagram}
+                    onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, instagram: e.target.value } })}
+                    placeholder="@usuario"
+                    className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Github className="h-4 w-4 text-white flex-shrink-0" />
+                  <input
+                    type="text"
+                    value={form.social_links.github}
+                    onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, github: e.target.value } })}
+                    placeholder="github.com/usuario"
+                    className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Linkedin className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                  <input
+                    type="text"
+                    value={form.social_links.linkedin}
+                    onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, linkedin: e.target.value } })}
+                    placeholder="linkedin.com/in/usuario"
+                    className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground"
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* PÁGINA 4 - FINALIZAÇÃO */}
+          {currentPage === 4 && (
+            <div className="space-y-4">
+              <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
+                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo da Loja</p>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Nome</span>
+                  <span className="text-white">{form.display_name || '-'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Website</span>
+                  <span className="text-white">{form.website || '-'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Localização</span>
+                  <span className="text-white">{form.location || '-'}</span>
+                </div>
+              </div>
+
+              <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                <p className="text-xs text-green-400 text-center">
+                  ✓ Após criar sua loja, você poderá publicar seus assets e começar a vender!
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Nome da Loja */}
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome da Loja *</label>
-            <input
-              type="text"
-              value={form.display_name}
-              onChange={(e) => setForm({ ...form, display_name: e.target.value })}
-              placeholder="Ex: DevCreative Studio"
-              className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white"
-            />
+          {/* Botões de navegação */}
+          <div className="flex items-center gap-3 pt-4">
+            {currentPage > 0 && (
+              <button type="button" onClick={prevPage} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white">
+                <ChevronLeft className="w-4 h-4" /> Voltar
+              </button>
+            )}
+            <div className="flex-1" />
+            {currentPage < LAST_PAGE ? (
+              <button type="button" onClick={nextPage} className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 flex items-center gap-2">
+                Continuar <ChevronRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <button type="submit" disabled={loading} className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 disabled:opacity-50 flex items-center gap-2">
+                {loading ? 'Criando...' : <><Upload className="h-4 w-4" /> Criar Loja</>}
+              </button>
+            )}
           </div>
-
-          {/* Bio */}
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1 block">Descrição da Loja</label>
-            <textarea
-              rows={3}
-              value={form.bio}
-              onChange={(e) => setForm({ ...form, bio: e.target.value })}
-              placeholder="Fale sobre sua especialidade, sua experiência..."
-              className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white resize-none"
-            />
-          </div>
-
-          {/* Localização */}
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1 block">Localização</label>
-            <input
-              type="text"
-              value={form.location}
-              onChange={(e) => setForm({ ...form, location: e.target.value })}
-              placeholder="Ex: São Paulo, Brasil"
-              className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white"
-            />
-          </div>
-
-          {/* Website */}
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1 block">Website</label>
-            <input
-              type="url"
-              value={form.website}
-              onChange={(e) => setForm({ ...form, website: e.target.value })}
-              placeholder="https://seusite.com"
-              className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white"
-            />
-          </div>
-
-          {/* Redes Sociais */}
-          <div className="space-y-3">
-            <label className="text-xs font-medium text-muted-foreground block">Redes Sociais</label>
-            <div className="flex items-center gap-2">
-              <Instagram className="h-4 w-4 text-pink-500 flex-shrink-0" />
-              <input
-                type="text"
-                value={form.social_links.instagram}
-                onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, instagram: e.target.value } })}
-                placeholder="@usuario"
-                className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Github className="h-4 w-4 text-white flex-shrink-0" />
-              <input
-                type="text"
-                value={form.social_links.github}
-                onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, github: e.target.value } })}
-                placeholder="github.com/usuario"
-                className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Linkedin className="h-4 w-4 text-blue-500 flex-shrink-0" />
-              <input
-                type="text"
-                value={form.social_links.linkedin}
-                onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, linkedin: e.target.value } })}
-                placeholder="linkedin.com/in/usuario"
-                className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground"
-              />
-            </div>
-          </div>
-
-          <Button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full bg-white text-black hover:bg-white/90 font-semibold h-11 mt-4"
-          >
-            {loading ? 'Criando...' : 'Criar Loja'}
-          </Button>
         </form>
       </div>
 
-      {/* LADO DIREITO - IMAGEM FIXA + COMENTÁRIOS EM LOOP (IGUAL PARTNERFORM) */}
+      {/* LADO DIREITO - IMAGEM FIXA + COMENTÁRIOS EM LOOP */}
       <div className="hidden lg:block w-1/2 relative overflow-hidden bg-black">
         <img
           src={devRegisterBg1}
