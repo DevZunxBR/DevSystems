@@ -4,7 +4,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag, Lock, Users } from 'lucide-react';
 import { toast } from 'sonner';
-import logoImage from '';
+import logoImage from '@/assets/images/Logo.jpg';
 
 const navItems = [
   { icon: ClipboardList, label: 'Pedidos Pendentes', path: '/admin' },
