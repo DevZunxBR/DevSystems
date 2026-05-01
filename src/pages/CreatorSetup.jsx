@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Upload, Loader2, Lock, Shield, ArrowLeft, Instagram, Github, Linkedin, ChevronRight, ChevronLeft, Info, Image, MapPin, Globe } from 'lucide-react';
+import { Upload, Loader2, Lock, Shield, ArrowLeft, Instagram, Github, Linkedin, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 import devRegisterBg1 from '@/assets/images/DevParceiro.png';
 
@@ -40,10 +40,10 @@ export default function CreatorSetup() {
     social_links: { instagram: '', github: '', linkedin: '', twitter: '' }
   });
 
-  // Páginas do formulário (5 páginas)
+  // 5 PÁGINAS (0 a 4)
   const pages = [
-    { title: "Como funciona", description: "O que você precisa para criar sua loja" },
-    { title: "Identidade da Loja", description: "Nome e descrição da sua loja" },
+    { title: "Bem-vindo", description: "Crie sua Loja de Criador" },
+    { title: "Identidade", description: "Nome e descrição da sua loja" },
     { title: "Mídia", description: "Avatar e banner da loja" },
     { title: "Contato", description: "Localização e redes sociais" },
     { title: "Finalização", description: "Revise e crie sua loja" },
@@ -51,7 +51,7 @@ export default function CreatorSetup() {
 
   const LAST_PAGE = pages.length - 1;
 
-  // Comentários em loop
+  // Comentários em loop (benefícios de ser criador)
   const quotes = [
     { text: "Ao criar sua loja na DevAssets, você ganha 87% do valor de cada venda. Apenas 13% são destinados à manutenção e evolução da plataforma.", author: "— DevAssets Creators" },
     { text: "Como criador, você recebe o pagamento de cada produto vendido em até 10 horas após a confirmação da venda.", author: "— DevAssets Creators" },
@@ -264,56 +264,34 @@ export default function CreatorSetup() {
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           
-          {/* PÁGINA 0 - EXPLICAÇÃO DO QUE PRECISA PREENCHER */}
+          {/* PÁGINA 0 - BEM-VINDO (EXATAMENTE IGUAL AO PARTNERFORM) */}
           {currentPage === 0 && (
-            <div className="space-y-5">
-              <div className="bg-secondary/30 border border-border rounded-xl p-5 space-y-4">
-                <div className="flex items-center gap-3">
-                  <Info className="h-5 w-5 text-white" />
-                  <h3 className="text-base font-semibold text-white">O que você vai precisar</h3>
-                </div>
-                <div className="space-y-3 text-sm text-muted-foreground">
-                  <p className="flex items-start gap-2">
-                    <span className="text-white font-medium">1.</span>
-                    <span><span className="text-white">Nome da Loja</span> - Escolha um nome criativo e profissional para sua loja</span>
-                  </p>
-                  <p className="flex items-start gap-2">
-                    <span className="text-white font-medium">2.</span>
-                    <span><span className="text-white">Descrição</span> - Conte sobre sua especialidade e experiência</span>
-                  </p>
-                  <p className="flex items-start gap-2">
-                    <span className="text-white font-medium">3.</span>
-                    <span><span className="text-white">Avatar e Banner</span> - Imagens que vão representar sua marca</span>
-                  </p>
-                  <p className="flex items-start gap-2">
-                    <span className="text-white font-medium">4.</span>
-                    <span><span className="text-white">Redes Sociais</span> - Onde seus clientes podem te encontrar</span>
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-secondary/30 border border-border rounded-xl p-5 space-y-4">
-                <div className="flex items-center gap-3">
-                  <Shield className="h-5 w-5 text-green-400" />
-                  <h3 className="text-base font-semibold text-white">Dicas importantes</h3>
-                </div>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2">✓ Use uma imagem de alta qualidade para seu avatar</li>
-                  <li className="flex items-center gap-2">✓ O banner deve ter proporção 1200x300 para melhor visualização</li>
-                  <li className="flex items-center gap-2">✓ Preencha todas as informações para passar credibilidade</li>
-                  <li className="flex items-center gap-2">✓ Você pode editar sua loja depois de criada</li>
-                </ul>
-              </div>
-
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <p className="text-xs text-center text-muted-foreground">
-                  O processo leva cerca de 5 minutos. Você pode completar sua loja depois.
+            <div className="space-y-4 text-muted-foreground">
+              <p className="text-sm leading-relaxed">
+                O Programa de Criadores DevAssets foi criado para desenvolvedores talentosos que desejam 
+                monetizar seus assets e sistemas através da sua própria loja.
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Ganhe 87% de comissão</span> sobre cada venda realizada.
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Destaque seus assets</span> com visibilidade garantida na plataforma.
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Suporte prioritário e dedicado</span> para criadores em todas as etapas.
+              </p>
+              <p className="text-sm leading-relaxed">
+                <span className="text-white font-medium">✓ Todo criador DevAssets</span> tem a oportunidade de construir sua própria marca e se destacar no mercado.
+              </p>
+              <div className="pt-4">
+                <p className="text-xs text-center text-muted-foreground border-t border-border pt-4">
+                  O processo leva cerca de 5 minutos. Suas informações serão usadas para criar sua loja.
                 </p>
               </div>
             </div>
           )}
 
-          {/* PÁGINA 1 - IDENTIDADE DA LOJA */}
+          {/* PÁGINA 1 - IDENTIDADE */}
           {currentPage === 1 && (
             <>
               <div>
@@ -325,7 +303,6 @@ export default function CreatorSetup() {
                   placeholder="Ex: DevCreative Studio"
                   className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white"
                 />
-                <p className="text-[10px] text-muted-foreground mt-1">Este é o nome que aparecerá para seus clientes</p>
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Descrição da Loja</label>
@@ -336,7 +313,6 @@ export default function CreatorSetup() {
                   placeholder="Fale sobre sua especialidade, sua experiência..."
                   className="w-full px-4 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white resize-none"
                 />
-                <p className="text-[10px] text-muted-foreground mt-1">Conte aos clientes o que torna sua loja única</p>
               </div>
             </>
           )}
@@ -362,7 +338,6 @@ export default function CreatorSetup() {
                     </div>
                   </label>
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-1">Sua logo ou foto de perfil (recomendado: 400x400)</p>
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Banner da Loja</label>
@@ -376,7 +351,6 @@ export default function CreatorSetup() {
                     </div>
                   </label>
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-1">Imagem de capa da sua loja (recomendado: 1200x300)</p>
               </div>
             </>
           )}
@@ -393,7 +367,6 @@ export default function CreatorSetup() {
                   placeholder="Ex: São Paulo, Brasil"
                   className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white"
                 />
-                <p className="text-[10px] text-muted-foreground mt-1">Cidade/País onde você está localizado</p>
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Website</label>
@@ -404,7 +377,6 @@ export default function CreatorSetup() {
                   placeholder="https://seusite.com"
                   className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white"
                 />
-                <p className="text-[10px] text-muted-foreground mt-1">Seu site pessoal ou portfólio</p>
               </div>
               <div className="space-y-3">
                 <label className="text-xs font-medium text-muted-foreground block">Redes Sociais</label>
@@ -438,7 +410,6 @@ export default function CreatorSetup() {
                     className="flex-1 h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground"
                   />
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-1">Compartilhe suas redes para conectar com clientes</p>
               </div>
             </>
           )}
