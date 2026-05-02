@@ -148,7 +148,7 @@ export default function Home() {
                 className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl"
               >
                 <Clock className="h-4 w-4" />
-                Crie uma Loja
+                Formulário Enviado
               </Button>
             ) : (
               <Button 
