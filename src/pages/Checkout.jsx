@@ -1,4 +1,4 @@
-// src/pages/Checkout.jsx - Corrigido
+// src/pages/Checkout.jsx - CORRIGIDO COM ASAAS
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44, supabase } from '@/api/base44Client';
@@ -16,7 +16,6 @@ export default function Checkout() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showPix, setShowPix] = useState(false);
-  const [pixCode, setPixCode] = useState('');
   const [currentOrder, setCurrentOrder] = useState(null);
   const [billing, setBilling] = useState({ name: '', email: '', document: '' });
   const [couponInput, setCouponInput] = useState('');
@@ -143,7 +142,7 @@ export default function Checkout() {
       billing_name: billing.name,
       billing_email: billing.email,
       billing_document: billing.document,
-      pix_code: pixCodeValue || 'NO_PAYMENT',
+      pix_code: pixCodeValue || 'AGUARDANDO_PAGAMENTO',
       download_token: `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`,
       wallet_used: walletDiscount,
       coupon_discount: couponDiscount,
@@ -188,7 +187,6 @@ export default function Checkout() {
     
     setSubmitting(true);
     try {
-      // Usar 'pix' como payment_method (não usar 'free' para evitar erro 400)
       await createOrder('pending', 'pix', 'FREE_ORDER');
       
       toast.success('Pedido realizado com sucesso! Aguarde a aprovação.');
@@ -201,7 +199,7 @@ export default function Checkout() {
     }
   };
 
-  // Handle para pagamento PIX
+  // Handle para pagamento PIX com ASAAS
   const handlePixPayment = async () => {
     if (!billing.name || !billing.email) { 
       toast.error('Preencha todos os campos'); 
@@ -210,13 +208,10 @@ export default function Checkout() {
     
     setSubmitting(true);
     try {
-      const me = await base44.auth.me();
-      const pixGenerated = `00020126580014br.gov.bcb.pix0136${Date.now()}${Math.random().toString(36).slice(2, 8)}520400005303986540${total.toFixed(2)}5802BR`;
-
-      const order = await createOrder('pending', 'pix', pixGenerated);
+      // Cria o pedido com status 'pending' e sem pix_code (o modal vai gerar a cobrança no Asaas)
+      const order = await createOrder('pending', 'pix', 'AGUARDANDO_PAGAMENTO');
       
       setCurrentOrder(order);
-      setPixCode(pixGenerated);
       setFinalTotal(total);
       setShowPix(true);
     } catch (error) {
@@ -235,6 +230,12 @@ export default function Checkout() {
     } else {
       handlePixPayment();
     }
+  };
+
+  // Fechar modal e ir para pedidos
+  const handleCloseModal = () => {
+    setShowPix(false);
+    navigate('/dashboard/orders');
   };
 
   // Verificar se tem presente no carrinho
@@ -344,7 +345,7 @@ export default function Checkout() {
             </div>
 
             <Button type="submit" disabled={submitting} className="w-full bg-white text-black hover:bg-white/90 font-semibold h-12">
-              {submitting ? 'Processando...' : isZeroTotal ? 'Finalizar Pedido Com Saldo ' : `Pagar ${symbol}${total.toFixed(2)}`}
+              {submitting ? 'Processando...' : isZeroTotal ? 'Finalizar Pedido Com Saldo' : `Pagar ${symbol}${total.toFixed(2)}`}
             </Button>
           </form>
         </div>
@@ -411,13 +412,20 @@ export default function Checkout() {
         </div>
       </div>
 
-      {showPix && (
-        <PixModal
+      {/* MODAL PIX COM ASAAS - CORRIGIDO */}
+      {showPix && currentOrder && (
+        <PaymentModal
           open={showPix}
-          onClose={() => { setShowPix(false); navigate('/dashboard/orders'); }}
-          pixCode={pixCode}
+          onClose={handleCloseModal}
           total={finalTotal}
-          currency="BRL"
+          orderId={currentOrder.id}
+          customerData={{
+            name: billing.name,
+            email: billing.email,
+            document: billing.document || '00000000000',
+            phone: '' // Opcional, pode adicionar um campo no futuro
+          }}
+          sellerWalletId={null}
         />
       )}
     </div>
