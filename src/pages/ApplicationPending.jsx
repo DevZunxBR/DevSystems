@@ -30,17 +30,6 @@ export default function ApplicationPending() {
           <p className="text-xs text-[#555]">
             Entre em nosso Discord para acompanhar:
           </p>
-          
-          {/* Botão Discord */}
-          <a
-            href={discordLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#5865F2] hover:bg-[#4752C4] rounded-lg text-white text-sm transition-all group"
-          >
-            <MessageSquare className="h-4 w-4 group-hover:scale-110 transition-transform" />
-            Entrar no Discord
-          </a>
         </div>
         
         {/* Botões */}
