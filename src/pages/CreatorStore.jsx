@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
-import { MapPin, Globe, Instagram, Github, Linkedin, Twitter, Package, Star, ShoppingBag, Edit, Plus, Trash2 } from 'lucide-react';
+import { MapPin, Globe, Instagram, Github, Linkedin, Twitter, Package, Star, ShoppingBag, Edit, Plus, Trash2, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -16,6 +16,8 @@ export default function CreatorStore() {
   const [isOwner, setIsOwner] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [showSettings, setShowSettings] = useState(false);
+  const [settingsForm, setSettingsForm] = useState({});
 
   useEffect(() => {
     loadData();
@@ -36,6 +38,7 @@ export default function CreatorStore() {
       }
 
       setProfile(profileData);
+      setSettingsForm(profileData);
 
       const { data: productsData } = await supabase
         .from('products')
@@ -61,6 +64,30 @@ export default function CreatorStore() {
       toast.error('Erro ao carregar perfil');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveSettings = async () => {
+    try {
+      const { error } = await supabase
+        .from('creator_profiles')
+        .update({
+          display_name: settingsForm.display_name,
+          bio: settingsForm.bio,
+          location: settingsForm.location,
+          website: settingsForm.website,
+          social_links: settingsForm.social_links
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Configurações salvas!');
+      setProfile(settingsForm);
+      setShowSettings(false);
+    } catch (error) {
+      console.error(error);
+      toast.error('Erro ao salvar configurações');
     }
   };
 
@@ -162,17 +189,19 @@ export default function CreatorStore() {
       <Header />
       
       <div className="flex-1">
-        {/* Banner - corrigido */}
-        <div className="relative h-48 w-full overflow-hidden bg-gradient-to-r from-purple-900/30 to-blue-900/30">
-          {profile.banner_url ? (
-            <img 
-              src={profile.banner_url} 
-              alt="Banner" 
-              className="w-full h-full object-cover object-center"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-r from-purple-900/20 to-blue-900/20" />
-          )}
+        {/* Banner - com espaçamento top (pt-20) */}
+        <div className="pt-20">
+          <div className="relative h-48 w-full overflow-hidden bg-gradient-to-r from-purple-900/30 to-blue-900/30">
+            {profile.banner_url ? (
+              <img 
+                src={profile.banner_url} 
+                alt="Banner" 
+                className="w-full h-full object-cover object-center"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-r from-purple-900/20 to-blue-900/20" />
+            )}
+          </div>
         </div>
 
         <div className="max-w-6xl mx-auto px-4">
@@ -201,6 +230,16 @@ export default function CreatorStore() {
                       <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                       <span className="text-sm text-white">{profile.store_rating}</span>
                     </div>
+                  )}
+                  {/* Botão de configurações (apenas para o dono) */}
+                  {isOwner && (
+                    <button
+                      onClick={() => setShowSettings(true)}
+                      className="ml-2 p-2 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors"
+                      title="Configurar loja"
+                    >
+                      <Settings className="h-4 w-4 text-white" />
+                    </button>
                   )}
                 </div>
                 {profile.bio && <p className="text-sm text-[#555] mt-2 max-w-xl">{profile.bio}</p>}
@@ -319,7 +358,122 @@ export default function CreatorStore() {
         </div>
       </div>
 
-      {/* Modal de edição */}
+      {/* Modal de configurações da loja */}
+      {showSettings && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-white">Configurações da Loja</h3>
+                <button
+                  onClick={() => setShowSettings(false)}
+                  className="text-[#555] hover:text-white"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs text-[#555] block mb-1">Nome da Loja</label>
+                  <input
+                    type="text"
+                    value={settingsForm.display_name || ''}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, display_name: e.target.value })}
+                    className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-[#555] block mb-1">Descrição</label>
+                  <textarea
+                    rows={4}
+                    value={settingsForm.bio || ''}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, bio: e.target.value })}
+                    className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-[#555] block mb-1">Localização</label>
+                  <input
+                    type="text"
+                    value={settingsForm.location || ''}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, location: e.target.value })}
+                    className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-[#555] block mb-1">Website</label>
+                  <input
+                    type="url"
+                    value={settingsForm.website || ''}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, website: e.target.value })}
+                    className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-[#555] block mb-1">Instagram</label>
+                  <input
+                    type="text"
+                    value={settingsForm.social_links?.instagram || ''}
+                    onChange={(e) => setSettingsForm({ 
+                      ...settingsForm, 
+                      social_links: { ...settingsForm.social_links, instagram: e.target.value } 
+                    })}
+                    className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-[#555] block mb-1">GitHub</label>
+                  <input
+                    type="text"
+                    value={settingsForm.social_links?.github || ''}
+                    onChange={(e) => setSettingsForm({ 
+                      ...settingsForm, 
+                      social_links: { ...settingsForm.social_links, github: e.target.value } 
+                    })}
+                    className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-[#555] block mb-1">LinkedIn</label>
+                  <input
+                    type="text"
+                    value={settingsForm.social_links?.linkedin || ''}
+                    onChange={(e) => setSettingsForm({ 
+                      ...settingsForm, 
+                      social_links: { ...settingsForm.social_links, linkedin: e.target.value } 
+                    })}
+                    className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={saveSettings}
+                    className="flex-1 py-2 bg-white text-black rounded-lg font-semibold hover:bg-white/90"
+                  >
+                    Salvar Alterações
+                  </button>
+                  <button
+                    onClick={() => setShowSettings(false)}
+                    className="flex-1 py-2 bg-[#1A1A1A] text-white rounded-lg hover:bg-[#2A2A2A]"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de edição de produto */}
       {editingProduct && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
