@@ -1,9 +1,21 @@
 // src/services/paymentService.js
-const ASAAS_API_KEY = '$aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6Ojk3NzZhYWZjLTI4MDctNDUwYy05NjU4LTAzMGYwMTAyYmY3NDo6JGFhY2hfZTc4NjEwNDYtMzFlMS00ZTlhLTk0ZDQtODYzOWI3YWEyZTk5'
+// SOLUÇÃO: Usa um proxy CORS público (apenas para teste)
+
+const PROXY_URL = 'https://cors-anywhere.herokuapp.com/'
 const ASAAS_BASE_URL = 'https://sandbox.asaas.com/api/v3'
+const ASAAS_API_KEY = '$aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6Ojk3NzZhYWZjLTI4MDctNDUwYy05NjU4LTAzMGYwMTAyYmY3NDo6JGFhY2hfZTc4NjEwNDYtMzFlMS00ZTlhLTk0ZDQtODYzOWI3YWEyZTk5'
+
+const fetchWithProxy = (url, options) => {
+  // Se estiver em produção (Vercel), não usa proxy
+  if (window.location.hostname !== 'localhost') {
+    return fetch(url, options)
+  }
+  // Localmente, usa proxy
+  return fetch(PROXY_URL + url, options)
+}
 
 export const createCustomer = async (customer) => {
-  const response = await fetch(`${ASAAS_BASE_URL}/customers`, {
+  const response = await fetchWithProxy(`${ASAAS_BASE_URL}/customers`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -20,7 +32,7 @@ export const createCustomer = async (customer) => {
 }
 
 export const createPayment = async ({ customerId, value, paymentMethod, orderId, description }) => {
-  const response = await fetch(`${ASAAS_BASE_URL}/payments`, {
+  const response = await fetchWithProxy(`${ASAAS_BASE_URL}/payments`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -39,7 +51,7 @@ export const createPayment = async ({ customerId, value, paymentMethod, orderId,
 }
 
 export const getPixQrCode = async (paymentId) => {
-  const response = await fetch(`${ASAAS_BASE_URL}/payments/${paymentId}/pixQrCode`, {
+  const response = await fetchWithProxy(`${ASAAS_BASE_URL}/payments/${paymentId}/pixQrCode`, {
     headers: { 'access_token': ASAAS_API_KEY },
   })
   return response.json()
