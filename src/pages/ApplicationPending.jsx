@@ -5,38 +5,53 @@ import { Button } from '@/components/ui/button';
 
 export default function ApplicationPending() {
   const navigate = useNavigate();
+  const contactEmail = 'devassetsbr@gmail.com';
+  
+  const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${contactEmail}&su=Inscrição%20Criador%20DevAssets&body=Olá,%20gostaria%20de%20informações%20sobre%20minha%20inscrição...`;
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
-      <div className="max-w-md w-full text-center space-y-6">
-        {/* Ícone */}
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <div className="text-center max-w-md space-y-6">
+        {/* Ícone/Emoji */}
         <div className="w-20 h-20 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl flex items-center justify-center mx-auto">
           <Clock className="h-10 w-10 text-yellow-500" />
         </div>
         
         {/* Título */}
-        <h1 className="text-3xl font-black text-white">Inscrição Enviada!</h1>
+        <h1 className="text-4xl font-black text-white">Inscrição Enviada!</h1>
         
         {/* Descrição */}
         <p className="text-sm text-[#555] leading-relaxed">
-          Sua inscrição para se tornar um criador foi enviada com sucesso!
-          Nossa equipe irá analisar suas informações e entraremos em contato em breve.
+          Sua inscrição para se tornar um criador foi recebida com sucesso!
+          Nossa equipe está analisando suas informações.
         </p>
         
-        {/* Status */}
-        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
-          <p className="text-xs text-yellow-500">
-            ⏳ Status: <span className="font-semibold">Aguardando Aprovação</span>
-          </p>
+        {/* Previsão / Status */}
+        <div className="flex items-center justify-center gap-2 text-xs text-[#555]">
+          <Clock className="h-3.5 w-3.5" />
+          <span>Previsão: até 5 dias úteis</span>
         </div>
         
-        {/* Informações adicionais */}
-        <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg p-4 space-y-2">
+        {/* Contato */}
+        <div className="pt-4 border-t border-[#1A1A1A] space-y-3">
           <p className="text-xs text-[#555]">
-            📧 Você receberá um e-mail quando sua inscrição for aprovada.
+            Precisa de ajuda? Entre em contato:
           </p>
-          <p className="text-xs text-[#555]">
-            💬 Dúvidas? Entre em contato pelo Discord.
+          
+          {/* Botão Gmail */}
+          <a
+            href={gmailLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-white text-sm hover:border-white transition-all group"
+          >
+            <Mail className="h-4 w-4 group-hover:scale-110 transition-transform" />
+            Enviar e-mail (Gmail)
+          </a>
+          
+          {/* Email para copiar */}
+          <p className="text-[10px] text-[#444] mt-2">
+            ou copie o email: <span className="text-white select-all">{contactEmail}</span>
           </p>
         </div>
         
@@ -47,13 +62,6 @@ export default function ApplicationPending() {
             className="w-full bg-white text-black hover:bg-white/90 font-semibold"
           >
             Voltar para a Loja
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/store')}
-            className="w-full border-[#1A1A1A] text-[#999] hover:text-white"
-          >
-            Explorar Assets
           </Button>
         </div>
       </div>
