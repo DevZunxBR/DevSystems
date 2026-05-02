@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Clock } from 'lucide-react';
+import { ArrowRight, Clock, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/api/base44Client';
 
@@ -15,7 +15,7 @@ export default function Home() {
   const navigate = useNavigate();
   const [applicationStatus, setApplicationStatus] = useState(null);
   const [isCreator, setIsCreator] = useState(false);
-  const [creatorProfileId, setCreatorProfileId] = useState(null);
+  const [hasProfile, setHasProfile] = useState(false);
   const [checking, setChecking] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   
@@ -51,8 +51,8 @@ export default function Home() {
         .maybeSingle();
 
       if (creatorProfile) {
+        setHasProfile(true);
         setIsCreator(true);
-        setCreatorProfileId(creatorProfile.id);
         setChecking(false);
         return;
       }
@@ -70,14 +70,13 @@ export default function Home() {
         return;
       }
 
-      // 3. Verificar se já existe uma aplicação (QUALQUER STATUS)
+      // 3. Verificar se já existe uma aplicação pendente
       const { data: application } = await supabase
         .from('creator_applications')
         .select('status')
         .eq('email', user.email)
         .maybeSingle();
 
-      // Se existe qualquer aplicação, guarda o status
       if (application) {
         setApplicationStatus(application.status);
       }
@@ -102,16 +101,12 @@ export default function Home() {
   }, [backgroundImages.length]);
 
   const handleCreatorClick = () => {
-    // Se já é criador (tem perfil), vai para a loja
-    if (isCreator && creatorProfileId) {
-      navigate(`/creator/${creatorProfileId}`);
-    }
-    // Se já é criador mas não tem profileId (caso raro, vai para setup)
-    else if (isCreator) {
+    // Se já é criador (tem perfil ou cargo), vai para o setup da loja
+    if (isCreator) {
       navigate('/creator/setup');
     }
-    // Se tem aplicação (qualquer status), vai para página de pendência
-    else if (isLoggedIn && applicationStatus) {
+    // Se tem aplicação pendente, vai para página de aguardar
+    else if (isLoggedIn && applicationStatus === 'pending') {
       navigate('/application-pending');
     }
     // Caso contrário, vai para o formulário de inscrição
@@ -123,27 +118,31 @@ export default function Home() {
   // Determinar texto do botão
   const getButtonText = () => {
     if (isCreator) {
-      return "Minha Loja";
+      return "Crie sua Loja";
     }
-    // Se tem aplicação (qualquer status), mostra "Formulário Enviado"
-    if (isLoggedIn && applicationStatus) {
+    if (isLoggedIn && applicationStatus === 'pending') {
       return "Formulário Enviado";
     }
     return "Crie sua Loja";
   };
 
+  // Determinar ícone do botão
+  const getButtonIcon = () => {
+    if (isCreator) {
+      return <Store className="h-4 w-4" />;
+    }
+    if (isLoggedIn && applicationStatus === 'pending') {
+      return <Clock className="h-4 w-4" />;
+    }
+    return null;
+  };
+
   // Determinar classe do botão
   const getButtonClass = () => {
-    // Se tem aplicação (qualquer status), mostra estilo amarelo
-    if (isLoggedIn && applicationStatus) {
+    if (isLoggedIn && applicationStatus === 'pending') {
       return "border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm gap-2 rounded-xl";
     }
     return "border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl";
-  };
-
-  // Determinar se mostra ícone
-  const showIcon = () => {
-    return isLoggedIn && applicationStatus && !isCreator;
   };
 
   return (
@@ -198,7 +197,7 @@ export default function Home() {
                 onClick={handleCreatorClick}
                 className={getButtonClass()}
               >
-                {showIcon() && <Clock className="h-4 w-4" />}
+                {getButtonIcon()}
                 {getButtonText()}
               </Button>
             )}
