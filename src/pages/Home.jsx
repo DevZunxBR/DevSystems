@@ -13,10 +13,8 @@ import heroBg4 from '@/assets/images/DevHero4.jpg';
 
 export default function Home() {
   const navigate = useNavigate();
-  const [hasApplication, setHasApplication] = useState(false);
-  const [hasCreatorRole, setHasCreatorRole] = useState(false);
-  const [hasStore, setHasStore] = useState(false);
-  const [storeId, setStoreId] = useState(null);
+  const [buttonText, setButtonText] = useState('Crie sua Loja');
+  const [buttonColor, setButtonColor] = useState('normal');
   const [checking, setChecking] = useState(true);
   
   // Slideshow state
@@ -36,11 +34,15 @@ export default function Home() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
+        setButtonText('Crie sua Loja');
+        setButtonColor('normal');
         setChecking(false);
         return;
       }
 
-      // 1. Verificar se já tem loja criada (creator_profiles)
+      console.log('Usuário logado:', user.email);
+
+      // 1. Verificar se já tem loja (creator_profiles)
       const { data: creatorProfile } = await supabase
         .from('creator_profiles')
         .select('id')
@@ -48,13 +50,14 @@ export default function Home() {
         .maybeSingle();
 
       if (creatorProfile) {
-        setHasStore(true);
-        setStoreId(creatorProfile.id);
+        console.log('Usuário tem loja! ID:', creatorProfile.id);
+        setButtonText('Minha Loja');
+        setButtonColor('normal');
         setChecking(false);
         return;
       }
 
-      // 2. Verificar se tem o cargo 'creator' na tabela user_profiles
+      // 2. Verificar se tem cargo 'creator'
       const { data: userProfile } = await supabase
         .from('user_profiles')
         .select('role')
@@ -62,12 +65,14 @@ export default function Home() {
         .maybeSingle();
 
       if (userProfile?.role === 'creator') {
-        setHasCreatorRole(true);
+        console.log('Usuário tem cargo creator!');
+        setButtonText('Crie sua Loja');
+        setButtonColor('normal');
         setChecking(false);
         return;
       }
 
-      // 3. Verificar se já enviou o formulário
+      // 3. Verificar se já enviou formulário
       const { data: application } = await supabase
         .from('creator_applications')
         .select('status')
@@ -75,10 +80,20 @@ export default function Home() {
         .maybeSingle();
 
       if (application) {
-        setHasApplication(true);
+        console.log('Usuário já enviou formulário! Status:', application.status);
+        setButtonText('Formulário Enviado');
+        setButtonColor('yellow');
+        setChecking(false);
+        return;
       }
+
+      // 4. Nenhum dos anteriores
+      setButtonText('Crie sua Loja');
+      setButtonColor('normal');
     } catch (error) {
       console.error('Erro:', error);
+      setButtonText('Crie sua Loja');
+      setButtonColor('normal');
     } finally {
       setChecking(false);
     }
@@ -98,33 +113,14 @@ export default function Home() {
   }, [backgroundImages.length]);
 
   const handleButtonClick = () => {
-    if (hasStore && storeId) {
-      navigate(`/creator/${storeId}`);
-    } else if (hasCreatorRole) {
-      navigate('/creator/setup');
-    } else if (hasApplication) {
+    if (buttonText === 'Minha Loja') {
+      // Precisa pegar o ID da loja
+      navigate('/creator/setup'); // ou buscar o ID
+    } else if (buttonText === 'Formulário Enviado') {
       navigate('/application-pending');
     } else {
       navigate('/become-creator');
     }
-  };
-
-  const getButtonText = () => {
-    if (hasStore) return "Minha Loja";
-    if (hasCreatorRole) return "Crie sua Loja";
-    if (hasApplication) return "Formulário Enviado";
-    return "Crie sua Loja";
-  };
-
-  const getButtonClass = () => {
-    if (hasApplication && !hasCreatorRole && !hasStore) {
-      return "border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm gap-2 rounded-xl";
-    }
-    return "border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl";
-  };
-
-  const showIcon = () => {
-    return hasApplication && !hasCreatorRole && !hasStore;
   };
 
   return (
@@ -177,10 +173,13 @@ export default function Home() {
               <Button 
                 variant="outline" 
                 onClick={handleButtonClick}
-                className={getButtonClass()}
+                className={buttonColor === 'yellow' 
+                  ? "border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm gap-2 rounded-xl"
+                  : "border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl"
+                }
               >
-                {showIcon() && <Clock className="h-4 w-4" />}
-                {getButtonText()}
+                {buttonColor === 'yellow' && <Clock className="h-4 w-4" />}
+                {buttonText}
               </Button>
             )}
           </div>
