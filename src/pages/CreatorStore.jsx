@@ -207,7 +207,7 @@ export default function CreatorStore() {
                   {isOwner && (
                     <Link
                       to={`/creator/${id}/settings`}
-                      className="p-2 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors"
+                      className="p-2 rounded-lg hover:bg-[#1A1A1A] transition-colors"
                       title="Configurar loja"
                     >
                       <Settings className="h-4 w-4 text-white" />
@@ -282,11 +282,7 @@ export default function CreatorStore() {
               <div className="text-center py-12 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl">
                 <ShoppingBag className="h-12 w-12 text-[#555] mx-auto mb-3" />
                 <p className="text-sm text-[#555]">Nenhum asset publicado ainda.</p>
-                {isOwner && (
-                  <Link to={`/creator/${id}/new`} className="mt-3 inline-block text-sm text-white hover:underline">
-                    Publicar meu primeiro asset →
-                  </Link>
-                )}
+                {/* REMOVIDO o link "Publicar meu primeiro asset" */}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
