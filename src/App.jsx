@@ -27,6 +27,7 @@ import ManageCoupons from './pages/admin/ManageCoupons';
 import ProductForm from './pages/admin/ProductForm';
 import RefundRequests from './pages/admin/RefundRequests';
 import Register from './pages/Register';
+import ApplicationPending from './pages/ApplicationPending';
 
 // IMPORTAÇÕES DO FORMULÁRIO DE CRIADORES
 import PartnerForm from './pages/PartnerForm';
@@ -66,6 +67,7 @@ const AuthenticatedApp = () => {
       
       {/* Rota pública do formulário de inscrição de criadores */}
       <Route path="/become-creator" element={<PartnerForm />} />
+      <Route path="/application-pending" element={<ApplicationPending />} />
 
       {/* Rotas públicas do sistema de criadores */}
       <Route path="/creator/:id" element={<CreatorStore />} />
