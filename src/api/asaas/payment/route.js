@@ -4,6 +4,8 @@ import { asaasConfig } from '@/config/asaas';
 export async function POST(request) {
   try {
     const paymentData = await request.json();
+    
+    console.log('Criando pagamento no Asaas:', paymentData);
 
     const response = await fetch(`${asaasConfig.baseURL}/payments`, {
       method: 'POST',
@@ -24,11 +26,23 @@ export async function POST(request) {
     const data = await response.json();
 
     if (!response.ok) {
-      return NextResponse.json({ error: data.errors?.[0]?.description || 'Erro Asaas' }, { status: response.status });
+      console.error('Erro Asaas:', data);
+      return NextResponse.json(
+        { error: data.errors?.[0]?.description || 'Erro ao criar pagamento' },
+        { status: response.status }
+      );
     }
 
     return NextResponse.json(data);
   } catch (error) {
-    return NextResponse.json({ error: 'Erro interno no servidor' }, { status: 500 });
+    console.error('Erro interno:', error);
+    return NextResponse.json(
+      { error: 'Erro interno no servidor' },
+      { status: 500 }
+    );
   }
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { status: 200 });
 }
