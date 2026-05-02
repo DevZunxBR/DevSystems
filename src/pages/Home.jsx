@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Clock } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/api/base44Client';
 
@@ -13,8 +13,8 @@ import heroBg4 from '@/assets/images/DevHero4.jpg';
 
 export default function Home() {
   const navigate = useNavigate();
-  const [buttonText, setButtonText] = useState('Crie sua Loja');
-  const [buttonColor, setButtonColor] = useState('normal');
+  const [hasStore, setHasStore] = useState(false);
+  const [storeId, setStoreId] = useState(null);
   const [checking, setChecking] = useState(true);
   
   // Slideshow state
@@ -24,76 +24,30 @@ export default function Home() {
   // Lista de imagens de fundo
   const backgroundImages = [heroBg1, heroBg2, heroBg3, heroBg4];
 
-  // Verificar status do usuário
+  // Verificar se usuário já tem loja
   useEffect(() => {
-    checkUserStatus();
+    checkUserStore();
   }, []);
 
-  const checkUserStatus = async () => {
+  const checkUserStore = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (!user) {
-        setButtonText('Crie sua Loja');
-        setButtonColor('normal');
-        setChecking(false);
-        return;
+      if (user) {
+        // Verificar se já tem perfil de criador
+        const { data: creatorProfile } = await supabase
+          .from('creator_profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (creatorProfile) {
+          setHasStore(true);
+          setStoreId(creatorProfile.id);
+        }
       }
-
-      console.log('Usuário logado:', user.email);
-
-      // 1. Verificar se já tem loja (creator_profiles)
-      const { data: creatorProfile } = await supabase
-        .from('creator_profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (creatorProfile) {
-        console.log('Usuário tem loja! ID:', creatorProfile.id);
-        setButtonText('Minha Loja');
-        setButtonColor('normal');
-        setChecking(false);
-        return;
-      }
-
-      // 2. Verificar se tem cargo 'creator'
-      const { data: userProfile } = await supabase
-        .from('user_profiles')
-        .select('role')
-        .eq('email', user.email)
-        .maybeSingle();
-
-      if (userProfile?.role === 'creator') {
-        console.log('Usuário tem cargo creator!');
-        setButtonText('Crie sua Loja');
-        setButtonColor('normal');
-        setChecking(false);
-        return;
-      }
-
-      // 3. Verificar se já enviou formulário
-      const { data: application } = await supabase
-        .from('creator_applications')
-        .select('status')
-        .eq('email', user.email)
-        .maybeSingle();
-
-      if (application) {
-        console.log('Usuário já enviou formulário! Status:', application.status);
-        setButtonText('Formulário Enviado');
-        setButtonColor('yellow');
-        setChecking(false);
-        return;
-      }
-
-      // 4. Nenhum dos anteriores
-      setButtonText('Crie sua Loja');
-      setButtonColor('normal');
     } catch (error) {
       console.error('Erro:', error);
-      setButtonText('Crie sua Loja');
-      setButtonColor('normal');
     } finally {
       setChecking(false);
     }
@@ -112,12 +66,9 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [backgroundImages.length]);
 
-  const handleButtonClick = () => {
-    if (buttonText === 'Minha Loja') {
-      // Precisa pegar o ID da loja
-      navigate('/creator/setup'); // ou buscar o ID
-    } else if (buttonText === 'Formulário Enviado') {
-      navigate('/application-pending');
+  const handleStoreClick = () => {
+    if (hasStore && storeId) {
+      navigate(`/creator/${storeId}`);
     } else {
       navigate('/become-creator');
     }
@@ -169,19 +120,13 @@ export default function Home() {
               Explorar Assets <ArrowRight className="h-4 w-4" />
             </Button>
             
-            {!checking && (
-              <Button 
-                variant="outline" 
-                onClick={handleButtonClick}
-                className={buttonColor === 'yellow' 
-                  ? "border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm gap-2 rounded-xl"
-                  : "border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl"
-                }
-              >
-                {buttonColor === 'yellow' && <Clock className="h-4 w-4" />}
-                {buttonText}
-              </Button>
-            )}
+            <Button 
+              variant="outline" 
+              onClick={handleStoreClick}
+              className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl"
+            >
+              {hasStore ? "Minha Loja" : "Crie sua Loja"}
+            </Button>
           </div>
           
           <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 pt-4 mt-4">
