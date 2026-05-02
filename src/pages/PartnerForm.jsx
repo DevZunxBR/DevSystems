@@ -1,4 +1,4 @@
-// src/pages/PartnerForm.jsx
+// src/pages/PartnerForm.jsx - CORRIGIDO
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
@@ -6,8 +6,8 @@ import { toast } from 'sonner';
 import { Send, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 import devRegisterBg1 from '@/assets/images/DevParceiro.png';
-import Header from '@/components/layout/Header'; // Adicione
-import Footer from '@/components/layout/Footer'; // Adicione
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 
 export default function PartnerForm() {
   const navigate = useNavigate();
@@ -16,6 +16,8 @@ export default function PartnerForm() {
   const [currentPage, setCurrentPage] = useState(0);
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const [userName, setUserName] = useState('');
   const [form, setForm] = useState({
     nome: '',
     email: '',
@@ -35,6 +37,45 @@ export default function PartnerForm() {
     disponibilidade_reunioes: '',
     aceita_regras: ''
   });
+
+  // Buscar dados do usuário logado
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error('Faça login para continuar');
+        navigate('/register');
+        return;
+      }
+
+      // Forçar o email do usuário logado
+      setUserEmail(user.email);
+      
+      // Buscar nome do perfil
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('full_name')
+        .eq('email', user.email)
+        .maybeSingle();
+
+      if (profile?.full_name) {
+        setUserName(profile.full_name);
+        setForm(prev => ({ ...prev, nome: profile.full_name }));
+      }
+
+      // Preencher o email no formulário (bloqueado para edição)
+      setForm(prev => ({ ...prev, email: user.email }));
+      
+    } catch (error) {
+      console.error('Erro:', error);
+      navigate('/register');
+    }
+  };
 
   // Comentários que vão passar em loop
   const quotes = [
@@ -108,11 +149,18 @@ export default function PartnerForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (currentPage !== LAST_PAGE) return;
+    
+    // Verificar se o email do formulário é o mesmo do usuário logado
+    if (form.email !== userEmail) {
+      toast.error('O email não corresponde à sua conta. Use o email: ' + userEmail);
+      return;
+    }
+    
     setLoading(true);
     try {
       const { error } = await supabase.from('creator_applications').insert({
         nome: form.nome,
-        email: form.email,
+        email: userEmail, // Forçar o email do usuário logado
         discord_nick: form.discord_nick,
         telefone: form.telefone,
         portfolio_url: form.portfolio_url,
@@ -193,7 +241,7 @@ export default function PartnerForm() {
                 </p>
                 <div className="pt-4">
                   <p className="text-xs text-center text-muted-foreground border-t border-border pt-4">
-                    Atenção E Obrigatorio Entrar No Servidor do Discord O processo leva cerca de 5 minutos. Suas informações serão analisadas pela nossa equipe.
+                    Atenção! O email da sua conta será usado para contato.
                   </p>
                 </div>
               </div>
@@ -208,14 +256,25 @@ export default function PartnerForm() {
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1 block">E-mail</label>
-                  <input type="email" name="email" value={form.email} onChange={handleChange}
-                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">E-mail (da sua conta)</label>
+                  <input 
+                    type="email" 
+                    name="email" 
+                    value={userEmail} 
+                    disabled
+                    className="w-full h-11 px-4 bg-secondary/50 border border-border rounded-lg text-sm text-muted-foreground cursor-not-allowed"
+                  />
+                  <p className="text-[10px] text-muted-foreground mt-1">Este é o email da sua conta. Não é possível alterar.</p>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Discord</label>
                   <input type="text" name="discord_nick" value={form.discord_nick} onChange={handleChange}
                     placeholder="usuário#0000"
+                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">WhatsApp</label>
+                  <input type="tel" name="telefone" value={form.telefone} onChange={handleChange}
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
                 </div>
                 <div>
@@ -316,7 +375,7 @@ export default function PartnerForm() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Email</span>
-                    <span className="text-white">{form.email || '-'}</span>
+                    <span className="text-white">{userEmail || '-'}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Discord</span>
@@ -365,7 +424,7 @@ export default function PartnerForm() {
                 </button>
               ) : (
                 <button type="submit" disabled={loading} className="px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 disabled:opacity-50 flex items-center gap-2">
-                  {loading ? 'Enviando...' : <><Send className="w-4 h-4" /> Enviar Inscrição</>}
+                  {loading ? 'Enviando...' : <><Send className="h-4 w-4" /> Enviar Inscrição</>}
                 </button>
               )}
             </div>
@@ -381,7 +440,6 @@ export default function PartnerForm() {
           />
           <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/60 to-black" />
           
-          {/* Comentários em loop com fade */}
           <div className="absolute inset-0 flex flex-col justify-end p-12">
             <div className={`transition-opacity duration-500 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
               <blockquote className="space-y-3">
