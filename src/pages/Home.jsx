@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Clock, Store } from 'lucide-react';
+import { ArrowRight, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/api/base44Client';
 
@@ -128,19 +128,16 @@ export default function Home() {
 
   // Determinar ícone do botão
   const getButtonIcon = () => {
-    if (isCreator) {
-      return <Store className="h-4 w-4" />;
-    }
     if (isLoggedIn && applicationStatus === 'pending') {
       return <Clock className="h-4 w-4" />;
     }
     return null;
   };
 
-  // Determinar classe do botão
+  // Determinar classe do botão (TUDO BRANCO)
   const getButtonClass = () => {
     if (isLoggedIn && applicationStatus === 'pending') {
-      return "border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm gap-2 rounded-xl";
+      return "border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm gap-2 rounded-xl";
     }
     return "border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl";
   };
