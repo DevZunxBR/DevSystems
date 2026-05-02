@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Upload, Loader2, Lock, Shield, Instagram, Github, Linkedin, ChevronRight, ChevronLeft, CheckCircle, Store, Globe, MapPin, Image, User } from 'lucide-react';
+import { Upload, Loader2, Lock, Shield, Instagram, Github, Linkedin, ChevronRight, ChevronLeft } from 'lucide-react';
 import logoImage from '@/assets/images/Logo.png';
 import devRegisterBg1 from '@/assets/images/DevParceiro.png';
 
@@ -417,114 +417,26 @@ export default function CreatorSetup() {
             </>
           )}
 
-          {/* PÁGINA 4 - FINALIZAÇÃO MELHORADA (SEM VERDE, ESTILO PARTNERFORM) */}
+          {/* PÁGINA 4 - FINALIZAÇÃO (EXATAMENTE IGUAL AO PARTNERFORM) */}
           {currentPage === 4 && (
             <div className="space-y-5">
-              {/* Resumo da Loja */}
-              <div className="bg-secondary border border-border rounded-lg p-5 space-y-3">
-                <div className="flex items-center gap-2 pb-2 border-b border-border">
-                  <Store className="h-4 w-4 text-white" />
-                  <p className="text-xs font-semibold text-white uppercase tracking-wider">Resumo da Loja</p>
+              <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
+                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo da Loja</p>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Nome</span>
+                  <span className="text-white">{form.display_name || '-'}</span>
                 </div>
-                
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <User className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Nome da Loja</span>
-                    </div>
-                    <span className="text-sm text-white font-medium">{form.display_name || '-'}</span>
-                  </div>
-                  
-                  {form.bio && (
-                    <div className="flex justify-between items-start">
-                      <span className="text-sm text-muted-foreground">Descrição</span>
-                      <span className="text-sm text-white text-right max-w-[60%]">{form.bio.length > 50 ? form.bio.substring(0, 50) + '...' : form.bio}</span>
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <Globe className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Website</span>
-                    </div>
-                    <span className="text-sm text-white">{form.website || '-'}</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Localização</span>
-                    </div>
-                    <span className="text-sm text-white">{form.location || '-'}</span>
-                  </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Website</span>
+                  <span className="text-white">{form.website || '-'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Localização</span>
+                  <span className="text-white">{form.location || '-'}</span>
                 </div>
               </div>
 
-              {/* Mídia */}
-              <div className="bg-secondary border border-border rounded-lg p-5 space-y-3">
-                <div className="flex items-center gap-2 pb-2 border-b border-border">
-                  <Image className="h-4 w-4 text-white" />
-                  <p className="text-xs font-semibold text-white uppercase tracking-wider">Mídia</p>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Avatar</span>
-                  {form.avatar_url ? (
-                    <div className="flex items-center gap-2">
-                      <img src={form.avatar_url} alt="Avatar" className="w-8 h-8 rounded-full object-cover border border-border" />
-                      <span className="text-xs text-green-400">✓ Enviado</span>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-red-400">❌ Não enviado</span>
-                  )}
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Banner</span>
-                  {form.banner_url ? (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-green-400">✓ Enviado</span>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-red-400">❌ Não enviado</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Redes Sociais (se houver alguma) */}
-              {(form.social_links.instagram || form.social_links.github || form.social_links.linkedin) && (
-                <div className="bg-secondary border border-border rounded-lg p-5 space-y-3">
-                  <div className="flex items-center gap-2 pb-2 border-b border-border">
-                    <Instagram className="h-4 w-4 text-white" />
-                    <p className="text-xs font-semibold text-white uppercase tracking-wider">Redes Sociais</p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {form.social_links.instagram && (
-                      <div className="flex items-center gap-2">
-                        <Instagram className="h-3 w-3 text-pink-500" />
-                        <span className="text-sm text-white">{form.social_links.instagram}</span>
-                      </div>
-                    )}
-                    {form.social_links.github && (
-                      <div className="flex items-center gap-2">
-                        <Github className="h-3 w-3 text-white" />
-                        <span className="text-sm text-white">{form.social_links.github}</span>
-                      </div>
-                    )}
-                    {form.social_links.linkedin && (
-                      <div className="flex items-center gap-2">
-                        <Linkedin className="h-3 w-3 text-blue-500" />
-                        <span className="text-sm text-white">{form.social_links.linkedin}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Informação final */}
-              <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+              <div className="bg-white/5 border border-white/10 rounded-lg p-3">
                 <p className="text-xs text-center text-muted-foreground">
                   ✓ Após criar sua loja, você poderá publicar seus assets e começar a vender!
                 </p>
