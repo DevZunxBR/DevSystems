@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/api/base44Client';
 
@@ -13,6 +13,7 @@ import heroBg4 from '@/assets/images/DevHero4.jpg';
 
 export default function Home() {
   const navigate = useNavigate();
+  const [hasApplication, setHasApplication] = useState(false);
   const [hasStore, setHasStore] = useState(false);
   const [storeId, setStoreId] = useState(null);
   const [checking, setChecking] = useState(true);
@@ -24,27 +25,43 @@ export default function Home() {
   // Lista de imagens de fundo
   const backgroundImages = [heroBg1, heroBg2, heroBg3, heroBg4];
 
-  // Verificar se usuário já tem loja
+  // Verificar status do usuário
   useEffect(() => {
-    checkUserStore();
+    checkUserStatus();
   }, []);
 
-  const checkUserStore = async () => {
+  const checkUserStatus = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (user) {
-        // Verificar se já tem perfil de criador
-        const { data: creatorProfile } = await supabase
-          .from('creator_profiles')
-          .select('id')
-          .eq('user_id', user.id)
-          .maybeSingle();
+      if (!user) {
+        setChecking(false);
+        return;
+      }
 
-        if (creatorProfile) {
-          setHasStore(true);
-          setStoreId(creatorProfile.id);
-        }
+      // 1. Verificar se já tem loja (creator_profiles)
+      const { data: creatorProfile } = await supabase
+        .from('creator_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (creatorProfile) {
+        setHasStore(true);
+        setStoreId(creatorProfile.id);
+        setChecking(false);
+        return;
+      }
+
+      // 2. Verificar se já enviou o formulário
+      const { data: application } = await supabase
+        .from('creator_applications')
+        .select('status')
+        .eq('email', user.email)
+        .maybeSingle();
+
+      if (application) {
+        setHasApplication(true);
       }
     } catch (error) {
       console.error('Erro:', error);
@@ -66,12 +83,31 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [backgroundImages.length]);
 
-  const handleStoreClick = () => {
+  const handleButtonClick = () => {
     if (hasStore && storeId) {
       navigate(`/creator/${storeId}`);
+    } else if (hasApplication) {
+      navigate('/application-pending');
     } else {
       navigate('/become-creator');
     }
+  };
+
+  const getButtonText = () => {
+    if (hasStore) return "Minha Loja";
+    if (hasApplication) return "Formulário Enviado";
+    return "Crie sua Loja";
+  };
+
+  const getButtonClass = () => {
+    if (hasApplication && !hasStore) {
+      return "border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm gap-2 rounded-xl";
+    }
+    return "border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl";
+  };
+
+  const showIcon = () => {
+    return hasApplication && !hasStore;
   };
 
   return (
@@ -120,13 +156,16 @@ export default function Home() {
               Explorar Assets <ArrowRight className="h-4 w-4" />
             </Button>
             
-            <Button 
-              variant="outline" 
-              onClick={handleStoreClick}
-              className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl"
-            >
-              {hasStore ? "Minha Loja" : "Crie sua Loja"}
-            </Button>
+            {!checking && (
+              <Button 
+                variant="outline" 
+                onClick={handleButtonClick}
+                className={getButtonClass()}
+              >
+                {showIcon() && <Clock className="h-4 w-4" />}
+                {getButtonText()}
+              </Button>
+            )}
           </div>
           
           <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 pt-4 mt-4">
