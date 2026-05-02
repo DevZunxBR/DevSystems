@@ -5,7 +5,7 @@ import { base44, supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Tag, X, Wallet, Gift, AlertCircle } from 'lucide-react';
-import PixModal from '@/components/checkout/PixModal';
+import PaymentModal from '@/components/checkout/PaymentModal';
 
 export default function Checkout() {
   const [searchParams] = useSearchParams();
