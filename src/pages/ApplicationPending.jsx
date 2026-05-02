@@ -1,6 +1,6 @@
 // src/pages/ApplicationPending.jsx
 import { useNavigate } from 'react-router-dom';
-import { Clock, Mail, ArrowLeft } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function ApplicationPending() {
@@ -12,10 +12,6 @@ export default function ApplicationPending() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="text-center max-w-md space-y-6">
-        {/* Ícone/Emoji */}
-        <div className="w-20 h-20 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl flex items-center justify-center mx-auto">
-          <Clock className="h-10 w-10 text-yellow-500" />
-        </div>
         
         {/* Título */}
         <h1 className="text-4xl font-black text-white">Inscrição Enviada!</h1>
@@ -28,7 +24,6 @@ export default function ApplicationPending() {
         
         {/* Previsão / Status */}
         <div className="flex items-center justify-center gap-2 text-xs text-[#555]">
-          <Clock className="h-3.5 w-3.5" />
           <span>Previsão: até 5 dias úteis</span>
         </div>
         
