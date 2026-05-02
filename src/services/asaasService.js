@@ -1,84 +1,53 @@
-import axios from 'axios';
-import { asaasConfig } from '@/config/asaas';
+// src/services/asaasService.js
+// Esse arquivo agora chama as API Routes do Next.js, não o Asaas diretamente
 
-const api = axios.create({
-  baseURL: asaasConfig.baseURL,
-  headers: { access_token: asaasConfig.apiKey }
-});
+const API_BASE = '/api/asaas';
 
 export const createCustomer = async (customer) => {
-  try {
-    const response = await api.post('/customers', {
-      name: customer.name,
-      email: customer.email,
-      phone: customer.phone,
-      cpfCnpj: customer.document || '00000000000',
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Erro ao criar cliente:', error.response?.data || error.message);
-    throw error;
+  const response = await fetch(`${API_BASE}/customer`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(customer),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao criar cliente');
   }
+  
+  return response.json();
 };
 
 export const createPayment = async ({ customerId, value, paymentMethod, orderId, description }) => {
-  try {
-    const paymentData = {
-      customer: customerId,
-      billingType: paymentMethod,
-      value: value,
-      dueDate: new Date().toISOString().split('T')[0],
-      description: description || `Pedido #${orderId}`,
-      externalReference: orderId,
-    };
-    const response = await api.post('/payments', paymentData);
-    return response.data;
-  } catch (error) {
-    console.error('Erro ao criar cobrança:', error.response?.data || error.message);
-    throw error;
+  const response = await fetch(`${API_BASE}/payment`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ customerId, value, paymentMethod, orderId, description }),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao criar pagamento');
   }
+  
+  return response.json();
 };
 
 export const getPixQrCode = async (paymentId) => {
-  try {
-    const response = await api.get(`/payments/${paymentId}/pixQrCode`);
-    return response.data;
-  } catch (error) {
-    console.error('Erro ao obter QR Code:', error.response?.data || error.message);
-    throw error;
+  const response = await fetch(`${API_BASE}/pix-qrcode/${paymentId}`);
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao buscar QR Code');
   }
+  
+  return response.json();
 };
 
 export const getPaymentStatus = async (paymentId) => {
-  try {
-    const response = await api.get(`/payments/${paymentId}`);
-    return response.data;
-  } catch (error) {
-    console.error('Erro ao verificar status:', error.response?.data || error.message);
-    throw error;
-  }
+  // Implementar similar se necessário
 };
 
 export const sendPixTransfer = async (pixKey, pixKeyType, amount, description, externalReference) => {
-  try {
-    const response = await api.post('/transfers', {
-      value: amount,
-      pixAddressKey: pixKey,
-      pixAddressKeyType: pixKeyType,
-      description: description,
-      externalReference: externalReference
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Erro na transferência PIX:', error.response?.data || error.message);
-    throw error;
-  }
-};
-
-export const handleWebhook = async (event, payment) => {
-  if (event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') {
-    console.log(`Pagamento recebido: ${payment.id} - Pedido: ${payment.externalReference}`);
-    return { status: 'paid', paymentId: payment.id, orderId: payment.externalReference };
-  }
-  return { status: 'pending' };
+  // Implementar similar se necessário
 };
