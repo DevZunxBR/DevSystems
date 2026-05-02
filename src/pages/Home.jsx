@@ -14,6 +14,7 @@ import heroBg4 from '@/assets/images/DevHero4.jpg';
 export default function Home() {
   const navigate = useNavigate();
   const [hasApplication, setHasApplication] = useState(false);
+  const [hasCreatorRole, setHasCreatorRole] = useState(false);
   const [hasStore, setHasStore] = useState(false);
   const [storeId, setStoreId] = useState(null);
   const [checking, setChecking] = useState(true);
@@ -39,7 +40,7 @@ export default function Home() {
         return;
       }
 
-      // 1. Verificar se já tem loja (creator_profiles)
+      // 1. Verificar se já tem loja criada (creator_profiles)
       const { data: creatorProfile } = await supabase
         .from('creator_profiles')
         .select('id')
@@ -53,7 +54,20 @@ export default function Home() {
         return;
       }
 
-      // 2. Verificar se já enviou o formulário
+      // 2. Verificar se tem o cargo 'creator' na tabela user_profiles
+      const { data: userProfile } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('email', user.email)
+        .maybeSingle();
+
+      if (userProfile?.role === 'creator') {
+        setHasCreatorRole(true);
+        setChecking(false);
+        return;
+      }
+
+      // 3. Verificar se já enviou o formulário
       const { data: application } = await supabase
         .from('creator_applications')
         .select('status')
@@ -86,6 +100,8 @@ export default function Home() {
   const handleButtonClick = () => {
     if (hasStore && storeId) {
       navigate(`/creator/${storeId}`);
+    } else if (hasCreatorRole) {
+      navigate('/creator/setup');
     } else if (hasApplication) {
       navigate('/application-pending');
     } else {
@@ -95,19 +111,20 @@ export default function Home() {
 
   const getButtonText = () => {
     if (hasStore) return "Minha Loja";
+    if (hasCreatorRole) return "Crie sua Loja";
     if (hasApplication) return "Formulário Enviado";
     return "Crie sua Loja";
   };
 
   const getButtonClass = () => {
-    if (hasApplication && !hasStore) {
+    if (hasApplication && !hasCreatorRole && !hasStore) {
       return "border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm gap-2 rounded-xl";
     }
     return "border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl";
   };
 
   const showIcon = () => {
-    return hasApplication && !hasStore;
+    return hasApplication && !hasCreatorRole && !hasStore;
   };
 
   return (
