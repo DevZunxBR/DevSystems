@@ -145,10 +145,10 @@ export default function Home() {
               <Button 
                 variant="outline" 
                 onClick={() => navigate('/application-pending')}
-                className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm gap-2 rounded-xl"
+                className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl"
               >
                 <Clock className="h-4 w-4" />
-                Inscrição Pendente
+                Crie uma Loja
               </Button>
             ) : (
               <Button 
