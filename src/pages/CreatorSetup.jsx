@@ -37,7 +37,9 @@ export default function CreatorSetup() {
     banner_url: '',
     location: '',
     website: '',
-    social_links: { instagram: '', github: '', linkedin: '', twitter: '' }
+    social_links: { instagram: '', github: '', linkedin: '', twitter: '' },
+    pix_key: '',        // NOVO: chave PIX
+    pix_key_type: 'EMAIL'  // NOVO: tipo da chave
   });
 
   const pages = [
@@ -45,6 +47,7 @@ export default function CreatorSetup() {
     { title: "Identidade da Loja", description: "Nome e descrição da sua loja" },
     { title: "Mídia", description: "Avatar e banner da loja" },
     { title: "Contato", description: "Localização e redes sociais" },
+    { title: "Pagamentos", description: "Configure seus dados de recebimento" },  // NOVA PÁGINA
     { title: "Finalização", description: "Revise e crie sua loja" },
   ];
 
@@ -161,6 +164,12 @@ export default function CreatorSetup() {
       return;
     }
     
+    // VALIDAÇÃO DA PÁGINA DE PAGAMENTOS
+    if (currentPage === 4 && !form.pix_key) {
+      toast.error('Chave PIX para recebimento é obrigatória');
+      return;
+    }
+    
     if (currentPage < LAST_PAGE) {
       setCurrentPage(currentPage + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -182,6 +191,11 @@ export default function CreatorSetup() {
       return;
     }
 
+    if (!form.pix_key) {
+      toast.error('Chave PIX é obrigatória');
+      return;
+    }
+
     setLoading(true);
     try {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
@@ -198,6 +212,8 @@ export default function CreatorSetup() {
           location: form.location,
           website: form.website,
           social_links: form.social_links,
+          pix_key: form.pix_key,           // NOVO
+          pix_key_type: form.pix_key_type, // NOVO
           status: 'active'
         })
         .select()
@@ -271,7 +287,7 @@ export default function CreatorSetup() {
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           
-          {/* PÁGINA 0 */}
+          {/* PÁGINA 0 - COMO FUNCIONA */}
           {currentPage === 0 && (
             <div className="space-y-4 text-muted-foreground">
               <p className="text-sm leading-relaxed">
@@ -294,7 +310,7 @@ export default function CreatorSetup() {
             </div>
           )}
 
-          {/* PÁGINA 1 */}
+          {/* PÁGINA 1 - IDENTIDADE */}
           {currentPage === 1 && (
             <>
               <div>
@@ -320,7 +336,7 @@ export default function CreatorSetup() {
             </>
           )}
 
-          {/* PÁGINA 2 */}
+          {/* PÁGINA 2 - MÍDIA */}
           {currentPage === 2 && (
             <>
               <div>
@@ -358,7 +374,7 @@ export default function CreatorSetup() {
             </>
           )}
 
-          {/* PÁGINA 3 */}
+          {/* PÁGINA 3 - CONTATO */}
           {currentPage === 3 && (
             <>
               <div>
@@ -417,8 +433,47 @@ export default function CreatorSetup() {
             </>
           )}
 
-          {/* PÁGINA 4 - FINALIZAÇÃO (EXATAMENTE IGUAL AO PARTNERFORM) */}
+          {/* PÁGINA 4 - PAGAMENTOS (NOVO) */}
           {currentPage === 4 && (
+            <div className="space-y-5">
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-2">
+                <p className="text-xs text-blue-400 text-center">
+                  🔐 Sua chave PIX será usada para receber seus pagamentos via ASAAS.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Chave PIX *</label>
+                <input
+                  type="text"
+                  value={form.pix_key}
+                  onChange={(e) => setForm({ ...form, pix_key: e.target.value })}
+                  placeholder="seuemail@email.com ou 11999999999"
+                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white"
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Digite sua chave PIX (email, CPF ou telefone) para receber os pagamentos
+                </p>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Tipo da Chave PIX</label>
+                <select
+                  value={form.pix_key_type}
+                  onChange={(e) => setForm({ ...form, pix_key_type: e.target.value })}
+                  className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground"
+                >
+                  <option value="EMAIL">E-mail</option>
+                  <option value="CPF">CPF</option>
+                  <option value="CNPJ">CNPJ</option>
+                  <option value="PHONE">Telefone</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          {/* PÁGINA 5 - FINALIZAÇÃO */}
+          {currentPage === 5 && (
             <div className="space-y-5">
               <div className="bg-secondary border border-border rounded-lg p-4 space-y-2">
                 <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Resumo da Loja</p>
@@ -433,6 +488,14 @@ export default function CreatorSetup() {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Localização</span>
                   <span className="text-white">{form.location || '-'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Chave PIX</span>
+                  <span className="text-white">{form.pix_key || '-'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Tipo PIX</span>
+                  <span className="text-white">{form.pix_key_type || '-'}</span>
                 </div>
               </div>
 

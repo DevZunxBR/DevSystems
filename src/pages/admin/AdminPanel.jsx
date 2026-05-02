@@ -2,14 +2,15 @@
 import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag, Lock, Users, CheckCircle, FileCheck } from 'lucide-react';
+import { ShieldCheck, Package, ClipboardList, Plus, Menu, Tag, Lock, Users, CheckCircle, FileCheck, DollarSign, Send } from 'lucide-react';
 import { toast } from 'sonner';
 
 const navItems = [
   { icon: ClipboardList, label: 'Pedidos Pendentes', path: '/admin' },
   { icon: Package, label: 'Todos Pedidos', path: '/admin/orders' },
   { icon: ClipboardList, label: 'Reembolsos', path: '/admin/refunds' },
-  { icon: FileCheck, label: 'Aprovar Assets', path: '/admin/approve' }, // NOVO ITEM
+  { icon: FileCheck, label: 'Aprovar Assets', path: '/admin/approve' },
+  { icon: DollarSign, label: 'Pagar Criadores', path: '/admin/pay-sellers' },
   { icon: Users, label: 'Inscrições de Criadores', path: '/admin/creators' },
   { icon: Plus, label: 'Novo Produto', path: '/admin/products/new' },
   { icon: Package, label: 'Produtos', path: '/admin/products' },
@@ -106,10 +107,8 @@ export default function AdminPanel() {
 
       <aside className={`fixed lg:sticky top-0 left-0 h-screen w-64 bg-[#0A0A0A] border-r border-[#1A1A1A] z-40 transition-transform lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 space-y-6">
-          {/* Apenas o texto, sem o quadrado com A */}
           <h2 className="text-lg font-bold text-white">Admin Panel</h2>
 
-          {/* Badge de admin */}
           <div className="bg-[#111] border border-[#1A1A1A] rounded-lg p-3">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-white" />

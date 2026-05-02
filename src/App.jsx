@@ -28,6 +28,7 @@ import ProductForm from './pages/admin/ProductForm';
 import RefundRequests from './pages/admin/RefundRequests';
 import Register from './pages/Register';
 import ApplicationPending from './pages/ApplicationPending';
+import PaySellers from './pages/admin/PaySellers';
 
 // IMPORTAÇÕES DO FORMULÁRIO DE CRIADORES
 import PartnerForm from './pages/PartnerForm';
@@ -196,6 +197,14 @@ const AuthenticatedApp = () => {
             <PrivateRoute>
               <MaintenanceGuard>
                 <ApproveProducts />
+              </MaintenanceGuard>
+            </PrivateRoute>
+          } />
+
+          <Route path="/admin/pay-sellers" element={
+            <PrivateRoute>
+              <MaintenanceGuard>
+                <PaySellers />
               </MaintenanceGuard>
             </PrivateRoute>
           } />
