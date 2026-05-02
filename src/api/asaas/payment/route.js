@@ -1,16 +1,34 @@
 import { NextResponse } from 'next/server';
-import { createPayment } from '@/services/asaasService';
+import { asaasConfig } from '@/config/asaas';
 
-export async function POST(req) {
+export async function POST(request) {
   try {
-    const body = await req.json();
-    const payment = await createPayment(body);
-    return NextResponse.json(payment);
+    const paymentData = await request.json();
+
+    const response = await fetch(`${asaasConfig.baseURL}/payments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'access_token': asaasConfig.apiKey,
+      },
+      body: JSON.stringify({
+        customer: paymentData.customerId,
+        billingType: paymentData.paymentMethod,
+        value: paymentData.value,
+        dueDate: new Date().toISOString().split('T')[0],
+        description: paymentData.description || `Pedido #${paymentData.orderId}`,
+        externalReference: paymentData.orderId,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json({ error: data.errors?.[0]?.description || 'Erro Asaas' }, { status: response.status });
+    }
+
+    return NextResponse.json(data);
   } catch (error) {
-    console.error('Erro na API de pagamento:', error);
-    return NextResponse.json(
-      { error: error.message || 'Erro ao criar pagamento' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Erro interno no servidor' }, { status: 500 });
   }
 }

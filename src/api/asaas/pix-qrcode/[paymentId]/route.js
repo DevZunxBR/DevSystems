@@ -1,16 +1,24 @@
 import { NextResponse } from 'next/server';
-import { getPixQrCode } from '@/services/asaasService';
+import { asaasConfig } from '@/config/asaas';
 
-export async function GET(req, { params }) {
+export async function GET(request, { params }) {
   try {
     const { paymentId } = params;
-    const qrData = await getPixQrCode(paymentId);
-    return NextResponse.json(qrData);
+
+    const response = await fetch(`${asaasConfig.baseURL}/payments/${paymentId}/pixQrCode`, {
+      headers: {
+        'access_token': asaasConfig.apiKey,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json({ error: data.errors?.[0]?.description || 'Erro Asaas' }, { status: response.status });
+    }
+
+    return NextResponse.json(data);
   } catch (error) {
-    console.error('Erro na API de QR Code:', error);
-    return NextResponse.json(
-      { error: error.message || 'Erro ao buscar QR Code' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Erro interno no servidor' }, { status: 500 });
   }
 }

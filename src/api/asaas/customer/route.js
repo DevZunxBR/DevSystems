@@ -1,16 +1,27 @@
 import { NextResponse } from 'next/server';
-import { createCustomer } from '@/services/asaasService';
+import { asaasConfig } from '@/config/asaas';
 
-export async function POST(req) {
+export async function POST(request) {
   try {
-    const body = await req.json();
-    const customer = await createCustomer(body);
-    return NextResponse.json(customer);
+    const customerData = await request.json();
+
+    const response = await fetch(`${asaasConfig.baseURL}/customers`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'access_token': asaasConfig.apiKey,
+      },
+      body: JSON.stringify(customerData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json({ error: data.errors?.[0]?.description || 'Erro Asaas' }, { status: response.status });
+    }
+
+    return NextResponse.json(data);
   } catch (error) {
-    console.error('Erro na API de cliente:', error);
-    return NextResponse.json(
-      { error: error.message || 'Erro ao criar cliente' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Erro interno no servidor' }, { status: 500 });
   }
 }
