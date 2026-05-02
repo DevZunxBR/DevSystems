@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { ArrowLeft, Upload, Loader2, Instagram, Github, Linkedin, Twitter, Globe, MapPin, Info, User, Image as ImageIcon, Save } from 'lucide-react';
+import { ArrowLeft, Upload, Loader2, Instagram, Github, Linkedin, Twitter, Globe, MapPin, Info, User, Image as ImageIcon, Save, Image, Settings } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
@@ -21,6 +21,7 @@ const uploadImage = async (file, folder = 'creators') => {
 export default function CreatorSettings() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('images');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
@@ -53,7 +54,6 @@ export default function CreatorSettings() {
 
       if (error) throw error;
 
-      // Verificar se é o dono
       if (profile.user_id !== user.id) {
         toast.error('Você não tem permissão para editar esta loja');
         navigate(`/creator/${id}`);
@@ -125,175 +125,226 @@ export default function CreatorSettings() {
     }
   };
 
+  const tabs = [
+    { id: 'images', label: 'Imagens', icon: ImageIcon },
+    { id: 'info', label: 'Informações', icon: Info },
+    { id: 'social', label: 'Redes Sociais', icon: Settings },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col bg-black">
       <Header />
       
-      <div className="flex-1 max-w-3xl mx-auto px-4 py-12 w-full">
+      <div className="flex-1 flex">
         
-        {/* Header da página */}
-        <div className="mb-8">
-          <button
-            onClick={() => navigate(`/creator/${id}`)}
-            className="flex items-center gap-2 text-[#555] hover:text-white mb-6 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" /> Voltar para a loja
-          </button>
+        {/* BARRA LATERAL FIXA (ESQUERDA) */}
+        <aside className="w-64 bg-[#0A0A0A] border-r border-[#1A1A1A] min-h-screen flex-shrink-0">
+          <div className="sticky top-20 p-6">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+                <Settings className="h-5 w-5 text-white" />
+              </div>
+              <h2 className="text-lg font-bold text-white">Configurações</h2>
+            </div>
+            
+            <nav className="space-y-2">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-white text-black font-medium'
+                      : 'text-[#555] hover:text-white hover:bg-[#1A1A1A]'
+                  }`}
+                >
+                  <tab.icon className="h-4 w-4" />
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
+          </div>
+        </aside>
+
+        {/* CONTEÚDO PRINCIPAL */}
+        <div className="flex-1 max-w-3xl mx-auto px-8 py-12">
           
-          <h1 className="text-3xl font-bold text-white">Configurações da Loja</h1>
-          <p className="text-sm text-[#555] mt-2">Personalize sua loja e suas informações</p>
-        </div>
+          {/* Header da página */}
+          <div className="mb-8">
+            <button
+              onClick={() => navigate(`/creator/${id}`)}
+              className="flex items-center gap-2 text-[#555] hover:text-white mb-6 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" /> Voltar para a loja
+            </button>
+            
+            <h1 className="text-3xl font-bold text-white">Configurações da Loja</h1>
+            <p className="text-sm text-[#555] mt-2">Personalize sua loja e suas informações</p>
+          </div>
 
-        {/* Formulário de configurações */}
-        <div className="space-y-6">
-          
-          {/* Avatar */}
-          <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
-            <label className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-              <User className="h-4 w-4" /> Avatar da Loja
-            </label>
-            <div className="flex items-center gap-6">
-              <div className="w-24 h-24 rounded-full bg-[#1A1A1A] overflow-hidden">
-                {form.avatar_url ? (
-                  <img src={form.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[#555] text-2xl">?</div>
-                )}
-              </div>
-              <label className="cursor-pointer">
-                <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'avatar_url')} className="hidden" />
-                <div className="flex items-center gap-2 px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-sm text-[#555] hover:text-white transition-colors">
-                  {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                  {uploading ? 'Enviando...' : 'Alterar Avatar'}
+          {/* ABA: IMAGENS */}
+          {activeTab === 'images' && (
+            <div className="space-y-6">
+              
+              {/* Avatar */}
+              <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
+                <label className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                  <User className="h-4 w-4" /> Avatar da Loja
+                </label>
+                <div className="flex items-center gap-6">
+                  <div className="w-24 h-24 rounded-full bg-[#1A1A1A] overflow-hidden">
+                    {form.avatar_url ? (
+                      <img src={form.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#555] text-2xl">?</div>
+                    )}
+                  </div>
+                  <label className="cursor-pointer">
+                    <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'avatar_url')} className="hidden" />
+                    <div className="flex items-center gap-2 px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-sm text-[#555] hover:text-white transition-colors">
+                      {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      {uploading ? 'Enviando...' : 'Alterar Avatar'}
+                    </div>
+                  </label>
                 </div>
-              </label>
-            </div>
-          </div>
-
-          {/* Banner */}
-          <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
-            <label className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-              <ImageIcon className="h-4 w-4" /> Banner da Loja
-            </label>
-            <div className="space-y-3">
-              <div className="h-32 bg-[#1A1A1A] rounded-lg overflow-hidden">
-                {form.banner_url ? (
-                  <img src={form.banner_url} alt="Banner" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[#555] text-sm">Nenhum banner</div>
-                )}
+                <p className="text-xs text-[#555] mt-3">Recomendado: 400x400 pixels</p>
               </div>
-              <label className="cursor-pointer inline-block">
-                <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'banner_url')} className="hidden" />
-                <div className="flex items-center gap-2 px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-sm text-[#555] hover:text-white transition-colors">
-                  {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                  {uploading ? 'Enviando...' : 'Alterar Banner'}
+
+              {/* Banner */}
+              <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
+                <label className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                  <Image className="h-4 w-4" /> Banner da Loja
+                </label>
+                <div className="space-y-3">
+                  <div className="h-32 bg-[#1A1A1A] rounded-lg overflow-hidden">
+                    {form.banner_url ? (
+                      <img src={form.banner_url} alt="Banner" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#555] text-sm">Nenhum banner</div>
+                    )}
+                  </div>
+                  <label className="cursor-pointer inline-block">
+                    <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'banner_url')} className="hidden" />
+                    <div className="flex items-center gap-2 px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-sm text-[#555] hover:text-white transition-colors">
+                      {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      {uploading ? 'Enviando...' : 'Alterar Banner'}
+                    </div>
+                  </label>
                 </div>
-              </label>
-            </div>
-          </div>
-
-          {/* Informações da Loja */}
-          <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
-            <h3 className="text-sm font-medium text-white mb-4">Informações da Loja</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs text-[#555] block mb-1">Nome da Loja *</label>
-                <input
-                  type="text"
-                  value={form.display_name}
-                  onChange={(e) => setForm({ ...form, display_name: e.target.value })}
-                  className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-[#555] block mb-1 flex items-center gap-1">
-                  <Info className="h-3 w-3" /> Descrição
-                </label>
-                <textarea
-                  rows={4}
-                  value={form.bio}
-                  onChange={(e) => setForm({ ...form, bio: e.target.value })}
-                  className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white resize-none"
-                  placeholder="Conte sobre sua loja, sua especialidade..."
-                />
-              </div>
-              <div>
-                <label className="text-xs text-[#555] block mb-1 flex items-center gap-1">
-                  <MapPin className="h-3 w-3" /> Localização
-                </label>
-                <input
-                  type="text"
-                  value={form.location}
-                  onChange={(e) => setForm({ ...form, location: e.target.value })}
-                  placeholder="Ex: São Paulo, Brasil"
-                  className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-[#555] block mb-1 flex items-center gap-1">
-                  <Globe className="h-3 w-3" /> Website
-                </label>
-                <input
-                  type="url"
-                  value={form.website}
-                  onChange={(e) => setForm({ ...form, website: e.target.value })}
-                  placeholder="https://seusite.com"
-                  className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
-                />
+                <p className="text-xs text-[#555] mt-3">Recomendado: 1200x300 pixels</p>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Redes Sociais */}
-          <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
-            <h3 className="text-sm font-medium text-white mb-4">Redes Sociais</h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <Instagram className="h-5 w-5 text-pink-500" />
-                <input
-                  type="text"
-                  value={form.social_links.instagram || ''}
-                  onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, instagram: e.target.value } })}
-                  placeholder="@seuinstagram"
-                  className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <Github className="h-5 w-5 text-white" />
-                <input
-                  type="text"
-                  value={form.social_links.github || ''}
-                  onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, github: e.target.value } })}
-                  placeholder="github.com/seuusuario"
-                  className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <Linkedin className="h-5 w-5 text-blue-500" />
-                <input
-                  type="text"
-                  value={form.social_links.linkedin || ''}
-                  onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, linkedin: e.target.value } })}
-                  placeholder="linkedin.com/in/seuusuario"
-                  className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <Twitter className="h-5 w-5 text-blue-400" />
-                <input
-                  type="text"
-                  value={form.social_links.twitter || ''}
-                  onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, twitter: e.target.value } })}
-                  placeholder="@seutwitter"
-                  className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
-                />
+          {/* ABA: INFORMAÇÕES */}
+          {activeTab === 'info' && (
+            <div className="space-y-6">
+              <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
+                <h3 className="text-sm font-medium text-white mb-4">Informações da Loja</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs text-[#555] block mb-1">Nome da Loja *</label>
+                    <input
+                      type="text"
+                      value={form.display_name}
+                      onChange={(e) => setForm({ ...form, display_name: e.target.value })}
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-[#555] block mb-1 flex items-center gap-1">
+                      <Info className="h-3 w-3" /> Descrição
+                    </label>
+                    <textarea
+                      rows={5}
+                      value={form.bio}
+                      onChange={(e) => setForm({ ...form, bio: e.target.value })}
+                      className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white resize-none"
+                      placeholder="Conte sobre sua loja, sua especialidade..."
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-[#555] block mb-1 flex items-center gap-1">
+                      <MapPin className="h-3 w-3" /> Localização
+                    </label>
+                    <input
+                      type="text"
+                      value={form.location}
+                      onChange={(e) => setForm({ ...form, location: e.target.value })}
+                      placeholder="Ex: São Paulo, Brasil"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-[#555] block mb-1 flex items-center gap-1">
+                      <Globe className="h-3 w-3" /> Website
+                    </label>
+                    <input
+                      type="url"
+                      value={form.website}
+                      onChange={(e) => setForm({ ...form, website: e.target.value })}
+                      placeholder="https://seusite.com"
+                      className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Botão Salvar */}
-          <div className="flex gap-3">
+          {/* ABA: REDES SOCIAIS */}
+          {activeTab === 'social' && (
+            <div className="space-y-6">
+              <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
+                <h3 className="text-sm font-medium text-white mb-4">Redes Sociais</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Instagram className="h-5 w-5 text-pink-500" />
+                    <input
+                      type="text"
+                      value={form.social_links.instagram || ''}
+                      onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, instagram: e.target.value } })}
+                      placeholder="@seuinstagram"
+                      className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
+                    />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Github className="h-5 w-5 text-white" />
+                    <input
+                      type="text"
+                      value={form.social_links.github || ''}
+                      onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, github: e.target.value } })}
+                      placeholder="github.com/seuusuario"
+                      className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
+                    />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Linkedin className="h-5 w-5 text-blue-500" />
+                    <input
+                      type="text"
+                      value={form.social_links.linkedin || ''}
+                      onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, linkedin: e.target.value } })}
+                      placeholder="linkedin.com/in/seuusuario"
+                      className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
+                    />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Twitter className="h-5 w-5 text-blue-400" />
+                    <input
+                      type="text"
+                      value={form.social_links.twitter || ''}
+                      onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, twitter: e.target.value } })}
+                      placeholder="@seutwitter"
+                      className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Botão Salvar (fixo no final) */}
+          <div className="mt-8 flex gap-3">
             <button
               onClick={handleSubmit}
               disabled={loading}
