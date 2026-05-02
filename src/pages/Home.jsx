@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Clock, Store } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/api/base44Client';
 
@@ -13,11 +13,9 @@ import heroBg4 from '@/assets/images/DevHero4.jpg';
 
 export default function Home() {
   const navigate = useNavigate();
-  const [applicationStatus, setApplicationStatus] = useState(null);
-  const [isCreator, setIsCreator] = useState(false);
-  const [hasProfile, setHasProfile] = useState(false);
+  const [hasStore, setHasStore] = useState(false);
+  const [storeId, setStoreId] = useState(null);
   const [checking, setChecking] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   // Slideshow state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -26,59 +24,27 @@ export default function Home() {
   // Lista de imagens de fundo
   const backgroundImages = [heroBg1, heroBg2, heroBg3, heroBg4];
 
-  // Verificar status do usuário
+  // Verificar se usuário já tem loja
   useEffect(() => {
-    checkUserStatus();
+    checkUserStore();
   }, []);
 
-  const checkUserStatus = async () => {
+  const checkUserStore = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (!user) {
-        setIsLoggedIn(false);
-        setChecking(false);
-        return;
-      }
+      if (user) {
+        // Verificar se já tem perfil de criador
+        const { data: creatorProfile } = await supabase
+          .from('creator_profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-      setIsLoggedIn(true);
-
-      // 1. Verificar se já tem perfil de criador (creator_profiles)
-      const { data: creatorProfile } = await supabase
-        .from('creator_profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (creatorProfile) {
-        setHasProfile(true);
-        setIsCreator(true);
-        setChecking(false);
-        return;
-      }
-
-      // 2. Verificar se tem o cargo 'creator' na tabela user_profiles
-      const { data: userProfile } = await supabase
-        .from('user_profiles')
-        .select('role')
-        .eq('email', user.email)
-        .maybeSingle();
-
-      if (userProfile?.role === 'creator') {
-        setIsCreator(true);
-        setChecking(false);
-        return;
-      }
-
-      // 3. Verificar se já existe uma aplicação pendente
-      const { data: application } = await supabase
-        .from('creator_applications')
-        .select('status')
-        .eq('email', user.email)
-        .maybeSingle();
-
-      if (application) {
-        setApplicationStatus(application.status);
+        if (creatorProfile) {
+          setHasStore(true);
+          setStoreId(creatorProfile.id);
+        }
       }
     } catch (error) {
       console.error('Erro:', error);
@@ -100,49 +66,12 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [backgroundImages.length]);
 
-  const handleCreatorClick = () => {
-    // Se já é criador (tem perfil ou cargo), vai para o setup da loja
-    if (isCreator) {
-      navigate('/creator/setup');
-    }
-    // Se tem aplicação pendente, vai para página de aguardar
-    else if (isLoggedIn && applicationStatus === 'pending') {
-      navigate('/application-pending');
-    }
-    // Caso contrário, vai para o formulário de inscrição
-    else {
+  const handleStoreClick = () => {
+    if (hasStore && storeId) {
+      navigate(`/creator/${storeId}`);
+    } else {
       navigate('/become-creator');
     }
-  };
-
-  // Determinar texto do botão
-  const getButtonText = () => {
-    if (isCreator) {
-      return "Crie sua Loja";
-    }
-    if (isLoggedIn && applicationStatus === 'pending') {
-      return "Formulário Enviado";
-    }
-    return "Crie sua Loja";
-  };
-
-  // Determinar ícone do botão
-  const getButtonIcon = () => {
-    if (isCreator) {
-      return <Store className="h-4 w-4" />;
-    }
-    if (isLoggedIn && applicationStatus === 'pending') {
-      return <Clock className="h-4 w-4" />;
-    }
-    return null;
-  };
-
-  // Determinar classe do botão
-  const getButtonClass = () => {
-    if (isLoggedIn && applicationStatus === 'pending') {
-      return "border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm gap-2 rounded-xl";
-    }
-    return "border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl";
   };
 
   return (
@@ -191,16 +120,13 @@ export default function Home() {
               Explorar Assets <ArrowRight className="h-4 w-4" />
             </Button>
             
-            {!checking && (
-              <Button 
-                variant="outline" 
-                onClick={handleCreatorClick}
-                className={getButtonClass()}
-              >
-                {getButtonIcon()}
-                {getButtonText()}
-              </Button>
-            )}
+            <Button 
+              variant="outline" 
+              onClick={handleStoreClick}
+              className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl"
+            >
+              {hasStore ? "Minha Loja" : "Crie sua Loja"}
+            </Button>
           </div>
           
           <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 pt-4 mt-4">
