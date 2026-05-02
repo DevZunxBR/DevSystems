@@ -1,11 +1,11 @@
-// src/pages/Checkout.jsx - CORRIGIDO COM ASAAS
+// src/pages/Checkout.jsx - COMPLETO COM PIX FAKE (SEM ASAAS)
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44, supabase } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Tag, X, Wallet, Gift, AlertCircle } from 'lucide-react';
-import PaymentModal from '@/components/checkout/PaymentModal';
+import PixModal from '@/components/checkout/PixModal';
 
 export default function Checkout() {
   const [searchParams] = useSearchParams();
@@ -199,7 +199,7 @@ export default function Checkout() {
     }
   };
 
-  // Handle para pagamento PIX com ASAAS
+  // Handle para pagamento PIX (USA O MODAL QUE GERA PIX FAKE)
   const handlePixPayment = async () => {
     if (!billing.name || !billing.email) { 
       toast.error('Preencha todos os campos'); 
@@ -208,7 +208,7 @@ export default function Checkout() {
     
     setSubmitting(true);
     try {
-      // Cria o pedido com status 'pending' e sem pix_code (o modal vai gerar a cobrança no Asaas)
+      // Cria o pedido com status 'pending'
       const order = await createOrder('pending', 'pix', 'AGUARDANDO_PAGAMENTO');
       
       setCurrentOrder(order);
@@ -232,7 +232,6 @@ export default function Checkout() {
     }
   };
 
-  // Fechar modal e ir para pedidos
   const handleCloseModal = () => {
     setShowPix(false);
     navigate('/dashboard/orders');
@@ -350,12 +349,11 @@ export default function Checkout() {
           </form>
         </div>
 
-        {/* Summary - com aviso de compra gratuita no painel fixo */}
+        {/* Summary */}
         <div className="lg:col-span-2">
           <div className="bg-card border border-border rounded-xl p-6 space-y-4 sticky top-24">
             <h2 className="text-lg font-bold text-foreground">Resumo</h2>
             
-            {/* Aviso de compra gratuita no painel fixo (sem cor verde) */}
             {isZeroTotal && (
               <div className="p-3 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg flex items-start gap-2">
                 <AlertCircle className="h-4 w-4 text-[#555] flex-shrink-0 mt-0.5" />
@@ -412,20 +410,12 @@ export default function Checkout() {
         </div>
       </div>
 
-      {/* MODAL PIX COM ASAAS - CORRIGIDO */}
-      {showPix && currentOrder && (
-        <PaymentModal
+      {/* MODAL PIX FAKE (SEM ASAAS, SEM CORS) */}
+      {showPix && (
+        <PixModal
           open={showPix}
           onClose={handleCloseModal}
           total={finalTotal}
-          orderId={currentOrder.id}
-          customerData={{
-            name: billing.name,
-            email: billing.email,
-            document: billing.document || '00000000000',
-            phone: '' // Opcional, pode adicionar um campo no futuro
-          }}
-          sellerWalletId={null}
         />
       )}
     </div>
