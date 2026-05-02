@@ -219,11 +219,6 @@ export default function PartnerForm() {
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1 block">WhatsApp</label>
-                  <input type="tel" name="telefone" value={form.telefone} onChange={handleChange}
-                    className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
-                </div>
-                <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Portfólio / GitHub</label>
                   <input type="url" name="portfolio_url" value={form.portfolio_url} onChange={handleChange}
                     className="w-full h-11 px-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-white" />
