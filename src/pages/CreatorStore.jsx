@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
-import { MapPin, Globe, Instagram, Github, Linkedin, Twitter, Package, Star, ShoppingBag, Edit, Plus, Trash2, Settings } from 'lucide-react';
+import { MapPin, Globe, Instagram, Github, Linkedin, Twitter, Package, Star, ShoppingBag, Edit, Plus, Trash2, Settings, X, User, Info, Map, Link2, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -18,6 +18,7 @@ export default function CreatorStore() {
   const [editForm, setEditForm] = useState({});
   const [showSettings, setShowSettings] = useState(false);
   const [settingsForm, setSettingsForm] = useState({});
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -67,6 +68,33 @@ export default function CreatorStore() {
     }
   };
 
+  const uploadImage = async (file, folder = 'creators') => {
+    const ext = file.name.split('.').pop();
+    const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { data, error } = await supabase.storage
+      .from('products')
+      .upload(fileName, file, { upsert: true });
+    if (error) throw error;
+    const { data: urlData } = supabase.storage.from('products').getPublicUrl(fileName);
+    return urlData.publicUrl;
+  };
+
+  const handleImageUpload = async (e, field) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const url = await uploadImage(file, 'creators');
+      setSettingsForm(prev => ({ ...prev, [field]: url }));
+      toast.success(`${field === 'avatar_url' ? 'Avatar' : 'Banner'} atualizado!`);
+    } catch (error) {
+      toast.error('Erro no upload');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const saveSettings = async () => {
     try {
       const { error } = await supabase
@@ -76,6 +104,8 @@ export default function CreatorStore() {
           bio: settingsForm.bio,
           location: settingsForm.location,
           website: settingsForm.website,
+          avatar_url: settingsForm.avatar_url,
+          banner_url: settingsForm.banner_url,
           social_links: settingsForm.social_links
         })
         .eq('id', id);
@@ -85,6 +115,7 @@ export default function CreatorStore() {
       toast.success('Configurações salvas!');
       setProfile(settingsForm);
       setShowSettings(false);
+      loadData();
     } catch (error) {
       console.error(error);
       toast.error('Erro ao salvar configurações');
@@ -189,7 +220,7 @@ export default function CreatorStore() {
       <Header />
       
       <div className="flex-1">
-        {/* Banner - com espaçamento do header */}
+        {/* Banner */}
         <div className="pt-20">
           <div className="relative h-48 w-full overflow-hidden bg-gradient-to-r from-purple-900/30 to-blue-900/30">
             {profile.banner_url ? (
@@ -204,10 +235,10 @@ export default function CreatorStore() {
           </div>
         </div>
 
-        {/* Conteúdo da loja - NOME FORA DO BANNER */}
+        {/* Conteúdo da loja */}
         <div className="max-w-6xl mx-auto px-4 mt-6">
           
-          {/* Header da loja - Nome, stats e botões */}
+          {/* Header da loja */}
           <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
             <div className="flex items-center gap-4">
               {/* Avatar */}
@@ -357,64 +388,128 @@ export default function CreatorStore() {
         </div>
       </div>
 
-      {/* Modal de configurações da loja */}
+      {/* MODAL DE CONFIGURAÇÕES - BARRA LATERAL FIXA */}
       {showSettings && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-white">Configurações da Loja</h3>
-                <button
-                  onClick={() => setShowSettings(false)}
-                  className="text-[#555] hover:text-white"
-                >
-                  ✕
-                </button>
-              </div>
+        <>
+          {/* Overlay */}
+          <div 
+            className="fixed inset-0 bg-black/70 z-40"
+            onClick={() => setShowSettings(false)}
+          />
+          
+          {/* Painel lateral */}
+          <div className="fixed right-0 top-0 h-full w-full max-w-md bg-[#0A0A0A] border-l border-[#1A1A1A] z-50 shadow-2xl animate-slide-in">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-[#1A1A1A]">
+              <h2 className="text-xl font-bold text-white">Configurações da Loja</h2>
+              <button
+                onClick={() => setShowSettings(false)}
+                className="p-2 text-[#555] hover:text-white transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Conteúdo com scroll */}
+            <div className="overflow-y-auto h-[calc(100%-80px)] p-6 space-y-6">
               
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs text-[#555] block mb-1">Nome da Loja</label>
-                  <input
-                    type="text"
-                    value={settingsForm.display_name || ''}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, display_name: e.target.value })}
-                    className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
-                  />
+              {/* Avatar */}
+              <div>
+                <label className="text-xs font-medium text-[#555] block mb-2 flex items-center gap-2">
+                  <User className="h-3 w-3" /> Avatar da Loja
+                </label>
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-20 rounded-full bg-[#1A1A1A] overflow-hidden">
+                    {settingsForm.avatar_url ? (
+                      <img src={settingsForm.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#555]">?</div>
+                    )}
+                  </div>
+                  <label className="cursor-pointer">
+                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'avatar_url')} className="hidden" />
+                    <div className="px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-sm text-[#555] hover:text-white transition-colors">
+                      {uploading ? 'Enviando...' : 'Alterar Avatar'}
+                    </div>
+                  </label>
                 </div>
+              </div>
 
-                <div>
-                  <label className="text-xs text-[#555] block mb-1">Descrição</label>
-                  <textarea
-                    rows={4}
-                    value={settingsForm.bio || ''}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, bio: e.target.value })}
-                    className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white resize-none"
-                  />
+              {/* Banner */}
+              <div>
+                <label className="text-xs font-medium text-[#555] block mb-2 flex items-center gap-2">
+                  <ImageIcon className="h-3 w-3" /> Banner da Loja
+                </label>
+                <div className="space-y-2">
+                  <div className="h-24 bg-[#1A1A1A] rounded-lg overflow-hidden">
+                    {settingsForm.banner_url && (
+                      <img src={settingsForm.banner_url} alt="Banner" className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                  <label className="cursor-pointer inline-block">
+                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'banner_url')} className="hidden" />
+                    <div className="px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-sm text-[#555] hover:text-white transition-colors">
+                      {uploading ? 'Enviando...' : 'Alterar Banner'}
+                    </div>
+                  </label>
                 </div>
+              </div>
 
-                <div>
-                  <label className="text-xs text-[#555] block mb-1">Localização</label>
-                  <input
-                    type="text"
-                    value={settingsForm.location || ''}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, location: e.target.value })}
-                    className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
-                  />
-                </div>
+              {/* Nome da Loja */}
+              <div>
+                <label className="text-xs font-medium text-[#555] block mb-2">Nome da Loja</label>
+                <input
+                  type="text"
+                  value={settingsForm.display_name || ''}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, display_name: e.target.value })}
+                  className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                />
+              </div>
 
-                <div>
-                  <label className="text-xs text-[#555] block mb-1">Website</label>
-                  <input
-                    type="url"
-                    value={settingsForm.website || ''}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, website: e.target.value })}
-                    className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
-                  />
-                </div>
+              {/* Descrição */}
+              <div>
+                <label className="text-xs font-medium text-[#555] block mb-2 flex items-center gap-2">
+                  <Info className="h-3 w-3" /> Descrição
+                </label>
+                <textarea
+                  rows={4}
+                  value={settingsForm.bio || ''}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, bio: e.target.value })}
+                  className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white resize-none"
+                />
+              </div>
 
-                <div>
-                  <label className="text-xs text-[#555] block mb-1">Instagram</label>
+              {/* Localização */}
+              <div>
+                <label className="text-xs font-medium text-[#555] block mb-2 flex items-center gap-2">
+                  <Map className="h-3 w-3" /> Localização
+                </label>
+                <input
+                  type="text"
+                  value={settingsForm.location || ''}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, location: e.target.value })}
+                  className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                />
+              </div>
+
+              {/* Website */}
+              <div>
+                <label className="text-xs font-medium text-[#555] block mb-2 flex items-center gap-2">
+                  <Link2 className="h-3 w-3" /> Website
+                </label>
+                <input
+                  type="url"
+                  value={settingsForm.website || ''}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, website: e.target.value })}
+                  className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                />
+              </div>
+
+              {/* Redes Sociais */}
+              <div className="space-y-3">
+                <label className="text-xs font-medium text-[#555] block">Redes Sociais</label>
+                <div className="flex items-center gap-2">
+                  <Instagram className="h-4 w-4 text-pink-500" />
                   <input
                     type="text"
                     value={settingsForm.social_links?.instagram || ''}
@@ -422,12 +517,12 @@ export default function CreatorStore() {
                       ...settingsForm, 
                       social_links: { ...settingsForm.social_links, instagram: e.target.value } 
                     })}
-                    className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                    placeholder="@usuario"
+                    className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
                   />
                 </div>
-
-                <div>
-                  <label className="text-xs text-[#555] block mb-1">GitHub</label>
+                <div className="flex items-center gap-2">
+                  <Github className="h-4 w-4 text-white" />
                   <input
                     type="text"
                     value={settingsForm.social_links?.github || ''}
@@ -435,12 +530,12 @@ export default function CreatorStore() {
                       ...settingsForm, 
                       social_links: { ...settingsForm.social_links, github: e.target.value } 
                     })}
-                    className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                    placeholder="github.com/usuario"
+                    className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
                   />
                 </div>
-
-                <div>
-                  <label className="text-xs text-[#555] block mb-1">LinkedIn</label>
+                <div className="flex items-center gap-2">
+                  <Linkedin className="h-4 w-4 text-blue-500" />
                   <input
                     type="text"
                     value={settingsForm.social_links?.linkedin || ''}
@@ -448,28 +543,30 @@ export default function CreatorStore() {
                       ...settingsForm, 
                       social_links: { ...settingsForm.social_links, linkedin: e.target.value } 
                     })}
-                    className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
+                    placeholder="linkedin.com/in/usuario"
+                    className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
                   />
                 </div>
+              </div>
 
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={saveSettings}
-                    className="flex-1 py-2 bg-white text-black rounded-lg font-semibold hover:bg-white/90"
-                  >
-                    Salvar Alterações
-                  </button>
-                  <button
-                    onClick={() => setShowSettings(false)}
-                    className="flex-1 py-2 bg-[#1A1A1A] text-white rounded-lg hover:bg-[#2A2A2A]"
-                  >
-                    Cancelar
-                  </button>
-                </div>
+              {/* Botões */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={saveSettings}
+                  className="flex-1 py-2 bg-white text-black rounded-lg font-semibold hover:bg-white/90 transition-colors"
+                >
+                  Salvar Alterações
+                </button>
+                <button
+                  onClick={() => setShowSettings(false)}
+                  className="flex-1 py-2 bg-[#1A1A1A] text-white rounded-lg hover:bg-[#2A2A2A] transition-colors"
+                >
+                  Cancelar
+                </button>
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Modal de edição de produto */}
