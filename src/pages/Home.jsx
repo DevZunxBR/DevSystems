@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Clock, Store } from 'lucide-react';
+import { ArrowRight, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/api/base44Client';
 
@@ -15,7 +15,7 @@ export default function Home() {
   const navigate = useNavigate();
   const [applicationStatus, setApplicationStatus] = useState(null);
   const [isCreator, setIsCreator] = useState(false);
-  const [hasProfile, setHasProfile] = useState(false);
+  const [creatorProfileId, setCreatorProfileId] = useState(null);
   const [checking, setChecking] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   
@@ -53,6 +53,7 @@ export default function Home() {
       if (creatorProfile) {
         setHasProfile(true);
         setIsCreator(true);
+        setCreatorProfileId(creatorProfile.id);
         setChecking(false);
         return;
       }
@@ -101,8 +102,12 @@ export default function Home() {
   }, [backgroundImages.length]);
 
   const handleCreatorClick = () => {
-    // Se já é criador (tem perfil ou cargo), vai para o setup da loja
-    if (isCreator) {
+    // Se já é criador (tem perfil ou cargo), vai para a loja
+    if (isCreator && creatorProfileId) {
+      navigate(`/creator/${creatorProfileId}`);
+    }
+    // Se já é criador mas não tem profileId (caso raro)
+    else if (isCreator) {
       navigate('/creator/setup');
     }
     // Se tem aplicação pendente, vai para página de aguardar
@@ -118,7 +123,7 @@ export default function Home() {
   // Determinar texto do botão
   const getButtonText = () => {
     if (isCreator) {
-      return "Crie sua Loja";
+      return "Minha Loja";
     }
     if (isLoggedIn && applicationStatus === 'pending') {
       return "Formulário Enviado";
@@ -126,21 +131,10 @@ export default function Home() {
     return "Crie sua Loja";
   };
 
-  // Determinar ícone do botão
-  const getButtonIcon = () => {
-    if (isCreator) {
-      return <Store className="h-4 w-4" />;
-    }
-    if (isLoggedIn && applicationStatus === 'pending') {
-      return <Clock className="h-4 w-4" />;
-    }
-    return null;
-  };
-
   // Determinar classe do botão
   const getButtonClass = () => {
     if (isLoggedIn && applicationStatus === 'pending') {
-      return "border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm gap-2 rounded-xl";
+      return "border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm rounded-xl";
     }
     return "border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl";
   };
@@ -197,7 +191,6 @@ export default function Home() {
                 onClick={handleCreatorClick}
                 className={getButtonClass()}
               >
-                {getButtonIcon()}
                 {getButtonText()}
               </Button>
             )}
