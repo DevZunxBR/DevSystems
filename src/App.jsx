@@ -33,11 +33,12 @@ import ApplicationPending from './pages/ApplicationPending';
 import PartnerForm from './pages/PartnerForm';
 import ManageCreators from './pages/admin/ManageCreators';
 
-// IMPORTAÇÕES DO SISTEMA DE CRIADORES (COM PASTA Creator com C maiúsculo)
+// IMPORTAÇÕES DO SISTEMA DE CRIADORES
 import CreatorStore from './pages/CreatorStore';
 import CreatorSetup from './pages/CreatorSetup';
 import CreatorNewProduct from './pages/Creator/CreatorNewProduct';
 import ApproveProducts from './pages/admin/ApproveProducts';
+import CreatorSettings from './pages/CreatorSettings';
 
 // Rota privada - redireciona para /register se não logado
 const PrivateRoute = ({ children }) => {
@@ -107,7 +108,7 @@ const AuthenticatedApp = () => {
           </PrivateRoute>
         } />
 
-        {/* Rotas protegidas do sistema de criadores (agora dentro do AppLayout) */}
+        {/* Rotas protegidas do sistema de criadores */}
         <Route path="/creator/setup" element={
           <PrivateRoute>
             <MaintenanceGuard>
@@ -120,6 +121,14 @@ const AuthenticatedApp = () => {
           <PrivateRoute>
             <MaintenanceGuard>
               <CreatorNewProduct />
+            </MaintenanceGuard>
+          </PrivateRoute>
+        } />
+
+        <Route path="/creator/:id/settings" element={
+          <PrivateRoute>
+            <MaintenanceGuard>
+              <CreatorSettings />
             </MaintenanceGuard>
           </PrivateRoute>
         } />
@@ -183,7 +192,6 @@ const AuthenticatedApp = () => {
             </PrivateRoute>
           } />
           
-          {/* Rota para aprovar assets dos criadores */}
           <Route path="/admin/approve" element={
             <PrivateRoute>
               <MaintenanceGuard>
@@ -192,7 +200,6 @@ const AuthenticatedApp = () => {
             </PrivateRoute>
           } />
           
-          {/* Rota para gerenciar inscrições de criadores */}
           <Route path="/admin/creators" element={
             <PrivateRoute>
               <MaintenanceGuard>

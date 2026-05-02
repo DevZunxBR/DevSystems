@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
-import { MapPin, Globe, Instagram, Github, Linkedin, Twitter, Package, Star, ShoppingBag, Edit, Plus, Trash2, Settings, X, User, Info, Map, Link2, Image as ImageIcon } from 'lucide-react';
+import { MapPin, Globe, Instagram, Github, Linkedin, Twitter, Package, Star, ShoppingBag, Edit, Plus, Trash2, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -16,9 +16,6 @@ export default function CreatorStore() {
   const [isOwner, setIsOwner] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [editForm, setEditForm] = useState({});
-  const [showSettings, setShowSettings] = useState(false);
-  const [settingsForm, setSettingsForm] = useState({});
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -39,7 +36,6 @@ export default function CreatorStore() {
       }
 
       setProfile(profileData);
-      setSettingsForm(profileData);
 
       const { data: productsData } = await supabase
         .from('products')
@@ -65,60 +61,6 @@ export default function CreatorStore() {
       toast.error('Erro ao carregar perfil');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const uploadImage = async (file, folder = 'creators') => {
-    const ext = file.name.split('.').pop();
-    const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { data, error } = await supabase.storage
-      .from('products')
-      .upload(fileName, file, { upsert: true });
-    if (error) throw error;
-    const { data: urlData } = supabase.storage.from('products').getPublicUrl(fileName);
-    return urlData.publicUrl;
-  };
-
-  const handleImageUpload = async (e, field) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    try {
-      const url = await uploadImage(file, 'creators');
-      setSettingsForm(prev => ({ ...prev, [field]: url }));
-      toast.success(`${field === 'avatar_url' ? 'Avatar' : 'Banner'} atualizado!`);
-    } catch (error) {
-      toast.error('Erro no upload');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const saveSettings = async () => {
-    try {
-      const { error } = await supabase
-        .from('creator_profiles')
-        .update({
-          display_name: settingsForm.display_name,
-          bio: settingsForm.bio,
-          location: settingsForm.location,
-          website: settingsForm.website,
-          avatar_url: settingsForm.avatar_url,
-          banner_url: settingsForm.banner_url,
-          social_links: settingsForm.social_links
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      toast.success('Configurações salvas!');
-      setProfile(settingsForm);
-      setShowSettings(false);
-      loadData();
-    } catch (error) {
-      console.error(error);
-      toast.error('Erro ao salvar configurações');
     }
   };
 
@@ -263,13 +205,13 @@ export default function CreatorStore() {
                     </div>
                   )}
                   {isOwner && (
-                    <button
-                      onClick={() => setShowSettings(true)}
+                    <Link
+                      to={`/creator/${id}/settings`}
                       className="p-2 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors"
                       title="Configurar loja"
                     >
                       <Settings className="h-4 w-4 text-white" />
-                    </button>
+                    </Link>
                   )}
                 </div>
                 {profile.bio && <p className="text-sm text-[#555] mt-2 max-w-xl">{profile.bio}</p>}
@@ -387,187 +329,6 @@ export default function CreatorStore() {
           </div>
         </div>
       </div>
-
-      {/* MODAL DE CONFIGURAÇÕES - BARRA LATERAL FIXA */}
-      {showSettings && (
-        <>
-          {/* Overlay */}
-          <div 
-            className="fixed inset-0 bg-black/70 z-40"
-            onClick={() => setShowSettings(false)}
-          />
-          
-          {/* Painel lateral */}
-          <div className="fixed right-0 top-0 h-full w-full max-w-md bg-[#0A0A0A] border-l border-[#1A1A1A] z-50 shadow-2xl animate-slide-in">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[#1A1A1A]">
-              <h2 className="text-xl font-bold text-white">Configurações da Loja</h2>
-              <button
-                onClick={() => setShowSettings(false)}
-                className="p-2 text-[#555] hover:text-white transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* Conteúdo com scroll */}
-            <div className="overflow-y-auto h-[calc(100%-80px)] p-6 space-y-6">
-              
-              {/* Avatar */}
-              <div>
-                <label className="text-xs font-medium text-[#555] block mb-2 flex items-center gap-2">
-                  <User className="h-3 w-3" /> Avatar da Loja
-                </label>
-                <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-full bg-[#1A1A1A] overflow-hidden">
-                    {settingsForm.avatar_url ? (
-                      <img src={settingsForm.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#555]">?</div>
-                    )}
-                  </div>
-                  <label className="cursor-pointer">
-                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'avatar_url')} className="hidden" />
-                    <div className="px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-sm text-[#555] hover:text-white transition-colors">
-                      {uploading ? 'Enviando...' : 'Alterar Avatar'}
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              {/* Banner */}
-              <div>
-                <label className="text-xs font-medium text-[#555] block mb-2 flex items-center gap-2">
-                  <ImageIcon className="h-3 w-3" /> Banner da Loja
-                </label>
-                <div className="space-y-2">
-                  <div className="h-24 bg-[#1A1A1A] rounded-lg overflow-hidden">
-                    {settingsForm.banner_url && (
-                      <img src={settingsForm.banner_url} alt="Banner" className="w-full h-full object-cover" />
-                    )}
-                  </div>
-                  <label className="cursor-pointer inline-block">
-                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'banner_url')} className="hidden" />
-                    <div className="px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-sm text-[#555] hover:text-white transition-colors">
-                      {uploading ? 'Enviando...' : 'Alterar Banner'}
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              {/* Nome da Loja */}
-              <div>
-                <label className="text-xs font-medium text-[#555] block mb-2">Nome da Loja</label>
-                <input
-                  type="text"
-                  value={settingsForm.display_name || ''}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, display_name: e.target.value })}
-                  className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
-                />
-              </div>
-
-              {/* Descrição */}
-              <div>
-                <label className="text-xs font-medium text-[#555] block mb-2 flex items-center gap-2">
-                  <Info className="h-3 w-3" /> Descrição
-                </label>
-                <textarea
-                  rows={4}
-                  value={settingsForm.bio || ''}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, bio: e.target.value })}
-                  className="w-full px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-white resize-none"
-                />
-              </div>
-
-              {/* Localização */}
-              <div>
-                <label className="text-xs font-medium text-[#555] block mb-2 flex items-center gap-2">
-                  <Map className="h-3 w-3" /> Localização
-                </label>
-                <input
-                  type="text"
-                  value={settingsForm.location || ''}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, location: e.target.value })}
-                  className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
-                />
-              </div>
-
-              {/* Website */}
-              <div>
-                <label className="text-xs font-medium text-[#555] block mb-2 flex items-center gap-2">
-                  <Link2 className="h-3 w-3" /> Website
-                </label>
-                <input
-                  type="url"
-                  value={settingsForm.website || ''}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, website: e.target.value })}
-                  className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white"
-                />
-              </div>
-
-              {/* Redes Sociais */}
-              <div className="space-y-3">
-                <label className="text-xs font-medium text-[#555] block">Redes Sociais</label>
-                <div className="flex items-center gap-2">
-                  <Instagram className="h-4 w-4 text-pink-500" />
-                  <input
-                    type="text"
-                    value={settingsForm.social_links?.instagram || ''}
-                    onChange={(e) => setSettingsForm({ 
-                      ...settingsForm, 
-                      social_links: { ...settingsForm.social_links, instagram: e.target.value } 
-                    })}
-                    placeholder="@usuario"
-                    className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Github className="h-4 w-4 text-white" />
-                  <input
-                    type="text"
-                    value={settingsForm.social_links?.github || ''}
-                    onChange={(e) => setSettingsForm({ 
-                      ...settingsForm, 
-                      social_links: { ...settingsForm.social_links, github: e.target.value } 
-                    })}
-                    placeholder="github.com/usuario"
-                    className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Linkedin className="h-4 w-4 text-blue-500" />
-                  <input
-                    type="text"
-                    value={settingsForm.social_links?.linkedin || ''}
-                    onChange={(e) => setSettingsForm({ 
-                      ...settingsForm, 
-                      social_links: { ...settingsForm.social_links, linkedin: e.target.value } 
-                    })}
-                    placeholder="linkedin.com/in/usuario"
-                    className="flex-1 h-10 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm"
-                  />
-                </div>
-              </div>
-
-              {/* Botões */}
-              <div className="flex gap-3 pt-4">
-                <button
-                  onClick={saveSettings}
-                  className="flex-1 py-2 bg-white text-black rounded-lg font-semibold hover:bg-white/90 transition-colors"
-                >
-                  Salvar Alterações
-                </button>
-                <button
-                  onClick={() => setShowSettings(false)}
-                  className="flex-1 py-2 bg-[#1A1A1A] text-white rounded-lg hover:bg-[#2A2A2A] transition-colors"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
 
       {/* Modal de edição de produto */}
       {editingProduct && (
