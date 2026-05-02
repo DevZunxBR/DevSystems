@@ -1,13 +1,11 @@
 // src/pages/ApplicationPending.jsx
 import { useNavigate } from 'react-router-dom';
-import { Mail } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function ApplicationPending() {
   const navigate = useNavigate();
-  const contactEmail = 'devassetsbr@gmail.com';
-  
-  const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${contactEmail}&su=Inscrição%20Criador%20DevAssets&body=Olá,%20gostaria%20de%20informações%20sobre%20minha%20inscrição...`;
+  const discordLink = 'https://discord.gg/YZQqFgwVaq';
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
@@ -27,27 +25,22 @@ export default function ApplicationPending() {
           <span>Previsão: até 5 dias úteis</span>
         </div>
         
-        {/* Contato */}
+        {/* Contato - Discord */}
         <div className="pt-4 border-t border-[#1A1A1A] space-y-3">
           <p className="text-xs text-[#555]">
-            Precisa de ajuda? Entre em contato:
+            Entre em nosso Discord para acompanhar:
           </p>
           
-          {/* Botão Gmail */}
+          {/* Botão Discord */}
           <a
-            href={gmailLink}
+            href={discordLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg text-white text-sm hover:border-white transition-all group"
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#5865F2] hover:bg-[#4752C4] rounded-lg text-white text-sm transition-all group"
           >
-            <Mail className="h-4 w-4 group-hover:scale-110 transition-transform" />
-            Enviar e-mail (Gmail)
+            <MessageSquare className="h-4 w-4 group-hover:scale-110 transition-transform" />
+            Entrar no Discord
           </a>
-          
-          {/* Email para copiar */}
-          <p className="text-[10px] text-[#444] mt-2">
-            ou copie o email: <span className="text-white select-all">{contactEmail}</span>
-          </p>
         </div>
         
         {/* Botões */}
