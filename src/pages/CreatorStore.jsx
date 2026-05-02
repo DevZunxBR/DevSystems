@@ -189,7 +189,7 @@ export default function CreatorStore() {
       <Header />
       
       <div className="flex-1">
-        {/* Banner - com espaçamento top (pt-20) */}
+        {/* Banner - com espaçamento do header */}
         <div className="pt-20">
           <div className="relative h-48 w-full overflow-hidden bg-gradient-to-r from-purple-900/30 to-blue-900/30">
             {profile.banner_url ? (
@@ -204,25 +204,25 @@ export default function CreatorStore() {
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4">
-          {/* Profile Header - avatar sobreposto ao banner */}
-          <div className="relative -mt-16 mb-8">
-            <div className="flex flex-col md:flex-row gap-6 items-start">
+        {/* Conteúdo da loja - NOME FORA DO BANNER */}
+        <div className="max-w-6xl mx-auto px-4 mt-6">
+          
+          {/* Header da loja - Nome, stats e botões */}
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
+            <div className="flex items-center gap-4">
               {/* Avatar */}
-              <div className="relative">
-                <div className="w-32 h-32 rounded-full border-4 border-black overflow-hidden bg-[#0A0A0A] shadow-xl">
-                  {profile.avatar_url ? (
-                    <img src={profile.avatar_url} alt={profile.display_name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Package className="h-12 w-12 text-[#555]" />
-                    </div>
-                  )}
-                </div>
+              <div className="w-20 h-20 rounded-full border-4 border-black overflow-hidden bg-[#0A0A0A] shadow-xl flex-shrink-0">
+                {profile.avatar_url ? (
+                  <img src={profile.avatar_url} alt={profile.display_name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Package className="h-10 w-10 text-[#555]" />
+                  </div>
+                )}
               </div>
-
+              
               {/* Info da loja */}
-              <div className="flex-1">
+              <div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-3xl font-bold text-white">{profile.display_name}</h1>
                   {profile.store_rating > 0 && (
@@ -231,11 +231,10 @@ export default function CreatorStore() {
                       <span className="text-sm text-white">{profile.store_rating}</span>
                     </div>
                   )}
-                  {/* Botão de configurações (apenas para o dono) */}
                   {isOwner && (
                     <button
                       onClick={() => setShowSettings(true)}
-                      className="ml-2 p-2 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors"
+                      className="p-2 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors"
                       title="Configurar loja"
                     >
                       <Settings className="h-4 w-4 text-white" />
@@ -281,25 +280,25 @@ export default function CreatorStore() {
                   )}
                 </div>
               </div>
+            </div>
 
-              {/* Stats e Botão Publicar Asset */}
-              <div className="flex flex-col items-end gap-3">
-                <div className="flex gap-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white">{profile.total_products || products.length}</div>
-                    <div className="text-xs text-[#555]">Assets</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white">{profile.total_sales || 0}</div>
-                    <div className="text-xs text-[#555]">Vendas</div>
-                  </div>
+            {/* Stats e Botão Publicar Asset */}
+            <div className="flex flex-col items-end gap-3">
+              <div className="flex gap-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">{profile.total_products || products.length}</div>
+                  <div className="text-xs text-[#555]">Assets</div>
                 </div>
-                {isOwner && (
-                  <Link to={`/creator/${id}/new`} className="flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-semibold rounded-lg hover:bg-white/90 transition-colors">
-                    <Plus className="h-4 w-4" /> Publicar Asset
-                  </Link>
-                )}
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">{profile.total_sales || 0}</div>
+                  <div className="text-xs text-[#555]">Vendas</div>
+                </div>
               </div>
+              {isOwner && (
+                <Link to={`/creator/${id}/new`} className="flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-semibold rounded-lg hover:bg-white/90 transition-colors">
+                  <Plus className="h-4 w-4" /> Publicar Asset
+                </Link>
+              )}
             </div>
           </div>
 
