@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Clock } from 'lucide-react';
+import { ArrowRight, Clock, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/api/base44Client';
 
@@ -14,6 +14,8 @@ import heroBg4 from '@/assets/images/DevHero4.jpg';
 export default function Home() {
   const navigate = useNavigate();
   const [applicationStatus, setApplicationStatus] = useState(null);
+  const [isCreator, setIsCreator] = useState(false);
+  const [hasProfile, setHasProfile] = useState(false);
   const [checking, setChecking] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   
@@ -24,40 +26,59 @@ export default function Home() {
   // Lista de imagens de fundo
   const backgroundImages = [heroBg1, heroBg2, heroBg3, heroBg4];
 
-  // Verificar se usuário já enviou aplicação
+  // Verificar status do usuário
   useEffect(() => {
-    checkApplicationStatus();
+    checkUserStatus();
   }, []);
 
-  const checkApplicationStatus = async () => {
+  const checkUserStatus = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
         setIsLoggedIn(false);
-        setApplicationStatus(null);
         setChecking(false);
         return;
       }
 
       setIsLoggedIn(true);
 
-      // Verificar se já existe uma aplicação para este email
-      const { data, error } = await supabase
+      // 1. Verificar se já tem perfil de criador (creator_profiles)
+      const { data: creatorProfile } = await supabase
+        .from('creator_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (creatorProfile) {
+        setHasProfile(true);
+        setIsCreator(true);
+        setChecking(false);
+        return;
+      }
+
+      // 2. Verificar se tem o cargo 'creator' na tabela user_profiles
+      const { data: userProfile } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('email', user.email)
+        .maybeSingle();
+
+      if (userProfile?.role === 'creator') {
+        setIsCreator(true);
+        setChecking(false);
+        return;
+      }
+
+      // 3. Verificar se já existe uma aplicação pendente
+      const { data: application } = await supabase
         .from('creator_applications')
         .select('status')
         .eq('email', user.email)
         .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Erro ao verificar status:', error);
-      }
-
-      if (data) {
-        console.log('Status da aplicação:', data.status); // Para debug
-        setApplicationStatus(data.status);
-      } else {
-        setApplicationStatus(null);
+      if (application) {
+        setApplicationStatus(application.status);
       }
     } catch (error) {
       console.error('Erro:', error);
@@ -80,20 +101,49 @@ export default function Home() {
   }, [backgroundImages.length]);
 
   const handleCreatorClick = () => {
-    console.log('Status atual:', applicationStatus); // Para debug
-    
-    // Se estiver logado e a aplicação estiver pendente
-    if (isLoggedIn && applicationStatus === 'pending') {
+    // Se já é criador (tem perfil ou cargo), vai para o setup da loja
+    if (isCreator) {
+      navigate('/creator/setup');
+    }
+    // Se tem aplicação pendente, vai para página de aguardar
+    else if (isLoggedIn && applicationStatus === 'pending') {
       navigate('/application-pending');
-    } else {
+    }
+    // Caso contrário, vai para o formulário de inscrição
+    else {
       navigate('/become-creator');
     }
   };
 
-  // Se ainda está verificando, mostra loading (opcional)
-  // if (checking) {
-  //   return <div className="min-h-screen bg-black" />;
-  // }
+  // Determinar texto do botão
+  const getButtonText = () => {
+    if (isCreator) {
+      return "Crie sua Loja";
+    }
+    if (isLoggedIn && applicationStatus === 'pending') {
+      return "Formulário Enviado";
+    }
+    return "Crie sua Loja";
+  };
+
+  // Determinar ícone do botão
+  const getButtonIcon = () => {
+    if (isCreator) {
+      return <Store className="h-4 w-4" />;
+    }
+    if (isLoggedIn && applicationStatus === 'pending') {
+      return <Clock className="h-4 w-4" />;
+    }
+    return null;
+  };
+
+  // Determinar classe do botão
+  const getButtonClass = () => {
+    if (isLoggedIn && applicationStatus === 'pending') {
+      return "border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm gap-2 rounded-xl";
+    }
+    return "border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl";
+  };
 
   return (
     <div className="font-inter">
@@ -141,22 +191,14 @@ export default function Home() {
               Explorar Assets <ArrowRight className="h-4 w-4" />
             </Button>
             
-            {!checking && isLoggedIn && applicationStatus === 'pending' ? (
-              <Button 
-                variant="outline" 
-                onClick={() => navigate('/application-pending')}
-                className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm gap-2 rounded-xl"
-              >
-                <Clock className="h-4 w-4" />
-                Inscrição Pendente
-              </Button>
-            ) : (
+            {!checking && (
               <Button 
                 variant="outline" 
                 onClick={handleCreatorClick}
-                className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl"
+                className={getButtonClass()}
               >
-                Crie uma Loja
+                {getButtonIcon()}
+                {getButtonText()}
               </Button>
             )}
           </div>
