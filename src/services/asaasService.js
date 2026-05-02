@@ -1,29 +1,66 @@
 // src/services/asaasService.js
-const SUPABASE_URL = 'https://seu-projeto.supabase.co/functions/v1/asaas'
+const SUPABASE_URL = 'https://mjzrhbfrnngewtgddbvu.supabase.co/functions/v1/asaas'
 
 export const createCustomer = async (customer) => {
-  const res = await fetch(SUPABASE_URL, {
+  console.log('createCustomer chamado:', customer)
+  
+  const response = await fetch(SUPABASE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'createCustomer', ...customer }),
   })
-  return res.json()
+  
+  const data = await response.json()
+  console.log('Resposta createCustomer:', data)
+  
+  if (!response.ok) {
+    throw new Error(data.error || 'Erro ao criar cliente')
+  }
+  
+  return data
 }
 
-export const createPayment = async ({ customerId, method, value, orderId }) => {
-  const res = await fetch(SUPABASE_URL, {
+export const createPayment = async ({ customerId, paymentMethod, value, orderId, description }) => {
+  console.log('createPayment chamado:', { customerId, paymentMethod, value, orderId })
+  
+  const response = await fetch(SUPABASE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'createPayment', customerId, method, value, orderId }),
+    body: JSON.stringify({ 
+      action: 'createPayment', 
+      customerId, 
+      paymentMethod, 
+      value: Number(value), 
+      orderId,
+      description 
+    }),
   })
-  return res.json()
+  
+  const data = await response.json()
+  console.log('Resposta createPayment:', data)
+  
+  if (!response.ok) {
+    throw new Error(data.error || 'Erro ao criar pagamento')
+  }
+  
+  return data
 }
 
 export const getPixQrCode = async (paymentId) => {
-  const res = await fetch(SUPABASE_URL, {
+  console.log('getPixQrCode chamado:', paymentId)
+  
+  const response = await fetch(SUPABASE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'getPixQrCode', paymentId }),
   })
-  return res.json()
+  
+  const data = await response.json()
+  console.log('Resposta getPixQrCode:', data)
+  
+  if (!response.ok) {
+    throw new Error(data.error || 'Erro ao buscar QR Code')
+  }
+  
+  return data
 }
