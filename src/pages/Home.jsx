@@ -51,7 +51,6 @@ export default function Home() {
         .maybeSingle();
 
       if (creatorProfile) {
-        setHasProfile(true);
         setIsCreator(true);
         setCreatorProfileId(creatorProfile.id);
         setChecking(false);
@@ -71,13 +70,14 @@ export default function Home() {
         return;
       }
 
-      // 3. Verificar se já existe uma aplicação pendente
+      // 3. Verificar se já existe uma aplicação (QUALQUER STATUS)
       const { data: application } = await supabase
         .from('creator_applications')
         .select('status')
         .eq('email', user.email)
         .maybeSingle();
 
+      // Se existe qualquer aplicação, guarda o status
       if (application) {
         setApplicationStatus(application.status);
       }
@@ -102,16 +102,16 @@ export default function Home() {
   }, [backgroundImages.length]);
 
   const handleCreatorClick = () => {
-    // Se já é criador (tem perfil ou cargo), vai para a loja
+    // Se já é criador (tem perfil), vai para a loja
     if (isCreator && creatorProfileId) {
       navigate(`/creator/${creatorProfileId}`);
     }
-    // Se já é criador mas não tem profileId (caso raro)
+    // Se já é criador mas não tem profileId (caso raro, vai para setup)
     else if (isCreator) {
       navigate('/creator/setup');
     }
-    // Se tem aplicação pendente, vai para página de aguardar
-    else if (isLoggedIn && applicationStatus === 'pending') {
+    // Se tem aplicação (qualquer status), vai para página de pendência
+    else if (isLoggedIn && applicationStatus) {
       navigate('/application-pending');
     }
     // Caso contrário, vai para o formulário de inscrição
@@ -125,7 +125,8 @@ export default function Home() {
     if (isCreator) {
       return "Minha Loja";
     }
-    if (isLoggedIn && applicationStatus === 'pending') {
+    // Se tem aplicação (qualquer status), mostra "Formulário Enviado"
+    if (isLoggedIn && applicationStatus) {
       return "Formulário Enviado";
     }
     return "Crie sua Loja";
@@ -133,10 +134,16 @@ export default function Home() {
 
   // Determinar classe do botão
   const getButtonClass = () => {
-    if (isLoggedIn && applicationStatus === 'pending') {
-      return "border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm rounded-xl";
+    // Se tem aplicação (qualquer status), mostra estilo amarelo
+    if (isLoggedIn && applicationStatus) {
+      return "border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm gap-2 rounded-xl";
     }
     return "border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl";
+  };
+
+  // Determinar se mostra ícone
+  const showIcon = () => {
+    return isLoggedIn && applicationStatus && !isCreator;
   };
 
   return (
@@ -191,6 +198,7 @@ export default function Home() {
                 onClick={handleCreatorClick}
                 className={getButtonClass()}
               >
+                {showIcon() && <Clock className="h-4 w-4" />}
                 {getButtonText()}
               </Button>
             )}
