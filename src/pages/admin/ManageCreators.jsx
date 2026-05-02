@@ -30,15 +30,6 @@ export default function ManageCreators() {
     }
   };
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'pending': return <span className="px-2 py-1 text-xs rounded bg-yellow-500/20 text-yellow-500">Pendente</span>;
-      case 'approved': return <span className="px-2 py-1 text-xs rounded bg-green-500/20 text-green-500">Aprovado</span>;
-      case 'rejected': return <span className="px-2 py-1 text-xs rounded bg-red-500/20 text-red-500">Recusado</span>;
-      default: return null;
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -67,7 +58,6 @@ export default function ManageCreators() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 flex-wrap">
                       <h3 className="text-lg font-semibold text-white">{app.nome}</h3>
-                      {getStatusBadge(app.status)}
                     </div>
                     <p className="text-sm text-[#555] mt-1">{app.email} • Discord: {app.discord_nick}</p>
                     <p className="text-xs text-[#555] mt-1">
