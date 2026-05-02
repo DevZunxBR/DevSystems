@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Eye } from 'lucide-react';
 
 export default function ManageCreators() {
   const [applications, setApplications] = useState([]);
@@ -27,26 +27,6 @@ export default function ManageCreators() {
       toast.error('Erro ao carregar inscrições');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const updateStatus = async (id, status) => {
-    try {
-      const { error } = await supabase
-        .from('creator_applications')
-        .update({ status })
-        .eq('id', id);
-
-      if (error) throw error;
-      
-      setApplications(prev => prev.map(app => 
-        app.id === id ? { ...app, status } : app
-      ));
-      
-      toast.success(`Status atualizado para ${status === 'approved' ? 'Aprovado' : 'Recusado'}`);
-    } catch (error) {
-      console.error(error);
-      toast.error('Erro ao atualizar status');
     }
   };
 
@@ -95,32 +75,14 @@ export default function ManageCreators() {
                     </p>
                   </div>
                   
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setExpandedId(expandedId === app.id ? null : app.id)}
-                      className="flex items-center gap-1 px-3 py-1.5 text-xs bg-[#1A1A1A] text-white rounded-lg hover:bg-[#222]"
-                    >
-                      {expandedId === app.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                      Detalhes
-                    </button>
-                    
-                    {app.status === 'pending' && (
-                      <>
-                        <button
-                          onClick={() => updateStatus(app.id, 'approved')}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700"
-                        >
-                          <Check className="h-3 w-3" /> Aprovar
-                        </button>
-                        <button
-                          onClick={() => updateStatus(app.id, 'rejected')}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700"
-                        >
-                          <X className="h-3 w-3" /> Recusar
-                        </button>
-                      </>
-                    )}
-                  </div>
+                  <button
+                    onClick={() => setExpandedId(expandedId === app.id ? null : app.id)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs bg-[#1A1A1A] text-white rounded-lg hover:bg-[#222] transition-colors"
+                  >
+                    {expandedId === app.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                    <Eye className="h-3 w-3" />
+                    {expandedId === app.id ? 'Ocultar' : 'Ver Detalhes'}
+                  </button>
                 </div>
 
                 {expandedId === app.id && (
