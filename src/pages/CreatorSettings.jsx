@@ -1,9 +1,9 @@
 // src/pages/CreatorSettings.jsx
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { ArrowLeft, Upload, Loader2, Instagram, Github, Linkedin, Twitter, Globe, MapPin, Info, User, Image as ImageIcon, Save, Image, Settings } from 'lucide-react';
+import { ArrowLeft, Upload, Loader2, Instagram, Github, Linkedin, Twitter, Globe, MapPin, Info, User, Image as ImageIcon, Save, Menu, X, Image, Settings, Store } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
@@ -22,8 +22,10 @@ export default function CreatorSettings() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('images');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({
     display_name: '',
     bio: '',
@@ -33,6 +35,12 @@ export default function CreatorSettings() {
     website: '',
     social_links: { instagram: '', github: '', linkedin: '', twitter: '' }
   });
+
+  const navItems = [
+    { id: 'images', label: 'Imagens', icon: ImageIcon },
+    { id: 'info', label: 'Informações', icon: Info },
+    { id: 'social', label: 'Redes Sociais', icon: Settings },
+  ];
 
   useEffect(() => {
     loadProfile();
@@ -46,7 +54,7 @@ export default function CreatorSettings() {
         return;
       }
 
-      const { data: profile, error } = await supabase
+      const { data: profileData, error } = await supabase
         .from('creator_profiles')
         .select('*')
         .eq('id', id)
@@ -54,20 +62,21 @@ export default function CreatorSettings() {
 
       if (error) throw error;
 
-      if (profile.user_id !== user.id) {
+      if (profileData.user_id !== user.id) {
         toast.error('Você não tem permissão para editar esta loja');
         navigate(`/creator/${id}`);
         return;
       }
 
+      setProfile(profileData);
       setForm({
-        display_name: profile.display_name || '',
-        bio: profile.bio || '',
-        avatar_url: profile.avatar_url || '',
-        banner_url: profile.banner_url || '',
-        location: profile.location || '',
-        website: profile.website || '',
-        social_links: profile.social_links || { instagram: '', github: '', linkedin: '', twitter: '' }
+        display_name: profileData.display_name || '',
+        bio: profileData.bio || '',
+        avatar_url: profileData.avatar_url || '',
+        banner_url: profileData.banner_url || '',
+        location: profileData.location || '',
+        website: profileData.website || '',
+        social_links: profileData.social_links || { instagram: '', github: '', linkedin: '', twitter: '' }
       });
     } catch (error) {
       console.error(error);
@@ -125,120 +134,132 @@ export default function CreatorSettings() {
     }
   };
 
-  const tabs = [
-    { id: 'images', label: 'Imagens', icon: ImageIcon },
-    { id: 'info', label: 'Informações', icon: Info },
-    { id: 'social', label: 'Redes Sociais', icon: Settings },
-  ];
-
   return (
     <div className="min-h-screen flex flex-col bg-black">
       <Header />
       
       <div className="flex-1 flex">
-        
-        {/* BARRA LATERAL FIXA (ESQUERDA) */}
-        <aside className="w-64 bg-[#0A0A0A] border-r border-[#1A1A1A] min-h-screen flex-shrink-0">
-          <div className="sticky top-20 p-6">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
-                <Settings className="h-5 w-5 text-white" />
+        {/* Overlay para mobile */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        )}
+
+        {/* Sidebar fixa (igual ao DashboardLayout) */}
+        <aside className={`fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-[#0A0A0A] border-r border-[#1A1A1A] z-40 transition-transform lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <div className="p-6 space-y-6">
+            {/* Store Info */}
+            <div className="space-y-1">
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mb-2">
+                <Store className="h-5 w-5 text-black" />
               </div>
-              <h2 className="text-lg font-bold text-white">Configurações</h2>
+              <h3 className="text-sm font-semibold text-white">{profile?.display_name || 'Minha Loja'}</h3>
+              <p className="text-xs text-[#555]">Configurações da loja</p>
             </div>
-            
-            <nav className="space-y-2">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-white text-black font-medium'
-                      : 'text-[#555] hover:text-white hover:bg-[#1A1A1A]'
-                  }`}
-                >
-                  <tab.icon className="h-4 w-4" />
-                  {tab.label}
-                </button>
-              ))}
+
+            {/* Nav */}
+            <nav className="space-y-1">
+              {navItems.map((item) => {
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                      isActive
+                        ? 'bg-white text-black font-medium'
+                        : 'text-[#555] hover:text-white hover:bg-[#1A1A1A]'
+                    }`}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </button>
+                );
+              })}
             </nav>
           </div>
         </aside>
 
-        {/* CONTEÚDO PRINCIPAL */}
-        <div className="flex-1 max-w-3xl mx-auto px-8 py-12">
-          
-          {/* Header da página */}
-          <div className="mb-8">
-            <button
-              onClick={() => navigate(`/creator/${id}`)}
-              className="flex items-center gap-2 text-[#555] hover:text-white mb-6 transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" /> Voltar para a loja
+        {/* Main Content */}
+        <div className="flex-1 min-w-0">
+          {/* Mobile header */}
+          <div className="lg:hidden p-4 border-b border-[#1A1A1A] bg-black">
+            <button onClick={() => setSidebarOpen(true)} className="text-[#555] hover:text-white">
+              <Menu className="h-5 w-5" />
             </button>
-            
-            <h1 className="text-3xl font-bold text-white">Configurações da Loja</h1>
-            <p className="text-sm text-[#555] mt-2">Personalize sua loja e suas informações</p>
           </div>
 
-          {/* ABA: IMAGENS */}
-          {activeTab === 'images' && (
-            <div className="space-y-6">
+          {/* Conteúdo */}
+          <div className="max-w-3xl mx-auto px-6 py-8">
+            
+            {/* Header da página */}
+            <div className="mb-8">
+              <button
+                onClick={() => navigate(`/creator/${id}`)}
+                className="flex items-center gap-2 text-[#555] hover:text-white mb-6 transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" /> Voltar para a loja
+              </button>
               
-              {/* Avatar */}
-              <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
-                <label className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-                  <User className="h-4 w-4" /> Avatar da Loja
-                </label>
-                <div className="flex items-center gap-6">
-                  <div className="w-24 h-24 rounded-full bg-[#1A1A1A] overflow-hidden">
-                    {form.avatar_url ? (
-                      <img src={form.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#555] text-2xl">?</div>
-                    )}
-                  </div>
-                  <label className="cursor-pointer">
-                    <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'avatar_url')} className="hidden" />
-                    <div className="flex items-center gap-2 px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-sm text-[#555] hover:text-white transition-colors">
-                      {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                      {uploading ? 'Enviando...' : 'Alterar Avatar'}
-                    </div>
-                  </label>
-                </div>
-                <p className="text-xs text-[#555] mt-3">Recomendado: 400x400 pixels</p>
-              </div>
-
-              {/* Banner */}
-              <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
-                <label className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-                  <Image className="h-4 w-4" /> Banner da Loja
-                </label>
-                <div className="space-y-3">
-                  <div className="h-32 bg-[#1A1A1A] rounded-lg overflow-hidden">
-                    {form.banner_url ? (
-                      <img src={form.banner_url} alt="Banner" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#555] text-sm">Nenhum banner</div>
-                    )}
-                  </div>
-                  <label className="cursor-pointer inline-block">
-                    <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'banner_url')} className="hidden" />
-                    <div className="flex items-center gap-2 px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-sm text-[#555] hover:text-white transition-colors">
-                      {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                      {uploading ? 'Enviando...' : 'Alterar Banner'}
-                    </div>
-                  </label>
-                </div>
-                <p className="text-xs text-[#555] mt-3">Recomendado: 1200x300 pixels</p>
-              </div>
+              <h1 className="text-2xl font-bold text-white">Configurações da Loja</h1>
+              <p className="text-sm text-[#555] mt-1">Personalize sua loja e suas informações</p>
             </div>
-          )}
 
-          {/* ABA: INFORMAÇÕES */}
-          {activeTab === 'info' && (
-            <div className="space-y-6">
+            {/* ABA: IMAGENS */}
+            {activeTab === 'images' && (
+              <div className="space-y-6">
+                
+                {/* Avatar */}
+                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
+                  <label className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                    <User className="h-4 w-4" /> Avatar da Loja
+                  </label>
+                  <div className="flex items-center gap-6">
+                    <div className="w-20 h-20 rounded-full bg-[#1A1A1A] overflow-hidden">
+                      {form.avatar_url ? (
+                        <img src={form.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[#555] text-xl">?</div>
+                      )}
+                    </div>
+                    <label className="cursor-pointer">
+                      <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'avatar_url')} className="hidden" />
+                      <div className="flex items-center gap-2 px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-sm text-[#555] hover:text-white transition-colors">
+                        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                        {uploading ? 'Enviando...' : 'Alterar Avatar'}
+                      </div>
+                    </label>
+                  </div>
+                  <p className="text-xs text-[#555] mt-3">Recomendado: 400x400 pixels</p>
+                </div>
+
+                {/* Banner */}
+                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
+                  <label className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                    <Image className="h-4 w-4" /> Banner da Loja
+                  </label>
+                  <div className="space-y-3">
+                    <div className="h-32 bg-[#1A1A1A] rounded-lg overflow-hidden">
+                      {form.banner_url ? (
+                        <img src={form.banner_url} alt="Banner" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[#555] text-sm">Nenhum banner</div>
+                      )}
+                    </div>
+                    <label className="cursor-pointer inline-block">
+                      <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'banner_url')} className="hidden" />
+                      <div className="flex items-center gap-2 px-4 py-2 bg-black border border-[#1A1A1A] rounded-lg text-sm text-[#555] hover:text-white transition-colors">
+                        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                        {uploading ? 'Enviando...' : 'Alterar Banner'}
+                      </div>
+                    </label>
+                  </div>
+                  <p className="text-xs text-[#555] mt-3">Recomendado: 1200x300 pixels</p>
+                </div>
+              </div>
+            )}
+
+            {/* ABA: INFORMAÇÕES */}
+            {activeTab === 'info' && (
               <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
                 <h3 className="text-sm font-medium text-white mb-4">Informações da Loja</h3>
                 <div className="space-y-4">
@@ -289,12 +310,10 @@ export default function CreatorSettings() {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* ABA: REDES SOCIAIS */}
-          {activeTab === 'social' && (
-            <div className="space-y-6">
+            {/* ABA: REDES SOCIAIS */}
+            {activeTab === 'social' && (
               <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-6">
                 <h3 className="text-sm font-medium text-white mb-4">Redes Sociais</h3>
                 <div className="space-y-4">
@@ -340,25 +359,25 @@ export default function CreatorSettings() {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Botão Salvar (fixo no final) */}
-          <div className="mt-8 flex gap-3">
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="flex-1 py-3 bg-white text-black rounded-lg font-semibold hover:bg-white/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-              {loading ? 'Salvando...' : 'Salvar Configurações'}
-            </button>
-            <button
-              onClick={() => navigate(`/creator/${id}`)}
-              className="px-6 py-3 bg-[#1A1A1A] text-white rounded-lg font-semibold hover:bg-[#2A2A2A] transition-colors"
-            >
-              Cancelar
-            </button>
+            {/* Botão Salvar */}
+            <div className="mt-8 flex gap-3">
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="flex-1 py-3 bg-white text-black rounded-lg font-semibold hover:bg-white/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                {loading ? 'Salvando...' : 'Salvar Configurações'}
+              </button>
+              <button
+                onClick={() => navigate(`/creator/${id}`)}
+                className="px-6 py-3 bg-[#1A1A1A] text-white rounded-lg font-semibold hover:bg-[#2A2A2A] transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
         </div>
       </div>
