@@ -14,8 +14,9 @@ import heroBg4 from '@/assets/images/DevHero4.jpg';
 export default function Home() {
   const navigate = useNavigate();
   const [applicationStatus, setApplicationStatus] = useState(null);
-  const [isCreator, setIsCreator] = useState(false);
-  const [hasProfile, setHasProfile] = useState(false);
+  const [hasCreatorRole, setHasCreatorRole] = useState(false);
+  const [hasStore, setHasStore] = useState(false);
+  const [storeId, setStoreId] = useState(null);
   const [checking, setChecking] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   
@@ -43,7 +44,7 @@ export default function Home() {
 
       setIsLoggedIn(true);
 
-      // 1. Verificar se já tem perfil de criador (creator_profiles)
+      // 1. Verificar se já tem loja CRIADA (creator_profiles)
       const { data: creatorProfile } = await supabase
         .from('creator_profiles')
         .select('id')
@@ -51,8 +52,8 @@ export default function Home() {
         .maybeSingle();
 
       if (creatorProfile) {
-        setHasProfile(true);
-        setIsCreator(true);
+        setHasStore(true);
+        setStoreId(creatorProfile.id);
         setChecking(false);
         return;
       }
@@ -65,7 +66,7 @@ export default function Home() {
         .maybeSingle();
 
       if (userProfile?.role === 'creator') {
-        setIsCreator(true);
+        setHasCreatorRole(true);
         setChecking(false);
         return;
       }
@@ -100,9 +101,13 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [backgroundImages.length]);
 
-  const handleCreatorClick = () => {
-    // Se já é criador (tem perfil ou cargo), vai para o setup da loja
-    if (isCreator) {
+  const handleButtonClick = () => {
+    // Se já tem loja CRIADA, vai para a página da loja
+    if (hasStore && storeId) {
+      navigate(`/creator/${storeId}`);
+    }
+    // Se tem cargo creator mas não tem loja, vai para o setup
+    else if (hasCreatorRole) {
       navigate('/creator/setup');
     }
     // Se tem aplicação pendente, vai para página de aguardar
@@ -117,7 +122,10 @@ export default function Home() {
 
   // Determinar texto do botão
   const getButtonText = () => {
-    if (isCreator) {
+    if (hasStore) {
+      return "Minha Loja";
+    }
+    if (hasCreatorRole) {
       return "Criar Minha Loja";
     }
     if (isLoggedIn && applicationStatus === 'pending') {
@@ -134,7 +142,7 @@ export default function Home() {
     return null;
   };
 
-  // Determinar classe do botão (TUDO BRANCO)
+  // Determinar classe do botão
   const getButtonClass = () => {
     if (isLoggedIn && applicationStatus === 'pending') {
       return "border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm gap-2 rounded-xl";
@@ -191,7 +199,7 @@ export default function Home() {
             {!checking && (
               <Button 
                 variant="outline" 
-                onClick={handleCreatorClick}
+                onClick={handleButtonClick}
                 className={getButtonClass()}
               >
                 {getButtonIcon()}
