@@ -121,9 +121,9 @@ export default function ManageCreators() {
                       <div>
                         <p className="text-xs text-[#555]">Redes Sociais</p>
                         <div className="text-sm text-white space-y-1">
-                          {app.redes_sociais?.instagram && <p>📷 Instagram: {app.redes_sociais.instagram}</p>}
-                          {app.redes_sociais?.github && <p>💻 GitHub: {app.redes_sociais.github}</p>}
-                          {app.redes_sociais?.linkedin && <p>🔗 LinkedIn: {app.redes_sociais.linkedin}</p>}
+                          {app.redes_sociais?.instagram && <p>Instagram: {app.redes_sociais.instagram}</p>}
+                          {app.redes_sociais?.github && <p>GitHub: {app.redes_sociais.github}</p>}
+                          {app.redes_sociais?.linkedin && <p>LinkedIn: {app.redes_sociais.linkedin}</p>}
                           {!app.redes_sociais?.instagram && !app.redes_sociais?.github && !app.redes_sociais?.linkedin && <p>-</p>}
                         </div>
                       </div>
