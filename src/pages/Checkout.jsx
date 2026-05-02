@@ -204,7 +204,7 @@ export default function Checkout() {
     setSubmitting(true);
     try {
       // 1. Criar pedido com status 'pending'
-      const order = await createOrder('pending', paymentMethod, null);
+      const order = await createOrder('pending', 'PIX', null);
       setCurrentOrder(order);
 
       // 2. Criar cliente no Asaas
