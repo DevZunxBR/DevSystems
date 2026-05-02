@@ -143,7 +143,6 @@ export default function CreatorSettings() {
           <p className="text-sm text-[#555] mt-2">Personalize as informações da sua loja</p>
         </div>
 
-        {/* Formulário - sem cards, sem barra lateral */}
         <div className="space-y-8">
           
           {/* ============================================================ */}
@@ -155,7 +154,6 @@ export default function CreatorSettings() {
           </div>
 
           <div className="space-y-6">
-            {/* Nome da Loja */}
             <div>
               <label className="text-sm font-medium text-white mb-2 block">Nome da Loja</label>
               <p className="text-xs text-[#555] mb-2">
@@ -170,7 +168,6 @@ export default function CreatorSettings() {
               />
             </div>
 
-            {/* Descrição */}
             <div>
               <label className="text-sm font-medium text-white mb-2 block">Descrição da Loja</label>
               <p className="text-xs text-[#555] mb-2">
@@ -185,7 +182,6 @@ export default function CreatorSettings() {
               />
             </div>
 
-            {/* Localização */}
             <div>
               <label className="text-sm font-medium text-white mb-2 block">Localização</label>
               <p className="text-xs text-[#555] mb-2">
@@ -200,7 +196,6 @@ export default function CreatorSettings() {
               />
             </div>
 
-            {/* Website */}
             <div>
               <label className="text-sm font-medium text-white mb-2 block">Website / Portfólio</label>
               <p className="text-xs text-[#555] mb-2">
@@ -225,7 +220,6 @@ export default function CreatorSettings() {
           </div>
 
           <div className="space-y-6">
-            {/* Avatar */}
             <div>
               <label className="text-sm font-medium text-white mb-2 block">Avatar da Loja</label>
               <p className="text-xs text-[#555] mb-2">
@@ -249,7 +243,6 @@ export default function CreatorSettings() {
               </div>
             </div>
 
-            {/* Banner */}
             <div>
               <label className="text-sm font-medium text-white mb-2 block">Banner da Loja</label>
               <p className="text-xs text-[#555] mb-2">
@@ -275,7 +268,7 @@ export default function CreatorSettings() {
           </div>
 
           {/* ============================================================ */}
-          {/* REDES SOCIAIS */}
+          {/* REDES SOCIAIS - SIMPLIFICADO */}
           {/* ============================================================ */}
           <div className="border-b border-[#1A1A1A] pb-4 pt-4">
             <h2 className="text-xl font-bold text-white mb-2">Redes Sociais</h2>
@@ -283,84 +276,60 @@ export default function CreatorSettings() {
           </div>
 
           <div className="space-y-5">
-            {/* Instagram */}
             <div>
               <label className="text-sm font-medium text-white mb-2 flex items-center gap-2">
                 <Instagram className="h-4 w-4 text-pink-500" /> Instagram
               </label>
-              <p className="text-xs text-[#555] mb-2">
-                Compartilhe seu perfil do Instagram.
-              </p>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-[#555]">@</span>
-                <input
-                  type="text"
-                  value={form.social_links.instagram || ''}
-                  onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, instagram: e.target.value } })}
-                  placeholder="seuusuario"
-                  className="flex-1 h-11 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm focus:outline-none focus:border-white"
-                />
-              </div>
+              <p className="text-xs text-[#555] mb-2">Seu nome de usuário do Instagram.</p>
+              <input
+                type="text"
+                value={form.social_links.instagram || ''}
+                onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, instagram: e.target.value } })}
+                placeholder="seuinstagram"
+                className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm focus:outline-none focus:border-white"
+              />
             </div>
 
-            {/* GitHub */}
             <div>
               <label className="text-sm font-medium text-white mb-2 flex items-center gap-2">
                 <Github className="h-4 w-4 text-white" /> GitHub
               </label>
-              <p className="text-xs text-[#555] mb-2">
-                Mostre seu portfólio de código.
-              </p>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-[#555]">github.com/</span>
-                <input
-                  type="text"
-                  value={form.social_links.github || ''}
-                  onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, github: e.target.value } })}
-                  placeholder="seuusuario"
-                  className="flex-1 h-11 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm focus:outline-none focus:border-white"
-                />
-              </div>
+              <p className="text-xs text-[#555] mb-2">Seu nome de usuário do GitHub.</p>
+              <input
+                type="text"
+                value={form.social_links.github || ''}
+                onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, github: e.target.value } })}
+                placeholder="seuusuario"
+                className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm focus:outline-none focus:border-white"
+              />
             </div>
 
-            {/* LinkedIn */}
             <div>
               <label className="text-sm font-medium text-white mb-2 flex items-center gap-2">
                 <Linkedin className="h-4 w-4 text-blue-500" /> LinkedIn
               </label>
-              <p className="text-xs text-[#555] mb-2">
-                Conecte-se profissionalmente.
-              </p>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-[#555]">linkedin.com/in/</span>
-                <input
-                  type="text"
-                  value={form.social_links.linkedin || ''}
-                  onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, linkedin: e.target.value } })}
-                  placeholder="seuusuario"
-                  className="flex-1 h-11 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm focus:outline-none focus:border-white"
-                />
-              </div>
+              <p className="text-xs text-[#555] mb-2">Seu nome de usuário do LinkedIn.</p>
+              <input
+                type="text"
+                value={form.social_links.linkedin || ''}
+                onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, linkedin: e.target.value } })}
+                placeholder="seuusuario"
+                className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm focus:outline-none focus:border-white"
+              />
             </div>
 
-            {/* Twitter */}
             <div>
               <label className="text-sm font-medium text-white mb-2 flex items-center gap-2">
                 <Twitter className="h-4 w-4 text-blue-400" /> Twitter / X
               </label>
-              <p className="text-xs text-[#555] mb-2">
-                Compartilhe novidades e interaja.
-              </p>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-[#555]">@</span>
-                <input
-                  type="text"
-                  value={form.social_links.twitter || ''}
-                  onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, twitter: e.target.value } })}
-                  placeholder="seuusuario"
-                  className="flex-1 h-11 px-3 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm focus:outline-none focus:border-white"
-                />
-              </div>
+              <p className="text-xs text-[#555] mb-2">Seu nome de usuário do Twitter.</p>
+              <input
+                type="text"
+                value={form.social_links.twitter || ''}
+                onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, twitter: e.target.value } })}
+                placeholder="seuusuario"
+                className="w-full h-11 px-4 bg-black border border-[#1A1A1A] rounded-lg text-white text-sm focus:outline-none focus:border-white"
+              />
             </div>
           </div>
 
