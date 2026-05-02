@@ -28,7 +28,7 @@ import ProductForm from './pages/admin/ProductForm';
 import RefundRequests from './pages/admin/RefundRequests';
 import Register from './pages/Register';
 import ApplicationPending from './pages/ApplicationPending';
-import PaySellers from './pages/admin/PaySellers';
+// import PaySellers from './pages/admin/PaySellers'; // REMOVIDO
 
 // IMPORTAÇÕES DO FORMULÁRIO DE CRIADORES
 import PartnerForm from './pages/PartnerForm';
@@ -201,13 +201,14 @@ const AuthenticatedApp = () => {
             </PrivateRoute>
           } />
 
-          <Route path="/admin/pay-sellers" element={
+          {/* ROTA PAYSELLERS REMOVIDA */}
+          {/* <Route path="/admin/pay-sellers" element={
             <PrivateRoute>
               <MaintenanceGuard>
                 <PaySellers />
               </MaintenanceGuard>
             </PrivateRoute>
-          } />
+          } /> */}
           
           <Route path="/admin/creators" element={
             <PrivateRoute>
