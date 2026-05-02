@@ -2,7 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 const asaasConfig = {
   baseURL: 'https://sandbox.asaas.com/api/v3',
-  apiKey: Deno.env.get('ASAAS_API_KEY') || '',
+  apiKey: Deno.env.get('sb_publishable_pFuK7qtATFFlEEECALCIPQ_lLWsNDy5') || '',
 }
 
 serve(async (req) => {
