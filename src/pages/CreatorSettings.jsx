@@ -1,6 +1,6 @@
 // src/pages/CreatorSettings.jsx
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom'; // ← VÍRGULA CORRIGIDA
 import { supabase } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { ArrowLeft, Upload, Loader2, Instagram, Github, Linkedin, Twitter, Globe, MapPin, Info, User, Image as ImageIcon, Save, Menu, Image, Settings, Store, HelpCircle, CheckCircle, AlertCircle } from 'lucide-react';
