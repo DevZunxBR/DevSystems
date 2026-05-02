@@ -15,6 +15,7 @@ export default function Home() {
   const navigate = useNavigate();
   const [applicationStatus, setApplicationStatus] = useState(null);
   const [checking, setChecking] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   // Slideshow state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -33,9 +34,13 @@ export default function Home() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
+        setIsLoggedIn(false);
+        setApplicationStatus(null);
         setChecking(false);
         return;
       }
+
+      setIsLoggedIn(true);
 
       // Verificar se já existe uma aplicação para este email
       const { data, error } = await supabase
@@ -49,7 +54,10 @@ export default function Home() {
       }
 
       if (data) {
+        console.log('Status da aplicação:', data.status); // Para debug
         setApplicationStatus(data.status);
+      } else {
+        setApplicationStatus(null);
       }
     } catch (error) {
       console.error('Erro:', error);
@@ -72,12 +80,20 @@ export default function Home() {
   }, [backgroundImages.length]);
 
   const handleCreatorClick = () => {
-    if (applicationStatus === 'pending') {
+    console.log('Status atual:', applicationStatus); // Para debug
+    
+    // Se estiver logado e a aplicação estiver pendente
+    if (isLoggedIn && applicationStatus === 'pending') {
       navigate('/application-pending');
     } else {
       navigate('/become-creator');
     }
   };
+
+  // Se ainda está verificando, mostra loading (opcional)
+  // if (checking) {
+  //   return <div className="min-h-screen bg-black" />;
+  // }
 
   return (
     <div className="font-inter">
@@ -125,7 +141,7 @@ export default function Home() {
               Explorar Assets <ArrowRight className="h-4 w-4" />
             </Button>
             
-            {!checking && applicationStatus === 'pending' ? (
+            {!checking && isLoggedIn && applicationStatus === 'pending' ? (
               <Button 
                 variant="outline" 
                 onClick={() => navigate('/application-pending')}
