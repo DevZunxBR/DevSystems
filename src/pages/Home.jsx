@@ -80,7 +80,7 @@ export default function Home() {
             </Button>
             <Button 
               variant="outline" 
-              onClick={() => navigate('/creator/setup')} 
+              onClick={() => navigate('/become-creator')} 
               className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl"
             >
               Crie uma Loja
