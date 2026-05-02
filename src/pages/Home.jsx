@@ -1,8 +1,9 @@
 // src/pages/Home.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/api/base44Client';
 
 // Importe suas imagens aqui
 import heroBg1 from '@/assets/images/DevHero.jpg';
@@ -12,6 +13,8 @@ import heroBg4 from '@/assets/images/DevHero4.jpg';
 
 export default function Home() {
   const navigate = useNavigate();
+  const [applicationStatus, setApplicationStatus] = useState(null);
+  const [checking, setChecking] = useState(true);
   
   // Slideshow state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -19,6 +22,41 @@ export default function Home() {
   
   // Lista de imagens de fundo
   const backgroundImages = [heroBg1, heroBg2, heroBg3, heroBg4];
+
+  // Verificar se usuário já enviou aplicação
+  useEffect(() => {
+    checkApplicationStatus();
+  }, []);
+
+  const checkApplicationStatus = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setChecking(false);
+        return;
+      }
+
+      // Verificar se já existe uma aplicação para este email
+      const { data, error } = await supabase
+        .from('creator_applications')
+        .select('status')
+        .eq('email', user.email)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Erro ao verificar status:', error);
+      }
+
+      if (data) {
+        setApplicationStatus(data.status);
+      }
+    } catch (error) {
+      console.error('Erro:', error);
+    } finally {
+      setChecking(false);
+    }
+  };
 
   // Trocar imagem a cada 10 segundos
   useEffect(() => {
@@ -32,6 +70,14 @@ export default function Home() {
     
     return () => clearInterval(interval);
   }, [backgroundImages.length]);
+
+  const handleCreatorClick = () => {
+    if (applicationStatus === 'pending') {
+      navigate('/application-pending');
+    } else {
+      navigate('/become-creator');
+    }
+  };
 
   return (
     <div className="font-inter">
@@ -78,13 +124,25 @@ export default function Home() {
             <Button onClick={() => navigate('/store')} className="bg-white text-black hover:bg-white/90 font-bold h-11 px-6 text-sm gap-2 rounded-xl">
               Explorar Assets <ArrowRight className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/become-creator')} 
-              className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl"
-            >
-              Crie uma Loja
-            </Button>
+            
+            {!checking && applicationStatus === 'pending' ? (
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/application-pending')}
+                className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 h-11 px-6 text-sm gap-2 rounded-xl"
+              >
+                <Clock className="h-4 w-4" />
+                Inscrição Pendente
+              </Button>
+            ) : (
+              <Button 
+                variant="outline" 
+                onClick={handleCreatorClick}
+                className="border-[#1A1A1A] text-[#999] hover:bg-[#0A0A0A] hover:text-white h-11 px-6 text-sm rounded-xl"
+              >
+                Crie uma Loja
+              </Button>
+            )}
           </div>
           
           <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 pt-4 mt-4">
