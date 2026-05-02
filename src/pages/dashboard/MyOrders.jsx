@@ -1,10 +1,10 @@
-﻿// src/pages/dashboard/MyOrders.jsx
+﻿// src/pages/dashboard/MyOrders.jsx - VERSÃO CORRIGIDA (SEM ASAAS)
 import { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Download, Clock, CheckCircle, XCircle, QrCode, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import PaymentModal from '@/components/checkout/PaymentModal';
+import PixModal from '@/components/checkout/PixModal';
 
 const getOrderDate = (order) => order?.created_date || order?.created_at || null;
 
@@ -181,6 +181,7 @@ export default function MyOrders() {
         </div>
       )}
 
+      {/* MODAL PIX - USANDO PIXMODAL CORRETAMENTE */}
       {pixModalData && (
         <PixModal
           open={!!pixModalData}
