@@ -118,12 +118,12 @@ export default function Home() {
   // Determinar texto do botão
   const getButtonText = () => {
     if (isCreator) {
-      return "Crie sua Loja";
+      return "Criar Minha Loja";
     }
     if (isLoggedIn && applicationStatus === 'pending') {
       return "Formulário Enviado";
     }
-    return "Crie sua Loja";
+    return "Criar Minha Loja";
   };
 
   // Determinar ícone do botão
