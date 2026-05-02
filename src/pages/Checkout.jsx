@@ -23,7 +23,7 @@ export default function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [useWallet, setUseWallet] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('PIX');
+  const [paymentMethod, setPaymentMethod] = useState('pix'); // <-- minúsculo
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -131,7 +131,7 @@ export default function Checkout() {
       gift_sender_name: item.gift_sender_name,
     }));
 
-    const order = await base44.entities.Order.create({
+    const orderData = {
       customer_email: me.email,
       customer_name: billing.name,
       status: status,
@@ -142,12 +142,18 @@ export default function Checkout() {
       billing_name: billing.name,
       billing_email: billing.email,
       billing_document: billing.document,
-      asaas_payment_id: paymentId,
       download_token: `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`,
       wallet_used: walletDiscount,
       coupon_discount: couponDiscount,
       subtotal_amount: subtotal,
-    });
+    };
+
+    // Só adiciona asaas_payment_id se a coluna existir
+    if (paymentId) {
+      orderData.asaas_payment_id = paymentId;
+    }
+
+    const order = await base44.entities.Order.create(orderData);
 
     if (appliedCoupon) {
       await base44.entities.Coupon.update(appliedCoupon.id, { uses_count: (appliedCoupon.uses_count || 0) + 1 });
@@ -184,7 +190,7 @@ export default function Checkout() {
     
     setSubmitting(true);
     try {
-      await createOrder('completed', 'gratis');
+      await createOrder('completed', 'free'); // <-- 'free' em vez de 'gratis'
       toast.success('Pedido realizado com sucesso!');
       navigate('/dashboard/orders');
     } catch (error) {
@@ -203,8 +209,8 @@ export default function Checkout() {
     
     setSubmitting(true);
     try {
-      // 1. Criar pedido com status 'pending'
-      const order = await createOrder('pending', 'pix', null);
+      // 1. Criar pedido com status 'pending' e método em minúsculo
+      const order = await createOrder('pending', paymentMethod, null);
       setCurrentOrder(order);
 
       // 2. Criar cliente no Asaas
@@ -219,10 +225,11 @@ export default function Checkout() {
         throw new Error('Erro ao criar cliente no Asaas');
       }
 
-      // 3. Criar cobrança no Asaas
+      // 3. Criar cobrança no Asaas (usando o método em maiúsculo para API)
+      const asaasMethod = paymentMethod === 'pix' ? 'PIX' : 'CREDIT_CARD';
       const payment = await createPayment({
         customerId: customer.id,
-        paymentMethod: paymentMethod,
+        paymentMethod: asaasMethod,
         value: total,
         orderId: order.id,
         description: `Pedido #${order.id}`,
@@ -232,13 +239,17 @@ export default function Checkout() {
         throw new Error('Erro ao criar cobrança no Asaas');
       }
 
-      // 4. Atualizar pedido com payment_id
-      await base44.entities.Order.update(order.id, {
-        asaas_payment_id: payment.id
-      });
+      // 4. Atualizar pedido com payment_id (opcional - só se a coluna existir)
+      try {
+        await base44.entities.Order.update(order.id, {
+          asaas_payment_id: payment.id
+        });
+      } catch (updateError) {
+        console.log('Coluna asaas_payment_id não existe, ignorando...');
+      }
 
       // 5. Se for PIX, buscar QR Code
-      if (paymentMethod === 'PIX') {
+      if (paymentMethod === 'pix') {
         const qrData = await getPixQrCode(payment.id);
         setPixData({
           qrCode: qrData.encodedImage,
@@ -378,9 +389,9 @@ export default function Checkout() {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('PIX')}
+                  onClick={() => setPaymentMethod('pix')}
                   className={`flex items-center justify-center gap-2 p-3 rounded-lg border transition-all ${
-                    paymentMethod === 'PIX' 
+                    paymentMethod === 'pix' 
                       ? 'border-white bg-white/5 text-white' 
                       : 'border-[#1A1A1A] text-[#555] hover:border-white/50'
                   }`}
@@ -390,9 +401,9 @@ export default function Checkout() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('CREDIT_CARD')}
+                  onClick={() => setPaymentMethod('credit_card')}
                   className={`flex items-center justify-center gap-2 p-3 rounded-lg border transition-all ${
-                    paymentMethod === 'CREDIT_CARD' 
+                    paymentMethod === 'credit_card' 
                       ? 'border-white bg-white/5 text-white' 
                       : 'border-[#1A1A1A] text-[#555] hover:border-white/50'
                   }`}
@@ -402,7 +413,7 @@ export default function Checkout() {
                 </button>
               </div>
               
-              {paymentMethod === 'CREDIT_CARD' && (
+              {paymentMethod === 'credit_card' && (
                 <div className="p-3 bg-[#111] border border-[#1A1A1A] rounded-lg">
                   <p className="text-xs text-[#555] text-center">
                     Você será redirecionado para o ambiente seguro do Asaas para pagamento com cartão.
