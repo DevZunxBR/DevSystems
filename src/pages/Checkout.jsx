@@ -1,4 +1,4 @@
-// src/pages/Checkout.jsx - COMPLETO COM ASAAS REAL (PIX E CARTÃO)
+// src/pages/Checkout.jsx - COMPLETO CORRIGIDO
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44, supabase } from '@/api/base44Client';
@@ -10,20 +10,18 @@ import { createCustomer, createPayment, getPixQrCode } from '@/services/asaasSer
 export default function Checkout() {
   const [searchParams] = useSearchParams();
   const isDirectPurchase = searchParams.get('direct') === 'true';
-  const [finalTotal, setFinalTotal] = useState(0);
   const [items, setItems] = useState([]);
   const [wallet, setWallet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showPix, setShowPix] = useState(false);
   const [pixData, setPixData] = useState(null);
-  const [currentOrder, setCurrentOrder] = useState(null);
   const [billing, setBilling] = useState({ name: '', email: '', document: '', phone: '' });
   const [couponInput, setCouponInput] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [useWallet, setUseWallet] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('pix'); // <-- minúsculo
+  const [paymentMethod, setPaymentMethod] = useState('pix');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -148,7 +146,6 @@ export default function Checkout() {
       subtotal_amount: subtotal,
     };
 
-    // Só adiciona asaas_payment_id se a coluna existir
     if (paymentId) {
       orderData.asaas_payment_id = paymentId;
     }
@@ -190,7 +187,7 @@ export default function Checkout() {
     
     setSubmitting(true);
     try {
-      await createOrder('completed', 'free'); // <-- 'free' em vez de 'gratis'
+      await createOrder('completed', 'free');
       toast.success('Pedido realizado com sucesso!');
       navigate('/dashboard/orders');
     } catch (error) {
@@ -209,11 +206,7 @@ export default function Checkout() {
     
     setSubmitting(true);
     try {
-      // 1. Criar pedido com status 'pending' e método em minúsculo
-      const order = await createOrder('pending', paymentMethod, null);
-      setCurrentOrder(order);
-
-      // 2. Criar cliente no Asaas
+      // 1. Criar cliente no Asaas
       const customer = await createCustomer({
         name: billing.name,
         email: billing.email,
@@ -225,32 +218,33 @@ export default function Checkout() {
         throw new Error('Erro ao criar cliente no Asaas');
       }
 
-      // 3. Criar cobrança no Asaas (usando o método em maiúsculo para API)
+      console.log('Cliente criado:', customer.id);
+
+      // 2. Criar cobrança no Asaas
       const asaasMethod = paymentMethod === 'pix' ? 'PIX' : 'CREDIT_CARD';
       const payment = await createPayment({
         customerId: customer.id,
         paymentMethod: asaasMethod,
         value: total,
-        orderId: order.id,
-        description: `Pedido #${order.id}`,
+        orderId: Date.now().toString(),
+        description: `Pedido - ${billing.name}`,
       });
 
       if (!payment.id) {
         throw new Error('Erro ao criar cobrança no Asaas');
       }
 
-      // 4. Atualizar pedido com payment_id (opcional - só se a coluna existir)
-      try {
-        await base44.entities.Order.update(order.id, {
-          asaas_payment_id: payment.id
-        });
-      } catch (updateError) {
-        console.log('Coluna asaas_payment_id não existe, ignorando...');
-      }
+      console.log('Cobrança criada:', payment.id);
 
-      // 5. Se for PIX, buscar QR Code
+      // 3. Criar pedido no banco
+      const order = await createOrder('pending', paymentMethod, payment.id);
+      console.log('Pedido criado:', order.id);
+
+      // 4. Se for PIX, buscar QR Code
       if (paymentMethod === 'pix') {
         const qrData = await getPixQrCode(payment.id);
+        console.log('QR Code recebido');
+        
         setPixData({
           qrCode: qrData.encodedImage,
           payload: qrData.payload,
@@ -259,12 +253,12 @@ export default function Checkout() {
         });
         setShowPix(true);
       } else {
-        // Cartão de crédito - redireciona para página de pagamento do Asaas
+        // Cartão de crédito
         window.location.href = payment.invoiceUrl;
       }
 
     } catch (error) {
-      console.error('Erro no pagamento:', error);
+      console.error('Erro detalhado:', error);
       toast.error(error.message || 'Erro ao processar pagamento');
     } finally {
       setSubmitting(false);
@@ -327,7 +321,7 @@ export default function Checkout() {
                   className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" required />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">CPF/CNPJ (Opcional)</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">CPF (Opcional)</label>
                 <input type="text" value={billing.document} onChange={(e) => setBilling({ ...billing, document: e.target.value })}
                   placeholder="000.000.000-00"
                   className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
@@ -503,7 +497,9 @@ export default function Checkout() {
               </div>
 
               <div className="bg-white p-4 rounded-lg flex justify-center">
-                <img src={pixData.qrCode} alt="QR Code PIX" className="w-48 h-48" />
+                {pixData.qrCode && (
+                  <img src={pixData.qrCode} alt="QR Code PIX" className="w-48 h-48" />
+                )}
               </div>
 
               <div className="bg-black border border-[#1A1A1A] rounded-lg p-3">
