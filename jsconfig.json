@@ -18,6 +18,6 @@
     "resolveJsonModule": true,
     "types": []
   },
-  "include": ["src"],
+  "include": ["src", "api/asaas.js"],
   "exclude": ["node_modules", "dist"]
 }
