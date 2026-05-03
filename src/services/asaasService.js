@@ -1,49 +1,44 @@
-// src/services/asaasService.js
-// ATENÇÃO: Em produção, use o caminho completo da Vercel
-const isDev = window.location.hostname === 'localhost';
-const API_URL = isDev ? '/api/asaas' : 'https://devassetsstore.vercel.app/api/asaas';
+// src/services/asaasService.js - VERSÃO DIRETA PARA TESTE COM CORS
+const ASAAS_API_KEY = '$aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6Ojk3NzZhYWZjLTI4MDctNDUwYy05NjU4LTAzMGYwMTAyYmY3NDo6JGFhY2hfZTc4NjEwNDYtMzFlMS00ZTlhLTk0ZDQtODYzOWI3YWEyZTk5';
+const ASAAS_BASE_URL = 'https://sandbox.asaas.com/api/v3';
 
 export const createCustomer = async (customer) => {
-  const response = await fetch(API_URL, {
+  const response = await fetch(`${ASAAS_BASE_URL}/customers`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'createCustomer', ...customer }),
+    headers: {
+      'Content-Type': 'application/json',
+      'access_token': ASAAS_API_KEY,
+    },
+    body: JSON.stringify({
+      name: customer.name,
+      email: customer.email,
+      cpfCnpj: customer.document || '00000000000',
+    }),
   });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Erro ao criar cliente');
-  }
-  
   return response.json();
 };
 
-export const createPayment = async (data) => {
-  const response = await fetch(API_URL, {
+export const createPayment = async ({ customerId, paymentMethod, value, orderId, description }) => {
+  const response = await fetch(`${ASAAS_BASE_URL}/payments`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'createPayment', ...data }),
+    headers: {
+      'Content-Type': 'application/json',
+      'access_token': ASAAS_API_KEY,
+    },
+    body: JSON.stringify({
+      customer: customerId,
+      billingType: paymentMethod,
+      value: Number(value),
+      dueDate: new Date().toISOString().split('T')[0],
+      description: description || `Pedido #${orderId}`,
+    }),
   });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Erro ao criar pagamento');
-  }
-  
   return response.json();
 };
 
 export const getPixQrCode = async (paymentId) => {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'getPixQrCode', paymentId }),
+  const response = await fetch(`${ASAAS_BASE_URL}/payments/${paymentId}/pixQrCode`, {
+    headers: { 'access_token': ASAAS_API_KEY },
   });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Erro ao buscar QR Code');
-  }
-  
   return response.json();
 };
