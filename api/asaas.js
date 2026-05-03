@@ -1,9 +1,9 @@
-// api/asaas.js - Esta é uma API Serverless da Vercel
-const ASAAS_API_KEY = '$aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6Ojk3NzZhYWZjLTI4MDctNDUwYy05NjU4LTAzMGYwMTAyYmY3NDo6JGFhY2hfZTc4NjEwNDYtMzFlMS00ZTlhLTk0ZDQtODYzOWI3YWEyZTk5';
-const ASAAS_BASE_URL = 'https://sandbox.asaas.com/api/v3';
-
+// api/asaas.js
 export default async function handler(req, res) {
-  // Configurar CORS para a resposta
+  const ASAAS_API_KEY = '$aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6Ojk3NzZhYWZjLTI4MDctNDUwYy05NjU4LTAzMGYwMTAyYmY3NDo6JGFhY2hfZTc4NjEwNDYtMzFlMS00ZTlhLTk0ZDQtODYzOWI3YWEyZTk5';
+  const ASAAS_BASE_URL = 'https://sandbox.asaas.com/api/v3';
+
+  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -24,7 +24,11 @@ export default async function handler(req, res) {
       const response = await fetch(`${ASAAS_BASE_URL}/customers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'access_token': ASAAS_API_KEY },
-        body: JSON.stringify({ name: data.name, email: data.email, cpfCnpj: data.document || '00000000000' }),
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          cpfCnpj: data.document || '00000000000',
+        }),
       });
       const result = await response.json();
       return res.status(response.status).json(result);
@@ -59,6 +63,7 @@ export default async function handler(req, res) {
 
     return res.status(400).json({ error: 'Ação inválida' });
   } catch (error) {
+    console.error('Erro:', error);
     return res.status(500).json({ error: error.message });
   }
 }
