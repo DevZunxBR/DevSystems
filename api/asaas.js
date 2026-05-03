@@ -18,37 +18,59 @@ export default async function handler(req, res) {
 
   try {
     const { action, ...data } = req.body;
+    console.log('Action:', action);
+    console.log('Data recebida:', JSON.stringify(data, null, 2));
 
     // Criar cliente
     if (action === 'createCustomer') {
+      const requestBody = {
+        name: data.name,
+        email: data.email,
+        cpfCnpj: data.document || '00000000000',
+      };
+      
+      console.log('Enviando para Asaas:', JSON.stringify(requestBody, null, 2));
+
       const response = await fetch(`${ASAAS_BASE_URL}/customers`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'access_token': ASAAS_API_KEY },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          cpfCnpj: data.document || '00000000000',
-        }),
+        headers: { 
+          'Content-Type': 'application/json', 
+          'access_token': ASAAS_API_KEY 
+        },
+        body: JSON.stringify(requestBody),
       });
+
       const result = await response.json();
+      console.log('Resposta Asaas:', JSON.stringify(result, null, 2));
+
       return res.status(response.status).json(result);
     }
 
     // Criar pagamento
     if (action === 'createPayment') {
+      const requestBody = {
+        customer: data.customerId,
+        billingType: data.paymentMethod,
+        value: Number(data.value),
+        dueDate: new Date().toISOString().split('T')[0],
+        description: data.description || `Pedido #${data.orderId}`,
+        externalReference: String(data.orderId),
+      };
+
+      console.log('Enviando pagamento:', JSON.stringify(requestBody, null, 2));
+
       const response = await fetch(`${ASAAS_BASE_URL}/payments`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'access_token': ASAAS_API_KEY },
-        body: JSON.stringify({
-          customer: data.customerId,
-          billingType: data.paymentMethod,
-          value: data.value,
-          dueDate: new Date().toISOString().split('T')[0],
-          description: data.description || `Pedido #${data.orderId}`,
-          externalReference: String(data.orderId),
-        }),
+        headers: { 
+          'Content-Type': 'application/json', 
+          'access_token': ASAAS_API_KEY 
+        },
+        body: JSON.stringify(requestBody),
       });
+
       const result = await response.json();
+      console.log('Resposta pagamento:', JSON.stringify(result, null, 2));
+
       return res.status(response.status).json(result);
     }
 
@@ -61,9 +83,9 @@ export default async function handler(req, res) {
       return res.status(response.status).json(result);
     }
 
-    return res.status(400).json({ error: 'Ação inválida' });
+    return res.status(400).json({ error: 'Ação inválida: ' + action });
   } catch (error) {
-    console.error('Erro:', error);
+    console.error('Erro interno:', error);
     return res.status(500).json({ error: error.message });
   }
 }
